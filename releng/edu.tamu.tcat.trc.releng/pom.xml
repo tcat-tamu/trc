@@ -150,6 +150,7 @@
           </execution>
         </executions>
       </plugin>
+      <!--
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jarsigner-plugin</artifactId>
@@ -167,9 +168,10 @@
             <alias>1</alias>
             <storepass>${keystore.pwd}</storepass>
             <storetype>pkcs12</storetype>
-<!--             <tsa>${keystore.tsa}</tsa> -->
+< ! - -             <tsa>${keystore.tsa}</tsa> - - >
         </configuration>
       </plugin>
+      -->
     </plugins>
   </build>
 </project>
