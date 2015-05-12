@@ -8,8 +8,8 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+//import org.apache.http.impl.client.CloseableHttpClient;
+//import org.apache.http.impl.client.HttpClients;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,11 +29,11 @@ public class BibCopiesRestClientRepo implements CopyReferenceRepository
    private static final Logger logger = Logger.getLogger(BibCopiesRestClientRepo.class.getName());
    private EntryUpdateHelper<Object> listeners;
    private ObjectMapper mapper;
-   private CloseableHttpClient httpclient;
+//   private CloseableHttpClient httpclient;
 
    public void activate()
    {
-      httpclient = HttpClients.createDefault();
+//      httpclient = HttpClients.createDefault();
       listeners = new EntryUpdateHelper<>();
 
       mapper = new ObjectMapper();
@@ -42,14 +42,14 @@ public class BibCopiesRestClientRepo implements CopyReferenceRepository
 
    public void dispose()
    {
-      try
-      {
-         httpclient.close();
-      }
-      catch (IOException e)
-      {
-         logger.log(Level.SEVERE, "Failed to close HTTP Client", e);
-      }
+//      try
+//      {
+//         httpclient.close();
+//      }
+//      catch (IOException e)
+//      {
+//         logger.log(Level.SEVERE, "Failed to close HTTP Client", e);
+//      }
 
       if (listeners != null)
          listeners.close();

@@ -91,7 +91,11 @@
       <layout>p2</layout>
       <url>https://download.citd.tamu.edu/sdk</url>
     </repository>
-    
+    <repository>
+      <id>HT</id>
+      <layout>p2</layout>
+      <url>${repo-base-url}/oss.hathitrust-dev/lastSuccessfulBuild/artifact/targetPlatform/</url>
+    </repository>
   </repositories>
 
   <build>
