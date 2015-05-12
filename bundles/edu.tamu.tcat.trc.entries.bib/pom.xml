@@ -6,7 +6,7 @@
   <parent>
     <relativePath>../../../pom.xml</relativePath>
     <groupId>edu.tamu.tcat</groupId>
-    <artifactId>sda.catalog</artifactId>
+    <artifactId>trc</artifactId>
     <version>1</version>
   </parent>
 

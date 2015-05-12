@@ -47,8 +47,15 @@
     <module>oss.trc/releng/edu.tamu.tcat.trc.releng/repo.product</module>
     <module>oss.trc/releng/edu.tamu.tcat.trc.sdk.feature</module>
     
+    <module>oss.trc/bundles/edu.tamu.tcat.sda.catalog</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.bib</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.bio</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.reln</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.resources</module>
-    <module>oss.trc/tests/edu.tamu.tcat.trc.entries.types.biblio.test</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.resources.books.hathitrust</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.resources.rest</module>
+    <!-- Remove from the build until dependencies are resolved -->
+<!--     <module>oss.trc/tests/edu.tamu.tcat.trc.entries.types.biblio.test</module> -->
   </modules>
 
   <repositories>
