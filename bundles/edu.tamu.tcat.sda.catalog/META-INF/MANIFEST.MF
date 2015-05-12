@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Catalog API
+Bundle-SymbolicName: edu.tamu.tcat.catalogentries
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Texas A&M Engineering Experiment Station
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: edu.tamu.tcat.catalogentries,
+ edu.tamu.tcat.catalogentries.events,
+ edu.tamu.tcat.catalogentries.events.dv,
+ edu.tamu.tcat.sda.datastore,
+ edu.tamu.tcat.trc.entries.notification
+Import-Package: edu.tamu.tcat.db.exec.sql

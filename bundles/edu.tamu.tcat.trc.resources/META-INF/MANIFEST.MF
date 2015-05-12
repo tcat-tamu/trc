@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: TRC Digital Resources
+Bundle-SymbolicName: edu.tamu.tcat.trc.resources
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Texas A&M Engineering Experiment Station
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: edu.tamu.tcat.trc.resources.books.discovery,
+ edu.tamu.tcat.trc.resources.books.resolve,
+ edu.tamu.tcat.trc.resources.books.resolve.ext
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.10.0"
