@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature id="edu.tamu.tcat.trc.sdk.feature" version="1.0.0.qualifier">
+      <category name="edu.tamu.tcat.oss"/>
+   </feature>
+   <category-def name="edu.tamu.tcat.oss" label="TCAT OSS">
+      <description>
+         TCAT Open Source Software.
+      </description>
+   </category-def>
+</site>

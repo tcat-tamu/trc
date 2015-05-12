@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <groupId>edu.tamu.tcat</groupId>
+  <artifactId>trc</artifactId>
+  <version>1</version>
+  <packaging>pom</packaging>
+  
+  <name>TRC Library</name>
+
+  <organization>
+    <name>Texas Center for Applied Technology</name>
+    <url>http://tcat.tamu.edu</url>
+  </organization>
+  
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+      <comments></comments>
+    </license>
+  </licenses>
+  
+  <prerequisites>
+    <maven>3.0</maven>
+  </prerequisites>
+  
+  <properties>
+    <tycho-groupid>org.eclipse.tycho</tycho-groupid>
+    <tycho-version>0.22.0</tycho-version>
+    <tycho-extras-version>${tycho-version}</tycho-extras-version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <maven-plugins-groupid>org.apache.maven.plugins</maven-plugins-groupid>
+    <assembly-version>2.4</assembly-version>
+    <repo-base-url>https://build.citd.tamu.edu/hudson/job</repo-base-url>
+    <keystore.path>keystore</keystore.path>
+    <keystore.pwd></keystore.pwd>
+<!--     <keystore.tsa>http://timestamp.comodoca.com/rfc3161</keystore.tsa> -->
+  </properties>
+  
+  <modules>
+    <module>oss.trc/releng/edu.tamu.tcat.trc.releng/repo.product</module>
+    <module>oss.trc/releng/edu.tamu.tcat.trc.sdk.feature</module>
+    
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.resources</module>
+    <module>oss.trc/tests/edu.tamu.tcat.trc.entries.types.biblio.test</module>
+  </modules>
+
+  <repositories>
+    <repository>
+      <id>Eclipse Platform</id>
+      <layout>p2</layout>
+<!--       <url>http://download.eclipse.org/releases/luna/</url> -->
+      <url>${repo-base-url}/Eclipse.Repository.Mirror.Luna/lastSuccessfulBuild/artifact/target/repository/</url>
+    </repository>
+    <repository>
+      <id>Eclipse Orbit</id>
+      <layout>p2</layout>
+      <url>${repo-base-url}/Eclipse%20Orbit%20Repository%20Mirror/lastSuccessfulBuild/artifact/target/repository/</url>
+    </repository>
+    <repository>
+      <id>Mirror.Deps</id>
+      <layout>p2</layout>
+      <url>${repo-base-url}/mirror.dependencies/lastSuccessfulBuild/artifact/targetPlatform/</url>
+    </repository>
+    <repository>
+      <id>Jackson</id>
+      <layout>p2</layout>
+      <url>${repo-base-url}/Jackson.P2/lastSuccessfulBuild/artifact/targetPlatform/</url>
+    </repository>
+    <repository>
+      <id>JAX-RS</id>
+      <layout>p2</layout>
+      <url>${repo-base-url}/JAX-RS.Mirror/lastSuccessfulBuild/artifact/target/repository/</url>
+    </repository>
+    
+    <repository>
+      <id>CITD Releases</id>
+      <layout>p2</layout>
+      <url>https://download.citd.tamu.edu/sdk</url>
+    </repository>
+    
+  </repositories>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <extensions>true</extensions>
+      </plugin>
+      <plugin>
+        <groupId>${tycho-groupid}</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <environments>
+            <environment>
+              <os>linux</os>
+              <ws>gtk</ws>
+              <arch>x86_64</arch>
+            </environment>
+          </environments>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>${tycho-groupid}</groupId>
+        <artifactId>tycho-packaging-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.eclipse.tycho.extras</groupId>
+            <artifactId>tycho-buildtimestamp-jgit</artifactId>
+            <version>${tycho-extras-version}</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <timestampProvider>jgit</timestampProvider>
+          <format>yyyyMMdd-HHmm</format>
+          <jgit.dirtyWorkingTree>warning</jgit.dirtyWorkingTree>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-source-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <executions>
+          <execution>
+            <id>plugin-source</id>
+            <goals>
+              <goal>plugin-source</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jarsigner-plugin</artifactId>
+        <version>1.4</version>
+        <executions>
+            <execution>
+                <id>sign</id>
+                <goals>
+                    <goal>sign</goal>
+                </goals>
+            </execution>
+        </executions>
+        <configuration>
+            <keystore>${keystore.path}</keystore>
+            <alias>1</alias>
+            <storepass>${keystore.pwd}</storepass>
+            <storetype>pkcs12</storetype>
+<!--             <tsa>${keystore.tsa}</tsa> -->
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
