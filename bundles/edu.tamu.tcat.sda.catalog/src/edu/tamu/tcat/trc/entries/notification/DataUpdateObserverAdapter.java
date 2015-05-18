@@ -34,7 +34,7 @@ public class DataUpdateObserverAdapter<R> implements DataUpdateObserver<R>
       synchronized (state)
       {
          if (isCompleted())
-            throw new IllegalStateException();
+            throw new IllegalStateException("Cannot start update observer adapter: already completed.");
 
          try
          {

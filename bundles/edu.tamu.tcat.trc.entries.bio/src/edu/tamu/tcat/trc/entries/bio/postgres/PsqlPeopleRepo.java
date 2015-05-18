@@ -48,10 +48,6 @@ public class PsqlPeopleRepo implements PeopleRepository
    private static final String UPDATE_SQL = "UPDATE people SET historical_figure = ?, modified = now() WHERE id = ?";
    private final static String DELETE_SQL =  "UPDATE people SET active = false, modified = now() WHERE id = ?";
 
-   private final PeopleChangeNotifier createdNotifier = new PeopleChangeNotifier(ChangeType.CREATED);
-   private final PeopleChangeNotifier modifiedNotifier = new PeopleChangeNotifier(ChangeType.MODIFIED);
-   private final PeopleChangeNotifier deletedNotifier = new PeopleChangeNotifier(ChangeType.DELETED);
-
    private static final String ID_CONTEXT = "people";
    private SqlExecutor exec;
    private IdFactory idFactory;
@@ -222,6 +218,7 @@ public class PsqlPeopleRepo implements PeopleRepository
 
       EditPeopleCommandImpl command = new EditPeopleCommandImpl(dto);
       command.setCommitHook((p) -> {
+         PeopleChangeNotifier createdNotifier = new PeopleChangeNotifier(ChangeType.CREATED);
          ObservableTaskWrapper<String> wrappedTask = new ObservableTaskWrapper<String>(makeCreateTask(p), createdNotifier);
 
          return exec.submit(wrappedTask);
@@ -236,6 +233,7 @@ public class PsqlPeopleRepo implements PeopleRepository
    {
       EditPeopleCommandImpl command = new EditPeopleCommandImpl(dto);
       command.setCommitHook((p) -> {
+         PeopleChangeNotifier modifiedNotifier = new PeopleChangeNotifier(ChangeType.MODIFIED);
          ObservableTaskWrapper<String> wrappedTask = new ObservableTaskWrapper<String>(makeUpdateTask(p), modifiedNotifier);
 
          return exec.submit(wrappedTask);
@@ -251,6 +249,7 @@ public class PsqlPeopleRepo implements PeopleRepository
       PersonDV dto = PersonDV.create(get(personId));
       EditPeopleCommandImpl command = new EditPeopleCommandImpl(dto);
       command.setCommitHook((p) -> {
+         PeopleChangeNotifier deletedNotifier = new PeopleChangeNotifier(ChangeType.DELETED);
          ObservableTaskWrapper<String> wrappedTask = new ObservableTaskWrapper<String>(makeDeleteTask(personId), deletedNotifier);
 
          return exec.submit(wrappedTask);
