@@ -1,11 +1,11 @@
-package edu.tamu.tcat.trc.entries.bio;
+package edu.tamu.tcat.trc.entries.types.bio;
 
 import java.util.Set;
 import java.util.concurrent.Future;
 
 import edu.tamu.tcat.catalogentries.events.dv.HistoricalEventDV;
-import edu.tamu.tcat.trc.entries.bio.dv.PersonDV;
-import edu.tamu.tcat.trc.entries.bio.dv.PersonNameDV;
+import edu.tamu.tcat.trc.entries.types.bio.dv.PersonDV;
+import edu.tamu.tcat.trc.entries.types.bio.dv.PersonNameDV;
 
 public interface EditPeopleCommand
 {

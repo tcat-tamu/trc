@@ -1,6 +1,6 @@
-package edu.tamu.tcat.trc.entries.bio.dv;
+package edu.tamu.tcat.trc.entries.types.bio.dv;
 
-import edu.tamu.tcat.trc.entries.bio.PersonName;
+import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 
 public class PersonNameDV
 {

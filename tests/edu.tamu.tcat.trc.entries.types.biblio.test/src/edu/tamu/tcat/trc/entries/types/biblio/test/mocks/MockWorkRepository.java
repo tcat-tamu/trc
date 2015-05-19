@@ -14,7 +14,7 @@ import edu.tamu.tcat.trc.entries.bib.Work;
 import edu.tamu.tcat.trc.entries.bib.WorkRepository;
 import edu.tamu.tcat.trc.entries.bib.WorksChangeEvent;
 import edu.tamu.tcat.trc.entries.bib.dto.WorkDV;
-import edu.tamu.tcat.trc.entries.bio.Person;
+import edu.tamu.tcat.trc.entries.types.bio.Person;
 
 /**
  * In memory implementation of the {@link WorkRepository} for use in testing.

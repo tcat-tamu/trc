@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.bio;
+package edu.tamu.tcat.trc.entries.types.bio;
 
 public interface PeopleChangeEvent
 {

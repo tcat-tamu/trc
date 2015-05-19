@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.bio.postgres;
+package edu.tamu.tcat.trc.entries.types.bio.postgres;
 
 import java.io.IOException;
 import java.sql.PreparedStatement;
@@ -29,14 +29,14 @@ import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.sda.catalog.psql.ExecutionFailedException;
 import edu.tamu.tcat.sda.catalog.psql.ObservableTaskWrapper;
 import edu.tamu.tcat.sda.datastore.DataUpdateObserverAdapter;
-import edu.tamu.tcat.trc.entries.bio.EditPeopleCommand;
-import edu.tamu.tcat.trc.entries.bio.PeopleChangeEvent;
-import edu.tamu.tcat.trc.entries.bio.PeopleChangeEvent.ChangeType;
-import edu.tamu.tcat.trc.entries.bio.PeopleRepository;
-import edu.tamu.tcat.trc.entries.bio.Person;
-import edu.tamu.tcat.trc.entries.bio.PersonName;
-import edu.tamu.tcat.trc.entries.bio.PersonNotAvailableException;
-import edu.tamu.tcat.trc.entries.bio.dv.PersonDV;
+import edu.tamu.tcat.trc.entries.types.bio.EditPeopleCommand;
+import edu.tamu.tcat.trc.entries.types.bio.PeopleChangeEvent;
+import edu.tamu.tcat.trc.entries.types.bio.PeopleRepository;
+import edu.tamu.tcat.trc.entries.types.bio.Person;
+import edu.tamu.tcat.trc.entries.types.bio.PersonName;
+import edu.tamu.tcat.trc.entries.types.bio.PersonNotAvailableException;
+import edu.tamu.tcat.trc.entries.types.bio.PeopleChangeEvent.ChangeType;
+import edu.tamu.tcat.trc.entries.types.bio.dv.PersonDV;
 
 public class PsqlPeopleRepo implements PeopleRepository
 {

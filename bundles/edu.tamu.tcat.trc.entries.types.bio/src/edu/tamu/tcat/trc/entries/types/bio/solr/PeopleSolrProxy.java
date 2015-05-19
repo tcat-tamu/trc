@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.bio.solr;
+package edu.tamu.tcat.trc.entries.types.bio.solr;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -12,10 +12,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import edu.tamu.tcat.catalogentries.events.dv.DateDescriptionDV;
 import edu.tamu.tcat.catalogentries.events.dv.HistoricalEventDV;
-import edu.tamu.tcat.trc.entries.bio.Person;
-import edu.tamu.tcat.trc.entries.bio.dv.PersonDV;
-import edu.tamu.tcat.trc.entries.bio.dv.PersonNameDV;
-import edu.tamu.tcat.trc.entries.bio.rest.v1.SimplePersonResultDV;
+import edu.tamu.tcat.trc.entries.types.bio.Person;
+import edu.tamu.tcat.trc.entries.types.bio.dv.PersonDV;
+import edu.tamu.tcat.trc.entries.types.bio.dv.PersonNameDV;
+import edu.tamu.tcat.trc.entries.types.bio.rest.v1.SimplePersonResultDV;
 
 public class PeopleSolrProxy
 {

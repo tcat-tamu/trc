@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.bio.postgres;
+package edu.tamu.tcat.trc.entries.types.bio.postgres;
 
 import java.util.Objects;
 import java.util.Set;
@@ -6,9 +6,9 @@ import java.util.concurrent.Future;
 import java.util.function.Function;
 
 import edu.tamu.tcat.catalogentries.events.dv.HistoricalEventDV;
-import edu.tamu.tcat.trc.entries.bio.EditPeopleCommand;
-import edu.tamu.tcat.trc.entries.bio.dv.PersonDV;
-import edu.tamu.tcat.trc.entries.bio.dv.PersonNameDV;
+import edu.tamu.tcat.trc.entries.types.bio.EditPeopleCommand;
+import edu.tamu.tcat.trc.entries.types.bio.dv.PersonDV;
+import edu.tamu.tcat.trc.entries.types.bio.dv.PersonNameDV;
 
 public class EditPeopleCommandImpl implements EditPeopleCommand
 {

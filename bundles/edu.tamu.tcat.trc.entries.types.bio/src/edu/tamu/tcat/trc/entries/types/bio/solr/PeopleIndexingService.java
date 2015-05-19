@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.bio.solr;
+package edu.tamu.tcat.trc.entries.types.bio.solr;
 
 import java.io.IOException;
 import java.net.URI;
@@ -14,12 +14,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.bio.PeopleChangeEvent;
-import edu.tamu.tcat.trc.entries.bio.PeopleIndexServiceManager;
-import edu.tamu.tcat.trc.entries.bio.PeopleQueryCommand;
-import edu.tamu.tcat.trc.entries.bio.PeopleRepository;
-import edu.tamu.tcat.trc.entries.bio.PeopleSearchService;
-import edu.tamu.tcat.trc.entries.bio.Person;
+import edu.tamu.tcat.trc.entries.types.bio.PeopleChangeEvent;
+import edu.tamu.tcat.trc.entries.types.bio.PeopleIndexServiceManager;
+import edu.tamu.tcat.trc.entries.types.bio.PeopleQueryCommand;
+import edu.tamu.tcat.trc.entries.types.bio.PeopleRepository;
+import edu.tamu.tcat.trc.entries.types.bio.PeopleSearchService;
+import edu.tamu.tcat.trc.entries.types.bio.Person;
 
 public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleSearchService
 {

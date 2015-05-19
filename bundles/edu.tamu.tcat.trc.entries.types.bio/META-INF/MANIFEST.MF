@@ -5,11 +5,11 @@ Bundle-SymbolicName: edu.tamu.tcat.trc.entries.types.bio
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Texas A&M Engineering Experiment Station
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: edu.tamu.tcat.trc.entries.bio,
- edu.tamu.tcat.trc.entries.bio.dv,
- edu.tamu.tcat.trc.entries.bio.postgres,
- edu.tamu.tcat.trc.entries.bio.rest.v1,
- edu.tamu.tcat.trc.entries.bio.solr
+Export-Package: edu.tamu.tcat.trc.entries.types.bio,
+ edu.tamu.tcat.trc.entries.types.bio.dv,
+ edu.tamu.tcat.trc.entries.types.bio.postgres,
+ edu.tamu.tcat.trc.entries.types.bio.rest.v1,
+ edu.tamu.tcat.trc.entries.types.bio.solr
 Import-Package: com.fasterxml.jackson.annotation;version="2.3.1",
  com.fasterxml.jackson.core;version="2.3.1",
  com.fasterxml.jackson.databind;version="2.3.1",

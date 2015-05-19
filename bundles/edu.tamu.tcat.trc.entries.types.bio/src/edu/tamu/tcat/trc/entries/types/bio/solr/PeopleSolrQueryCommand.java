@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.bio.solr;
+package edu.tamu.tcat.trc.entries.types.bio.solr;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,8 +16,8 @@ import org.apache.solr.common.SolrDocumentList;
 
 import com.google.common.base.Joiner;
 
-import edu.tamu.tcat.trc.entries.bio.PeopleQueryCommand;
-import edu.tamu.tcat.trc.entries.bio.rest.v1.SimplePersonResultDV;
+import edu.tamu.tcat.trc.entries.types.bio.PeopleQueryCommand;
+import edu.tamu.tcat.trc.entries.types.bio.rest.v1.SimplePersonResultDV;
 
 public class PeopleSolrQueryCommand implements PeopleQueryCommand
 {

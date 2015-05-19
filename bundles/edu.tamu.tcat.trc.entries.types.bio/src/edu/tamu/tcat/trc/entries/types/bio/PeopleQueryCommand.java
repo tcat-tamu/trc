@@ -1,8 +1,8 @@
-package edu.tamu.tcat.trc.entries.bio;
+package edu.tamu.tcat.trc.entries.types.bio;
 
 import java.util.List;
 
-import edu.tamu.tcat.trc.entries.bio.rest.v1.SimplePersonResultDV;
+import edu.tamu.tcat.trc.entries.types.bio.rest.v1.SimplePersonResultDV;
 
 public interface PeopleQueryCommand
 {

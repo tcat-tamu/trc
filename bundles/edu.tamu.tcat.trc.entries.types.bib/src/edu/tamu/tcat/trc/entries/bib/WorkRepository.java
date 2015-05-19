@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
 import edu.tamu.tcat.sda.datastore.DataStore;
-import edu.tamu.tcat.trc.entries.bio.Person;
+import edu.tamu.tcat.trc.entries.types.bio.Person;
 
 /**
  * Provides the main point of access for creating, editing and querying works.
