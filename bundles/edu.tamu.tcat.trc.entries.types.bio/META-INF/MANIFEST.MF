@@ -8,6 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: edu.tamu.tcat.trc.entries.types.bio,
  edu.tamu.tcat.trc.entries.types.bio.dv,
  edu.tamu.tcat.trc.entries.types.bio.postgres,
+ edu.tamu.tcat.trc.entries.types.bio.repo,
  edu.tamu.tcat.trc.entries.types.bio.rest.v1,
  edu.tamu.tcat.trc.entries.types.bio.solr
 Import-Package: com.fasterxml.jackson.annotation;version="2.3.1",

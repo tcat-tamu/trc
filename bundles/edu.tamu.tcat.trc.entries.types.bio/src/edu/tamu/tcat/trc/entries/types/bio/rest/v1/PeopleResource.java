@@ -1,6 +1,5 @@
 package edu.tamu.tcat.trc.entries.types.bio.rest.v1;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
@@ -17,14 +16,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import edu.tamu.tcat.catalogentries.CatalogRepoException;
 import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
-import edu.tamu.tcat.trc.entries.types.bio.EditPeopleCommand;
-import edu.tamu.tcat.trc.entries.types.bio.PeopleQueryCommand;
-import edu.tamu.tcat.trc.entries.types.bio.PeopleRepository;
-import edu.tamu.tcat.trc.entries.types.bio.PeopleSearchService;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.dv.PersonDV;
+import edu.tamu.tcat.trc.entries.types.bio.repo.EditPeopleCommand;
+import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
+import edu.tamu.tcat.trc.entries.types.bio.search.PeopleQueryCommand;
+import edu.tamu.tcat.trc.entries.types.bio.search.PeopleSearchService;
 
 
 @Path("/people")

@@ -29,14 +29,14 @@ import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.sda.catalog.psql.ExecutionFailedException;
 import edu.tamu.tcat.sda.catalog.psql.ObservableTaskWrapper;
 import edu.tamu.tcat.sda.datastore.DataUpdateObserverAdapter;
-import edu.tamu.tcat.trc.entries.types.bio.EditPeopleCommand;
-import edu.tamu.tcat.trc.entries.types.bio.PeopleChangeEvent;
-import edu.tamu.tcat.trc.entries.types.bio.PeopleRepository;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
-import edu.tamu.tcat.trc.entries.types.bio.PersonNotAvailableException;
-import edu.tamu.tcat.trc.entries.types.bio.PeopleChangeEvent.ChangeType;
 import edu.tamu.tcat.trc.entries.types.bio.dv.PersonDV;
+import edu.tamu.tcat.trc.entries.types.bio.repo.EditPeopleCommand;
+import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleChangeEvent;
+import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleChangeEvent.ChangeType;
+import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
+import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNotAvailableException;
 
 public class PsqlPeopleRepo implements PeopleRepository
 {

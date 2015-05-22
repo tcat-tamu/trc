@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.bio;
+package edu.tamu.tcat.trc.entries.types.bio.repo;
 
 public class PersonNotAvailableException extends Exception
 {

@@ -16,8 +16,8 @@ import org.apache.solr.common.SolrDocumentList;
 
 import com.google.common.base.Joiner;
 
-import edu.tamu.tcat.trc.entries.types.bio.PeopleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.SimplePersonResultDV;
+import edu.tamu.tcat.trc.entries.types.bio.search.PeopleQueryCommand;
 
 public class PeopleSolrQueryCommand implements PeopleQueryCommand
 {

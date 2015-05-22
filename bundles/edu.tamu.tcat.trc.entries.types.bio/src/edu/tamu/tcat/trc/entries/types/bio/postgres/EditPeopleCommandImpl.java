@@ -6,9 +6,9 @@ import java.util.concurrent.Future;
 import java.util.function.Function;
 
 import edu.tamu.tcat.catalogentries.events.dv.HistoricalEventDV;
-import edu.tamu.tcat.trc.entries.types.bio.EditPeopleCommand;
 import edu.tamu.tcat.trc.entries.types.bio.dv.PersonDV;
 import edu.tamu.tcat.trc.entries.types.bio.dv.PersonNameDV;
+import edu.tamu.tcat.trc.entries.types.bio.repo.EditPeopleCommand;
 
 public class EditPeopleCommandImpl implements EditPeopleCommand
 {

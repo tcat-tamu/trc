@@ -1,12 +1,17 @@
-package edu.tamu.tcat.trc.entries.types.bio;
+package edu.tamu.tcat.trc.entries.types.bio.repo;
 
 import java.util.Set;
 import java.util.concurrent.Future;
 
 import edu.tamu.tcat.catalogentries.events.dv.HistoricalEventDV;
+import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.dv.PersonDV;
 import edu.tamu.tcat.trc.entries.types.bio.dv.PersonNameDV;
 
+/**
+ * A command allowing editing of new or existing {@link Person} entries in a
+ * {@link PeopleRepository}.
+ */
 public interface EditPeopleCommand
 {
    /**

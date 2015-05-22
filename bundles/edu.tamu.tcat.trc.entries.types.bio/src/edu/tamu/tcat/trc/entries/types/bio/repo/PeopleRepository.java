@@ -1,14 +1,14 @@
-package edu.tamu.tcat.trc.entries.types.bio;
+package edu.tamu.tcat.trc.entries.types.bio.repo;
 
 import java.util.function.Consumer;
 
 import edu.tamu.tcat.catalogentries.CatalogRepoException;
 import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
 import edu.tamu.tcat.sda.datastore.DataUpdateObserver;
+import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.dv.PersonDV;
 
 /**
- *
  *
  */
 public interface PeopleRepository

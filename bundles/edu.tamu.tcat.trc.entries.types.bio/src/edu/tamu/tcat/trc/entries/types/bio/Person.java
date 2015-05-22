@@ -27,7 +27,7 @@ public interface Person
     * @return a set of alternative names for this person.
     * @see #getCanonicalName()
     */
-   Set<PersonName> getAlternativeNames();
+   Set<? extends PersonName> getAlternativeNames();
 
    /**
     * @return The date of this person's birth. NOTE that this API is provisional and will likely change

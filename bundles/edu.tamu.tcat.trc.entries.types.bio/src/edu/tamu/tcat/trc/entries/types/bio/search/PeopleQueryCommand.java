@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.bio;
+package edu.tamu.tcat.trc.entries.types.bio.search;
 
 import java.util.List;
 
