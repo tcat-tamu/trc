@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.bio.dv;
+package edu.tamu.tcat.trc.entries.types.bio.dto;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -16,27 +16,27 @@ import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 /**
  * Represents a Person
  */
-public class PersonDV
+public class PersonDTO
 {
    public String id;
-   public PersonNameDV displayName;
-   public Set<PersonNameDV> names;
+   public PersonNameDTO displayName;
+   public Set<PersonNameDTO> names;
    public HistoricalEventDV birth;
    public HistoricalEventDV death;
    public String summary;
 
-   public static PersonDV create(Person figure)
+   public static PersonDTO create(Person figure)
    {
-      PersonDV dto = new PersonDV();
+      PersonDTO dto = new PersonDTO();
       dto.id = figure.getId();
 
       PersonName canonicalName = figure.getCanonicalName();
       if (canonicalName != null) {
-         dto.displayName = PersonNameDV.create(canonicalName);
+         dto.displayName = PersonNameDTO.create(canonicalName);
       }
 
       dto.names = figure.getAlternativeNames().stream()
-                     .map(PersonNameDV::create)
+                     .map(PersonNameDTO::create)
                      .collect(Collectors.toSet());
 
       dto.birth = new HistoricalEventDV(figure.getBirth());
@@ -46,13 +46,13 @@ public class PersonDV
       return dto;
    }
 
-   public static Person instantiate(PersonDV figure)
+   public static Person instantiate(PersonDTO figure)
    {
       PersonImpl person = new PersonImpl();
       person.id = figure.id;
       person.canonicalName = getCanonicalName(figure);
       person.names = figure.names.stream()
-                        .map(PersonNameDV::instantiate)
+                        .map(PersonNameDTO::instantiate)
                         .collect(Collectors.toSet());
 
       person.birth = new HistoricalEventImpl(figure.birth);
@@ -70,23 +70,23 @@ public class PersonDV
     * @param figure
     * @return canonical name for this person
     */
-   private static PersonName getCanonicalName(PersonDV figure)
+   private static PersonName getCanonicalName(PersonDTO figure)
    {
       // try the 'displayName' first
       if (figure.displayName != null) {
-         return PersonNameDV.instantiate(figure.displayName);
+         return PersonNameDTO.instantiate(figure.displayName);
       }
 
       // fall back to using the first element of the 'names' set
       if (!figure.names.isEmpty()) {
-         PersonNameDV nameDV = figure.names.iterator().next();
-         return PersonNameDV.instantiate(nameDV);
+         PersonNameDTO nameDV = figure.names.iterator().next();
+         return PersonNameDTO.instantiate(nameDV);
       }
 
       // fall back to "Name Unknown" if this person does not have any names
-      PersonNameDV fallbackName = new PersonNameDV();
+      PersonNameDTO fallbackName = new PersonNameDTO();
       fallbackName.displayName = "Name Unknown";
-      return PersonNameDV.instantiate(fallbackName);
+      return PersonNameDTO.instantiate(fallbackName);
    }
 
 
@@ -95,7 +95,7 @@ public class PersonDV
    {
       StringBuilder sb = new StringBuilder();
 
-      for (PersonNameDV name : names)
+      for (PersonNameDTO name : names)
       {
          if (name.displayName != null)
          {
@@ -126,9 +126,9 @@ public class PersonDV
    }
 
    @JsonIgnore
-   public Set<PersonNameDV> getAllNames()
+   public Set<PersonNameDTO> getAllNames()
    {
-      Set<PersonNameDV> allNames = new HashSet<>(this.names);
+      Set<PersonNameDTO> allNames = new HashSet<>(this.names);
       allNames.add(this.displayName);
       return allNames;
    }

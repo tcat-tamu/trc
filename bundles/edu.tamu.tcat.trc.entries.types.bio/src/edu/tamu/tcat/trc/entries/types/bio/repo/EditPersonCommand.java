@@ -5,33 +5,33 @@ import java.util.concurrent.Future;
 
 import edu.tamu.tcat.catalogentries.events.dv.HistoricalEventDV;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
-import edu.tamu.tcat.trc.entries.types.bio.dv.PersonDV;
-import edu.tamu.tcat.trc.entries.types.bio.dv.PersonNameDV;
+import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
+import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
 
 /**
  * A command allowing editing of new or existing {@link Person} entries in a
  * {@link PeopleRepository}.
  */
-public interface EditPeopleCommand
+public interface EditPersonCommand
 {
    /**
-    * Sets all properties given the supplied {@link PersonDV}
+    * Sets all properties given the supplied {@link PersonDTO}
     *
     * @param person The data vehicle used to update the person.
     */
-   void setAll(PersonDV person);
+   void setAll(PersonDTO person);
 
    /**
     * Updates the set of all names given to the person
     * @param names
     */
-   void setNames(Set<PersonNameDV> names);
+   void setNames(Set<PersonNameDTO> names);
 
    /**
     * Updates the cannonical name of the person
     * @param personName
     */
-   void setName(PersonNameDV personName);
+   void setName(PersonNameDTO personName);
 
    /**
     * Updates the persons birth as a historical event

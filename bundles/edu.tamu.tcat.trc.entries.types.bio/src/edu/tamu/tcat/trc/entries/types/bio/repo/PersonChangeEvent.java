@@ -5,7 +5,7 @@ import edu.tamu.tcat.trc.entries.types.bio.Person;
 /**
  * An event notification sent from a {@link PeopleRepository} due to a data change.
  */
-public interface PeopleChangeEvent
+public interface PersonChangeEvent
 {
 
    enum ChangeType {

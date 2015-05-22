@@ -1,8 +1,8 @@
-package edu.tamu.tcat.trc.entries.types.bio.dv;
+package edu.tamu.tcat.trc.entries.types.bio.dto;
 
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 
-public class PersonNameDV
+public class PersonNameDTO
 {
    public String title;
    public String givenName;
@@ -15,9 +15,9 @@ public class PersonNameDV
    /**
     * Create a new data vehicle from the supplied {@link PersonName}.
     */
-   public static PersonNameDV create(PersonName name)
+   public static PersonNameDTO create(PersonName name)
    {
-      PersonNameDV dto = new PersonNameDV();
+      PersonNameDTO dto = new PersonNameDTO();
 
       dto.title = name.getTitle();
       dto.givenName = name.getGivenName();
@@ -31,7 +31,7 @@ public class PersonNameDV
    }
 
 
-   public static PersonNameImpl instantiate(PersonNameDV personDV)
+   public static PersonNameImpl instantiate(PersonNameDTO personDV)
    {
       PersonNameImpl name = new PersonNameImpl();
       name.title = personDV.title;

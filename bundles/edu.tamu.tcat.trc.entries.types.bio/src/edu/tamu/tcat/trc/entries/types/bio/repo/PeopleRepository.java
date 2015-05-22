@@ -6,7 +6,7 @@ import edu.tamu.tcat.catalogentries.CatalogRepoException;
 import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
 import edu.tamu.tcat.sda.datastore.DataUpdateObserver;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
-import edu.tamu.tcat.trc.entries.types.bio.dv.PersonDV;
+import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
 
 /**
  *
@@ -51,7 +51,7 @@ public interface PeopleRepository
     * @param observer An optional observer that will be notified upon success or failure of
     *       this operation.
     */
-   EditPeopleCommand create();
+   EditPersonCommand create();
 
    /**
     * Updates the entry for the supplied historical figure. Note that this assumes that the
@@ -67,7 +67,7 @@ public interface PeopleRepository
     *       this operation.
     * @throws NoSuchCatalogRecordException
     */
-   EditPeopleCommand update(PersonDV personId) throws NoSuchCatalogRecordException;
+   EditPersonCommand update(PersonDTO personId) throws NoSuchCatalogRecordException;
 
    /**
     * Marks the entry for the identified person as having been deleted. References to this
@@ -82,7 +82,7 @@ public interface PeopleRepository
     * @return
     * @throws NoSuchCatalogRecordException
     */
-   EditPeopleCommand delete(String personId) throws NoSuchCatalogRecordException;
+   EditPersonCommand delete(String personId) throws NoSuchCatalogRecordException;
 
    /**
     * Add listener to be notified whenever a biography has been modified (created, updated or deleted).
@@ -92,5 +92,5 @@ public interface PeopleRepository
     * @param ears The listener to be added.
     * @return A registration handle that allows the listener to be removed.
     */
-   AutoCloseable addUpdateListener(Consumer<PeopleChangeEvent> ears);
+   AutoCloseable addUpdateListener(Consumer<PersonChangeEvent> ears);
 }

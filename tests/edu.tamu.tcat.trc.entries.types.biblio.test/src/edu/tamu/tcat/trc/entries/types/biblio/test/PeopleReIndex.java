@@ -20,7 +20,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import edu.tamu.tcat.catalogentries.CatalogRepoException;
-import edu.tamu.tcat.catalogentries.IdFactory;
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;

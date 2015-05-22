@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import edu.tamu.tcat.catalogentries.IdFactory;
 import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.bib.AuthorReference;
 import edu.tamu.tcat.trc.entries.bib.EditWorkCommand;
@@ -14,6 +13,7 @@ import edu.tamu.tcat.trc.entries.bib.Work;
 import edu.tamu.tcat.trc.entries.bib.WorkRepository;
 import edu.tamu.tcat.trc.entries.bib.WorksChangeEvent;
 import edu.tamu.tcat.trc.entries.bib.dto.WorkDV;
+import edu.tamu.tcat.trc.entries.core.IdFactory;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 
 /**

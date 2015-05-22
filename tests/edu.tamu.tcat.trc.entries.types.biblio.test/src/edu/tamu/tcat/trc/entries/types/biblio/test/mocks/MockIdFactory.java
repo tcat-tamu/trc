@@ -3,7 +3,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.test.mocks;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import edu.tamu.tcat.catalogentries.IdFactory;
+import edu.tamu.tcat.trc.entries.core.IdFactory;
 
 public class MockIdFactory implements IdFactory
 {

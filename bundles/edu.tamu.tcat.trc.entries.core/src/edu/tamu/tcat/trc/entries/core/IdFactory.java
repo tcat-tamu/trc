@@ -1,4 +1,4 @@
-package edu.tamu.tcat.catalogentries;
+package edu.tamu.tcat.trc.entries.core;
 
 /**
  * A service for creating identifiers for catalog entries. Identifiers are guaranteed to be

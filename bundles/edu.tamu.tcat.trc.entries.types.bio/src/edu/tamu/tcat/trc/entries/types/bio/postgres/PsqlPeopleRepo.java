@@ -23,21 +23,24 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.catalogentries.CatalogRepoException;
-import edu.tamu.tcat.catalogentries.IdFactory;
 import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.sda.catalog.psql.ExecutionFailedException;
 import edu.tamu.tcat.sda.catalog.psql.ObservableTaskWrapper;
 import edu.tamu.tcat.sda.datastore.DataUpdateObserverAdapter;
+import edu.tamu.tcat.trc.entries.core.IdFactory;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
-import edu.tamu.tcat.trc.entries.types.bio.dv.PersonDV;
-import edu.tamu.tcat.trc.entries.types.bio.repo.EditPeopleCommand;
-import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleChangeEvent;
-import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleChangeEvent.ChangeType;
+import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
+import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
+import edu.tamu.tcat.trc.entries.types.bio.repo.PersonChangeEvent;
+import edu.tamu.tcat.trc.entries.types.bio.repo.PersonChangeEvent.ChangeType;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNotAvailableException;
 
+/**
+ * A repository implementation intended to be registered as a service.
+ */
 public class PsqlPeopleRepo implements PeopleRepository
 {
    private static final Logger logger = Logger.getLogger(PsqlPeopleRepo.class.getName());
@@ -54,22 +57,25 @@ public class PsqlPeopleRepo implements PeopleRepository
    private ObjectMapper mapper;
 
    private ExecutorService notifications;
-   private final CopyOnWriteArrayList<Consumer<PeopleChangeEvent>> listeners = new CopyOnWriteArrayList<>();
+   private final CopyOnWriteArrayList<Consumer<PersonChangeEvent>> listeners = new CopyOnWriteArrayList<>();
 
    public PsqlPeopleRepo()
    {
    }
 
+   // Dependency Inject
    public void setDatabaseExecutor(SqlExecutor exec)
    {
       this.exec = exec;
    }
 
+   // Dependency Inject
    public void setIdFactory(IdFactory factory)
    {
       this.idFactory = factory;
    }
 
+   // DS entry point
    public void activate()
    {
       Objects.requireNonNull(exec);
@@ -81,6 +87,7 @@ public class PsqlPeopleRepo implements PeopleRepository
       notifications = Executors.newCachedThreadPool();
    }
 
+   // DS disposal
    public void dispose()
    {
       this.mapper = null;
@@ -211,9 +218,9 @@ public class PsqlPeopleRepo implements PeopleRepository
    }
 
    @Override
-   public EditPeopleCommand create()
+   public EditPersonCommand create()
    {
-      PersonDV dto = new PersonDV();
+      PersonDTO dto = new PersonDTO();
       dto.id = idFactory.getNextId(ID_CONTEXT);
 
       EditPeopleCommandImpl command = new EditPeopleCommandImpl(dto);
@@ -229,7 +236,7 @@ public class PsqlPeopleRepo implements PeopleRepository
    }
 
    @Override
-   public EditPeopleCommand update(PersonDV dto) throws NoSuchCatalogRecordException
+   public EditPersonCommand update(PersonDTO dto) throws NoSuchCatalogRecordException
    {
       EditPeopleCommandImpl command = new EditPeopleCommandImpl(dto);
       command.setCommitHook((p) -> {
@@ -244,9 +251,9 @@ public class PsqlPeopleRepo implements PeopleRepository
    }
 
    @Override
-   public EditPeopleCommand delete(final String personId) throws NoSuchCatalogRecordException
+   public EditPersonCommand delete(final String personId) throws NoSuchCatalogRecordException
    {
-      PersonDV dto = PersonDV.create(get(personId));
+      PersonDTO dto = PersonDTO.create(get(personId));
       EditPeopleCommandImpl command = new EditPeopleCommandImpl(dto);
       command.setCommitHook((p) -> {
          PeopleChangeNotifier deletedNotifier = new PeopleChangeNotifier(ChangeType.DELETED);
@@ -279,7 +286,7 @@ public class PsqlPeopleRepo implements PeopleRepository
       };
    }
 
-   private SqlExecutor.ExecutorTask<String> makeCreateTask(final PersonDV histFigure)
+   private SqlExecutor.ExecutorTask<String> makeCreateTask(final PersonDTO histFigure)
    {
       String id = histFigure.id;
       return (conn) -> {
@@ -309,7 +316,7 @@ public class PsqlPeopleRepo implements PeopleRepository
       };
    }
 
-   private SqlExecutor.ExecutorTask<String> makeUpdateTask(final PersonDV histFigure)
+   private SqlExecutor.ExecutorTask<String> makeUpdateTask(final PersonDTO histFigure)
    {
       return (conn) -> {
          try (PreparedStatement ps = conn.prepareStatement(UPDATE_SQL))
@@ -332,7 +339,7 @@ public class PsqlPeopleRepo implements PeopleRepository
    }
 
 
-   private PGobject toPGobject(PersonDV dto) throws SQLException, IOException
+   private PGobject toPGobject(PersonDTO dto) throws SQLException, IOException
    {
       PGobject jsonObject = new PGobject();
       jsonObject.setType("json");
@@ -345,8 +352,8 @@ public class PsqlPeopleRepo implements PeopleRepository
    {
       try
       {
-         PersonDV dv = mapper.readValue(json, PersonDV.class);
-         return PersonDV.instantiate(dv);
+         PersonDTO dv = mapper.readValue(json, PersonDTO.class);
+         return PersonDTO.instantiate(dv);
       }
       catch (IOException je)
       {
@@ -372,13 +379,13 @@ public class PsqlPeopleRepo implements PeopleRepository
    }
 
    @Override
-   public AutoCloseable addUpdateListener(Consumer<PeopleChangeEvent> ears)
+   public AutoCloseable addUpdateListener(Consumer<PersonChangeEvent> ears)
    {
       listeners.add(ears);
       return () -> listeners.remove(ears);
    }
 
-   private class PeopleChangeEventImpl implements PeopleChangeEvent
+   private class PeopleChangeEventImpl implements PersonChangeEvent
    {
       private final ChangeType type;
       private final String id;

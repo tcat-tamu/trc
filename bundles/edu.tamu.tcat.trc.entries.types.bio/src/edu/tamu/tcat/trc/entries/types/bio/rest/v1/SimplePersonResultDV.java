@@ -5,7 +5,7 @@ import java.util.Set;
 
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
-import edu.tamu.tcat.trc.entries.types.bio.dv.PersonNameDV;
+import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
 
 /**
  * HACK: this model is a HACK to get search results working with the autocomplete JS component
@@ -23,7 +23,7 @@ public class SimplePersonResultDV
    /**
     * Display name for this person (for use when populating fields)
     */
-   public PersonNameDV displayName;
+   public PersonNameDTO displayName;
 
    /**
     * Formatted name to display e.g. when linking to the underlying {@link Person}.
@@ -61,7 +61,7 @@ public class SimplePersonResultDV
     */
    public static String getFormattedName(Person person)
    {
-      PersonNameDV name = getDisplayName(person);
+      PersonNameDTO name = getDisplayName(person);
       LocalDate birthDate = person.getBirth().getDate().getCalendar();
       LocalDate deathDate = person.getDeath().getDate().getCalendar();
 
@@ -95,7 +95,7 @@ public class SimplePersonResultDV
     * @param person
     * @return
     */
-   public static PersonNameDV getDisplayName(Person person)
+   public static PersonNameDTO getDisplayName(Person person)
    {
       // use canonical name by default
       PersonName name = person.getCanonicalName();
@@ -107,6 +107,6 @@ public class SimplePersonResultDV
             name = names.iterator().next();
       }
 
-      return PersonNameDV.create(name);
+      return PersonNameDTO.create(name);
    }
 }

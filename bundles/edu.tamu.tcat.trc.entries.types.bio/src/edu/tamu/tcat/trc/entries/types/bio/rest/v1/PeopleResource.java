@@ -18,8 +18,8 @@ import javax.ws.rs.core.MediaType;
 
 import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
-import edu.tamu.tcat.trc.entries.types.bio.dv.PersonDV;
-import edu.tamu.tcat.trc.entries.types.bio.repo.EditPeopleCommand;
+import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
+import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleSearchService;
@@ -95,7 +95,7 @@ public class PeopleResource
    @GET
    @Path("{personId}")
    @Produces(MediaType.APPLICATION_JSON)
-   public PersonDV getPerson(@PathParam(value="personId") String personId) throws NoSuchCatalogRecordException
+   public PersonDTO getPerson(@PathParam(value="personId") String personId) throws NoSuchCatalogRecordException
    {
       // FIXME make this a string based identifier
       // TODO make this a mangled string instead of an ID. Don't want people guessing
@@ -104,16 +104,16 @@ public class PeopleResource
       //       CatalogRepoException should map to internal error.
       //       NoSuchCatalogRecordException should map to 404
       Person figure = repo.get(personId);
-      return PersonDV.create(figure);
+      return PersonDTO.create(figure);
    }
 
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public PersonId createPerson(PersonDV person) throws Exception
+   public PersonId createPerson(PersonDTO person) throws Exception
    {
       PersonId personId = new PersonId();
-      EditPeopleCommand createCommand = repo.create();
+      EditPersonCommand createCommand = repo.create();
 
       createCommand.setAll(person);
       String id = createCommand.execute().get();
@@ -125,10 +125,10 @@ public class PeopleResource
    @Path("{personId}")
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public PersonId updatePerson(PersonDV person) throws Exception
+   public PersonId updatePerson(PersonDTO person) throws Exception
    {
       PersonId personId = new PersonId();
-      EditPeopleCommand updateCommand = repo.update(person);
+      EditPersonCommand updateCommand = repo.update(person);
       updateCommand.execute().get();
       personId.id = person.id;
       return personId;
@@ -139,7 +139,7 @@ public class PeopleResource
    @Consumes(MediaType.APPLICATION_JSON)
    public void deletePerson(@PathParam(value="personId") String personId) throws Exception
    {
-      EditPeopleCommand deleteCommand = repo.delete(personId);
+      EditPersonCommand deleteCommand = repo.delete(personId);
       deleteCommand.execute();
    }
 

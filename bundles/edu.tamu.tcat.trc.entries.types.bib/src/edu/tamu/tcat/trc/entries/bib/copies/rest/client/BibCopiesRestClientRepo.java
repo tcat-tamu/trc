@@ -1,11 +1,9 @@
 package edu.tamu.tcat.trc.entries.bib.copies.rest.client;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Future;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 //import org.apache.http.impl.client.CloseableHttpClient;

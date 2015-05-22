@@ -32,8 +32,8 @@ import edu.tamu.tcat.trc.entries.notification.DataUpdateObserverAdapter;
 import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
-import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent.UpdateAction;
+import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 
 public class PsqlDigitalCopyLinkRepo implements CopyReferenceRepository
 {

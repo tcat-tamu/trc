@@ -10,7 +10,6 @@ import java.util.concurrent.Future;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import edu.tamu.tcat.catalogentries.IdFactory;
 import edu.tamu.tcat.catalogentries.InvalidDataException;
 import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.bib.EditWorkCommand;
@@ -20,6 +19,7 @@ import edu.tamu.tcat.trc.entries.bib.dto.EditionDV;
 import edu.tamu.tcat.trc.entries.bib.dto.TitleDV;
 import edu.tamu.tcat.trc.entries.bib.dto.VolumeDV;
 import edu.tamu.tcat.trc.entries.bib.dto.WorkDV;
+import edu.tamu.tcat.trc.entries.core.IdFactory;
 
 public class EditWorkCommandImpl implements EditWorkCommand
 {

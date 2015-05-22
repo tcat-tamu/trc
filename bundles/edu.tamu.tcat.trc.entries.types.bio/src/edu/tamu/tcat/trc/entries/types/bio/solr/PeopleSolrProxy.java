@@ -13,8 +13,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.tamu.tcat.catalogentries.events.dv.DateDescriptionDV;
 import edu.tamu.tcat.catalogentries.events.dv.HistoricalEventDV;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
-import edu.tamu.tcat.trc.entries.types.bio.dv.PersonDV;
-import edu.tamu.tcat.trc.entries.types.bio.dv.PersonNameDV;
+import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
+import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.SimplePersonResultDV;
 
 public class PeopleSolrProxy
@@ -50,7 +50,7 @@ public class PeopleSolrProxy
    public static PeopleSolrProxy create(Person person)
    {
       PeopleSolrProxy proxy = new PeopleSolrProxy();
-      PersonDV personDV = PersonDV.create(person);
+      PersonDTO personDV = PersonDTO.create(person);
       SimplePersonResultDV simplePerson = new SimplePersonResultDV(person);
 
       try
@@ -66,7 +66,7 @@ public class PeopleSolrProxy
 
       proxy.document.addField(syntheticName, constructSyntheticName(personDV.getAllNames()));
 
-      PersonNameDV name = personDV.displayName;
+      PersonNameDTO name = personDV.displayName;
       proxy.document.addField(familyName, guardNull(name.familyName));
       proxy.document.addField(displayName, guardNull(name.displayName));
 
@@ -110,10 +110,10 @@ public class PeopleSolrProxy
     * @param names A set of names associated with a person.
     * @return A synthetic name that contains a union of the different name fields.
     */
-   private static String constructSyntheticName(Set<PersonNameDV> names)
+   private static String constructSyntheticName(Set<PersonNameDTO> names)
    {
       Set<String> nameParts = new HashSet<>();
-      for(PersonNameDV name : names)
+      for(PersonNameDTO name : names)
       {
          nameParts.add(name.title);
          nameParts.add(name.givenName);

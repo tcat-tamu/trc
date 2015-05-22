@@ -6,29 +6,29 @@ import java.util.concurrent.Future;
 import java.util.function.Function;
 
 import edu.tamu.tcat.catalogentries.events.dv.HistoricalEventDV;
-import edu.tamu.tcat.trc.entries.types.bio.dv.PersonDV;
-import edu.tamu.tcat.trc.entries.types.bio.dv.PersonNameDV;
-import edu.tamu.tcat.trc.entries.types.bio.repo.EditPeopleCommand;
+import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
+import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
+import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
 
-public class EditPeopleCommandImpl implements EditPeopleCommand
+public class EditPeopleCommandImpl implements EditPersonCommand
 {
 
-   private final PersonDV person;
+   private final PersonDTO person;
 
-   private Function<PersonDV, Future<String>> commitHook;
+   private Function<PersonDTO, Future<String>> commitHook;
 
-   EditPeopleCommandImpl(PersonDV person)
+   EditPeopleCommandImpl(PersonDTO person)
    {
       this.person = person;
    }
 
-   public void setCommitHook(Function<PersonDV, Future<String>> hook)
+   public void setCommitHook(Function<PersonDTO, Future<String>> hook)
    {
       commitHook = hook;
    }
 
    @Override
-   public void setAll(PersonDV person)
+   public void setAll(PersonDTO person)
    {
       setName(person.displayName);
       setNames(person.names);
@@ -38,13 +38,13 @@ public class EditPeopleCommandImpl implements EditPeopleCommand
    }
 
    @Override
-   public void setNames(Set<PersonNameDV> names)
+   public void setNames(Set<PersonNameDTO> names)
    {
       person.names = names;
    }
 
    @Override
-   public void setName(PersonNameDV personName)
+   public void setName(PersonNameDTO personName)
    {
       person.displayName = personName;
    }

@@ -7,7 +7,7 @@ import java.util.concurrent.Future;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import edu.tamu.tcat.catalogentries.IdFactory;
+import edu.tamu.tcat.trc.entries.core.IdFactory;
 import edu.tamu.tcat.trc.entries.reln.Anchor;
 import edu.tamu.tcat.trc.entries.reln.AnchorSet;
 import edu.tamu.tcat.trc.entries.reln.EditRelationshipCommand;

@@ -15,8 +15,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
-import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleChangeEvent;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
+import edu.tamu.tcat.trc.entries.types.bio.repo.PersonChangeEvent;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleIndexServiceManager;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleSearchService;
@@ -125,7 +125,7 @@ public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleS
    }
 
 
-   private void onUpdate(PeopleChangeEvent evt)
+   private void onUpdate(PersonChangeEvent evt)
    {
       try
       {
