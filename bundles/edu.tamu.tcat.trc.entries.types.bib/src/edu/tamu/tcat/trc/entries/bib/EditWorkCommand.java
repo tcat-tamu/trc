@@ -4,10 +4,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Future;
 
-import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.bib.dto.AuthorRefDV;
 import edu.tamu.tcat.trc.entries.bib.dto.TitleDV;
 import edu.tamu.tcat.trc.entries.bib.dto.WorkDV;
+import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 
 /**
  * Used to edit a {@link Work}. This class allows clients to make updates to a {@link Work}

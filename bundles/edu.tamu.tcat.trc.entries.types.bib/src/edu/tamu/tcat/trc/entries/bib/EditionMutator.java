@@ -3,11 +3,11 @@ package edu.tamu.tcat.trc.entries.bib;
 import java.util.Collection;
 import java.util.List;
 
-import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.bib.dto.AuthorRefDV;
 import edu.tamu.tcat.trc.entries.bib.dto.EditionDV;
 import edu.tamu.tcat.trc.entries.bib.dto.PublicationInfoDV;
 import edu.tamu.tcat.trc.entries.bib.dto.TitleDV;
+import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 
 /**
  * Used to edit the properties of an {@link Edition}. A {@code EditionMutator} is created

@@ -1,4 +1,4 @@
-package edu.tamu.tcat.catalogentries;
+package edu.tamu.tcat.trc.entries.core;
 
 /**
  *  Thrown when data updates or retrieval attempt to supply invalid or inconsistent data.

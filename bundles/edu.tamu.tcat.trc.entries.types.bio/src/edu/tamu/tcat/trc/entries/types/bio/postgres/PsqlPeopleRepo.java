@@ -22,13 +22,13 @@ import org.postgresql.util.PGobject;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.tcat.catalogentries.CatalogRepoException;
-import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.sda.catalog.psql.ExecutionFailedException;
 import edu.tamu.tcat.sda.catalog.psql.ObservableTaskWrapper;
 import edu.tamu.tcat.sda.datastore.DataUpdateObserverAdapter;
 import edu.tamu.tcat.trc.entries.core.IdFactory;
+import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
+import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;

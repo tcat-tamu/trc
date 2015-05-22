@@ -22,8 +22,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import edu.tamu.tcat.catalogentries.InvalidDataException;
-import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.bib.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.bib.Work;
@@ -33,6 +31,8 @@ import edu.tamu.tcat.trc.entries.bib.dto.WorkDV;
 import edu.tamu.tcat.trc.entries.bib.search.WorkQueryCommand;
 import edu.tamu.tcat.trc.entries.bib.search.WorkSearchProxy;
 import edu.tamu.tcat.trc.entries.bib.search.WorkSearchService;
+import edu.tamu.tcat.trc.entries.core.InvalidDataException;
+import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 
 @Path("/works")
 public class WorksResource

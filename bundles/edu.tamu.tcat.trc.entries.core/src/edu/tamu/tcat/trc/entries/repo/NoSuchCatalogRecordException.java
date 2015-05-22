@@ -1,4 +1,4 @@
-package edu.tamu.tcat.catalogentries;
+package edu.tamu.tcat.trc.entries.repo;
 
 /**
  * Indicates that a catalog record (such as a bibliographic entry or biographical

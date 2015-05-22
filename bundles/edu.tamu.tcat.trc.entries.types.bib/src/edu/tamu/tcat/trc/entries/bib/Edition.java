@@ -3,7 +3,7 @@ package edu.tamu.tcat.trc.entries.bib;
 import java.util.Collection;
 import java.util.List;
 
-import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
+import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 
 /**
  * Editions are published manifestations of a {@link Work}. An edition adds specific information related to the

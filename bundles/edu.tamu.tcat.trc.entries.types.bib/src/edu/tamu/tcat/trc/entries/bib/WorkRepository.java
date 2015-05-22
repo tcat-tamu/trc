@@ -2,8 +2,8 @@ package edu.tamu.tcat.trc.entries.bib;
 
 import java.util.function.Consumer;
 
-import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
 import edu.tamu.tcat.sda.datastore.DataStore;
+import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 
 /**

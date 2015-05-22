@@ -1,4 +1,4 @@
-package edu.tamu.tcat.catalogentries;
+package edu.tamu.tcat.trc.entries.repo;
 
 /**
  * Indicates problems accessing resources within a catalog repository.

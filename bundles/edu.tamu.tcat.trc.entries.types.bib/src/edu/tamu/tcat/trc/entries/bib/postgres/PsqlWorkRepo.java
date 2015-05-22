@@ -22,7 +22,6 @@ import org.postgresql.util.PGobject;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor.ExecutorTask;
 import edu.tamu.tcat.trc.entries.bib.AuthorReference;
@@ -40,6 +39,7 @@ import edu.tamu.tcat.trc.entries.bib.dto.WorkDV;
 import edu.tamu.tcat.trc.entries.core.IdFactory;
 import edu.tamu.tcat.trc.entries.notification.DataUpdateObserverAdapter;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
+import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
 

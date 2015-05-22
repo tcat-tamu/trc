@@ -12,13 +12,13 @@ import java.util.logging.Logger;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.bib.copies.CopyReference;
 import edu.tamu.tcat.trc.entries.bib.copies.CopyReferenceException;
 import edu.tamu.tcat.trc.entries.bib.copies.CopyReferenceRepository;
 import edu.tamu.tcat.trc.entries.bib.copies.EditCopyReferenceCommand;
 import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
+import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 
 public class BibCopiesRestClientRepo implements CopyReferenceRepository
 {

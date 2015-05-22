@@ -2,7 +2,7 @@ package edu.tamu.tcat.trc.entries.bib;
 
 import java.util.Collection;
 
-import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
+import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 
 
 /**

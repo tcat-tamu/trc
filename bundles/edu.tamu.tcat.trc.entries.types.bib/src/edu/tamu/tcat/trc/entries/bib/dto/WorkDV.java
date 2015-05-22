@@ -6,13 +6,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.bib.AuthorList;
 import edu.tamu.tcat.trc.entries.bib.Edition;
 import edu.tamu.tcat.trc.entries.bib.PublicationInfo;
 import edu.tamu.tcat.trc.entries.bib.Title;
 import edu.tamu.tcat.trc.entries.bib.TitleDefinition;
 import edu.tamu.tcat.trc.entries.bib.Work;
+import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 
 
 /**

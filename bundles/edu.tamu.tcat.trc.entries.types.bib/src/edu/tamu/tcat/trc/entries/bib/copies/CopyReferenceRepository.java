@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Future;
 
-import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
+import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 
 /**
  *  Provides support for creation, retrieval, update and deletion of references between a

@@ -13,7 +13,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.bib.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.bib.Edition;
 import edu.tamu.tcat.trc.entries.bib.EditionMutator;
@@ -22,6 +21,7 @@ import edu.tamu.tcat.trc.entries.bib.VolumeMutator;
 import edu.tamu.tcat.trc.entries.bib.WorkRepository;
 import edu.tamu.tcat.trc.entries.bib.dto.CustomResultsDV;
 import edu.tamu.tcat.trc.entries.bib.dto.VolumeDV;
+import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 
 @Path("/works/{workId}/editions/{editionId}/volumes")
 public class VolumesResource

@@ -20,7 +20,6 @@ import org.postgresql.util.PGobject;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.bib.copies.CopyReference;
 import edu.tamu.tcat.trc.entries.bib.copies.CopyReferenceException;
@@ -34,6 +33,7 @@ import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent.UpdateAction;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
+import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 
 public class PsqlDigitalCopyLinkRepo implements CopyReferenceRepository
 {

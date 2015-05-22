@@ -4,13 +4,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
-import edu.tamu.tcat.catalogentries.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.bib.EditionMutator;
 import edu.tamu.tcat.trc.entries.bib.VolumeMutator;
 import edu.tamu.tcat.trc.entries.bib.dto.AuthorRefDV;
 import edu.tamu.tcat.trc.entries.bib.dto.EditionDV;
 import edu.tamu.tcat.trc.entries.bib.dto.PublicationInfoDV;
 import edu.tamu.tcat.trc.entries.bib.dto.TitleDV;
+import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 
 public class MockEditionMutator implements EditionMutator
 {
