@@ -1,4 +1,4 @@
-package edu.tamu.tcat.sda.datastore;
+package edu.tamu.tcat.trc.entries.datastore;
 
 /**
  * Tag interface to be implemented by data store classes. 

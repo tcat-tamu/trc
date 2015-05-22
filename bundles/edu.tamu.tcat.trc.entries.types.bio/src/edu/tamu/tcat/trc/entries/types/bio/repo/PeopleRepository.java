@@ -2,7 +2,7 @@ package edu.tamu.tcat.trc.entries.types.bio.repo;
 
 import java.util.function.Consumer;
 
-import edu.tamu.tcat.sda.datastore.DataUpdateObserver;
+import edu.tamu.tcat.trc.entries.datastore.DataUpdateObserver;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bio.Person;

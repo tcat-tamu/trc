@@ -9,8 +9,8 @@ Export-Package: edu.tamu.tcat.catalogentries.events,
  edu.tamu.tcat.catalogentries.events.dv,
  edu.tamu.tcat.sda.catalog.events.psql,
  edu.tamu.tcat.sda.catalog.psql,
- edu.tamu.tcat.sda.datastore,
  edu.tamu.tcat.trc.entries.core,
+ edu.tamu.tcat.trc.entries.datastore,
  edu.tamu.tcat.trc.entries.notification,
  edu.tamu.tcat.trc.entries.repo
 Import-Package: edu.tamu.tcat.db.exec.sql

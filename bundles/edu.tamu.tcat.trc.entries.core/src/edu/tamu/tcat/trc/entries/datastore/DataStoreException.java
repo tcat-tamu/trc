@@ -1,4 +1,4 @@
-package edu.tamu.tcat.sda.datastore;
+package edu.tamu.tcat.trc.entries.datastore;
 
 /**
  * Thrown to indicate that a data store is unavailable or incorrectly configured.

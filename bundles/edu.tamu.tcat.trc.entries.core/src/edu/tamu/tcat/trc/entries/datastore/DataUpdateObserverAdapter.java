@@ -1,4 +1,4 @@
-package edu.tamu.tcat.sda.datastore;
+package edu.tamu.tcat.trc.entries.datastore;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

@@ -1,4 +1,4 @@
-package edu.tamu.tcat.sda.datastore;
+package edu.tamu.tcat.trc.entries.datastore;
 
 /**
  * Allows {@link DataStore} implementations to notify callers at various points
