@@ -6,9 +6,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Set;
 
-import edu.tamu.tcat.trc.entries.reln.model.URIParseHelper;
-import edu.tamu.tcat.trc.entries.reln.model.internal.BasicProvenance;
 import edu.tamu.tcat.trc.entries.types.reln.Provenance;
+import edu.tamu.tcat.trc.entries.types.reln.URIParseHelper;
+import edu.tamu.tcat.trc.entries.types.reln.internal.dto.BasicProvenance;
 
 public class ProvenanceDV
 {

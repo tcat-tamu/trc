@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.reln;
+package edu.tamu.tcat.trc.entries.types.reln.repo;
 
 public class RelationshipException extends Exception
 {

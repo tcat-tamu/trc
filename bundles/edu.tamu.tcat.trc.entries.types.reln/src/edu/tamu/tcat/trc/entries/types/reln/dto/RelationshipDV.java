@@ -3,16 +3,16 @@ package edu.tamu.tcat.trc.entries.types.reln.dto;
 import java.util.HashSet;
 import java.util.Set;
 
-import edu.tamu.tcat.trc.entries.reln.RelationshipException;
-import edu.tamu.tcat.trc.entries.reln.RelationshipTypeRegistry;
-import edu.tamu.tcat.trc.entries.reln.model.internal.BasicAnchorSet;
-import edu.tamu.tcat.trc.entries.reln.model.internal.BasicProvenance;
-import edu.tamu.tcat.trc.entries.reln.model.internal.BasicRelationship;
 import edu.tamu.tcat.trc.entries.types.reln.Anchor;
 import edu.tamu.tcat.trc.entries.types.reln.AnchorSet;
 import edu.tamu.tcat.trc.entries.types.reln.Provenance;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
+import edu.tamu.tcat.trc.entries.types.reln.internal.dto.BasicAnchorSet;
+import edu.tamu.tcat.trc.entries.types.reln.internal.dto.BasicProvenance;
+import edu.tamu.tcat.trc.entries.types.reln.internal.dto.BasicRelationship;
+import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipException;
+import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 
 public class RelationshipDV
 {

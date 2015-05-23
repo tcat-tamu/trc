@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.reln.solr;
+package edu.tamu.tcat.trc.entries.types.reln.solr;
 
 import java.io.IOException;
 import java.net.URI;
@@ -17,11 +17,11 @@ import org.apache.solr.common.SolrDocumentList;
 
 import com.google.common.base.Joiner;
 
-import edu.tamu.tcat.trc.entries.reln.RelationshipDirection;
-import edu.tamu.tcat.trc.entries.reln.RelationshipException;
-import edu.tamu.tcat.trc.entries.reln.RelationshipTypeRegistry;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;
+import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipException;
+import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
+import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipDirection;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
 
 public class RelationshipSolrQueryCommand implements RelationshipQueryCommand

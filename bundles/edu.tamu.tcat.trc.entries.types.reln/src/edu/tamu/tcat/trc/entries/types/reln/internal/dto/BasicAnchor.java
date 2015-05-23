@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.reln.model.internal;
+package edu.tamu.tcat.trc.entries.types.reln.internal.dto;
 
 import java.net.URI;
 import java.util.Collection;

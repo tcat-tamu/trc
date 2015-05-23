@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.reln.postgres;
+package edu.tamu.tcat.trc.entries.types.reln.postgres;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -8,13 +8,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.core.IdFactory;
-import edu.tamu.tcat.trc.entries.reln.model.internal.BasicAnchorSet;
 import edu.tamu.tcat.trc.entries.types.reln.Anchor;
 import edu.tamu.tcat.trc.entries.types.reln.AnchorSet;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDV;
 import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDV;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;
+import edu.tamu.tcat.trc.entries.types.reln.internal.dto.BasicAnchorSet;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 
 

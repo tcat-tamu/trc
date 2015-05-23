@@ -5,12 +5,12 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 
-import edu.tamu.tcat.trc.entries.reln.model.URIParseHelper;
 import edu.tamu.tcat.trc.entries.types.reln.Anchor;
 import edu.tamu.tcat.trc.entries.types.reln.AnchorSet;
 import edu.tamu.tcat.trc.entries.types.reln.Provenance;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
+import edu.tamu.tcat.trc.entries.types.reln.URIParseHelper;
 import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDV;
 import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDV;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;

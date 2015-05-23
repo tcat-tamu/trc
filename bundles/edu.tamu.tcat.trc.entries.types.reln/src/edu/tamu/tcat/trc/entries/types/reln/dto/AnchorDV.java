@@ -4,9 +4,9 @@ import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
-import edu.tamu.tcat.trc.entries.reln.model.URIParseHelper;
-import edu.tamu.tcat.trc.entries.reln.model.internal.BasicAnchor;
 import edu.tamu.tcat.trc.entries.types.reln.Anchor;
+import edu.tamu.tcat.trc.entries.types.reln.URIParseHelper;
+import edu.tamu.tcat.trc.entries.types.reln.internal.dto.BasicAnchor;
 
 public class AnchorDV
 {

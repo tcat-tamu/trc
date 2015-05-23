@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.reln.postgres;
+package edu.tamu.tcat.trc.entries.types.reln.postgres;
 
 import java.util.List;
 import java.util.Objects;
@@ -19,7 +19,6 @@ import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.core.IdFactory;
 import edu.tamu.tcat.trc.entries.datastore.DataUpdateObserver;
 import edu.tamu.tcat.trc.entries.datastore.db.ObservableTaskWrapper;
-import edu.tamu.tcat.trc.entries.reln.RelationshipTypeRegistry;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
@@ -27,6 +26,7 @@ import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipChangeEvent;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipNotAvailableException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipPersistenceException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
+import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipChangeEvent.ChangeType;
 
 public class PsqlRelationshipRepo implements RelationshipRepository

@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.reln.model.internal;
+package edu.tamu.tcat.trc.entries.types.reln.internal.dto;
 
 import edu.tamu.tcat.trc.entries.types.reln.AnchorSet;
 import edu.tamu.tcat.trc.entries.types.reln.Provenance;

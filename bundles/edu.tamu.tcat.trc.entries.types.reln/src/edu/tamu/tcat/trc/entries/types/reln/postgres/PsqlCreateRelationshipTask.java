@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.reln.postgres;
+package edu.tamu.tcat.trc.entries.types.reln.postgres;
 
 import java.io.IOException;
 import java.sql.Connection;

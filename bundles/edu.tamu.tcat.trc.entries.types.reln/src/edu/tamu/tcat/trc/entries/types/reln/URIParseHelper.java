@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.reln.model;
+package edu.tamu.tcat.trc.entries.types.reln;
 
 import java.net.URI;
 import java.net.URISyntaxException;

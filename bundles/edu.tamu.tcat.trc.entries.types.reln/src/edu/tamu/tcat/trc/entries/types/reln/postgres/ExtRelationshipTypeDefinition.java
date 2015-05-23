@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.reln.postgres;
+package edu.tamu.tcat.trc.entries.types.reln.postgres;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 

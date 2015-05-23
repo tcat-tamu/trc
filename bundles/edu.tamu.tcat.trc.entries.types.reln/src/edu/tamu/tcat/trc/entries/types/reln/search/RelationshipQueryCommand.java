@@ -3,7 +3,6 @@ package edu.tamu.tcat.trc.entries.types.reln.search;
 import java.net.URI;
 import java.util.Collection;
 
-import edu.tamu.tcat.trc.entries.reln.RelationshipDirection;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 
 public interface RelationshipQueryCommand

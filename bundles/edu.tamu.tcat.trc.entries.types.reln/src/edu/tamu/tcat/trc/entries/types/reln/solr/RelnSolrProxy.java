@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.reln.solr;
+package edu.tamu.tcat.trc.entries.types.reln.solr;
 
 import java.util.HashMap;
 import java.util.HashSet;

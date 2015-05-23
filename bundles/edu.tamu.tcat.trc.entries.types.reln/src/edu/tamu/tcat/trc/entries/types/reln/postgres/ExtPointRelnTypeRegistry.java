@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.reln.postgres;
+package edu.tamu.tcat.trc.entries.types.reln.postgres;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -14,9 +14,9 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IRegistryEventListener;
 import org.eclipse.core.runtime.Platform;
 
-import edu.tamu.tcat.trc.entries.reln.RelationshipException;
-import edu.tamu.tcat.trc.entries.reln.RelationshipTypeRegistry;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
+import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipException;
+import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 
 /**
  * Supports Eclipse Extension Point type registrations. Intended to be registered as an OSGi service
