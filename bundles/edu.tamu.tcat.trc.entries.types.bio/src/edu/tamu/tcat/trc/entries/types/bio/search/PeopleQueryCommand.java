@@ -6,12 +6,12 @@ import edu.tamu.tcat.trc.entries.types.bio.rest.v1.SimplePersonResultDV;
 
 public interface PeopleQueryCommand
 {
-   public abstract List<SimplePersonResultDV> getResults();
+   List<SimplePersonResultDV> getResults() throws Exception;
 
-   public abstract PeopleQueryCommand search(String syntheticName);
+   PeopleQueryCommand search(String syntheticName);
 
-   public abstract PeopleQueryCommand byFamilyName(String familyName);
+   PeopleQueryCommand byFamilyName(String familyName);
 
-   public abstract PeopleQueryCommand setRowLimit(int rows);
+   PeopleQueryCommand setRowLimit(int rows);
 
 }

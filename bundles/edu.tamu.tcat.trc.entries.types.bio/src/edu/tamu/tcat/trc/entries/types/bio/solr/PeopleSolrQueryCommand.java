@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.solr.client.solrj.SolrQuery;
@@ -36,31 +35,27 @@ public class PeopleSolrQueryCommand implements PeopleQueryCommand
    }
 
    @Override
-   public List<SimplePersonResultDV> getResults()
+   public List<SimplePersonResultDV> getResults() throws Exception
    {
-      List<SimplePersonResultDV> people = new ArrayList<>();
-      QueryResponse response;
-      String person = "";
-      SimplePersonResultDV simplePerson = new SimplePersonResultDV();
-
       try
       {
-         response = solr.query(getQuery());
+         QueryResponse response = solr.query(getQuery());
          SolrDocumentList results = response.getResults();
 
+         List<SimplePersonResultDV> people = new ArrayList<>();
          for (SolrDocument result : results)
          {
-            person = result.getFieldValue(personInfo).toString();
-            simplePerson = PeopleIndexingService.mapper.readValue(person, SimplePersonResultDV.class);
+            String person = result.getFieldValue(personInfo).toString();
+            SimplePersonResultDV simplePerson = PeopleIndexingService.mapper.readValue(person, SimplePersonResultDV.class);
             people.add(simplePerson);
          }
+         
+         return people;
       }
       catch (SolrServerException | IOException sse)
       {
-         logger.log(Level.SEVERE, "The following error occurred while querying the author core :" + sse);
+         throw new Exception("The following error occurred while querying the author core :" + sse, sse);
       }
-
-      return people;
    }
 
 

@@ -74,7 +74,7 @@ public class PeopleResource
    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
    public List<RestApiV1.SimplePersonResult> listPeople(@QueryParam(value="syntheticName") String prefix,
                                                 @DefaultValue("50") @QueryParam(value="numResults") int numResults)
-
+   throws Exception
    {
 
       PeopleQueryCommand peopleQuery = peopleSearchService.createQueryCommand();
