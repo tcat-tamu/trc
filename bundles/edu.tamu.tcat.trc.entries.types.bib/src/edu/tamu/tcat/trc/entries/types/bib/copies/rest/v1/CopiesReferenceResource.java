@@ -70,27 +70,27 @@ public class CopiesReferenceResource
    @GET
    @Path("{entityId : works/.+}")
    @Produces(MediaType.APPLICATION_JSON)
-   public List<CopyRefDTO> getByWorkId(@PathParam(value = "entityId") String entityId)
+   public List<RestApiV1.CopyReference> getByWorkId(@PathParam(value = "entityId") String entityId)
    {
       // FIXME requires error handling
       URI uri = URI.create(entityId);
       List<CopyReference> matchedCopies = copiesRepo.getCopies(uri);
       return matchedCopies.parallelStream()
-                          .map(CopyRefDTO::create)
+                          .map(RepoAdapter::toDTO)
                           .collect(Collectors.toList());
    }
 
    @GET
    @Path("{refId : [0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}}")
    @Produces(MediaType.APPLICATION_JSON)
-   public CopyRefDTO getByRefId(@PathParam(value = "refId") String refId)
+   public RestApiV1.CopyReference getByRefId(@PathParam(value = "refId") String refId)
    {
       // TODO requires better error handling
       UUID id = UUID.fromString(refId);
       try
       {
          CopyReference reference = copiesRepo.get(id);
-         return CopyRefDTO.create(reference);
+         return RepoAdapter.toDTO(reference);
       }
       catch (NoSuchCatalogRecordException e)
       {
@@ -108,7 +108,7 @@ public class CopiesReferenceResource
    @Path("{refId : [0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}}")
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public Response updateRef(@PathParam(value = "refId") String refId, CopyRefDTO dto)
+   public Response updateRef(@PathParam(value = "refId") String refId, RestApiV1.CopyReference dto)
    {
       // FIXME fix error handling!!
       try
@@ -121,7 +121,7 @@ public class CopiesReferenceResource
 
          // TODO check to see if this reference exists - if not, create it
          EditCopyReferenceCommand command = copiesRepo.edit(id);
-         command.update(dto);
+         command.update(RepoAdapter.toRepo(dto));
 
          CopyReference ref = command.execute().get(10, TimeUnit.SECONDS);
 
@@ -152,7 +152,7 @@ public class CopiesReferenceResource
    @Path("{entityId : works/.+}")
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public Response createByWorkId(@PathParam(value = "entityId") String entityId, CopyRefDTO dto) throws UpdateCanceledException
+   public Response createByWorkId(@PathParam(value = "entityId") String entityId, RestApiV1.CopyReference dto) throws UpdateCanceledException
    {
       // FIXME fix error handling!!
       // TODO response should supply URL of resource
@@ -168,7 +168,7 @@ public class CopiesReferenceResource
          // TODO verify valid copy id
 
          EditCopyReferenceCommand command = copiesRepo.create();
-         command.update(dto);
+         command.update(RepoAdapter.toRepo(dto));
 
          CopyReference ref = command.execute().get(10, TimeUnit.SECONDS);
 
