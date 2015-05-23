@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.datastore.db.ExecutionFailedException;
-import edu.tamu.tcat.trc.entries.reln.model.RelationshipDV;
+import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;
 
 public class PsqlCreateRelationshipTask implements SqlExecutor.ExecutorTask<String>
 {

@@ -1,5 +1,6 @@
-package edu.tamu.tcat.trc.entries.reln;
+package edu.tamu.tcat.trc.entries.types.reln.repo;
 
+import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 
 public interface RelationshipChangeEvent
 {

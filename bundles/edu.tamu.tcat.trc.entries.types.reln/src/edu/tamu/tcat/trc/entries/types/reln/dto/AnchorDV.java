@@ -1,11 +1,12 @@
-package edu.tamu.tcat.trc.entries.reln.model;
+package edu.tamu.tcat.trc.entries.types.reln.dto;
 
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
-import edu.tamu.tcat.trc.entries.reln.Anchor;
+import edu.tamu.tcat.trc.entries.reln.model.URIParseHelper;
 import edu.tamu.tcat.trc.entries.reln.model.internal.BasicAnchor;
+import edu.tamu.tcat.trc.entries.types.reln.Anchor;
 
 public class AnchorDV
 {

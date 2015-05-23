@@ -2,6 +2,8 @@ package edu.tamu.tcat.trc.entries.reln;
 
 import java.util.Set;
 
+import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
+
 /**
  *  A service to access defined relationship types.
  */

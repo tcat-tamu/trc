@@ -1,6 +1,6 @@
 package edu.tamu.tcat.trc.entries.reln.rest.v1.model;
 
-import edu.tamu.tcat.trc.entries.reln.RelationshipType;
+import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 
 /**
  *  A JSON serializable representation of a RelationshipType for use in the REST API.

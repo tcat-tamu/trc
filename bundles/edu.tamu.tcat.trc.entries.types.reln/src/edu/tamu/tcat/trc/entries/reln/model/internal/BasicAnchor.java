@@ -4,7 +4,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 
-import edu.tamu.tcat.trc.entries.reln.Anchor;
+import edu.tamu.tcat.trc.entries.types.reln.Anchor;
 
 /**
  *  Simple, immutable implementation of the {@link Anchor} API.

@@ -15,8 +15,8 @@ import org.eclipse.core.runtime.IRegistryEventListener;
 import org.eclipse.core.runtime.Platform;
 
 import edu.tamu.tcat.trc.entries.reln.RelationshipException;
-import edu.tamu.tcat.trc.entries.reln.RelationshipType;
 import edu.tamu.tcat.trc.entries.reln.RelationshipTypeRegistry;
+import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 
 /**
  * Supports Eclipse Extension Point type registrations. Intended to be registered as an OSGi service

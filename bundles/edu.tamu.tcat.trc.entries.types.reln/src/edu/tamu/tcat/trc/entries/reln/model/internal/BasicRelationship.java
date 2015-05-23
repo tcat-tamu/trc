@@ -1,9 +1,9 @@
 package edu.tamu.tcat.trc.entries.reln.model.internal;
 
-import edu.tamu.tcat.trc.entries.reln.AnchorSet;
-import edu.tamu.tcat.trc.entries.reln.Provenance;
-import edu.tamu.tcat.trc.entries.reln.Relationship;
-import edu.tamu.tcat.trc.entries.reln.RelationshipType;
+import edu.tamu.tcat.trc.entries.types.reln.AnchorSet;
+import edu.tamu.tcat.trc.entries.types.reln.Provenance;
+import edu.tamu.tcat.trc.entries.types.reln.Relationship;
+import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 
 public class BasicRelationship implements Relationship
 {

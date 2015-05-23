@@ -14,13 +14,13 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.reln.Relationship;
-import edu.tamu.tcat.trc.entries.reln.RelationshipChangeEvent;
-import edu.tamu.tcat.trc.entries.reln.RelationshipQueryCommand;
-import edu.tamu.tcat.trc.entries.reln.RelationshipRepository;
-import edu.tamu.tcat.trc.entries.reln.RelationshipSearchIndexManager;
-import edu.tamu.tcat.trc.entries.reln.RelationshipSearchService;
 import edu.tamu.tcat.trc.entries.reln.RelationshipTypeRegistry;
+import edu.tamu.tcat.trc.entries.types.reln.Relationship;
+import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipChangeEvent;
+import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
+import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
+import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchIndexManager;
+import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchService;
 
 /**
  *  TODO include documentation about expected fields and format of the solr core.

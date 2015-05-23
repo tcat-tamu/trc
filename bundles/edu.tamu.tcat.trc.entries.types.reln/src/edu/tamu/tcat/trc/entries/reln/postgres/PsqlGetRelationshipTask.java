@@ -11,10 +11,10 @@ import org.postgresql.util.PGobject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
-import edu.tamu.tcat.trc.entries.reln.Relationship;
 import edu.tamu.tcat.trc.entries.reln.RelationshipTypeRegistry;
-import edu.tamu.tcat.trc.entries.reln.model.RelationshipDV;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
+import edu.tamu.tcat.trc.entries.types.reln.Relationship;
+import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;
 
 public class PsqlGetRelationshipTask implements SqlExecutor.ExecutorTask<Relationship>
 {

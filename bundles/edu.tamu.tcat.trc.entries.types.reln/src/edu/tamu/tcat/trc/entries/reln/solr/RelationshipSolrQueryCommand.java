@@ -17,12 +17,12 @@ import org.apache.solr.common.SolrDocumentList;
 
 import com.google.common.base.Joiner;
 
-import edu.tamu.tcat.trc.entries.reln.Relationship;
 import edu.tamu.tcat.trc.entries.reln.RelationshipDirection;
 import edu.tamu.tcat.trc.entries.reln.RelationshipException;
-import edu.tamu.tcat.trc.entries.reln.RelationshipQueryCommand;
 import edu.tamu.tcat.trc.entries.reln.RelationshipTypeRegistry;
-import edu.tamu.tcat.trc.entries.reln.model.RelationshipDV;
+import edu.tamu.tcat.trc.entries.types.reln.Relationship;
+import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;
+import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
 
 public class RelationshipSolrQueryCommand implements RelationshipQueryCommand
 {

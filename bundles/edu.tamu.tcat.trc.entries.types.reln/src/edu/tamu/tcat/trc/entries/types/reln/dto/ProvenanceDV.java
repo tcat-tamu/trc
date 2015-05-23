@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.reln.model;
+package edu.tamu.tcat.trc.entries.types.reln.dto;
 
 import java.net.URI;
 import java.time.Instant;
@@ -6,8 +6,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Set;
 
-import edu.tamu.tcat.trc.entries.reln.Provenance;
+import edu.tamu.tcat.trc.entries.reln.model.URIParseHelper;
 import edu.tamu.tcat.trc.entries.reln.model.internal.BasicProvenance;
+import edu.tamu.tcat.trc.entries.types.reln.Provenance;
 
 public class ProvenanceDV
 {

@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
-import edu.tamu.tcat.trc.entries.reln.Provenance;
+import edu.tamu.tcat.trc.entries.types.reln.Provenance;
 
 public class BasicProvenance implements Provenance
 {

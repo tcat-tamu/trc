@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.reln;
+package edu.tamu.tcat.trc.entries.types.reln;
 
 import java.util.Collection;
 

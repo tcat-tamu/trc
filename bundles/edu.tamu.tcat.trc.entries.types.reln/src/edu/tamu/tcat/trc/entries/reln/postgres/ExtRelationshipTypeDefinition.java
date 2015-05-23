@@ -2,7 +2,7 @@ package edu.tamu.tcat.trc.entries.reln.postgres;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 
-import edu.tamu.tcat.trc.entries.reln.RelationshipType;
+import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 
 public class ExtRelationshipTypeDefinition implements RelationshipType
 {

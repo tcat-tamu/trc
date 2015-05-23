@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import edu.tamu.tcat.trc.entries.reln.Anchor;
-import edu.tamu.tcat.trc.entries.reln.AnchorSet;
+import edu.tamu.tcat.trc.entries.types.reln.Anchor;
+import edu.tamu.tcat.trc.entries.types.reln.AnchorSet;
 
 public class BasicAnchorSet implements AnchorSet
 {

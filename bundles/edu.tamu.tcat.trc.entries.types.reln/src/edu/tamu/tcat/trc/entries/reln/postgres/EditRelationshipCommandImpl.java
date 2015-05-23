@@ -8,14 +8,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.core.IdFactory;
-import edu.tamu.tcat.trc.entries.reln.Anchor;
-import edu.tamu.tcat.trc.entries.reln.AnchorSet;
-import edu.tamu.tcat.trc.entries.reln.EditRelationshipCommand;
-import edu.tamu.tcat.trc.entries.reln.RelationshipType;
-import edu.tamu.tcat.trc.entries.reln.model.AnchorDV;
-import edu.tamu.tcat.trc.entries.reln.model.ProvenanceDV;
-import edu.tamu.tcat.trc.entries.reln.model.RelationshipDV;
 import edu.tamu.tcat.trc.entries.reln.model.internal.BasicAnchorSet;
+import edu.tamu.tcat.trc.entries.types.reln.Anchor;
+import edu.tamu.tcat.trc.entries.types.reln.AnchorSet;
+import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
+import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDV;
+import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDV;
+import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;
+import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 
 
 public class EditRelationshipCommandImpl implements EditRelationshipCommand

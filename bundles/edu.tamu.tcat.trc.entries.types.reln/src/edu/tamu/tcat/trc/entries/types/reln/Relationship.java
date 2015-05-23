@@ -1,5 +1,4 @@
-package edu.tamu.tcat.trc.entries.reln;
-
+package edu.tamu.tcat.trc.entries.types.reln;
 
 /**
  *  Represents a relationship of some type between two or more entities within the Catalog Entries

@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.reln.rest.v1;
+package edu.tamu.tcat.trc.entries.types.reln.rest.v1;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -16,9 +16,9 @@ import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.core.MediaType;
 
 import edu.tamu.tcat.trc.entries.reln.RelationshipException;
-import edu.tamu.tcat.trc.entries.reln.RelationshipType;
 import edu.tamu.tcat.trc.entries.reln.RelationshipTypeRegistry;
 import edu.tamu.tcat.trc.entries.reln.rest.v1.model.RelationshipTypeDTO;
+import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 
 @Path("/relationships/types")
 public class RelationshipTypeService

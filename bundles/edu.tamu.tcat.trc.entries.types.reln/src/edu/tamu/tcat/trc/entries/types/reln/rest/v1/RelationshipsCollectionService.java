@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.reln.rest.v1;
+package edu.tamu.tcat.trc.entries.types.reln.rest.v1;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -18,14 +18,13 @@ import javax.ws.rs.core.MediaType;
 
 import com.google.common.base.Joiner;
 
-import edu.tamu.tcat.trc.entries.reln.EditRelationshipCommand;
-import edu.tamu.tcat.trc.entries.reln.Relationship;
 import edu.tamu.tcat.trc.entries.reln.RelationshipDirection;
-import edu.tamu.tcat.trc.entries.reln.RelationshipQueryCommand;
-import edu.tamu.tcat.trc.entries.reln.RelationshipRepository;
-import edu.tamu.tcat.trc.entries.reln.RelationshipSearchService;
-import edu.tamu.tcat.trc.entries.reln.model.RelationshipDV;
-import edu.tamu.tcat.trc.entries.reln.rest.v1.model.RelationshipId;
+import edu.tamu.tcat.trc.entries.types.reln.Relationship;
+import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;
+import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
+import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
+import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
+import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchService;
 
 @Path("/relationships")
 public class RelationshipsCollectionService
@@ -88,12 +87,12 @@ public class RelationshipsCollectionService
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RelationshipId createRelationship(RelationshipDV relationship)
+   public RestApiV1.RelationshipId createRelationship(RelationshipDV relationship)
    {
       EditRelationshipCommand createCommand;
       try
       {
-         RelationshipId result = new RelationshipId();
+         RestApiV1.RelationshipId result = new RestApiV1.RelationshipId();
          createCommand = repo.create();
          createCommand.setAll(relationship);
 

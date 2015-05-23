@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.reln;
+package edu.tamu.tcat.trc.entries.types.reln.repo;
 
 /**
  * Indicates that an attempt to access the underlying persistence layer failed for some reason.

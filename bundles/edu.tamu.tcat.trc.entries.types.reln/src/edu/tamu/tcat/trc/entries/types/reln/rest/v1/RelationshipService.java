@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.reln.rest.v1;
+package edu.tamu.tcat.trc.entries.types.reln.rest.v1;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,13 +15,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
-import edu.tamu.tcat.trc.entries.reln.EditRelationshipCommand;
-import edu.tamu.tcat.trc.entries.reln.Relationship;
-import edu.tamu.tcat.trc.entries.reln.RelationshipNotAvailableException;
-import edu.tamu.tcat.trc.entries.reln.RelationshipPersistenceException;
-import edu.tamu.tcat.trc.entries.reln.RelationshipRepository;
-import edu.tamu.tcat.trc.entries.reln.model.RelationshipDV;
-import edu.tamu.tcat.trc.entries.reln.rest.v1.model.RelationshipId;
+import edu.tamu.tcat.trc.entries.types.reln.Relationship;
+import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;
+import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
+import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipNotAvailableException;
+import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipPersistenceException;
+import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 
 @Path("/relationships/{id}")
 public class RelationshipService
@@ -68,7 +67,7 @@ public class RelationshipService
    @PUT
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RelationshipId update(@PathParam(value = "id") String id, RelationshipDV relationship)
+   public RestApiV1.RelationshipId update(@PathParam(value = "id") String id, RelationshipDV relationship)
    {
       logger.fine(() -> "Updating relationship [relationship/" + id + "]\n" + relationship);
 
@@ -79,7 +78,7 @@ public class RelationshipService
          updateCommand.setAll(relationship);
          updateCommand.execute().get();
 
-         RelationshipId result = new RelationshipId();
+         RestApiV1.RelationshipId result = new RestApiV1.RelationshipId();
          result.id = id;
          return result;
       }

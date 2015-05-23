@@ -1,11 +1,14 @@
-package edu.tamu.tcat.trc.entries.reln;
+package edu.tamu.tcat.trc.entries.types.reln.repo;
 
 import java.util.Set;
 import java.util.concurrent.Future;
 
-import edu.tamu.tcat.trc.entries.reln.model.AnchorDV;
-import edu.tamu.tcat.trc.entries.reln.model.ProvenanceDV;
-import edu.tamu.tcat.trc.entries.reln.model.RelationshipDV;
+import edu.tamu.tcat.trc.entries.types.reln.AnchorSet;
+import edu.tamu.tcat.trc.entries.types.reln.Relationship;
+import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
+import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDV;
+import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDV;
+import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;
 
 /**
  * Gives the ability to edit a {@link Relationship}. This will allow the clients
