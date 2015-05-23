@@ -62,4 +62,24 @@ public class RestApiV1
       /** A human readable description of this date. */
       public String description;
    }
+   
+   public static class SimplePersonResult
+   {
+      /**
+       * ID corresponding to the {@link Person} object that this simple data vehicle represents.
+       */
+      public String id;
+
+      /**
+       * Display name for this person (for use when populating fields)
+       */
+      public PersonName displayName;
+
+      /**
+       * Formatted name to display e.g. when linking to the underlying {@link Person}.
+       *
+       * This is essentially a string representation of the display name plus the lifespan of the person.
+       */
+      public String formattedName;
+   }
 }

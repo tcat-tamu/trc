@@ -2,7 +2,7 @@ package edu.tamu.tcat.trc.entries.types.bio.rest.v1;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -72,7 +72,7 @@ public class PeopleResource
 
    @GET
    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-   public List<SimplePersonResultDV> listPeople(@QueryParam(value="syntheticName") String prefix,
+   public List<RestApiV1.SimplePersonResult> listPeople(@QueryParam(value="syntheticName") String prefix,
                                                 @DefaultValue("50") @QueryParam(value="numResults") int numResults)
 
    {
@@ -80,7 +80,8 @@ public class PeopleResource
       PeopleQueryCommand peopleQuery = peopleSearchService.createQueryCommand();
       peopleQuery.search(prefix);
       peopleQuery.setRowLimit(numResults);
-      return Collections.unmodifiableList(peopleQuery.getResults());
+      List<SimplePersonResultDV> results = peopleQuery.getResults();
+      return SearchAdapter.toDTO(results);
 //      try {
 //         List<SimplePersonResultDV> results = new ArrayList<>();
 //
@@ -155,49 +156,55 @@ public class PeopleResource
    }
 
    /**
-    * An encapsulation of adapter methods to convert between the repository API to the {@link RestApiV1}
-    * schema DTOs.
+    * An encapsulation of adapter methods to convert between the repository API and
+    * the {@link RestApiV1} schema DTOs.
     */
    private static class RepoAdapter
    {
-      public static RestApiV1.Person toDTO(Person figure)
+      public static RestApiV1.Person toDTO(Person orig)
       {
+         if (orig == null)
+            return null;
          RestApiV1.Person dto = new RestApiV1.Person();
-         dto.id = figure.getId();
+         dto.id = orig.getId();
    
-         PersonName canonicalName = figure.getCanonicalName();
+         PersonName canonicalName = orig.getCanonicalName();
          if (canonicalName != null) {
             dto.displayName = toDTO(canonicalName);
          }
    
-         dto.names = figure.getAlternativeNames().stream()
+         dto.names = orig.getAlternativeNames().stream()
                         .map(RepoAdapter::toDTO)
                         .collect(Collectors.toSet());
    
-         dto.birth = toDTO(figure.getBirth());
-         dto.death = toDTO(figure.getDeath());
-         dto.summary = figure.getSummary();
+         dto.birth = toDTO(orig.getBirth());
+         dto.death = toDTO(orig.getDeath());
+         dto.summary = orig.getSummary();
    
          return dto;
       }
       
-      public static RestApiV1.PersonName toDTO(PersonName name)
+      public static RestApiV1.PersonName toDTO(PersonName orig)
       {
+         if (orig == null)
+            return null;
          RestApiV1.PersonName dto = new RestApiV1.PersonName();
    
-         dto.title = name.getTitle();
-         dto.givenName = name.getGivenName();
-         dto.middleName = name.getMiddleName();
-         dto.familyName = name.getFamilyName();
-         dto.suffix = name.getSuffix();
+         dto.title = orig.getTitle();
+         dto.givenName = orig.getGivenName();
+         dto.middleName = orig.getMiddleName();
+         dto.familyName = orig.getFamilyName();
+         dto.suffix = orig.getSuffix();
    
-         dto.displayName = name.getDisplayName();
+         dto.displayName = orig.getDisplayName();
    
          return dto;
       }
       
       public static RestApiV1.HistoricalEvent toDTO(HistoricalEvent orig)
       {
+         if (orig == null)
+            return null;
          RestApiV1.HistoricalEvent dto = new RestApiV1.HistoricalEvent();
          dto.id = orig.getId();
          dto.title = orig.getTitle();
@@ -209,6 +216,8 @@ public class PeopleResource
       
       public static RestApiV1.DateDescription toDTO(DateDescription orig)
       {
+         if (orig == null)
+            return null;
          RestApiV1.DateDescription dto = new RestApiV1.DateDescription();
          LocalDate d = orig.getCalendar();
          if (d != null)
@@ -221,40 +230,46 @@ public class PeopleResource
          return dto;
       }
       
-      public static PersonDTO toRepo(RestApiV1.Person person)
+      public static PersonDTO toRepo(RestApiV1.Person orig)
       {
+         if (orig == null)
+            return null;
          PersonDTO dto = new PersonDTO();
-         dto.id = person.id;
-         if (person.displayName != null)
-            dto.displayName = toRepo(person.displayName);
+         dto.id = orig.id;
+         if (orig.displayName != null)
+            dto.displayName = toRepo(orig.displayName);
          
-         dto.names = person.names.stream()
+         dto.names = orig.names.stream()
                .map(RepoAdapter::toRepo)
                .collect(Collectors.toSet());
 
-         dto.birth = toRepo(person.birth);
-         dto.death = toRepo(person.death);
-         dto.summary = person.summary;
+         dto.birth = toRepo(orig.birth);
+         dto.death = toRepo(orig.death);
+         dto.summary = orig.summary;
          return dto;
       }
 
-      public static PersonNameDTO toRepo(RestApiV1.PersonName name)
+      public static PersonNameDTO toRepo(RestApiV1.PersonName orig)
       {
+         if (orig == null)
+            return null;
          PersonNameDTO dto = new PersonNameDTO();
    
-         dto.title = name.title;
-         dto.givenName = name.givenName;
-         dto.middleName = name.middleName;
-         dto.familyName = name.familyName;
-         dto.suffix = name.suffix;
+         dto.title = orig.title;
+         dto.givenName = orig.givenName;
+         dto.middleName = orig.middleName;
+         dto.familyName = orig.familyName;
+         dto.suffix = orig.suffix;
    
-         dto.displayName = name.displayName;
+         dto.displayName = orig.displayName;
    
          return dto;
       }
       
       public static HistoricalEventDTO toRepo(RestApiV1.HistoricalEvent orig)
       {
+         if (orig == null)
+            return null;
          HistoricalEventDTO dto = new HistoricalEventDTO();
          dto.id = orig.id;
          dto.title = orig.title;
@@ -266,10 +281,52 @@ public class PeopleResource
       
       public static DateDescriptionDTO toRepo(RestApiV1.DateDescription orig)
       {
+         if (orig == null)
+            return null;
          DateDescriptionDTO dto = new DateDescriptionDTO();
          dto.calendar = orig.calendar;
          dto.description = orig.description;
          
+         return dto;
+      }
+   }
+   
+   /**
+    * An encapsulation of adapter methods to convert between the search API and
+    * the {@link RestApiV1} schema DTOs.
+    */
+   private static class SearchAdapter
+   {
+      public static List<RestApiV1.SimplePersonResult> toDTO(List<SimplePersonResultDV> origList)
+      {
+         if (origList == null)
+            return null;
+         List<RestApiV1.SimplePersonResult> dtoList = new ArrayList<>();
+         for (SimplePersonResultDV orig : origList)
+         {
+            RestApiV1.SimplePersonResult dto = new RestApiV1.SimplePersonResult();
+            dto.id = orig.id;
+            dto.displayName = toDTO(orig.displayName);
+            dto.formattedName = orig.formattedName;
+            
+            dtoList.add(dto);
+         }
+         
+         return dtoList;
+      }
+
+      private static RestApiV1.PersonName toDTO(PersonNameDTO orig)
+      {
+         if (orig == null)
+            return null;
+         RestApiV1.PersonName dto = new RestApiV1.PersonName();
+         dto.title = orig.title;
+         dto.givenName = orig.givenName;
+         dto.middleName = orig.middleName;
+         dto.familyName = orig.familyName;
+         dto.suffix = orig.suffix;
+   
+         dto.displayName = orig.displayName;
          return dto;
       }
    }
