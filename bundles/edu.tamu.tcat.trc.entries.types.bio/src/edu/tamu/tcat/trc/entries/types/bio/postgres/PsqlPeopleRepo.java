@@ -236,8 +236,9 @@ public class PsqlPeopleRepo implements PeopleRepository
    }
 
    @Override
-   public EditPersonCommand update(PersonDTO dto) throws NoSuchCatalogRecordException
+   public EditPersonCommand update(String personId) throws NoSuchCatalogRecordException
    {
+      PersonDTO dto = PersonDTO.create(get(personId));
       EditPeopleCommandImpl command = new EditPeopleCommandImpl(dto);
       command.setCommitHook((p) -> {
          PeopleChangeNotifier modifiedNotifier = new PeopleChangeNotifier(ChangeType.MODIFIED);

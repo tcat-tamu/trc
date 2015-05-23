@@ -6,7 +6,6 @@ import edu.tamu.tcat.trc.entries.datastore.DataUpdateObserver;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
-import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
 
 /**
  *
@@ -67,7 +66,7 @@ public interface PeopleRepository
     *       this operation.
     * @throws NoSuchCatalogRecordException
     */
-   EditPersonCommand update(PersonDTO personId) throws NoSuchCatalogRecordException;
+   EditPersonCommand update(String personId) throws NoSuchCatalogRecordException;
 
    /**
     * Marks the entry for the identified person as having been deleted. References to this

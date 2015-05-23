@@ -1,8 +1,11 @@
 package edu.tamu.tcat.trc.entries.types.bio.rest.v1;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -16,9 +19,15 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import edu.tamu.tcat.catalogentries.events.dv.DateDescriptionDV;
+import edu.tamu.tcat.catalogentries.events.dv.HistoricalEventDV;
+import edu.tamu.tcat.trc.entries.common.DateDescription;
+import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
+import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
+import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleQueryCommand;
@@ -95,7 +104,7 @@ public class PeopleResource
    @GET
    @Path("{personId}")
    @Produces(MediaType.APPLICATION_JSON)
-   public PersonDTO getPerson(@PathParam(value="personId") String personId) throws NoSuchCatalogRecordException
+   public RestApiV1.Person getPerson(@PathParam(value="personId") String personId) throws NoSuchCatalogRecordException
    {
       // FIXME make this a string based identifier
       // TODO make this a mangled string instead of an ID. Don't want people guessing
@@ -104,18 +113,18 @@ public class PeopleResource
       //       CatalogRepoException should map to internal error.
       //       NoSuchCatalogRecordException should map to 404
       Person figure = repo.get(personId);
-      return PersonDTO.create(figure);
+      return RepoAdapter.toDTO(figure);
    }
-
+   
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public PersonId createPerson(PersonDTO person) throws Exception
+   public RestApiV1.PersonId createPerson(RestApiV1.Person person) throws Exception
    {
-      PersonId personId = new PersonId();
+      RestApiV1.PersonId personId = new RestApiV1.PersonId();
       EditPersonCommand createCommand = repo.create();
 
-      createCommand.setAll(person);
+      createCommand.setAll(RepoAdapter.toRepo(person));
       String id = createCommand.execute().get();
       personId.id = id;
       return personId;
@@ -125,11 +134,13 @@ public class PeopleResource
    @Path("{personId}")
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public PersonId updatePerson(PersonDTO person) throws Exception
+   public RestApiV1.PersonId updatePerson(RestApiV1.Person person) throws Exception
    {
-      PersonId personId = new PersonId();
-      EditPersonCommand updateCommand = repo.update(person);
+      EditPersonCommand updateCommand = repo.update(person.id);
+      updateCommand.setAll(RepoAdapter.toRepo(person));
       updateCommand.execute().get();
+      
+      RestApiV1.PersonId personId = new RestApiV1.PersonId();
       personId.id = person.id;
       return personId;
    }
@@ -143,12 +154,123 @@ public class PeopleResource
       deleteCommand.execute();
    }
 
-
    /**
-    * Wrapper to format JSON results
+    * An encapsulation of adapter methods to convert between the repository API to the {@link RestApiV1}
+    * schema DTOs.
     */
-   public class PersonId
+   private static class RepoAdapter
    {
-      public String id;
+      public static RestApiV1.Person toDTO(Person figure)
+      {
+         RestApiV1.Person dto = new RestApiV1.Person();
+         dto.id = figure.getId();
+   
+         PersonName canonicalName = figure.getCanonicalName();
+         if (canonicalName != null) {
+            dto.displayName = toDTO(canonicalName);
+         }
+   
+         dto.names = figure.getAlternativeNames().stream()
+                        .map(RepoAdapter::toDTO)
+                        .collect(Collectors.toSet());
+   
+         dto.birth = toDTO(figure.getBirth());
+         dto.death = toDTO(figure.getDeath());
+         dto.summary = figure.getSummary();
+   
+         return dto;
+      }
+      
+      public static RestApiV1.PersonName toDTO(PersonName name)
+      {
+         RestApiV1.PersonName dto = new RestApiV1.PersonName();
+   
+         dto.title = name.getTitle();
+         dto.givenName = name.getGivenName();
+         dto.middleName = name.getMiddleName();
+         dto.familyName = name.getFamilyName();
+         dto.suffix = name.getSuffix();
+   
+         dto.displayName = name.getDisplayName();
+   
+         return dto;
+      }
+      
+      public static RestApiV1.HistoricalEvent toDTO(HistoricalEvent orig)
+      {
+         RestApiV1.HistoricalEvent dto = new RestApiV1.HistoricalEvent();
+         dto.id = orig.getId();
+         dto.title = orig.getTitle();
+         dto.description = orig.getDescription();
+         dto.location = orig.getLocation();
+         dto.date = toDTO(orig.getDate());
+         return dto;
+      }
+      
+      public static RestApiV1.DateDescription toDTO(DateDescription orig)
+      {
+         RestApiV1.DateDescription dto = new RestApiV1.DateDescription();
+         LocalDate d = orig.getCalendar();
+         if (d != null)
+         {
+            dto.calendar = DateTimeFormatter.ISO_LOCAL_DATE.format(d);
+         }
+   
+         dto.description = orig.getDescription();
+         
+         return dto;
+      }
+      
+      public static PersonDTO toRepo(RestApiV1.Person person)
+      {
+         PersonDTO dto = new PersonDTO();
+         dto.id = person.id;
+         if (person.displayName != null)
+            dto.displayName = toRepo(person.displayName);
+         
+         dto.names = person.names.stream()
+               .map(RepoAdapter::toRepo)
+               .collect(Collectors.toSet());
+
+         dto.birth = toRepo(person.birth);
+         dto.death = toRepo(person.death);
+         dto.summary = person.summary;
+         return dto;
+      }
+
+      public static PersonNameDTO toRepo(RestApiV1.PersonName name)
+      {
+         PersonNameDTO dto = new PersonNameDTO();
+   
+         dto.title = name.title;
+         dto.givenName = name.givenName;
+         dto.middleName = name.middleName;
+         dto.familyName = name.familyName;
+         dto.suffix = name.suffix;
+   
+         dto.displayName = name.displayName;
+   
+         return dto;
+      }
+      
+      public static HistoricalEventDV toRepo(RestApiV1.HistoricalEvent orig)
+      {
+         HistoricalEventDV dto = new HistoricalEventDV();
+         dto.id = orig.id;
+         dto.title = orig.title;
+         dto.description = orig.description;
+         dto.location = orig.location;
+         dto.date = toRepo(orig.date);
+         return dto;
+      }
+      
+      public static DateDescriptionDV toRepo(RestApiV1.DateDescription orig)
+      {
+         DateDescriptionDV dto = new DateDescriptionDV();
+         dto.calendar = orig.calendar;
+         dto.description = orig.description;
+         
+         return dto;
+      }
    }
 }
