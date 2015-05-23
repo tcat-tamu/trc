@@ -4,16 +4,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import edu.tamu.tcat.trc.entries.bib.AuthorReference;
-import edu.tamu.tcat.trc.entries.bib.EditWorkCommand;
-import edu.tamu.tcat.trc.entries.bib.Edition;
-import edu.tamu.tcat.trc.entries.bib.Volume;
-import edu.tamu.tcat.trc.entries.bib.Work;
-import edu.tamu.tcat.trc.entries.bib.WorkRepository;
-import edu.tamu.tcat.trc.entries.bib.WorksChangeEvent;
-import edu.tamu.tcat.trc.entries.bib.dto.WorkDV;
 import edu.tamu.tcat.trc.entries.core.IdFactory;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
+import edu.tamu.tcat.trc.entries.types.bib.AuthorReference;
+import edu.tamu.tcat.trc.entries.types.bib.Edition;
+import edu.tamu.tcat.trc.entries.types.bib.Volume;
+import edu.tamu.tcat.trc.entries.types.bib.Work;
+import edu.tamu.tcat.trc.entries.types.bib.dto.WorkDV;
+import edu.tamu.tcat.trc.entries.types.bib.repo.EditWorkCommand;
+import edu.tamu.tcat.trc.entries.types.bib.repo.WorkRepository;
+import edu.tamu.tcat.trc.entries.types.bib.repo.WorkChangeEvent;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 
 /**
@@ -113,14 +113,14 @@ public class MockWorkRepository implements WorkRepository
    }
 
    @Override
-   public AutoCloseable addBeforeUpdateListener(Consumer<WorksChangeEvent> ears)
+   public AutoCloseable addBeforeUpdateListener(Consumer<WorkChangeEvent> ears)
    {
       // TODO Auto-generated method stub
       return null;
    }
 
    @Override
-   public AutoCloseable addAfterUpdateListener(Consumer<WorksChangeEvent> ears)
+   public AutoCloseable addAfterUpdateListener(Consumer<WorkChangeEvent> ears)
    {
       // TODO Auto-generated method stub
       return null;

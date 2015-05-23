@@ -10,8 +10,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.tamu.tcat.trc.entries.bib.Title;
-import edu.tamu.tcat.trc.entries.bib.dto.TitleDV;
+import edu.tamu.tcat.trc.entries.types.bib.Title;
+import edu.tamu.tcat.trc.entries.types.bib.dto.TitleDV;
 
 /**
  *  Tests data serialization/deserialization for basic domain model implementation. For each

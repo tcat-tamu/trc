@@ -5,8 +5,7 @@ Bundle-SymbolicName: edu.tamu.tcat.trc.resources.rest
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Texas A&M Engineering Experiment Station
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: edu.tamu.tcat.trc.entries.bib,
- edu.tamu.tcat.trc.resources.books.discovery,
+Import-Package: edu.tamu.tcat.trc.resources.books.discovery,
  edu.tamu.tcat.trc.resources.books.hathitrust,
  edu.tamu.tcat.trc.resources.books.resolve,
  javax.ws.rs;version="2.0.0",

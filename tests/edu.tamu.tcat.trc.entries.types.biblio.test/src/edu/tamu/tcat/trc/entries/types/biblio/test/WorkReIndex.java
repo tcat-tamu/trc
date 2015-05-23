@@ -23,11 +23,11 @@ import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.sda.catalog.psql.provider.PsqlDataSourceProvider;
-import edu.tamu.tcat.trc.entries.bib.Edition;
-import edu.tamu.tcat.trc.entries.bib.Volume;
-import edu.tamu.tcat.trc.entries.bib.Work;
-import edu.tamu.tcat.trc.entries.bib.postgres.PsqlWorkRepo;
-import edu.tamu.tcat.trc.entries.bib.search.solr.WorkSolrProxy;
+import edu.tamu.tcat.trc.entries.types.bib.Edition;
+import edu.tamu.tcat.trc.entries.types.bib.Volume;
+import edu.tamu.tcat.trc.entries.types.bib.Work;
+import edu.tamu.tcat.trc.entries.types.bib.postgres.PsqlWorkRepo;
+import edu.tamu.tcat.trc.entries.types.bib.search.solr.WorkSolrProxy;
 
 public class WorkReIndex
 {
