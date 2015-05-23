@@ -16,7 +16,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
-import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipNotAvailableException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipPersistenceException;
@@ -44,12 +43,12 @@ public class RelationshipService
 
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public RelationshipDV get(@PathParam(value = "id") String id)
+   public RestApiV1.Relationship get(@PathParam(value = "id") String id)
    {
       logger.fine(() -> "Retrieving relationship [relationship/" + id + "]");
       try {
          Relationship reln = repo.get(id);
-         return RelationshipDV.create(reln);
+         return RepoAdapter.toDTO(reln);
       }
       catch (RelationshipNotAvailableException nae)
       {
@@ -67,7 +66,7 @@ public class RelationshipService
    @PUT
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.RelationshipId update(@PathParam(value = "id") String id, RelationshipDV relationship)
+   public RestApiV1.RelationshipId update(@PathParam(value = "id") String id, RestApiV1.Relationship relationship)
    {
       logger.fine(() -> "Updating relationship [relationship/" + id + "]\n" + relationship);
 
@@ -75,7 +74,7 @@ public class RelationshipService
       try
       {
          EditRelationshipCommand updateCommand = repo.edit(id);
-         updateCommand.setAll(relationship);
+         updateCommand.setAll(RepoAdapter.toRepo(relationship));
          updateCommand.execute().get();
 
          RestApiV1.RelationshipId result = new RestApiV1.RelationshipId();
@@ -91,7 +90,7 @@ public class RelationshipService
       }
    }
 
-   private void checkRelationshipValidity(RelationshipDV reln, String id)
+   private void checkRelationshipValidity(RestApiV1.Relationship reln, String id)
    {
       if (!reln.id.equals(id))
       {
@@ -108,5 +107,4 @@ public class RelationshipService
    {
       repo.delete(id);
    }
-
 }

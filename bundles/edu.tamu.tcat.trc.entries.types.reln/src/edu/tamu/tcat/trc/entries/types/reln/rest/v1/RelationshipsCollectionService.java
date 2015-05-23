@@ -20,7 +20,6 @@ import com.google.common.base.Joiner;
 
 import edu.tamu.tcat.trc.entries.reln.RelationshipDirection;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
-import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
@@ -56,7 +55,7 @@ public class RelationshipsCollectionService
    // /relationships?entity=<uri>[&type=<type_id>][&direction=from|to|any]
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public List<RelationshipDV> getRelationships(
+   public List<RestApiV1.Relationship> getRelationships(
          @QueryParam(value="entity") URI entity,
          @QueryParam(value="type") String type,
          @QueryParam(value="direction") String d)
@@ -75,10 +74,10 @@ public class RelationshipsCollectionService
          queryCommand.byType(type);
       }
 
-      List<RelationshipDV> relnDV = new ArrayList<>();
+      List<RestApiV1.Relationship> relnDV = new ArrayList<>();
       for (Relationship reln : queryCommand.getResults())
       {
-         relnDV.add(RelationshipDV.create(reln));
+         relnDV.add(RepoAdapter.toDTO(reln));
       }
 
       return relnDV;
@@ -87,15 +86,15 @@ public class RelationshipsCollectionService
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.RelationshipId createRelationship(RelationshipDV relationship)
+   public RestApiV1.RelationshipId createRelationship(RestApiV1.Relationship relationship)
    {
       EditRelationshipCommand createCommand;
       try
       {
-         RestApiV1.RelationshipId result = new RestApiV1.RelationshipId();
          createCommand = repo.create();
-         createCommand.setAll(relationship);
+         createCommand.setAll(RepoAdapter.toRepo(relationship));
 
+         RestApiV1.RelationshipId result = new RestApiV1.RelationshipId();
          result.id = createCommand.execute().get();
          return result;
       }

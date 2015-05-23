@@ -17,7 +17,6 @@ import javax.ws.rs.core.MediaType;
 
 import edu.tamu.tcat.trc.entries.reln.RelationshipException;
 import edu.tamu.tcat.trc.entries.reln.RelationshipTypeRegistry;
-import edu.tamu.tcat.trc.entries.reln.rest.v1.model.RelationshipTypeDTO;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 
 @Path("/relationships/types")
@@ -49,7 +48,7 @@ public class RelationshipTypeService
    @GET
    @Produces(MediaType.APPLICATION_JSON)
    @Path("{typeId}")
-   public RelationshipTypeDTO getType(@PathParam(value = "typeId") String id)
+   public RestApiV1.RelationshipType getType(@PathParam(value = "typeId") String id)
    {
       // HACK: handle threading issues
       if (registry == null)
@@ -58,7 +57,7 @@ public class RelationshipTypeService
       try
       {
          RelationshipType relnType = registry.resolve(id);
-         return RelationshipTypeDTO.create(relnType);
+         return RepoAdapter.toDTO(relnType);
       }
       catch (RelationshipException e)
       {
@@ -68,7 +67,7 @@ public class RelationshipTypeService
 
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public Collection<RelationshipTypeDTO> listDefinedTypes()
+   public Collection<RestApiV1.RelationshipType> listDefinedTypes()
    {
       // NOTE: for now, we'll return the full list since we assume this is a fairly limited set
       //       if/when that changes, we'll need a more fully featured paged listing and some
@@ -77,7 +76,7 @@ public class RelationshipTypeService
       if (registry == null)
          throw new ServiceUnavailableException("Relationship types are currently unavailable.");
 
-      Set<RelationshipTypeDTO> results = new HashSet<>();
+      Set<RestApiV1.RelationshipType> results = new HashSet<>();
       Set<String> typeIds = registry.list();
 
       typeIds.forEach((id) -> {
@@ -90,5 +89,4 @@ public class RelationshipTypeService
 
       return results;
    }
-
 }
