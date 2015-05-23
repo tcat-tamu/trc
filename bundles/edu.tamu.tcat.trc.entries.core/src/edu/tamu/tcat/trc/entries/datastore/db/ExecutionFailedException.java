@@ -1,4 +1,4 @@
-package edu.tamu.tcat.sda.catalog.psql;
+package edu.tamu.tcat.trc.entries.datastore.db;
 
 public class ExecutionFailedException extends Exception
 {

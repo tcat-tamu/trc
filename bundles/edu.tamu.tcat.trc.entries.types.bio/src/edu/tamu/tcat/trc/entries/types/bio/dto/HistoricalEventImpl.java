@@ -1,4 +1,4 @@
-package edu.tamu.tcat.sda.catalog.events.psql;
+package edu.tamu.tcat.trc.entries.types.bio.dto;
 
 import java.time.Instant;
 import java.time.LocalDate;

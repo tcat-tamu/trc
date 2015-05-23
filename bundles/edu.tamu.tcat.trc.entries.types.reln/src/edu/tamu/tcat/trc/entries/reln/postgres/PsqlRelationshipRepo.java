@@ -16,9 +16,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
-import edu.tamu.tcat.sda.catalog.psql.ObservableTaskWrapper;
 import edu.tamu.tcat.trc.entries.core.IdFactory;
 import edu.tamu.tcat.trc.entries.datastore.DataUpdateObserver;
+import edu.tamu.tcat.trc.entries.datastore.db.ObservableTaskWrapper;
 import edu.tamu.tcat.trc.entries.reln.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.reln.Relationship;
 import edu.tamu.tcat.trc.entries.reln.RelationshipChangeEvent;

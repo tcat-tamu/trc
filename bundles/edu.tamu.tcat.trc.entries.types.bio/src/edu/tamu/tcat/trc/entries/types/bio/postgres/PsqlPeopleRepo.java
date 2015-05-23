@@ -23,10 +23,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
-import edu.tamu.tcat.sda.catalog.psql.ExecutionFailedException;
-import edu.tamu.tcat.sda.catalog.psql.ObservableTaskWrapper;
 import edu.tamu.tcat.trc.entries.core.IdFactory;
 import edu.tamu.tcat.trc.entries.datastore.DataUpdateObserverAdapter;
+import edu.tamu.tcat.trc.entries.datastore.db.ExecutionFailedException;
+import edu.tamu.tcat.trc.entries.datastore.db.ObservableTaskWrapper;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bio.Person;

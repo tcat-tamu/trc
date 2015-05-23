@@ -5,7 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
-import edu.tamu.tcat.sda.catalog.psql.ExecutionFailedException;
+import edu.tamu.tcat.trc.entries.datastore.db.ExecutionFailedException;
 
 public class PsqlDeleteRelationshipTask implements SqlExecutor.ExecutorTask<Void>
 {

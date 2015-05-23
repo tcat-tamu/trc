@@ -10,7 +10,7 @@ import org.postgresql.util.PGobject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
-import edu.tamu.tcat.sda.catalog.psql.ExecutionFailedException;
+import edu.tamu.tcat.trc.entries.datastore.db.ExecutionFailedException;
 import edu.tamu.tcat.trc.entries.reln.model.RelationshipDV;
 
 public class PsqlUpdateRelationshipTask implements SqlExecutor.ExecutorTask<String>
