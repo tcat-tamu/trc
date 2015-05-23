@@ -2,7 +2,7 @@ package edu.tamu.tcat.catalogentries.events.dv;
 
 import java.util.Date;
 
-import edu.tamu.tcat.catalogentries.events.HistoricalEvent;
+import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
 
 public class HistoricalEventDV
 {

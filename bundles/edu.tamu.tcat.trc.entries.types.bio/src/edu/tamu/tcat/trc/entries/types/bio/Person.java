@@ -2,7 +2,7 @@ package edu.tamu.tcat.trc.entries.types.bio;
 
 import java.util.Set;
 
-import edu.tamu.tcat.catalogentries.events.HistoricalEvent;
+import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
 
 /**
  * Represents a historical figure described in the collection. This is typically used to

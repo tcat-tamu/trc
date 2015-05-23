@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.logging.Logger;
 
-import edu.tamu.tcat.catalogentries.events.DateDescription;
+import edu.tamu.tcat.trc.entries.common.DateDescription;
 
 /**
  * A simple representation of historical date information that includes both a calendar

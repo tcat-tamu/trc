@@ -1,6 +1,6 @@
 package edu.tamu.tcat.trc.entries.bib;
 
-import edu.tamu.tcat.catalogentries.events.DateDescription;
+import edu.tamu.tcat.trc.entries.common.DateDescription;
 
 
 /**

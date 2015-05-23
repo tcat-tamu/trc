@@ -1,4 +1,4 @@
-package edu.tamu.tcat.catalogentries.events;
+package edu.tamu.tcat.trc.entries.common;
 
 
 /**

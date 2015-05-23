@@ -6,10 +6,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-import edu.tamu.tcat.catalogentries.events.DateDescription;
-import edu.tamu.tcat.catalogentries.events.HistoricalEvent;
 import edu.tamu.tcat.catalogentries.events.dv.DateDescriptionDV;
 import edu.tamu.tcat.catalogentries.events.dv.HistoricalEventDV;
+import edu.tamu.tcat.trc.entries.common.DateDescription;
+import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
 
 public class HistoricalEventImpl implements HistoricalEvent
 {

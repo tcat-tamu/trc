@@ -1,8 +1,8 @@
 package edu.tamu.tcat.trc.entries.bib.dto;
 
-import edu.tamu.tcat.catalogentries.events.DateDescription;
 import edu.tamu.tcat.catalogentries.events.dv.DateDescriptionDV;
 import edu.tamu.tcat.trc.entries.bib.PublicationInfo;
+import edu.tamu.tcat.trc.entries.common.DateDescription;
 
 public class PublicationInfoDV
 {
