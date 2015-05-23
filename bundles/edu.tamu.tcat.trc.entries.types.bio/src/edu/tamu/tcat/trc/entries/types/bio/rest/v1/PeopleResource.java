@@ -19,10 +19,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import edu.tamu.tcat.catalogentries.events.dv.DateDescriptionDV;
-import edu.tamu.tcat.catalogentries.events.dv.HistoricalEventDV;
 import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
+import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
+import edu.tamu.tcat.trc.entries.common.dto.HistoricalEventDTO;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
@@ -253,9 +253,9 @@ public class PeopleResource
          return dto;
       }
       
-      public static HistoricalEventDV toRepo(RestApiV1.HistoricalEvent orig)
+      public static HistoricalEventDTO toRepo(RestApiV1.HistoricalEvent orig)
       {
-         HistoricalEventDV dto = new HistoricalEventDV();
+         HistoricalEventDTO dto = new HistoricalEventDTO();
          dto.id = orig.id;
          dto.title = orig.title;
          dto.description = orig.description;
@@ -264,9 +264,9 @@ public class PeopleResource
          return dto;
       }
       
-      public static DateDescriptionDV toRepo(RestApiV1.DateDescription orig)
+      public static DateDescriptionDTO toRepo(RestApiV1.DateDescription orig)
       {
-         DateDescriptionDV dto = new DateDescriptionDV();
+         DateDescriptionDTO dto = new DateDescriptionDTO();
          dto.calendar = orig.calendar;
          dto.description = orig.description;
          

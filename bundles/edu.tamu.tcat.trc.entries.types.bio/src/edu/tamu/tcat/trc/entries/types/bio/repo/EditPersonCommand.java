@@ -3,7 +3,7 @@ package edu.tamu.tcat.trc.entries.types.bio.repo;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-import edu.tamu.tcat.catalogentries.events.dv.HistoricalEventDV;
+import edu.tamu.tcat.trc.entries.common.dto.HistoricalEventDTO;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
@@ -37,13 +37,13 @@ public interface EditPersonCommand
     * Updates the persons birth as a historical event
     * @param birth
     */
-   void setBirthEvt(HistoricalEventDV birth);
+   void setBirthEvt(HistoricalEventDTO birth);
 
    /**
     * Updates the persons death as a hsitorical event
     * @param death
     */
-   void setDeathEvt(HistoricalEventDV death);
+   void setDeathEvt(HistoricalEventDTO death);
 
    /**
     * Updates the provided description of the person.

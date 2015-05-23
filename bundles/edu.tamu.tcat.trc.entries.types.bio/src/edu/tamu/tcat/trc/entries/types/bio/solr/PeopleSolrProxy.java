@@ -10,8 +10,8 @@ import org.apache.solr.common.SolrInputDocument;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import edu.tamu.tcat.catalogentries.events.dv.DateDescriptionDV;
-import edu.tamu.tcat.catalogentries.events.dv.HistoricalEventDV;
+import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
+import edu.tamu.tcat.trc.entries.common.dto.HistoricalEventDTO;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
@@ -70,13 +70,13 @@ public class PeopleSolrProxy
       proxy.document.addField(familyName, guardNull(name.familyName));
       proxy.document.addField(displayName, guardNull(name.displayName));
 
-      HistoricalEventDV birth = personDV.birth;
+      HistoricalEventDTO birth = personDV.birth;
       proxy.document.addField(birthLocation, guardNull(birth.location));
-      DateDescriptionDV bDate = birth.date;
+      DateDescriptionDTO bDate = birth.date;
       if (bDate != null)
          proxy.document.addField(birthDate, convertDate(bDate));
 
-      HistoricalEventDV death = personDV.birth;
+      HistoricalEventDTO death = personDV.birth;
       proxy.document.addField(deathLocation, guardNull(death.location));
       if (death.date != null)
          proxy.document.addField(deathDate, convertDate(death.date));
@@ -93,7 +93,7 @@ public class PeopleSolrProxy
       return value == null ? "" : value;
    }
 
-   private static String convertDate(DateDescriptionDV date)
+   private static String convertDate(DateDescriptionDTO date)
    {
       if (date.calendar != null)
          return date.calendar + "T00:00:00Z";

@@ -1,10 +1,10 @@
-package edu.tamu.tcat.catalogentries.events.dv;
+package edu.tamu.tcat.trc.entries.common.dto;
 
 import java.util.Date;
 
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
 
-public class HistoricalEventDV
+public class HistoricalEventDTO
 {
 
    public String id;
@@ -13,23 +13,23 @@ public class HistoricalEventDV
    public String location;
 
    /** The date this event took place. */
-   public DateDescriptionDV date;
+   public DateDescriptionDTO date;
 
    /** Replaced by date. */
    @Deprecated
    public Date eventDate;
 
-   public HistoricalEventDV()
+   public HistoricalEventDTO()
    {
 
    }
 
-   public HistoricalEventDV(HistoricalEvent orig)
+   public HistoricalEventDTO(HistoricalEvent orig)
    {
       this.id = orig.getId();
       this.title = orig.getTitle();
       this.description = orig.getDescription();
       this.location = orig.getLocation();
-      this.date = new DateDescriptionDV(orig.getDate());
+      this.date = new DateDescriptionDTO(orig.getDate());
    }
 }

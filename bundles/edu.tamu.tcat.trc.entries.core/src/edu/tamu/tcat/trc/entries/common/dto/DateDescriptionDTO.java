@@ -1,4 +1,4 @@
-package edu.tamu.tcat.catalogentries.events.dv;
+package edu.tamu.tcat.trc.entries.common.dto;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -11,9 +11,9 @@ import edu.tamu.tcat.trc.entries.common.DateDescription;
  * A simple representation of historical date information that includes both a calendar
  * data (a Java {@link Instant}) and a description of that date.
  */
-public class DateDescriptionDV
+public class DateDescriptionDTO
 {
-   private static final Logger logger = Logger.getLogger(DateDescriptionDV.class.getName());
+   private static final Logger logger = Logger.getLogger(DateDescriptionDTO.class.getName());
 
    public static java.time.format.DateTimeFormatter Iso8601Formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
@@ -23,17 +23,17 @@ public class DateDescriptionDV
    /** A human readable description of this date. */
    public String description;     // NOTE use this to capture intended degree of precision
 
-   public DateDescriptionDV()
+   public DateDescriptionDTO()
    {
    }
 
-   public DateDescriptionDV(String description, LocalDate calendar)
+   public DateDescriptionDTO(String description, LocalDate calendar)
    {
       this.description = description;
       this.calendar = (calendar == null) ? null : Iso8601Formatter.format(calendar);
    }
 
-   public DateDescriptionDV(DateDescription date)
+   public DateDescriptionDTO(DateDescription date)
    {
       LocalDate d = date.getCalendar();
       if (d != null)
@@ -41,13 +41,13 @@ public class DateDescriptionDV
          this.calendar = Iso8601Formatter.format(d);
       }
 
-      // TODO convert legacy eventDate into DateDescriptionDV and set to null
+      // TODO convert legacy eventDate into DateDescriptionDTO and set to null
       this.description = date.getDescription();
    }
 
-   public static DateDescription convert(DateDescriptionDV dv)
+   public static DateDescription convert(DateDescriptionDTO dv)
    {
-      return dv == null ? new DateDescriptionImpl(new DateDescriptionDV()) : new DateDescriptionImpl(dv);
+      return dv == null ? new DateDescriptionImpl(new DateDescriptionDTO()) : new DateDescriptionImpl(dv);
    }
 
    private static final class DateDescriptionImpl implements DateDescription
@@ -55,13 +55,13 @@ public class DateDescriptionDV
       private final String description;
       private final LocalDate value;
 
-      DateDescriptionImpl(DateDescriptionDV dv)
+      DateDescriptionImpl(DateDescriptionDTO dv)
       {
          this.description = dv.description;
          this.value = extractCalendarDate(dv);
       }
 
-      private static LocalDate extractCalendarDate(DateDescriptionDV dv)
+      private static LocalDate extractCalendarDate(DateDescriptionDTO dv)
       {
          try
          {

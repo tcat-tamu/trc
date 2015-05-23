@@ -7,9 +7,9 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import edu.tamu.tcat.catalogentries.events.dv.HistoricalEventDV;
 import edu.tamu.tcat.sda.catalog.events.psql.HistoricalEventImpl;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
+import edu.tamu.tcat.trc.entries.common.dto.HistoricalEventDTO;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 
@@ -21,8 +21,8 @@ public class PersonDTO
    public String id;
    public PersonNameDTO displayName;
    public Set<PersonNameDTO> names;
-   public HistoricalEventDV birth;
-   public HistoricalEventDV death;
+   public HistoricalEventDTO birth;
+   public HistoricalEventDTO death;
    public String summary;
 
    public static PersonDTO create(Person figure)
@@ -39,8 +39,8 @@ public class PersonDTO
                      .map(PersonNameDTO::create)
                      .collect(Collectors.toSet());
 
-      dto.birth = new HistoricalEventDV(figure.getBirth());
-      dto.death = new HistoricalEventDV(figure.getDeath());
+      dto.birth = new HistoricalEventDTO(figure.getBirth());
+      dto.death = new HistoricalEventDTO(figure.getDeath());
       dto.summary = figure.getSummary();
 
       return dto;

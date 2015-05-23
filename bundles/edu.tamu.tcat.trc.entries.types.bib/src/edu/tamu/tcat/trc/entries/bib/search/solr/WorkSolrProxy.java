@@ -12,7 +12,6 @@ import org.apache.solr.common.SolrInputDocument;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import edu.tamu.tcat.catalogentries.events.dv.DateDescriptionDV;
 import edu.tamu.tcat.trc.entries.bib.Edition;
 import edu.tamu.tcat.trc.entries.bib.Volume;
 import edu.tamu.tcat.trc.entries.bib.Work;
@@ -23,6 +22,7 @@ import edu.tamu.tcat.trc.entries.bib.dto.TitleDV;
 import edu.tamu.tcat.trc.entries.bib.dto.VolumeDV;
 import edu.tamu.tcat.trc.entries.bib.dto.WorkDV;
 import edu.tamu.tcat.trc.entries.bib.search.WorkSearchProxy;
+import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
 
 public class WorkSolrProxy
 {
@@ -337,7 +337,7 @@ public class WorkSolrProxy
       else
          document.addField(pubLocation, "");
 
-      DateDescriptionDV dateDescription = publication.date;
+      DateDescriptionDTO dateDescription = publication.date;
       document.addField(pubDateString, dateDescription.description);
 
       if (dateDescription.calendar != null)
@@ -355,7 +355,7 @@ public class WorkSolrProxy
       else
          document.addField(pubLocation, "");
 
-      DateDescriptionDV dateDescription = publication.date;
+      DateDescriptionDTO dateDescription = publication.date;
       document.addField(pubDateString, dateDescription.description);
 
       if (dateDescription.calendar != null)

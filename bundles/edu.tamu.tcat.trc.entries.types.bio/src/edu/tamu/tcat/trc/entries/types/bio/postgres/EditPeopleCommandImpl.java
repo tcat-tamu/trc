@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.Function;
 
-import edu.tamu.tcat.catalogentries.events.dv.HistoricalEventDV;
+import edu.tamu.tcat.trc.entries.common.dto.HistoricalEventDTO;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
@@ -50,13 +50,13 @@ public class EditPeopleCommandImpl implements EditPersonCommand
    }
 
    @Override
-   public void setBirthEvt(HistoricalEventDV birth)
+   public void setBirthEvt(HistoricalEventDTO birth)
    {
       person.birth = birth;
    }
 
    @Override
-   public void setDeathEvt(HistoricalEventDV death)
+   public void setDeathEvt(HistoricalEventDTO death)
    {
       person.death = death;
    }

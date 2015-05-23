@@ -1,28 +1,28 @@
 package edu.tamu.tcat.trc.entries.bib.dto;
 
-import edu.tamu.tcat.catalogentries.events.dv.DateDescriptionDV;
 import edu.tamu.tcat.trc.entries.bib.PublicationInfo;
 import edu.tamu.tcat.trc.entries.common.DateDescription;
+import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
 
 public class PublicationInfoDV
 {
    public String publisher;
    public String place;
-   public DateDescriptionDV date;
+   public DateDescriptionDTO date;
 
    public static PublicationInfoDV create(PublicationInfo pubInfo)
    {
       PublicationInfoDV dto = new PublicationInfoDV();
       dto.publisher = pubInfo.getPublisher();
       dto.place = pubInfo.getLocation();
-      dto.date = new DateDescriptionDV(pubInfo.getPublicationDate());
+      dto.date = new DateDescriptionDTO(pubInfo.getPublicationDate());
 
       return dto;
    }
 
    public static PublicationInfo instantiate(PublicationInfoDV pubInfo)
    {
-      return new PublicationImpl(pubInfo.place, pubInfo.publisher, DateDescriptionDV.convert(pubInfo.date));
+      return new PublicationImpl(pubInfo.place, pubInfo.publisher, DateDescriptionDTO.convert(pubInfo.date));
    }
 
    public static class PublicationImpl implements PublicationInfo

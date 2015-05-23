@@ -117,7 +117,7 @@ public class EditWorkCommandImpl implements EditWorkCommand
 //      }
 //
 //      if (null == work.pubInfo.date) {
-//         work.pubInfo.date = new DateDescriptionDV();
+//         work.pubInfo.date = new DateDescriptionDTO();
 //      }
 //
 //      work.pubInfo.date.value = pubDate;
@@ -131,7 +131,7 @@ public class EditWorkCommandImpl implements EditWorkCommand
 //      }
 //
 //      if (null == work.pubInfo.date) {
-//         work.pubInfo.date = new DateDescriptionDV();
+//         work.pubInfo.date = new DateDescriptionDTO();
 //      }
 //
 //      work.pubInfo.date.display = display;
