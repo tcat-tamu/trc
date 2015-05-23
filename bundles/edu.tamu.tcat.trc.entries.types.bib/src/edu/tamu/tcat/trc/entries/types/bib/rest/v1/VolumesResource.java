@@ -16,7 +16,6 @@ import javax.ws.rs.core.MediaType;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bib.Edition;
 import edu.tamu.tcat.trc.entries.types.bib.Volume;
-import edu.tamu.tcat.trc.entries.types.bib.dto.VolumeDV;
 import edu.tamu.tcat.trc.entries.types.bib.repo.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.types.bib.repo.EditionMutator;
 import edu.tamu.tcat.trc.entries.types.bib.repo.VolumeMutator;
@@ -42,61 +41,65 @@ public class VolumesResource
 
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public Collection<VolumeDV> listVolumes(@PathParam(value = "workId") String workId,
+   public Collection<RestApiV1.Volume> listVolumes(@PathParam(value = "workId") String workId,
                                            @PathParam(value = "editionId") String editionId) throws NumberFormatException, NoSuchCatalogRecordException
    {
       Edition edition = repo.getEdition(workId, editionId);
       return edition.getVolumes().stream()
-            .map(VolumeDV::create)
+            .map(RepoAdapter::toDTO)
             .collect(Collectors.toSet());
    }
 
    @GET
    @Path("{volumeId}")
    @Produces(MediaType.APPLICATION_JSON)
-   public VolumeDV getVolume(@PathParam(value = "workId") String workId,
+   public RestApiV1.Volume getVolume(@PathParam(value = "workId") String workId,
                              @PathParam(value = "editionId") String editionId,
                              @PathParam(value = "volumeId") String volumeId) throws NumberFormatException, NoSuchCatalogRecordException
    {
       Volume volume = repo.getVolume(workId, editionId, volumeId);
-      return VolumeDV.create(volume);
+      return RepoAdapter.toDTO(volume);
    }
 
    @PUT
    @Path("{volumeId}")
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public CustomResultsDV updateVolume(@PathParam(value = "workId") String workId,
+   public RestApiV1.VolumeId updateVolume(@PathParam(value = "workId") String workId,
                                        @PathParam(value = "editionId") String editionId,
                                        @PathParam(value = "volumeId") String volumeId,
-                                       VolumeDV volume) throws NoSuchCatalogRecordException
+                                       RestApiV1.Volume volume) throws NoSuchCatalogRecordException
    {
       EditWorkCommand editWorkCommand = repo.edit(workId);
       EditionMutator editionMutator = editWorkCommand.editEdition(editionId);
       VolumeMutator volumeMutator = editionMutator.editVolume(volumeId);
-      volumeMutator.setAll(volume);
+      volumeMutator.setAll(RepoAdapter.toRepo(volume));
       editWorkCommand.execute();
-      return new CustomResultsDV(volumeMutator.getId());
+      RestApiV1.VolumeId vid = new RestApiV1.VolumeId();
+      vid.id = volumeMutator.getId();
+      return vid;
    }
 
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public CustomResultsDV createVolume(@PathParam(value = "workId") String workId,
+   public RestApiV1.VolumeId createVolume(@PathParam(value = "workId") String workId,
                                        @PathParam(value = "editionId") String editionId,
-                                       VolumeDV volume) throws NoSuchCatalogRecordException
+                                       RestApiV1.Volume volume) throws NoSuchCatalogRecordException
    {
       EditWorkCommand editWorkCommand = repo.edit(workId);
       EditionMutator editionMutator = editWorkCommand.editEdition(editionId);
       VolumeMutator volumeMutator = editionMutator.createVolume();
-      volumeMutator.setAll(volume);
+      volumeMutator.setAll(RepoAdapter.toRepo(volume));
       editWorkCommand.execute();
-      return new CustomResultsDV(volumeMutator.getId());
+      RestApiV1.VolumeId vid = new RestApiV1.VolumeId();
+      vid.id = volumeMutator.getId();
+      return vid;
    }
 
    @DELETE
    @Path("{volumeId}")
-   public void deleteWork(@PathParam(value = "workId") String workId,
+   public void deleteVolume(@PathParam(value = "workId") String workId,
                           @PathParam(value = "volumeId") String volumeId) throws NoSuchCatalogRecordException
    {
       EditWorkCommand command = repo.edit(workId);

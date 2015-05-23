@@ -75,14 +75,14 @@ public class WorksResource
 
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public List<WorkSearchProxy> findByTitle(@QueryParam(value = "q") String q,
+   public List<RestApiV1.WorkSearchResult> findByTitle(@QueryParam(value = "q") String q,
                                             @DefaultValue("100") @QueryParam(value = "numResults") int numResults)
    {
 
       WorkQueryCommand workCommand = workSearchService.createQueryCommand();
       workCommand.setQuery(q);
       workCommand.setMaxResults(numResults);
-      return workCommand.execute().listItems();
+      return SearchAdapter.toDTO(workCommand.execute().listItems());
    }
 
 //   @GET
@@ -99,26 +99,28 @@ public class WorksResource
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public CustomResultsDV createWork(WorkDV work) throws InterruptedException, ExecutionException
+   public RestApiV1.WorkId createWork(WorkDV work) throws InterruptedException, ExecutionException
    {
       EditWorkCommand workCommand = repo.create();
       workCommand.setAll(work);
-      String id = workCommand.execute().get();
-      return new CustomResultsDV(id);
+      RestApiV1.WorkId wid = new RestApiV1.WorkId();
+      wid.id = workCommand.execute().get();
+      return wid;
    }
 
    @PUT
    @Path("{workid}")
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public CustomResultsDV updateWork(@PathParam(value = "workid") String workId, WorkDV work)
+   public RestApiV1.WorkId updateWork(@PathParam(value = "workid") String workId, RestApiV1.Work work)
    {
       try
       {
          EditWorkCommand workCommand = repo.edit(workId);
-         workCommand.setAll(work);
-         String resultId = workCommand.execute().get();
-         return new CustomResultsDV(resultId);
+         workCommand.setAll(RepoAdapter.toRepo(work));
+         RestApiV1.WorkId wid = new RestApiV1.WorkId();
+         wid.id = workCommand.execute().get();
+         return wid;
       }
       catch (NoSuchCatalogRecordException ex)
       {
@@ -138,7 +140,6 @@ public class WorksResource
          String msg = "Cannot update bibliographic entry [" + workId + "]. An internal error occurred. Please see server log for full details.";
          logger.log(Level.SEVERE, msg, ex);
          throw new InternalServerErrorException(msg);
-
       }
    }
 

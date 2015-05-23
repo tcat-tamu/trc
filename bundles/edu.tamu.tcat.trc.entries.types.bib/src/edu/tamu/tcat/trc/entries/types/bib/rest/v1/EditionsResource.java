@@ -46,31 +46,31 @@ public class EditionsResource
 
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public Collection<EditionDV> listEditions(@PathParam(value = "workId") String workId) throws NumberFormatException, NoSuchCatalogRecordException
+   public Collection<RestApiV1.Edition> listEditions(@PathParam(value = "workId") String workId) throws NumberFormatException, NoSuchCatalogRecordException
    {
       Work work = repo.getWork(workId);
 
       Collection<Edition> editions = work.getEditions();
 
       return editions.parallelStream()
-            .map(EditionDV::create)
+            .map(RepoAdapter::toDTO)
             .collect(Collectors.toSet());
    }
 
    @GET
    @Path("{editionId}")
    @Produces(MediaType.APPLICATION_JSON)
-   public EditionDV getEdition(@PathParam(value = "workId") String workId,
+   public RestApiV1.Edition getEdition(@PathParam(value = "workId") String workId,
                                  @PathParam(value = "editionId") String editionId) throws NumberFormatException, NoSuchCatalogRecordException
    {
       Edition edition = repo.getEdition(workId, editionId);
-      return EditionDV.create(edition);
+      return RepoAdapter.toDTO(edition);
    }
 
    @PUT
    @Path("{editionId}")
    @Produces(MediaType.APPLICATION_JSON)
-   public CustomResultsDV updateEdition(@PathParam(value = "workId") String workId,
+   public RestApiV1.EditionId updateEdition(@PathParam(value = "workId") String workId,
                                         @PathParam(value = "editionId") String editionId,
                                         EditionDV edition)
                                               throws NoSuchCatalogRecordException
@@ -79,25 +79,29 @@ public class EditionsResource
       EditionMutator editionMutator = command.editEdition(editionId);
       editionMutator.setAll(edition);
       command.execute();
-      return new CustomResultsDV(editionMutator.getId());
+      RestApiV1.EditionId eid = new RestApiV1.EditionId();
+      eid.id = editionMutator.getId();
+      return eid;
    }
 
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public CustomResultsDV createEdition(@PathParam(value = "workId") String workId, EditionDV edition) throws NoSuchCatalogRecordException
+   public RestApiV1.EditionId createEdition(@PathParam(value = "workId") String workId, RestApiV1.Edition edition) throws NoSuchCatalogRecordException
    {
       EditWorkCommand command = repo.edit(workId);
       EditionMutator editionMutator = command.createEdition();
-      editionMutator.setAll(edition);
+      editionMutator.setAll(RepoAdapter.toRepo(edition));
       command.execute();
-      return new CustomResultsDV(editionMutator.getId());
+      RestApiV1.EditionId eid = new RestApiV1.EditionId();
+      eid.id = editionMutator.getId();
+      return eid;
    }
 
    @DELETE
    @Path("{editionId}")
-   public void deleteWork(@PathParam(value = "workId") String workId,
-                          @PathParam(value = "editionId") String editionId) throws NoSuchCatalogRecordException
+   public void deleteEdition(@PathParam(value = "workId") String workId,
+                             @PathParam(value = "editionId") String editionId) throws NoSuchCatalogRecordException
    {
       EditWorkCommand command = repo.edit(workId);
       command.removeEdition(editionId);
