@@ -76,56 +76,56 @@ limitations under the License.
          unpack="false"/>
 
    <plugin
-         id="edu.tamu.tcat.trc.entries.bib"
+         id="edu.tamu.tcat.trc.entries.types.bib"
          download-size="0"
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
 
    <plugin
-         id="edu.tamu.tcat.trc.entries.bib.source"
+         id="edu.tamu.tcat.trc.entries.types.bib.source"
          download-size="0"
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
 
    <plugin
-         id="edu.tamu.tcat.trc.entries.bio"
+         id="edu.tamu.tcat.trc.entries.types.bio"
          download-size="0"
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
 
    <plugin
-         id="edu.tamu.tcat.trc.entries.bio.source"
+         id="edu.tamu.tcat.trc.entries.types.bio.source"
          download-size="0"
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
 
    <plugin
-         id="edu.tamu.tcat.trc.entries.reln"
+         id="edu.tamu.tcat.trc.entries.types.reln"
          download-size="0"
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
 
    <plugin
-         id="edu.tamu.tcat.trc.entries.reln.source"
+         id="edu.tamu.tcat.trc.entries.types.reln.source"
          download-size="0"
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
 
    <plugin
-         id="edu.tamu.tcat.catalogentries"
+         id="edu.tamu.tcat.trc.entries.core"
          download-size="0"
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
 
    <plugin
-         id="edu.tamu.tcat.catalogentries.source"
+         id="edu.tamu.tcat.trc.entries.core.source"
          download-size="0"
          install-size="0"
          version="1.0.0.qualifier"

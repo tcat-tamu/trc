@@ -47,10 +47,10 @@
     <module>oss.trc/releng/edu.tamu.tcat.trc.releng/repo.product</module>
     <module>oss.trc/releng/edu.tamu.tcat.trc.sdk.feature</module>
     
-    <module>oss.trc/bundles/edu.tamu.tcat.sda.catalog</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.bib</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.bio</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.reln</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.core</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.bib</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.bio</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.reln</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.resources</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.resources.books.hathitrust</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.resources.rest</module>
