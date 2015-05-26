@@ -30,4 +30,5 @@ Import-Package: com.fasterxml.jackson.core;version="2.3.1",
  org.apache.solr.common,
  org.apache.solr.common.params,
  org.postgresql.util
-Require-Bundle: org.eclipse.core.runtime;bundle-version="3.10.0"
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.10.0",
+ com.eclipsesource.jaxrs.jersey-all;bundle-version="2.10.1"
