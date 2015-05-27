@@ -11,5 +11,6 @@ Export-Package: edu.tamu.tcat.trc.entries.common,
  edu.tamu.tcat.trc.entries.datastore,
  edu.tamu.tcat.trc.entries.datastore.db,
  edu.tamu.tcat.trc.entries.notification,
- edu.tamu.tcat.trc.entries.repo
+ edu.tamu.tcat.trc.entries.repo,
+ edu.tamu.tcat.trc.entries.search
 Import-Package: edu.tamu.tcat.db.exec.sql
