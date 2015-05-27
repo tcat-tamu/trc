@@ -1,5 +1,8 @@
 package edu.tamu.tcat.trc.entries.types.bib.rest.v1;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,18 +77,6 @@ public class WorksResource
    {
    }
 
-   @GET
-   @Produces(MediaType.APPLICATION_JSON)
-   public List<RestApiV1.WorkSearchResult> findByTitle(@QueryParam(value = "q") String q,
-                                            @DefaultValue("100") @QueryParam(value = "numResults") int numResults) throws SearchException
-   {
-
-      WorkQueryCommand workCommand = workSearchService.createQueryCommand();
-      workCommand.queryTitle(q);
-      workCommand.setMaxResults(numResults);
-      return SearchAdapter.toDTO(workCommand.execute().get());
-   }
-
    /**
     * Perform a "basic" search. This is a search with a single string that is matched
     * against various fields.
@@ -96,26 +87,102 @@ public class WorksResource
     */
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public List<RestApiV1.WorkSearchResult>
-   searchWorksBasic(@QueryParam(value = "q") String q,
-                    @QueryParam(value = "numResults") @DefaultValue("100") int numResults) throws SearchException
+   public RestApiV1.WorkSearchResultSet
+   searchWorks(@QueryParam(value = "q") String q,
+               @QueryParam(value = "a") String authorName,
+               @QueryParam(value = "t") String title,
+               @QueryParam(value = "aid") List<String> authorIds, // specify same param with multiple values to get a list
+               @QueryParam(value = "drs") List<String> dateRangeStarts,
+               @QueryParam(value = "dre") List<String> dateRangeEnds,
+               @QueryParam(value = "off") @DefaultValue("0")   int offset,
+               @QueryParam(value = "max") @DefaultValue("100") int numResults)
+   throws SearchException
    {
-      WorkQueryCommand workCommand = workSearchService.createQueryCommand();
-      workCommand.query(q);
-      workCommand.setMaxResults(numResults);
-      return SearchAdapter.toDTO(workCommand.execute().get());
+      WorkQueryCommand cmd = workSearchService.createQueryCommand();
+      // query parameters
+      cmd.query(q);
+      cmd.queryAuthorName(authorName);
+      cmd.queryTitle(title);
+      
+      // now filters/facets
+      cmd.filterAuthor(authorIds);
+      
+      // now meta fields
+      cmd.setMaxResults(numResults);
+      cmd.setStartIndex(numResults);
+      
+      // if either is non-empty, need to process date range criteria
+      if (!dateRangeStarts.isEmpty() || !dateRangeEnds.isEmpty())
+      {
+         if (dateRangeStarts.size() != dateRangeEnds.size())
+            throw new SearchException("Date range start or end missing a value");
+         
+         for (int i=0; i<dateRangeStarts.size(); ++i)
+         {
+            String st = dateRangeStarts.get(i);
+            String end = dateRangeEnds.get(i);
+            
+            try
+            {
+               //TODO: parse start and end into a 'range' of DateDescriptor
+               //TODO: allow start or end to be empty-string for unbounded query
+            }
+            catch (Exception e)
+            {
+            }
+         }
+      }
+      
+      RestApiV1.WorkSearchResultSet rs = new RestApiV1.WorkSearchResultSet();
+//      rs.items = SearchAdapter.toDTO(cmd.execute().get());
+      rs.items = new ArrayList<>();
+      
+      StringBuilder sb = new StringBuilder();
+      try
+      {
+         app(sb, "q", q);
+         app(sb, "a", authorName);
+         app(sb, "t", title);
+         
+         authorIds.stream().forEach(s -> app(sb, "aid", s));
+         
+         // merge "start" and "end" values to be in adjacent pairs
+         for (int i=0; i<dateRangeStarts.size(); ++i)
+         {
+            app(sb, "drs", dateRangeStarts.get(i));
+            app(sb, "dre", dateRangeEnds.get(i));
+         }
+      }
+      catch (Exception e)
+      {
+         throw new SearchException("Failed building querystring", e);
+      }
+      
+      rs.qs = "off="+offset+"&max="+numResults+"&"+sb.toString();
+      //TODO: does this depend on the number of results returned (i.e. whether < numResults), or do we assume there are infinite results?
+      rs.qsNext = "off="+(offset + numResults)+"&max="+numResults+"&"+sb.toString();
+      if (offset >= numResults)
+         rs.qsPrev = "off="+(offset - numResults)+"&max="+numResults+"&"+sb.toString();
+      // first page got off; reset to zero offset
+      else if (numResults - offset > 0)
+         rs.qsPrev = "off="+(0)+"&max="+numResults+"&"+sb.toString();
+      
+      return rs;
    }
-
-//   @GET
-//   @Produces(MediaType.APPLICATION_JSON)
-//   public List<SimpleWorkDV> listWorks(@Context UriInfo ctx) throws JsonException
-//   {
-//      MultivaluedMap<String, String> queryParams = ctx.getQueryParameters();
-//      WorksController controller = new WorksController();
-//      // TODO need to add slicing/paging support
-//      // TODO add mappers for exceptions. CatalogRepoException should map to internal error.
-//      return Collections.unmodifiableList(controller.query(queryParams));
-//   }
+   
+   private static void app(StringBuilder sb, String p, String v)
+   {
+      if (v == null)
+         return;
+      if (sb.length() > 0)
+         sb.append("&");
+      try {
+         sb.append(p).append("=").append(URLEncoder.encode(v, "UTF-8"));
+         // suppress exception so this method can be used in lambdas
+      } catch (UnsupportedEncodingException e) {
+         throw new IllegalArgumentException("Failed encoding ["+v+"]", e);
+      }
+   }
 
    @POST
    @Consumes(MediaType.APPLICATION_JSON)

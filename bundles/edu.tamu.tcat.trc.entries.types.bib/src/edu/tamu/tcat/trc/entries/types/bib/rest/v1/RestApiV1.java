@@ -1,6 +1,5 @@
 package edu.tamu.tcat.trc.entries.types.bib.rest.v1;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -10,15 +9,24 @@ import java.util.List;
  */
 public class RestApiV1
 {
+   public static class WorkSearchResultSet
+   {
+      public List<WorkSearchResult> items;
+      /** The querystring that resulted in this result set */
+      public String qs;
+      public String qsNext;
+      public String qsPrev;
+   }
+   
    public static class WorkSearchResult
    {
       public String id;
       public String uri;
-      public List<AuthorRef> authors = new ArrayList<>();
+      public List<AuthorRef> authors;
       public String title;
       public String label;
       public String summary;
-      public String pubYear = null;
+      public String pubYear;
    }
    
    public static class AuthorRef
