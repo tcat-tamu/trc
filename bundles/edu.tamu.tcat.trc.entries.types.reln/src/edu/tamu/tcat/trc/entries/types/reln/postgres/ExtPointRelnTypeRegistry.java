@@ -4,6 +4,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,7 +17,9 @@ import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IRegistryEventListener;
-import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.RegistryFactory;
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipException;
@@ -31,32 +38,36 @@ import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 public class ExtPointRelnTypeRegistry implements RelationshipTypeRegistry
 {
    private static final Logger logger = Logger.getLogger(ExtPointRelnTypeRegistry.class.getName());
-   public static final String EXT_POINT_ID = "edu.tamu.tcat.catalogentries.relationships.types";
+   public static final String EXT_POINT_ID = "edu.tamu.tcat.trc.entries.types.reln.reltypes";
 
-   private RegistryEventListener ears;
+   private final AtomicReference<AutoCloseable> regEarsRef = new AtomicReference<>();
    private final ConcurrentMap<String, ExtRelationshipTypeDefinition> typeDefinitions = new ConcurrentHashMap<>();
-
+   private final CountDownLatch initComplete = new CountDownLatch(1);
 
    public ExtPointRelnTypeRegistry()
    {
    }
 
    /**
-    * Initializes this {@link ExtPointRelnTypeRegistry}. .
+    * Initializes this {@link ExtPointRelnTypeRegistry}
     */
    public void activate()
    {
-      // TODO do async and wait until ready.
       loadExtensions();
    }
 
    public void dispose()
    {
       // unregister listener
-      if (ears != null)
+      AutoCloseable regEars = regEarsRef.get();
+      if (regEars != null)
       {
-         IExtensionRegistry registry = Platform.getExtensionRegistry();
-         registry.removeListener(ears);
+         try {
+            regEars.close();
+         } catch (Exception e) {
+            logger.log(Level.SEVERE, "Failed unregistering", e);
+         }
+         regEarsRef.set(null);
       }
 
       // clear all loaded factory definitions
@@ -74,21 +85,56 @@ public class ExtPointRelnTypeRegistry implements RelationshipTypeRegistry
     */
    private void loadExtensions()
    {
-      IExtensionRegistry registry = Platform.getExtensionRegistry();
-      ears = new RegistryEventListener();
-      registry.addListener(ears, EXT_POINT_ID);
-
-      // register any currently loaded transformers
-      IExtension[] extensions = registry.getExtensionPoint(EXT_POINT_ID).getExtensions();
-      for (IExtension ext : extensions)
-      {
-         ears.parseExtension(ext);
-      }
+      ExecutorService exec = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("reln ext loader").build());
+      exec.submit(() -> {
+         try
+         {
+            IExtensionRegistry registry = RegistryFactory.getRegistry();
+            RegistryEventListener ears = new RegistryEventListener();
+            // Since we have the registry and ears now, encapsulate them in an AutoCloseable to make unregistering
+            // more simple. Store in an AtomicReference to ensure thread-safety from this executor thread to
+            // whatever disposes the service.
+            regEarsRef.set(() -> {
+               registry.removeListener(ears);
+            });
+            registry.addListener(ears, EXT_POINT_ID);
+      
+            // register any currently loaded transformers
+            IExtension[] extensions = registry.getExtensionPoint(EXT_POINT_ID).getExtensions();
+            for (IExtension ext : extensions)
+            {
+               ears.parseExtension(ext);
+            }
+            
+            initComplete.countDown();
+         }
+         catch (Exception e)
+         {
+            // consume the exception and log instead of throwing since we are not holding the Future
+            // but using the latch.
+            logger.log(Level.SEVERE, "Failed initializing registry", e);
+         }
+         finally
+         {
+            // terminate the executor's threads since the single task is now complete
+            exec.shutdown();
+         }
+      });
    }
 
    @Override
    public RelationshipType resolve(String typeIdentifier) throws RelationshipException
    {
+      try
+      {
+         // wait a respectable time, but not forever
+         initComplete.await(10, TimeUnit.SECONDS);
+      }
+      catch (Exception e)
+      {
+         throw new RelationshipException("Relationship types failed initializing", e);
+      }
+      
       if (!typeDefinitions.containsKey(typeIdentifier))
          throw new RelationshipException("No relationship type is registered for '" + typeIdentifier + "'");
 
@@ -103,7 +149,6 @@ public class ExtPointRelnTypeRegistry implements RelationshipTypeRegistry
 
    private class RegistryEventListener implements IRegistryEventListener
    {
-
       @Override
       public void added(IExtension[] extensions)
       {

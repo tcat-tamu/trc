@@ -12,6 +12,10 @@ import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,6 +26,8 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.resources.books.discovery.ContentQuery;
@@ -46,8 +52,7 @@ public class HTFilesSearchService implements CopySearchService
 
    private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_INSTANT;
 
-   private HttpSolrServer solrServer;
-
+   private Future<HttpSolrServer> solrServerFuture;
    private ConfigurationProperties props;
 
    public void setConfiguration(ConfigurationProperties props)
@@ -59,47 +64,67 @@ public class HTFilesSearchService implements CopySearchService
    {
       Objects.requireNonNull(props, "Cannot connect to Solr Server. Configuration data is not available.");
 
-      URI solrEndpoint = props.getPropertyValue("solr.api.endpoint", URI.class);
-      String core = props.getPropertyValue("hathifiles", String.class);
-      solrServer = new HttpSolrServer(solrEndpoint.resolve(core).toString());
-
-      // check to ensure that the requested SolrServer can be contacted.
-      // NOTE: may not be the right place for this
-      try
-      {
-         SolrPingResponse pingResponse = solrServer.ping();
-         if (pingResponse == null || pingResponse.getStatus() > 299 && pingResponse.getStatus() < 200)
-            throw new IllegalStateException("Failed to ping configured solr server [" + solrEndpoint.resolve(core) + "]: " + pingResponse);
-      }
-      catch (IOException | SolrServerException ex)
-      {
-         throw new IllegalStateException("Failed to ping configured solr server [" + solrEndpoint.resolve(core) + "]", ex);
-      }
+      final URI solrEndpoint = props.getPropertyValue("solr.api.endpoint", URI.class);
+      final String core = props.getPropertyValue("hathifiles", String.class);
+      ExecutorService exec = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("htfiles").build());
+      // check to ensure that the requested SolrServer can be contacted. Run this in a background
+      // thread to not prevent the service from initializing in a timely manner. Use the Future to
+      // determine that the ping succeeded. Each access to the Future will either return the server
+      // or re-throw the original exception, allowing it to be noticed when requested as well as
+      // on system startup.
+      solrServerFuture = exec.submit(() -> {
+         try
+         {
+            HttpSolrServer server = new HttpSolrServer(solrEndpoint.resolve(core).toString());
+            SolrPingResponse pingResponse = server.ping();
+            if (pingResponse == null || (pingResponse.getStatus() > 299 && pingResponse.getStatus() < 200))
+            {
+               //TODO: server.shutdown() here? ping failed, but still need to release resources?
+               throw new IllegalStateException("Failed to ping configured solr server [" + solrEndpoint.resolve(core) + "]: " + pingResponse);
+            }
+            return server;
+         }
+         catch (IOException | SolrServerException ex)
+         {
+            //TODO: server.shutdown() here? ping failed, but still need to release resources?
+            throw new IllegalStateException("Failed to ping configured solr server [" + solrEndpoint.resolve(core) + "]", ex);
+         }
+         finally
+         {
+            // only needed the executor for this task, so shut it down and retain the Future
+            exec.shutdown();
+         }
+      });
    }
 
    public void deactivate()
    {
-      if (solrServer != null)
+      if (solrServerFuture != null)
       {
          try
          {
-            solrServer.shutdown();
+            // don't wait long, it should be either here or not at this point
+            solrServerFuture.get(1, TimeUnit.SECONDS).shutdown();
          }
          catch (Exception ex)
          {
             logger.log(Level.SEVERE, "Failed to shut down connection to solr server", ex);
          }
 
-         solrServer = null;
+         solrServerFuture = null;
       }
    }
 
    @Override
    public CopySearchResult find(ContentQuery query) throws ResourceAccessException
    {
+      if (solrServerFuture == null)
+         throw new IllegalStateException("Service is disposed");
+      
       // HACK hard coded. Should be provided to the service
       try
       {
+         HttpSolrServer solrServer = solrServerFuture.get(2, TimeUnit.MINUTES);
          Objects.requireNonNull(solrServer, "No active connection to Solr Server");
 
          String queryString = formatQueryString(query);
