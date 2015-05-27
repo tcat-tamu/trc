@@ -1,6 +1,5 @@
 package edu.tamu.tcat.trc.entries.types.bib.search;
 
-import java.time.Period;
 import java.util.Collection;
 
 import edu.tamu.tcat.trc.entries.search.SearchException;
@@ -71,14 +70,15 @@ public interface WorkQueryCommand
     */
    void filterAuthor(Collection<String> authorIds) throws SearchException;
    
-   /**
-    * Restrict the results to those associated with the provided date {@link Period}s.
-    * If any periods overlap, the resulting filter criteria will be the union of all provided.
-    * 
-    * @param periods
-    * @throws SearchException If the identifiers are not valid.
-    */
-   void filterDate(Collection<Period> periods) throws SearchException;
+   //TODO: this API should use a 'range' object pairing two DateDescription instances (or one for unbounded)
+//   /**
+//    * Restrict the results to those associated with the provided date {@link Period}s.
+//    * If any periods overlap, the resulting filter criteria will be the union of all provided.
+//    *
+//    * @param periods
+//    * @throws SearchException If the identifiers are not valid.
+//    */
+//   void filterDate(Collection<Period> periods) throws SearchException;
 
 //   /**
 //    * Filter results to a specific geographical location.

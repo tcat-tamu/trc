@@ -1,7 +1,6 @@
 package edu.tamu.tcat.trc.entries.types.bib.search.solr;
 
 import java.io.IOException;
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -138,13 +137,6 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
       
    }
    
-   @Override
-   public void filterDate(Collection<Period> periods) throws SearchException
-   {
-      // TODO Auto-generated method stub
-      
-   }
-
 //   @Override
 //   public void setTitleQuery(String qBasic)
 //   {
