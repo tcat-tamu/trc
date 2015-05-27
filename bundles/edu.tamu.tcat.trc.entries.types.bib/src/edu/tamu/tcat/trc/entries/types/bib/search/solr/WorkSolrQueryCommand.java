@@ -1,8 +1,9 @@
 package edu.tamu.tcat.trc.entries.types.bib.search.solr;
 
 import java.io.IOException;
-import java.time.Year;
+import java.time.Period;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,6 +16,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.SolrParams;
 
+import edu.tamu.tcat.trc.entries.search.SearchException;
 import edu.tamu.tcat.trc.entries.types.bib.search.WorkQueryCommand;
 import edu.tamu.tcat.trc.entries.types.bib.search.WorkSearchProxy;
 
@@ -26,16 +28,20 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
 
    private SolrServer solr;
 
-   private String q;
-   private String titleQuery;
-   private String[] authorIds;
-   private String authorName;
-   private Year after;
-   private Year before;
    private int start = 0;
    private int maxResults = 25;
+   private String qBasic;
+   
+   private String advTitle;
+   private String advAuthorName;
+   
+//   private String titleQuery;
+//   private String[] authorIds;
+//   private String authorName;
+//   private Year after;
+//   private Year before;
 
-   private String location;
+//   private String location;
 
    public WorkSolrQueryCommand(SolrServer solr)
    {
@@ -74,7 +80,7 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
          logger.log(Level.SEVERE, "The following error occurred while querying the works core :" + e);
       }
 
-      return new SolrWorksResults(works);
+      return new SolrWorksResults(this, works);
    }
 
    private SolrParams getQuery()
@@ -87,15 +93,15 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
       // NOTE this looks like a bad idea. probably set internal state and build based on that state
 //      String queryString = Joiner.on(" AND ").join(criteria);
 //      query.setQuery(queryString);
-      if (q != null)
+      if (qBasic != null)
       {
-         qString.append("titles:(" + q + ")")
-                .append(" OR authorNames:(" + q + ")");
+         qString.append("titles:(" + qBasic + ")")
+                .append(" OR authorNames:(" + qBasic + ")");
       }
       else
       {
-         qString.append("titles:(" + titleQuery + ")")
-                .append("OR authorNames:(" + authorName + ")");
+//         qString.append("titles:(" + titleQuery + ")")
+//                .append("OR authorNames:(" + authorName + ")");
       }
 
       query.setQuery(qString.toString());
@@ -103,52 +109,80 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
    }
 
    @Override
-   public void setQuery(String q)
+   public void query(String q)
    {
-      this.q = q;
+      this.qBasic = q;
       // NOTE query against all fields, boosted appropriately, free text
-      //      I think that means *:(q)
+      //      I think that means *:(qBasic)
       // NOTE in general, if this is applied, the other query params are unlikely to be applied
    }
-
+   
    @Override
-   public void setTitleQuery(String q)
+   public void queryTitle(String q)
    {
-      this.titleQuery = q;
+      // TODO Auto-generated method stub
+      
+   }
+   
+   @Override
+   public void queryAuthorName(String authorName)
+   {
+      // TODO Auto-generated method stub
+      
+   }
+   
+   @Override
+   public void filterAuthor(Collection<String> authorIds) throws SearchException
+   {
+      // TODO Auto-generated method stub
+      
+   }
+   
+   @Override
+   public void filterDate(Collection<Period> periods) throws SearchException
+   {
+      // TODO Auto-generated method stub
+      
    }
 
-   @Override
-   public void setAuthorName(String authorName)
-   {
-      this.authorName = authorName;
-//      criteria.add("authorNames\"" + authorName + "\"");
-   }
-
-   @Override
-   public void filterByAuthor(String... ids)
-   {
-      // NOTE these should be joined by OR's
-      this.authorIds = ids;
-   }
-
-   @SuppressWarnings("hiding")
-   @Override
-   public void filterByDate(Year after, Year before)
-   {
-      this.after = after;
-      this.before = before;
-   }
+//   @Override
+//   public void setTitleQuery(String qBasic)
+//   {
+//      this.titleQuery = qBasic;
+//   }
+//
+//   @Override
+//   public void setAuthorName(String authorName)
+//   {
+//      this.authorName = authorName;
+////      criteria.add("authorNames\"" + authorName + "\"");
+//   }
+//
+//   @Override
+//   public void filterByAuthor(String... ids)
+//   {
+//      // NOTE these should be joined by OR's
+//      this.authorIds = ids;
+//   }
+//
+//   @SuppressWarnings("hiding")
+//   @Override
+//   public void filterByDate(Year after, Year before)
+//   {
+//      this.after = after;
+//      this.before = before;
+//   }
+//
+//   @Override
+//   public void filterByLocation(String location)
+//   {
+//      this.location = location;
+//   }
 
    @Override
    public void setStartIndex(int start)
    {
       this.start = start;
-   }
-
-   @Override
-   public void filterByLocation(String location)
-   {
-      this.location = location;
    }
 
    @Override

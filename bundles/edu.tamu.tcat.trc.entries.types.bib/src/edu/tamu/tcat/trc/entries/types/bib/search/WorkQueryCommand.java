@@ -1,37 +1,55 @@
 package edu.tamu.tcat.trc.entries.types.bib.search;
 
-import java.time.Year;
+import java.time.Period;
+import java.util.Collection;
+
+import edu.tamu.tcat.trc.entries.search.SearchException;
 
 
 /**
- * Command for use in querying the underlying search service
+ * Command for use in querying the associated {@link WorkSearchService} which provides
+ * instances.
+ * <p>
+ * A {@link WorkQueryCommand} is intended to be initialized, executed a single time, provide results,
+ * and be discarded.
+ * <p>
+ * The various "query" methods are intended to be for user-entered criteria which results in "like",
+ * wildcard, or otherwise interpreted query criteria which may apply to multiple fields of the index.
+ * Alternately, the various "filter" methods are intended for specific criteria which typically
+ * applies to faceted searching or to known criteria for specific stored data.
  */
-//TODO: might need to clarify between "set" methods and "filter" methods which do similar things --pb
-//TODO: this API must be altered if facets or new fields are added. Could use a more flexible API,
-//      perhaps by using a factory pattern here, e.g. "getFacetBuilder(Class<T extends FacetQueryBuilder>)"
 public interface WorkQueryCommand
 {
-
-   // TODO probably should use a builder pattern; this seems like a builder already --pb
-   // TODO should be able to serialize a query
+   //TODO: javadoc; especially note thread safety, whether this is blocking, how to cancel,
+   //      how long it may take, whether the same result may be accessed multiple times, etc. --pb
+   /**
+    * Execute this query command after it has been parameterized. The query itself contains all
+    * parameters and refinement criteria, and the result is simply a listing of matches.
+    * 
+    * @return
+    * @throws SearchException
+    */
+   /*
+    * In keeping with the "spirit of search", the window (offset + length) and other paramters
+    * are configured in the query itself and not in a result with a long lifecycle.
+    */
+   SearchWorksResult execute() throws SearchException;
 
    /**
-    * Supply a free-text, keyword query to be executed. In general, the supplied query should
+    * Supply a "basic" free-text, keyword query to be executed. In general, the supplied query should
     * be executed against a wide range of fields (e.g., author, title, abstract, publisher, etc.)
     * with different fields being assigned different levels of boosting (per-field weights).
     * The specific fields to be searched and the relative weights associated with different
-    * fields is a
+    * fields is implementation-dependent.
     *
-    * @param q
-    * @return
+    * @param basicQueryString The "basic" query string
     */
-   void setQuery(String q);
+   void query(String basicQueryString) throws SearchException;
 
    /**
-    * @param q The value to search for in the title.
-    * @return
+    * @param q The value to search for in titles.
     */
-   void setTitleQuery(String q);
+   void queryTitle(String q) throws SearchException;
 
    /**
     * Set the name of the author to search for. A best effort will be made to match books whose
@@ -39,38 +57,35 @@ public interface WorkQueryCommand
     * within the affiliated person record.
     *
     * @param authorName
-    * @return
     */
-   void setAuthorName(String authorName);
-
+   void queryAuthorName(String authorName) throws SearchException;
+   
    /**
-    * Filter results based on the supplied list of author ids. Only entries that
-    * specifically match the supplied authors will be returned.
-    *
-    * @param ids
-    * @return
+    * Restrict the results to those associated with the provided authors by their identifiers.
+    * Each identifier should correspond to a unique author within the search engine.
+    * <p>
+    * An author identifier is to be interpreted by the search engine.
+    * 
+    * @param authorIds
+    * @throws SearchException If the identifiers are not valid.
     */
-   //TODO: what is an "author id"? likely not their name --pb
-   void filterByAuthor(String... ids);
-
+   void filterAuthor(Collection<String> authorIds) throws SearchException;
+   
    /**
-    * Filter results to return only those entries that are published between the supplied dates.
-    *
-    * @param after The lower bound of the date filter. If {@code null} indicates that no
-    *       lower bound should be enforced.
-    * @param before The upper bound of the date filter. If {@code null} indicates that no upper
-    *       bound should be enforced.
-    * @return
+    * Restrict the results to those associated with the provided date {@link Period}s.
+    * If any periods overlap, the resulting filter criteria will be the union of all provided.
+    * 
+    * @param periods
+    * @throws SearchException If the identifiers are not valid.
     */
-   void filterByDate(Year after, Year before);
+   void filterDate(Collection<Period> periods) throws SearchException;
 
-   /**
-    * Filter results to a specific geographical location.
-    *
-    * @param location
-    * @return
-    */
-   void filterByLocation(String location);
+//   /**
+//    * Filter results to a specific geographical location.
+//    *
+//    * @param location
+//    */
+//   void filterByLocation(String location);
 
    /**
     * Sets the index of the first result to be returned. Useful in conjunction with
@@ -82,10 +97,7 @@ public interface WorkQueryCommand
     * calls.
     *
     * @param start
-    * @return
     */
-   //TODO: why is this in the query and not the result? "set max" makes sense here, but could
-   //      also be moved to the result set --pb
    void setStartIndex(int start);
 
    /**
@@ -95,13 +107,8 @@ public interface WorkQueryCommand
     * If not specified, the default is 25.
     *
     * @param ct
-    * @return
     */
    //TODO: note what implementations may do with limited results; e.g. blind truncate, sort
    //      by relevance or some other field
    void setMaxResults(int ct);
-
-   //TODO: javadoc; especially note thread safety, whether this is blocking, how to cancel,
-   //      how long it may take, whether the same result may be accessed multiple times, etc. --pb
-   SearchWorksResult execute();
 }

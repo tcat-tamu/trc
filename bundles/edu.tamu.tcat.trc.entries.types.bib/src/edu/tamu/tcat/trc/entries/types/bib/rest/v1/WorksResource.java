@@ -25,6 +25,7 @@ import javax.ws.rs.core.MediaType;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.core.InvalidDataException;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
+import edu.tamu.tcat.trc.entries.search.SearchException;
 import edu.tamu.tcat.trc.entries.types.bib.Work;
 import edu.tamu.tcat.trc.entries.types.bib.dto.WorkDV;
 import edu.tamu.tcat.trc.entries.types.bib.repo.EditWorkCommand;
@@ -76,13 +77,33 @@ public class WorksResource
    @GET
    @Produces(MediaType.APPLICATION_JSON)
    public List<RestApiV1.WorkSearchResult> findByTitle(@QueryParam(value = "q") String q,
-                                            @DefaultValue("100") @QueryParam(value = "numResults") int numResults)
+                                            @DefaultValue("100") @QueryParam(value = "numResults") int numResults) throws SearchException
    {
 
       WorkQueryCommand workCommand = workSearchService.createQueryCommand();
-      workCommand.setQuery(q);
+      workCommand.queryTitle(q);
       workCommand.setMaxResults(numResults);
-      return SearchAdapter.toDTO(workCommand.execute().listItems());
+      return SearchAdapter.toDTO(workCommand.execute().get());
+   }
+
+   /**
+    * Perform a "basic" search. This is a search with a single string that is matched
+    * against various fields.
+    * 
+    * @param q The basic search criteria.
+    * @param numResults
+    * @return
+    */
+   @GET
+   @Produces(MediaType.APPLICATION_JSON)
+   public List<RestApiV1.WorkSearchResult>
+   searchWorksBasic(@QueryParam(value = "q") String q,
+                    @QueryParam(value = "numResults") @DefaultValue("100") int numResults) throws SearchException
+   {
+      WorkQueryCommand workCommand = workSearchService.createQueryCommand();
+      workCommand.query(q);
+      workCommand.setMaxResults(numResults);
+      return SearchAdapter.toDTO(workCommand.execute().get());
    }
 
 //   @GET
