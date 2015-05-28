@@ -13,6 +13,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.params.SolrParams;
 
 import edu.tamu.tcat.trc.entries.search.SearchException;
@@ -30,10 +31,10 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
    private int start = 0;
    private int maxResults = 25;
    private String qBasic;
-   
+
    private String advTitle;
    private String advAuthorName;
-   
+
 //   private String titleQuery;
 //   private String[] authorIds;
 //   private String authorName;
@@ -84,18 +85,23 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
 
    private SolrParams getQuery()
    {
-      SolrQuery query = new SolrQuery();
-      StringBuilder qString = new StringBuilder();
-
-      query.setStart(Integer.valueOf(start));
-      query.setRows(Integer.valueOf(this.maxResults));
+//      SolrQuery query = new SolrQuery();
+//      StringBuilder qString = new StringBuilder();
+//
+//      query.setStart(Integer.valueOf(start));
+//      query.setRows(Integer.valueOf(this.maxResults));
+      ModifiableSolrParams solrParams = new ModifiableSolrParams();
       // NOTE this looks like a bad idea. probably set internal state and build based on that state
 //      String queryString = Joiner.on(" AND ").join(criteria);
 //      query.setQuery(queryString);
       if (qBasic != null)
       {
-         qString.append("titles:(" + qBasic + ")")
-                .append(" OR authorNames:(" + qBasic + ")");
+         solrParams.set("q", qBasic);
+         solrParams.set("defType", "edismax");
+         solrParams.set("qf", "titles authorNames");
+         solrParams.set("start", start);
+         solrParams.set("rows", this.maxResults);
+
       }
       else
       {
@@ -103,8 +109,8 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
 //                .append("OR authorNames:(" + authorName + ")");
       }
 
-      query.setQuery(qString.toString());
-      return query;
+//      query.setQuery(qString.toString());
+      return solrParams;
    }
 
    @Override
@@ -115,28 +121,28 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
       //      I think that means *:(qBasic)
       // NOTE in general, if this is applied, the other query params are unlikely to be applied
    }
-   
+
    @Override
    public void queryTitle(String q)
    {
       // TODO Auto-generated method stub
-      
+
    }
-   
+
    @Override
    public void queryAuthorName(String authorName)
    {
       // TODO Auto-generated method stub
-      
+
    }
-   
+
    @Override
    public void filterAuthor(Collection<String> authorIds) throws SearchException
    {
       // TODO Auto-generated method stub
-      
+
    }
-   
+
 //   @Override
 //   public void setTitleQuery(String qBasic)
 //   {
