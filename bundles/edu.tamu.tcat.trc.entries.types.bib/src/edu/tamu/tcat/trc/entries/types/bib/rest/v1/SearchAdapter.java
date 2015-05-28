@@ -16,7 +16,7 @@ public class SearchAdapter
    {
       if (origList == null)
          return null;
-      
+
       List<RestApiV1.WorkSearchResult> dtoList = new ArrayList<>();
       for (WorkSearchProxy orig : origList)
       {
@@ -33,8 +33,10 @@ public class SearchAdapter
             for (AuthorRefDV auth : orig.authors)
                dto.authors.add(RepoAdapter.toDTO(auth));
          }
+
+         dtoList.add(dto);
       }
-      
+
       return dtoList;
    }
 }

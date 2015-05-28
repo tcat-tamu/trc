@@ -80,7 +80,7 @@ public class WorksResource
    /**
     * Perform a "basic" search. This is a search with a single string that is matched
     * against various fields.
-    * 
+    *
     * @param q The basic search criteria.
     * @param numResults
     * @return
@@ -103,25 +103,25 @@ public class WorksResource
       cmd.query(q);
       cmd.queryAuthorName(authorName);
       cmd.queryTitle(title);
-      
+
       // now filters/facets
       cmd.filterAuthor(authorIds);
-      
+
       // now meta fields
       cmd.setMaxResults(numResults);
-      cmd.setStartIndex(numResults);
-      
+      cmd.setStartIndex(offset);
+
       // if either is non-empty, need to process date range criteria
       if (!dateRangeStarts.isEmpty() || !dateRangeEnds.isEmpty())
       {
          if (dateRangeStarts.size() != dateRangeEnds.size())
             throw new SearchException("Date range start or end missing a value");
-         
+
          for (int i=0; i<dateRangeStarts.size(); ++i)
          {
             String st = dateRangeStarts.get(i);
             String end = dateRangeEnds.get(i);
-            
+
             try
             {
                //TODO: parse start and end into a 'range' of DateDescriptor
@@ -132,20 +132,20 @@ public class WorksResource
             }
          }
       }
-      
+
       RestApiV1.WorkSearchResultSet rs = new RestApiV1.WorkSearchResultSet();
-//      rs.items = SearchAdapter.toDTO(cmd.execute().get());
-      rs.items = new ArrayList<>();
-      
+      rs.items = SearchAdapter.toDTO(cmd.execute());
+//      rs.items = new ArrayList<>();
+
       StringBuilder sb = new StringBuilder();
       try
       {
          app(sb, "q", q);
          app(sb, "a", authorName);
          app(sb, "t", title);
-         
+
          authorIds.stream().forEach(s -> app(sb, "aid", s));
-         
+
          // merge "start" and "end" values to be in adjacent pairs
          for (int i=0; i<dateRangeStarts.size(); ++i)
          {
@@ -157,7 +157,7 @@ public class WorksResource
       {
          throw new SearchException("Failed building querystring", e);
       }
-      
+
       rs.qs = "off="+offset+"&max="+numResults+"&"+sb.toString();
       //TODO: does this depend on the number of results returned (i.e. whether < numResults), or do we assume there are infinite results?
       rs.qsNext = "off="+(offset + numResults)+"&max="+numResults+"&"+sb.toString();
@@ -166,10 +166,10 @@ public class WorksResource
       // first page got off; reset to zero offset
       else if (numResults - offset > 0)
          rs.qsPrev = "off="+(0)+"&max="+numResults+"&"+sb.toString();
-      
+
       return rs;
    }
-   
+
    private static void app(StringBuilder sb, String p, String v)
    {
       if (v == null)
