@@ -49,7 +49,7 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
    }
 
    @Override
-   public SolrWorksResults execute()
+   public List<WorkSearchProxy> execute()
    {
       List<WorkSearchProxy> works = new ArrayList<>();
 
@@ -80,43 +80,38 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
          logger.log(Level.SEVERE, "The following error occurred while querying the works core :" + e);
       }
 
-      return new SolrWorksResults(this, works);
+      return works;
    }
 
    private SolrParams getQuery()
    {
-//      SolrQuery query = new SolrQuery();
-//      StringBuilder qString = new StringBuilder();
-//
-//      query.setStart(Integer.valueOf(start));
-//      query.setRows(Integer.valueOf(this.maxResults));
+      /*
+       * This is a proof of concept:
+       * Using eDisMax seemed like a more adventagous way of doing the query. This will allow
+       * additional solr Paramaters to be set in order to 'fine tune' the query.
+       */
       ModifiableSolrParams solrParams = new ModifiableSolrParams();
-      // NOTE this looks like a bad idea. probably set internal state and build based on that state
-//      String queryString = Joiner.on(" AND ").join(criteria);
-//      query.setQuery(queryString);
+
       if (qBasic != null)
       {
-         solrParams.set("q", qBasic);
+         solrParams.set("q", this.qBasic);
          solrParams.set("defType", "edismax");
-         solrParams.set("qf", "titles authorNames");
+         solrParams.set("qf", "titles^3 authorNames authorIds");
          solrParams.set("start", start);
          solrParams.set("rows", this.maxResults);
-
-      }
-      else
-      {
-//         qString.append("titles:(" + titleQuery + ")")
-//                .append("OR authorNames:(" + authorName + ")");
       }
 
-//      query.setQuery(qString.toString());
       return solrParams;
    }
 
    @Override
    public void query(String q)
    {
-      this.qBasic = q;
+      StringBuilder qBuilder = new StringBuilder(q);
+      qBuilder.append(" -editionName:(*)")
+              .append(" -volumeNumber:(*)");
+
+      this.qBasic = qBuilder.toString();
       // NOTE query against all fields, boosted appropriately, free text
       //      I think that means *:(qBasic)
       // NOTE in general, if this is applied, the other query params are unlikely to be applied
