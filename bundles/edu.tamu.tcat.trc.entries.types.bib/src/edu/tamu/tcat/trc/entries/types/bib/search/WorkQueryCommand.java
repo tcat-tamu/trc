@@ -1,6 +1,7 @@
 package edu.tamu.tcat.trc.entries.types.bib.search;
 
 import java.util.Collection;
+import java.util.List;
 
 import edu.tamu.tcat.trc.entries.search.SearchException;
 
@@ -24,7 +25,7 @@ public interface WorkQueryCommand
    /**
     * Execute this query command after it has been parameterized. The query itself contains all
     * parameters and refinement criteria, and the result is simply a listing of matches.
-    * 
+    *
     * @return
     * @throws SearchException
     */
@@ -32,7 +33,7 @@ public interface WorkQueryCommand
     * In keeping with the "spirit of search", the window (offset + length) and other paramters
     * are configured in the query itself and not in a result with a long lifecycle.
     */
-   SearchWorksResult execute() throws SearchException;
+   List<WorkSearchProxy> execute() throws SearchException;
 
    /**
     * Supply a "basic" free-text, keyword query to be executed. In general, the supplied query should
@@ -58,18 +59,18 @@ public interface WorkQueryCommand
     * @param authorName
     */
    void queryAuthorName(String authorName) throws SearchException;
-   
+
    /**
     * Restrict the results to those associated with the provided authors by their identifiers.
     * Each identifier should correspond to a unique author within the search engine.
     * <p>
     * An author identifier is to be interpreted by the search engine.
-    * 
+    *
     * @param authorIds
     * @throws SearchException If the identifiers are not valid.
     */
    void filterAuthor(Collection<String> authorIds) throws SearchException;
-   
+
    //TODO: this API should use a 'range' object pairing two DateDescription instances (or one for unbounded)
 //   /**
 //    * Restrict the results to those associated with the provided date {@link Period}s.
