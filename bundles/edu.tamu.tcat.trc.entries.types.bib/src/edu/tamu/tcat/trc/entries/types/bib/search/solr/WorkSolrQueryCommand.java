@@ -195,8 +195,10 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
 //   }
 
    @Override
-   public void setStartIndex(int start)
+   public void setOffset(int start)
    {
+      if (start < 0)
+         throw new IllegalArgumentException("Offset cannot be negative");
       this.start = start;
    }
 

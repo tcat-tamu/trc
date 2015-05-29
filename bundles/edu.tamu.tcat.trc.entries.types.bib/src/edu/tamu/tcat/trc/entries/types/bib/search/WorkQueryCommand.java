@@ -101,7 +101,7 @@ public interface WorkQueryCommand
 //   void filterByLocation(String location);
 
    /**
-    * Sets the index of the first result to be returned. Useful in conjunction with
+    * Sets the index offset of the first result to be returned. Useful in conjunction with
     * {@link WorkQueryCommand#setMaxResults(int) } to support result paging. Note that
     * implementations are <em>strongly</em> encouraged to make a best-effort attempt to
     * preserve result order across multiple invocations of the same query.  In general, this
@@ -109,9 +109,9 @@ public interface WorkQueryCommand
     * are not required to guarantee result order consistency of result order across multiple
     * calls.
     *
-    * @param start
+    * @param offset
     */
-   void setStartIndex(int start);
+   void setOffset(int offset);
 
    /**
     * Specify the maximum number of results to be returned. Implementations may return fewer
@@ -119,9 +119,9 @@ public interface WorkQueryCommand
     * <p>
     * If not specified, the default is 25.
     *
-    * @param ct
+    * @param count
     */
    //TODO: note what implementations may do with limited results; e.g. blind truncate, sort
    //      by relevance or some other field
-   void setMaxResults(int ct);
+   void setMaxResults(int count);
 }

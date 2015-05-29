@@ -114,8 +114,7 @@ public class WorksResource
 
          // now meta fields
          cmd.setMaxResults(numResults);
-         cmd.setStartIndex(offset);
-
+         cmd.setOffset(offset);
 
          RestApiV1.WorkSearchResultSet rs = new RestApiV1.WorkSearchResultSet();
          rs.items = SearchAdapter.toDTO(cmd.execute().get());
