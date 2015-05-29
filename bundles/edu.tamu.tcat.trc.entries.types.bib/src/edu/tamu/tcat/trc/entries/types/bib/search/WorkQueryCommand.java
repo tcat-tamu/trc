@@ -1,7 +1,8 @@
 package edu.tamu.tcat.trc.entries.types.bib.search;
 
+import java.time.Period;
+import java.time.Year;
 import java.util.Collection;
-import java.util.List;
 
 import edu.tamu.tcat.trc.entries.search.SearchException;
 
@@ -36,13 +37,13 @@ public interface WorkQueryCommand
    SearchWorksResult execute() throws SearchException;
 
    /**
-    * Supply a "basic" free-text, keyword query to be executed. In general, the supplied query should
+    * Supply a "basic" free-text, keyword query to be executed. In general, the supplied query will
     * be executed against a wide range of fields (e.g., author, title, abstract, publisher, etc.)
     * with different fields being assigned different levels of boosting (per-field weights).
     * The specific fields to be searched and the relative weights associated with different
     * fields is implementation-dependent.
     *
-    * @param basicQueryString The "basic" query string
+    * @param basicQueryString The "basic" query string. May be {@code null} or empty.
     */
    void query(String basicQueryString) throws SearchException;
 
@@ -61,25 +62,36 @@ public interface WorkQueryCommand
    void queryAuthorName(String authorName) throws SearchException;
 
    /**
-    * Restrict the results to those associated with the provided authors by their identifiers.
+    * Futher restrict the results to those associated with the provided authors by their identifiers.
     * Each identifier should correspond to a unique author within the search engine.
+    * <p>
+    * This method is additive, so subsequent calls do not override but combine.
     * <p>
     * An author identifier is to be interpreted by the search engine.
     *
     * @param authorIds
     * @throws SearchException If the identifiers are not valid.
+    * @see #clearFilterAuthor()
     */
-   void filterAuthor(Collection<String> authorIds) throws SearchException;
+   void addFilterAuthor(Collection<String> authorIds) throws SearchException;
 
-   //TODO: this API should use a 'range' object pairing two DateDescription instances (or one for unbounded)
-//   /**
-//    * Restrict the results to those associated with the provided date {@link Period}s.
-//    * If any periods overlap, the resulting filter criteria will be the union of all provided.
-//    *
-//    * @param periods
-//    * @throws SearchException If the identifiers are not valid.
-//    */
-//   void filterDate(Collection<Period> periods) throws SearchException;
+   void clearFilterAuthor() throws SearchException;
+
+   /**
+    * Restrict the results to those associated with the provided date {@link Period}s.
+    * If any periods overlap, the resulting filter criteria will be the union of all provided.
+    *
+    * @param periods
+    * @throws SearchException If the identifiers are not valid.
+    */
+   void addFilterDate(Year start, Year end) throws SearchException;
+
+   // Add an unbounded date filter of the form [start, *)
+   //void addFilterDateStart(Year start) throws SearchException;
+   // Add an unbounded date filter of the form (*, end]
+   //void addFilterDateEnd(Year end) throws SearchException;
+
+   void clearFilterDate() throws SearchException;
 
 //   /**
 //    * Filter results to a specific geographical location.

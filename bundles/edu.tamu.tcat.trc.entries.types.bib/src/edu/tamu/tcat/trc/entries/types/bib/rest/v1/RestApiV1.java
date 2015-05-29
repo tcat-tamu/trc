@@ -1,7 +1,10 @@
 package edu.tamu.tcat.trc.entries.types.bib.rest.v1;
 
+import java.time.Year;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * An encapsulation of the data vehicle types used to process JSON requests and responses
@@ -17,7 +20,7 @@ public class RestApiV1
       public String qsNext;
       public String qsPrev;
    }
-   
+
    public static class WorkSearchResult
    {
       public String id;
@@ -28,7 +31,7 @@ public class RestApiV1
       public String summary;
       public String pubYear;
    }
-   
+
    public static class AuthorRef
    {
       public String authorId;
@@ -37,22 +40,22 @@ public class RestApiV1
       public String lastName;
       public String role;
    }
-   
+
    public static class WorkId
    {
       public String id;
    }
-   
+
    public static class EditionId
    {
       public String id;
    }
-   
+
    public static class VolumeId
    {
       public String id;
    }
-   
+
    public static class Work
    {
       public String id;
@@ -64,7 +67,7 @@ public class RestApiV1
 
       public Collection<Edition> editions;
    }
-   
+
    public static class Title
    {
       // short, default, undefined.
@@ -74,7 +77,7 @@ public class RestApiV1
       public String title;
       public String subtitle;
    }
-   
+
    public static class Edition
    {
       public String id;
@@ -87,7 +90,7 @@ public class RestApiV1
       public String series;
       public List<Volume> volumes;
    }
-   
+
    public static class Volume
    {
       public String id;
@@ -99,14 +102,14 @@ public class RestApiV1
       public String summary;
       public String series;
    }
-   
+
    public static class PublicationInfo
    {
       public String publisher;
       public String place;
       public DateDescription date;
    }
-   
+
    public static class DateDescription
    {
       /** ISO 8601 local (YYYY-MM-DD) representation of this date. */
@@ -114,5 +117,40 @@ public class RestApiV1
 
       /** A human readable description of this date. */
       public String description;     // NOTE use this to capture intended degree of precision
+   }
+
+   /**
+    * A DTO to be used as a REST query or path parameter. This class parses the String
+    * sent (using the REST API format) as the parameter value into a date range.
+    * <p>
+    * The value of a single string for a compound parameter is that the atomic values may be used
+    * as unique facet items and collected in lists rather than parsed and matched as multiple
+    * values in query or path parameters.
+    */
+   public static class DateRangeParam
+   {
+      private static String REGEX = "(\\d*|\\*)\\.\\.(\\d*|\\*)";
+      private static Pattern PATTERN = Pattern.compile(REGEX);
+
+      public final Year start;
+      public final Year end;
+
+      public DateRangeParam(String p) throws Exception
+      {
+         Matcher m = PATTERN.matcher(p);
+         if (!m.matches())
+            throw new IllegalArgumentException("Date range ["+p+"] does not follow expected format");
+
+         start = Year.parse(m.group(1));
+         end = Year.parse(m.group(2));
+      }
+
+      /**
+       * Convert this {@link DateRangeParam} back to a parseable value.
+       */
+      public String toValue()
+      {
+         return start+".."+end;
+      }
    }
 }

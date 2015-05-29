@@ -2,7 +2,6 @@ package edu.tamu.tcat.trc.entries.types.bib.rest.v1;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +33,6 @@ import edu.tamu.tcat.trc.entries.types.bib.dto.WorkDV;
 import edu.tamu.tcat.trc.entries.types.bib.repo.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.types.bib.repo.WorkRepository;
 import edu.tamu.tcat.trc.entries.types.bib.search.WorkQueryCommand;
-import edu.tamu.tcat.trc.entries.types.bib.search.WorkSearchProxy;
 import edu.tamu.tcat.trc.entries.types.bib.search.WorkSearchService;
 
 @Path("/works")
@@ -92,81 +90,67 @@ public class WorksResource
                @QueryParam(value = "a") String authorName,
                @QueryParam(value = "t") String title,
                @QueryParam(value = "aid") List<String> authorIds, // specify same param with multiple values to get a list
-               @QueryParam(value = "drs") List<String> dateRangeStarts,
-               @QueryParam(value = "dre") List<String> dateRangeEnds,
+               @QueryParam(value = "dr") List<RestApiV1.DateRangeParam> dateRanges,
                @QueryParam(value = "off") @DefaultValue("0")   int offset,
                @QueryParam(value = "max") @DefaultValue("100") int numResults)
    throws SearchException
    {
-      WorkQueryCommand cmd = workSearchService.createQueryCommand();
-      // query parameters
-      cmd.query(q);
-      cmd.queryAuthorName(authorName);
-      cmd.queryTitle(title);
-
-      // now filters/facets
-      cmd.filterAuthor(authorIds);
-
-      // now meta fields
-      cmd.setMaxResults(numResults);
-      cmd.setStartIndex(offset);
-
-      // if either is non-empty, need to process date range criteria
-      if (!dateRangeStarts.isEmpty() || !dateRangeEnds.isEmpty())
-      {
-         if (dateRangeStarts.size() != dateRangeEnds.size())
-            throw new SearchException("Date range start or end missing a value");
-
-         for (int i=0; i<dateRangeStarts.size(); ++i)
-         {
-            String st = dateRangeStarts.get(i);
-            String end = dateRangeEnds.get(i);
-
-            try
-            {
-               //TODO: parse start and end into a 'range' of DateDescriptor
-               //TODO: allow start or end to be empty-string for unbounded query
-            }
-            catch (Exception e)
-            {
-            }
-         }
-      }
-
-      RestApiV1.WorkSearchResultSet rs = new RestApiV1.WorkSearchResultSet();
-      rs.items = SearchAdapter.toDTO(cmd.execute().get());
-
-      StringBuilder sb = new StringBuilder();
       try
       {
-         app(sb, "q", q);
-         app(sb, "a", authorName);
-         app(sb, "t", title);
+         WorkQueryCommand cmd = workSearchService.createQueryCommand();
 
-         authorIds.stream().forEach(s -> app(sb, "aid", s));
+         // query parameters
+         cmd.query(q);
+         cmd.queryAuthorName(authorName);
+         cmd.queryTitle(title);
 
-         // merge "start" and "end" values to be in adjacent pairs
-         for (int i=0; i<dateRangeStarts.size(); ++i)
+         //NOTE: a query can work without any parameters, so no need to validate that they typed in a 'q'
+         //      or other advanced criteria
+
+         // now filters/facets
+         cmd.addFilterAuthor(authorIds);
+         for (RestApiV1.DateRangeParam dr : dateRanges)
+            cmd.addFilterDate(dr.start, dr.end);
+
+         // now meta fields
+         cmd.setMaxResults(numResults);
+         cmd.setStartIndex(offset);
+
+
+         RestApiV1.WorkSearchResultSet rs = new RestApiV1.WorkSearchResultSet();
+         rs.items = SearchAdapter.toDTO(cmd.execute().get());
+
+         StringBuilder sb = new StringBuilder();
+         try
          {
-            app(sb, "drs", dateRangeStarts.get(i));
-            app(sb, "dre", dateRangeEnds.get(i));
+            app(sb, "q", q);
+            app(sb, "a", authorName);
+            app(sb, "t", title);
+
+            authorIds.stream().forEach(s -> app(sb, "aid", s));
+            dateRanges.stream().forEach(dr -> app(sb, "dr", dr.toValue()));
          }
+         catch (Exception e)
+         {
+            throw new SearchException("Failed building querystring", e);
+         }
+
+         rs.qs = "off="+offset+"&max="+numResults+"&"+sb.toString();
+         //TODO: does this depend on the number of results returned (i.e. whether < numResults), or do we assume there are infinite results?
+         rs.qsNext = "off="+(offset + numResults)+"&max="+numResults+"&"+sb.toString();
+         if (offset >= numResults)
+            rs.qsPrev = "off="+(offset - numResults)+"&max="+numResults+"&"+sb.toString();
+         // first page got off; reset to zero offset
+         else if (offset > 0 && offset < numResults)
+            rs.qsPrev = "off="+(0)+"&max="+numResults+"&"+sb.toString();
+
+         return rs;
       }
       catch (Exception e)
       {
-         throw new SearchException("Failed building querystring", e);
+         logger.log(Level.SEVERE, "Error", e);
+         throw new SearchException(e);
       }
-
-      rs.qs = "off="+offset+"&max="+numResults+"&"+sb.toString();
-      //TODO: does this depend on the number of results returned (i.e. whether < numResults), or do we assume there are infinite results?
-      rs.qsNext = "off="+(offset + numResults)+"&max="+numResults+"&"+sb.toString();
-      if (offset >= numResults)
-         rs.qsPrev = "off="+(offset - numResults)+"&max="+numResults+"&"+sb.toString();
-      // first page got off; reset to zero offset
-      else if (numResults - offset > 0)
-         rs.qsPrev = "off="+(0)+"&max="+numResults+"&"+sb.toString();
-
-      return rs;
    }
 
    private static void app(StringBuilder sb, String p, String v)
