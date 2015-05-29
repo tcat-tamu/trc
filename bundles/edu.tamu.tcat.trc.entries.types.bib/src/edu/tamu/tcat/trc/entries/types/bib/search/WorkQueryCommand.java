@@ -33,7 +33,7 @@ public interface WorkQueryCommand
     * In keeping with the "spirit of search", the window (offset + length) and other paramters
     * are configured in the query itself and not in a result with a long lifecycle.
     */
-   List<WorkSearchProxy> execute() throws SearchException;
+   SearchWorksResult execute() throws SearchException;
 
    /**
     * Supply a "basic" free-text, keyword query to be executed. In general, the supplied query should

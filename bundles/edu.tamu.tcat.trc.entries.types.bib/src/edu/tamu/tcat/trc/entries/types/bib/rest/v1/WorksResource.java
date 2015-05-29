@@ -134,8 +134,7 @@ public class WorksResource
       }
 
       RestApiV1.WorkSearchResultSet rs = new RestApiV1.WorkSearchResultSet();
-      rs.items = SearchAdapter.toDTO(cmd.execute());
-//      rs.items = new ArrayList<>();
+      rs.items = SearchAdapter.toDTO(cmd.execute().get());
 
       StringBuilder sb = new StringBuilder();
       try

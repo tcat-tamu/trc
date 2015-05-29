@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -49,7 +48,7 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
    }
 
    @Override
-   public List<WorkSearchProxy> execute()
+   public SolrWorksResults execute()
    {
       List<WorkSearchProxy> works = new ArrayList<>();
 
@@ -80,7 +79,7 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
          logger.log(Level.SEVERE, "The following error occurred while querying the works core :" + e);
       }
 
-      return works;
+      return new SolrWorksResults(this, works);
    }
 
    private SolrParams getQuery()
