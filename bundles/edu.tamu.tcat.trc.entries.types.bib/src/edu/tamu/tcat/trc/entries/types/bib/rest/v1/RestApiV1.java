@@ -23,7 +23,9 @@ public class RestApiV1
 
    public static class WorkSearchResult
    {
+      // work id; used in URIs
       public String id;
+      // relative uri to the work, e.g. /work/{id}
       public String uri;
       public List<AuthorRef> authors;
       public String title;
