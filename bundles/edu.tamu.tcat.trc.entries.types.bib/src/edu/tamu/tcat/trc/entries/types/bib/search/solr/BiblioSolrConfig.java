@@ -11,6 +11,7 @@ import edu.tamu.tcat.trc.entries.types.bib.search.WorkSearchProxy;
 
 public class BiblioSolrConfig implements SolrQueryConfig
 {
+   public static final SolrIndexField<String> ID = new BasicFields.BasicString("id");
    public static final SolrIndexField<String> AUTHOR_NAMES = new BasicFields.BasicString("authorNames");
    public static final SolrIndexField<Year> PUBLICATION_DATE = new BasicFields.BasicDate<Year>("publishDateValue", Year.class);
 

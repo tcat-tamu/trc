@@ -65,7 +65,8 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
          }
          if (dates != null)
          {
-            //TODO: specify in query builder
+            for (DateRange dr : dates)
+               qb.queryRange(BiblioSolrConfig.PUBLICATION_DATE, dr.start, dr.end);
          }
 
          QueryResponse response = solr.query(qb.get());

@@ -66,6 +66,25 @@ public class TrcQueryBuilder implements SolrQueryBuilder
    }
 
    @Override
+   public <P> void queryRangeExclusive(SolrIndexField<P> param, P start, P end, boolean excludeStart, boolean excludeEnd) throws SearchException
+   {
+      StringBuilder sb = new StringBuilder();
+      if (excludeStart)
+         sb.append("{");
+      else
+         sb.append("[");
+      sb.append(param.toSolrValue(start))
+        .append(" TO ")
+        .append(param.toSolrValue(end));
+      if (excludeEnd)
+         sb.append("}");
+      else
+         sb.append("]");
+
+      params.set(param.getName(), sb.toString());
+   }
+
+   @Override
    public <P> void filter(SolrIndexField<P> param, Collection<P> values)
    {
       // TODO Auto-generated method stub

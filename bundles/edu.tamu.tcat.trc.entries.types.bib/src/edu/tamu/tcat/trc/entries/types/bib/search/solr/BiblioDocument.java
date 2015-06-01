@@ -1,5 +1,7 @@
 package edu.tamu.tcat.trc.entries.types.bib.search.solr;
 
+import java.time.Year;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,7 +39,6 @@ public class BiblioDocument
    // is this a proxy, mutator or builder
    private final static Logger logger = Logger.getLogger(BiblioDocument.class.getName());
 
-//   private final static String id = "id";
 //   private final static String authorIds = "authorIds";
 //   private final static String authorNames = "authorNames";
 //   private final static String authorRoles = "authorRole";           // not needed
@@ -48,7 +49,6 @@ public class BiblioDocument
 //   private final static String publisher = "publisher";
 //   private final static String pubLocation = "publisherLocation";
 //   private final static String pubDateString = "publishDateString";  // simply date, expressed as a YYYY-MM-DD
-//   private final static String pubDateValue = "publishDateValue";
 //   private final static String docSeries = "series";
 //   private final static String docSummary = "summary";               // NOTE - critical search field
 
@@ -59,9 +59,6 @@ public class BiblioDocument
 //   private final static String volumeNumber = "volumeNumber";        // not needed (store in info)
 
 //   private final static String workInfo = "workInfo";
-
-   private Map<String,Object> fieldModifier;
-   private final static String SET = "set";
 
    // composed instead of extended to not expose TrcDocument as API to this class
    private TrcDocument indexDocument;
@@ -76,7 +73,7 @@ public class BiblioDocument
       BiblioDocument doc = new BiblioDocument();
       WorkDV workDV = WorkDV.create(work);
 
-//      doc.addField(id, workDV.id);
+      doc.indexDocument.set(BiblioSolrConfig.ID, workDV.id);
 //      doc.addAuthors(workDV.authors);
 //      doc.addTitle(workDV.titles);
 //      doc.addField(docSeries, workDV.series);
@@ -101,11 +98,11 @@ public class BiblioDocument
                                .append(editionDV.id);
 
       BiblioDocument doc = new BiblioDocument();
-//      doc.addField(id, editionId.toString());
+      doc.indexDocument.set(BiblioSolrConfig.ID, editionId.toString());
 //      doc.addField(editionName, editionDV.editionName);
 //      doc.addAuthors(editionDV.authors);
 //      doc.addTitle(editionDV.titles);
-//      doc.addPublication(editionDV.publicationInfo);
+      doc.addPublication(editionDV.publicationInfo);
 //      doc.addField(docSeries, editionDV.series);
 //      doc.addField(docSummary, editionDV.summary);
 
@@ -130,12 +127,12 @@ public class BiblioDocument
                               .append(volumeDV.id);
 
       BiblioDocument doc = new BiblioDocument();
-//      doc.addField(id, volumeId.toString());
+      doc.indexDocument.set(BiblioSolrConfig.ID, volumeId.toString());
 //      doc.addField(editionName, edition.getEditionName());
 //      doc.addField(volumeNumber, volumeDV.volumeNumber);
 //      doc.addAuthors(volumeDV.authors);
 //      doc.addTitle(volumeDV.titles);
-//      doc.addPublication(volumeDV.publicationInfo);
+      doc.addPublication(volumeDV.publicationInfo);
 //      doc.addField(docSeries, volumeDV.series);
 //      doc.addField(docSummary, volumeDV.summary);
 
@@ -155,7 +152,7 @@ public class BiblioDocument
       BiblioDocument doc = new BiblioDocument();
       WorkDV workDV = WorkDV.create(work);
 
-//      doc.updateField(id, workDV.id, SET);
+      doc.indexDocument.update(BiblioSolrConfig.ID, workDV.id);
 //      doc.addAuthors(workDV.authors);
 //      doc.addTitle(workDV.titles);
 //      doc.updateField(docSeries, workDV.series, SET);
@@ -180,11 +177,11 @@ public class BiblioDocument
                                .append(editionDV.id);
 
       BiblioDocument doc = new BiblioDocument();
-//      doc.updateField(id, editionId.toString(), SET);
+      doc.indexDocument.update(BiblioSolrConfig.ID, editionId.toString());
 //      doc.updateField(editionName, editionDV.editionName, SET);
 //      doc.addAuthors(editionDV.authors);
 //      doc.addTitle(editionDV.titles);
-//      doc.addPublication(editionDV.publicationInfo);
+      doc.addPublication(editionDV.publicationInfo);
 //      doc.updateField(docSeries, editionDV.series, SET);
 //      doc.updateField(docSummary, editionDV.summary, SET);
 //
@@ -209,12 +206,12 @@ public class BiblioDocument
                               .append(volumeDV.id);
 
       BiblioDocument doc = new BiblioDocument();
-//      doc.updateField(id, volumeId.toString(), SET);
+      doc.indexDocument.update(BiblioSolrConfig.ID, volumeId.toString());
 //      doc.updateField(editionName, edition.getEditionName(), SET);
 //      doc.updateField(volumeNumber, volumeDV.volumeNumber, SET);
 //      doc.addAuthors(volumeDV.authors);
 //      doc.addTitle(volumeDV.titles);
-//      doc.addPublication(volumeDV.publicationInfo);
+      doc.addPublication(volumeDV.publicationInfo);
 //      doc.updateField(docSeries, volumeDV.series, SET);
 //      doc.updateField(docSummary, volumeDV.summary, SET);
 
@@ -235,20 +232,7 @@ public class BiblioDocument
       return indexDocument.getSolrDocument();
    }
 
-//   // this look like something that could be extracted
-//   private void addField(String fieldName, String fieldValue)
-//   {
-//      document.addField(fieldName, fieldValue);
-//   }
-//
-//   private void updateField(String fieldName, String value, String updateType)
-//   {
-//      fieldModifier = new HashMap<>(1);
-//      fieldModifier.put(updateType, value);
-//      document.addField(fieldName, fieldModifier);
-//   }
-
-   private void addAuthors(List<AuthorRefDV> authors)
+   private void addAuthors(List<AuthorRefDV> authors) throws SearchException
    {
 //      for (AuthorRefDV author : authors)
 //      {
@@ -261,7 +245,7 @@ public class BiblioDocument
 //      }
    }
 
-   private void updateAuthors(List<AuthorRefDV> authors, String updateType)
+   private void updateAuthors(List<AuthorRefDV> authors, String updateType) throws SearchException
    {
 //      Set<String> allIds = new HashSet<>();
 //      Set<String> allNames = new HashSet<>();
@@ -290,7 +274,7 @@ public class BiblioDocument
 //      document.addField(authorRoles, fieldModifier);
    }
 
-   private void addTitle(Collection<TitleDV> titlesDV)
+   private void addTitle(Collection<TitleDV> titlesDV) throws SearchException
    {
 //      for (TitleDV title : titlesDV)
 //      {
@@ -301,7 +285,7 @@ public class BiblioDocument
 //      }
    }
 
-   private void updateTitle(Collection<TitleDV> titlesDV, String updateType)
+   private void updateTitle(Collection<TitleDV> titlesDV, String updateType) throws SearchException
    {
 //      Set<String> allTypes = new HashSet<>();
 //      Set<String> allLangs = new HashSet<>();
@@ -344,14 +328,14 @@ public class BiblioDocument
 //      else
 //         document.addField(pubLocation, "");
 
-//      DateDescriptionDTO dateDescription = publication.date;
+      DateDescriptionDTO dateDescription = publication.date;
 //      document.addField(pubDateString, dateDescription.description);
 
-//      if (dateDescription.calendar != null)
-//         document.addField(pubDateValue, convertDate(dateDescription.calendar));
+      if (dateDescription.calendar != null)
+         indexDocument.set(BiblioSolrConfig.PUBLICATION_DATE, Year.from(DateTimeFormatter.ISO_DATE.parse(dateDescription.calendar)));
    }
 
-   private void updatePublication(PublicationInfoDV publication, String updateType)
+   private void updatePublication(PublicationInfoDV publication, String updateType) throws SearchException
    {
 //      if (publication.publisher != null)
 //         document.addField(publisher, publication.publisher);
@@ -362,15 +346,10 @@ public class BiblioDocument
 //      else
 //         document.addField(pubLocation, "");
 //
-//      DateDescriptionDTO dateDescription = publication.date;
+      DateDescriptionDTO dateDescription = publication.date;
 //      document.addField(pubDateString, dateDescription.description);
-//
-//      if (dateDescription.calendar != null)
-//         document.addField(pubDateValue, convertDate(dateDescription.calendar));
-   }
 
-   private String convertDate(String localDate)
-   {
-      return localDate + "T00:00:00Z";
+      if (dateDescription.calendar != null)
+         indexDocument.set(BiblioSolrConfig.PUBLICATION_DATE, Year.from(DateTimeFormatter.ISO_DATE.parse(dateDescription.calendar)));
    }
 }

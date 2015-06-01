@@ -39,6 +39,34 @@ public interface SolrQueryBuilder
    <P> void query(SolrIndexField<P> param, P value) throws SearchException;
 
    /**
+    * Add query criteria where the parameter falls within the provided range. The values
+    * given for the range are inclusive.
+    *
+    * @param param
+    * @param start
+    * @param end
+    * @throws SearchException
+    */
+   default <P> void queryRange(SolrIndexField<P> param, P start, P end) throws SearchException
+   {
+      queryRangeExclusive(param, start, end, false, false);
+   }
+
+   /**
+    * Add query criteria where the parameter falls within the provided range with optional range
+    * endpoint exclusivity. A call to {@code queryRangeExclusive(p, start, end, false, false)} is
+    * equivalent to a call to {@code queryRange(p, start, end)}
+    *
+    * @param param
+    * @param start
+    * @param end
+    * @param excludeStart
+    * @param excludeEnd
+    * @throws SearchException
+    */
+   <P> void queryRangeExclusive(SolrIndexField<P> param, P start, P end, boolean excludeStart, boolean excludeEnd) throws SearchException;
+
+   /**
     * Add filter criteria where the parameter equals the provided value. This
     * is used for facets.
     */
