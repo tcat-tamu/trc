@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.tamu.tcat.trc.entries.types.bib.dto.AuthorRefDV;
-import edu.tamu.tcat.trc.entries.types.bib.search.WorkSearchProxy;
+import edu.tamu.tcat.trc.entries.types.bib.search.BiblioSearchProxy;
 
 /**
  * An encapsulation of adapter methods to convert between the search API and
@@ -12,13 +12,13 @@ import edu.tamu.tcat.trc.entries.types.bib.search.WorkSearchProxy;
  */
 public class SearchAdapter
 {
-   public static List<RestApiV1.WorkSearchResult> toDTO(List<WorkSearchProxy> origList)
+   public static List<RestApiV1.WorkSearchResult> toDTO(List<BiblioSearchProxy> origList)
    {
       if (origList == null)
          return null;
 
       List<RestApiV1.WorkSearchResult> dtoList = new ArrayList<>();
-      for (WorkSearchProxy orig : origList)
+      for (BiblioSearchProxy orig : origList)
       {
          RestApiV1.WorkSearchResult dto = new RestApiV1.WorkSearchResult();
          dto.id = orig.id;

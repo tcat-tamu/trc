@@ -3,16 +3,10 @@ package edu.tamu.tcat.trc.entries.types.bib.search.solr;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import org.apache.solr.common.SolrInputDocument;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
 import edu.tamu.tcat.trc.entries.search.SearchException;
@@ -26,13 +20,13 @@ import edu.tamu.tcat.trc.entries.types.bib.dto.PublicationInfoDV;
 import edu.tamu.tcat.trc.entries.types.bib.dto.TitleDV;
 import edu.tamu.tcat.trc.entries.types.bib.dto.VolumeDV;
 import edu.tamu.tcat.trc.entries.types.bib.dto.WorkDV;
-import edu.tamu.tcat.trc.entries.types.bib.search.WorkSearchProxy;
+import edu.tamu.tcat.trc.entries.types.bib.search.BiblioSearchProxy;
 
 /**
  * Represents a document in the SOLR search index. Exports its representation as
- * a {@link SolrInputDocument}, which includes a {@link WorkSearchProxy} DTO as one of the fields.
+ * a {@link SolrInputDocument}, which includes a {@link BiblioSearchProxy} DTO as one of the fields.
  *
- * @see {@link WorkSearchProxy} which is the DTO stored in one of the fields of this proxy.
+ * @see {@link BiblioSearchProxy} which is the DTO stored in one of the fields of this proxy.
  */
 public class BiblioDocument
 {
@@ -79,14 +73,14 @@ public class BiblioDocument
 //      doc.addField(docSeries, workDV.series);
 //      doc.addField(docSummary, workDV.summary);
 
-//      try
-//      {
-//         doc.addField(workInfo, BiblioEntriesSearchService.getMapper().writeValueAsString(WorkSearchProxy.create(work)));
-//      }
-//      catch (JsonProcessingException e)
-//      {
-//         throw new IllegalStateException("Failed to serialize WorkSearchProxy data", e);
-//      }
+      try
+      {
+         doc.indexDocument.set(BiblioSolrConfig.SEARCH_PROXY, BiblioSearchProxy.create(work));
+      }
+      catch (Exception e)
+      {
+         throw new IllegalStateException("Failed to serialize BiblioSearchProxy data", e);
+      }
       return doc;
    }
 
@@ -106,14 +100,14 @@ public class BiblioDocument
 //      doc.addField(docSeries, editionDV.series);
 //      doc.addField(docSummary, editionDV.summary);
 
-//      try
-//      {
-//         doc.addField(workInfo, BiblioEntriesSearchService.getMapper().writeValueAsString(WorkSearchProxy.create(workId, edition)));
-//      }
-//      catch (JsonProcessingException e)
-//      {
-//         throw new IllegalStateException("Failed to serialize WorkSearchProxy data", e);
-//      }
+      try
+      {
+         doc.indexDocument.set(BiblioSolrConfig.SEARCH_PROXY, BiblioSearchProxy.create(workId, edition));
+      }
+      catch (Exception e)
+      {
+         throw new IllegalStateException("Failed to serialize BiblioSearchProxy data", e);
+      }
       return doc;
    }
 
@@ -136,14 +130,14 @@ public class BiblioDocument
 //      doc.addField(docSeries, volumeDV.series);
 //      doc.addField(docSummary, volumeDV.summary);
 
-//      try
-//      {
-//         doc.addField(workInfo, BiblioEntriesSearchService.getMapper().writeValueAsString(WorkSearchProxy.create(workId, edition.getId(), volume)));
-//      }
-//      catch (JsonProcessingException e)
-//      {
-//         throw new IllegalStateException("Failed to serialize WorkSearchProxy data", e);
-//      }
+      try
+      {
+         doc.indexDocument.set(BiblioSolrConfig.SEARCH_PROXY, BiblioSearchProxy.create(workId, edition.getId(), volume));
+      }
+      catch (Exception e)
+      {
+         throw new IllegalStateException("Failed to serialize BiblioSearchProxy data", e);
+      }
       return doc;
    }
 
@@ -158,14 +152,14 @@ public class BiblioDocument
 //      doc.updateField(docSeries, workDV.series, SET);
 //      doc.updateField(docSummary, workDV.summary, SET);
 
-//      try
-//      {
-//         doc.addField(workInfo, BiblioEntriesSearchService.getMapper().writeValueAsString(WorkSearchProxy.create(work)));
-//      }
-//      catch (JsonProcessingException e)
-//      {
-//         throw new IllegalStateException("Failed to serialize WorkSearchProxy data", e);
-//      }
+      try
+      {
+         doc.indexDocument.set(BiblioSolrConfig.SEARCH_PROXY, BiblioSearchProxy.create(work));
+      }
+      catch (Exception e)
+      {
+         throw new IllegalStateException("Failed to serialize BiblioSearchProxy data", e);
+      }
       return doc;
    }
 
@@ -184,15 +178,15 @@ public class BiblioDocument
       doc.addPublication(editionDV.publicationInfo);
 //      doc.updateField(docSeries, editionDV.series, SET);
 //      doc.updateField(docSummary, editionDV.summary, SET);
-//
-//      try
-//      {
-//         doc.addField(workInfo, BiblioEntriesSearchService.getMapper().writeValueAsString(WorkSearchProxy.create(workId, edition)));
-//      }
-//      catch (JsonProcessingException e)
-//      {
-//         throw new IllegalStateException("Failed to serialize WorkSearchProxy data", e);
-//      }
+
+      try
+      {
+         doc.indexDocument.set(BiblioSolrConfig.SEARCH_PROXY, BiblioSearchProxy.create(workId, edition));
+      }
+      catch (Exception e)
+      {
+         throw new IllegalStateException("Failed to serialize BiblioSearchProxy data", e);
+      }
       return doc;
    }
 
@@ -215,14 +209,14 @@ public class BiblioDocument
 //      doc.updateField(docSeries, volumeDV.series, SET);
 //      doc.updateField(docSummary, volumeDV.summary, SET);
 
-//      try
-//      {
-//         doc.addField(workInfo, BiblioEntriesSearchService.getMapper().writeValueAsString(WorkSearchProxy.create(workId, edition.getId(), volume)));
-//      }
-//      catch (JsonProcessingException e)
-//      {
-//         throw new IllegalStateException("Failed to serialize WorkSearchProxy data", e);
-//      }
+      try
+      {
+         doc.indexDocument.set(BiblioSolrConfig.SEARCH_PROXY, BiblioSearchProxy.create(workId, edition.getId(), volume));
+      }
+      catch (Exception e)
+      {
+         throw new IllegalStateException("Failed to serialize BiblioSearchProxy data", e);
+      }
       return doc;
    }
 

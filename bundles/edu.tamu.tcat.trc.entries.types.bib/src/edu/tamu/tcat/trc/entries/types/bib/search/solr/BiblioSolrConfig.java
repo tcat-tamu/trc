@@ -7,11 +7,12 @@ import org.apache.solr.client.solrj.SolrQuery;
 import edu.tamu.tcat.trc.entries.search.solr.SolrIndexField;
 import edu.tamu.tcat.trc.entries.search.solr.SolrQueryConfig;
 import edu.tamu.tcat.trc.entries.search.solr.impl.BasicFields;
-import edu.tamu.tcat.trc.entries.types.bib.search.WorkSearchProxy;
+import edu.tamu.tcat.trc.entries.types.bib.search.BiblioSearchProxy;
 
 public class BiblioSolrConfig implements SolrQueryConfig
 {
    public static final SolrIndexField<String> ID = new BasicFields.BasicString("id");
+   public static final SolrIndexField<BiblioSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<BiblioSearchProxy>("workInfo", BiblioSearchProxy.class);
    public static final SolrIndexField<String> AUTHOR_NAMES = new BasicFields.BasicString("authorNames");
    public static final SolrIndexField<Year> PUBLICATION_DATE = new BasicFields.BasicDate<Year>("publishDateValue", Year.class);
 
@@ -50,9 +51,9 @@ public class BiblioSolrConfig implements SolrQueryConfig
    }
 
    @Override
-   public Class<WorkSearchProxy> getSearchProxyType()
+   public Class<BiblioSearchProxy> getSearchProxyType()
    {
-      return WorkSearchProxy.class;
+      return BiblioSearchProxy.class;
    }
 
    @Override

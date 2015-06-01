@@ -21,7 +21,7 @@ public interface SearchWorksResult
     * @return Proxies for the works that match the current search.
     */
    @Deprecated // why return proxies? what should this return? perhaps Work?
-   List<WorkSearchProxy> get();
+   List<BiblioSearchProxy> get();
    
    //TODO: add support for retrieving facet information
 }

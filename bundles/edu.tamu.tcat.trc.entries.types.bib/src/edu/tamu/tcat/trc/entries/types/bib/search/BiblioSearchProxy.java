@@ -22,7 +22,7 @@ import edu.tamu.tcat.trc.entries.types.bib.dto.AuthorRefDV;
  * data transfer and parsing resources.
  *
  */
-public class WorkSearchProxy
+public class BiblioSearchProxy
 {
    // FIXME this mixes works, editions and volume information
 
@@ -34,9 +34,9 @@ public class WorkSearchProxy
    public String summary;
    public String pubYear = null;
 
-   public static WorkSearchProxy create(Work w)
+   public static BiblioSearchProxy create(Work w)
    {
-      WorkSearchProxy result = new WorkSearchProxy();
+      BiblioSearchProxy result = new BiblioSearchProxy();
 
       TitleDefinition titleDefn = w.getTitle();
       Set<Title> titles = titleDefn.getAlternateTitles();
@@ -69,9 +69,9 @@ public class WorkSearchProxy
       return result;
    }
 
-   public static WorkSearchProxy create(String workId, Edition e)
+   public static BiblioSearchProxy create(String workId, Edition e)
    {
-      WorkSearchProxy result = new WorkSearchProxy();
+      BiblioSearchProxy result = new BiblioSearchProxy();
 
       Set<Title> titleSet = new HashSet<>(e.getTitles());
       LocalDate d = e.getVolumes().stream()
@@ -101,9 +101,9 @@ public class WorkSearchProxy
 
    }
 
-   public static WorkSearchProxy create(String workId, String editionId, Volume v)
+   public static BiblioSearchProxy create(String workId, String editionId, Volume v)
    {
-      WorkSearchProxy result = new WorkSearchProxy();
+      BiblioSearchProxy result = new BiblioSearchProxy();
       Set<Title> titleSet = new HashSet<>(v.getTitles());
       LocalDate localDate = v.getPublicationInfo().getPublicationDate().getCalendar();
       String pubYear = getNormalizedYear(localDate);
@@ -201,7 +201,7 @@ public class WorkSearchProxy
       return (value == null || value.trim().isEmpty()) ? null : value.trim();
    }
 
-   public WorkSearchProxy()
+   public BiblioSearchProxy()
    {
    }
 
