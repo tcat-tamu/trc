@@ -29,10 +29,10 @@ import edu.tamu.tcat.trc.entries.types.bib.search.WorkSearchProxy;
  *
  * @see {@link WorkSearchProxy} which is the DTO stored in one of the fields of this proxy.
  */
-public class WorkSolrProxy
+public class BiblioDocument
 {
    // is this a proxy, mutator or builder
-   private final static Logger logger = Logger.getLogger(WorkSolrProxy.class.getName());
+   private final static Logger logger = Logger.getLogger(BiblioDocument.class.getName());
 
    private final static String id = "id";
    private final static String authorIds = "authorIds";
@@ -61,14 +61,14 @@ public class WorkSolrProxy
    private Map<String,Object> fieldModifier;
    private final static String SET = "set";
 
-   public WorkSolrProxy()
+   public BiblioDocument()
    {
       document = new SolrInputDocument();
    }
 
-   public static WorkSolrProxy createWork(Work work)
+   public static BiblioDocument createWork(Work work)
    {
-      WorkSolrProxy proxy = new WorkSolrProxy();
+      BiblioDocument proxy = new BiblioDocument();
       WorkDV workDV = WorkDV.create(work);
 
       proxy.addField(id, workDV.id);
@@ -88,14 +88,14 @@ public class WorkSolrProxy
       return proxy;
    }
 
-   public static WorkSolrProxy createEdition(String workId, Edition edition)
+   public static BiblioDocument createEdition(String workId, Edition edition)
    {
       EditionDV editionDV = EditionDV.create(edition);
       StringBuilder editionId = new StringBuilder(workId)
                                .append(":")
                                .append(editionDV.id);
 
-      WorkSolrProxy proxy = new WorkSolrProxy();
+      BiblioDocument proxy = new BiblioDocument();
       proxy.addField(id, editionId.toString());
       proxy.addField(editionName, editionDV.editionName);
       proxy.addAuthors(editionDV.authors);
@@ -115,7 +115,7 @@ public class WorkSolrProxy
       return proxy;
    }
 
-   public static WorkSolrProxy createVolume(String workId, Edition edition, Volume volume)
+   public static BiblioDocument createVolume(String workId, Edition edition, Volume volume)
    {
       VolumeDV volumeDV = VolumeDV.create(volume);
       StringBuilder volumeId = new StringBuilder(workId)
@@ -124,7 +124,7 @@ public class WorkSolrProxy
                               .append(":")
                               .append(volumeDV.id);
 
-      WorkSolrProxy proxy = new WorkSolrProxy();
+      BiblioDocument proxy = new BiblioDocument();
       proxy.addField(id, volumeId.toString());
       proxy.addField(editionName, edition.getEditionName());
       proxy.addField(volumeNumber, volumeDV.volumeNumber);
@@ -145,9 +145,9 @@ public class WorkSolrProxy
       return proxy;
    }
 
-   public static WorkSolrProxy updateWork(Work work)
+   public static BiblioDocument updateWork(Work work)
    {
-      WorkSolrProxy proxy = new WorkSolrProxy();
+      BiblioDocument proxy = new BiblioDocument();
       WorkDV workDV = WorkDV.create(work);
 
       proxy.updateField(id, workDV.id, SET);
@@ -167,14 +167,14 @@ public class WorkSolrProxy
       return proxy;
    }
 
-   public static WorkSolrProxy updateEdition(String workId, Edition edition)
+   public static BiblioDocument updateEdition(String workId, Edition edition)
    {
       EditionDV editionDV = EditionDV.create(edition);
       StringBuilder editionId = new StringBuilder(workId)
                                .append(":")
                                .append(editionDV.id);
 
-      WorkSolrProxy proxy = new WorkSolrProxy();
+      BiblioDocument proxy = new BiblioDocument();
       proxy.updateField(id, editionId.toString(), SET);
       proxy.updateField(editionName, editionDV.editionName, SET);
       proxy.addAuthors(editionDV.authors);
@@ -194,7 +194,7 @@ public class WorkSolrProxy
       return proxy;
    }
 
-   public static WorkSolrProxy updateVolume(String workId, Edition edition, Volume volume)
+   public static BiblioDocument updateVolume(String workId, Edition edition, Volume volume)
    {
       VolumeDV volumeDV = VolumeDV.create(volume);
       StringBuilder volumeId = new StringBuilder(workId)
@@ -203,7 +203,7 @@ public class WorkSolrProxy
                               .append(":")
                               .append(volumeDV.id);
 
-      WorkSolrProxy proxy = new WorkSolrProxy();
+      BiblioDocument proxy = new BiblioDocument();
       proxy.updateField(id, volumeId.toString(), SET);
       proxy.updateField(editionName, edition.getEditionName(), SET);
       proxy.updateField(volumeNumber, volumeDV.volumeNumber, SET);

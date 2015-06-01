@@ -55,8 +55,8 @@ public class BiblioSolrConfig implements SolrQueryConfig
    }
 
    @Override
-   public Class<WorkSolrProxy> getIndexRecordType()
+   public Class<BiblioDocument> getIndexDocumentType()
    {
-      return WorkSolrProxy.class;
+      return BiblioDocument.class;
    }
 }

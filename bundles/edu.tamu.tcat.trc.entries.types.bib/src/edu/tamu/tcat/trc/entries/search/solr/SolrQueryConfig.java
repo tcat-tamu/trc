@@ -20,6 +20,6 @@ public interface SolrQueryConfig
     */
    Class<?> getSearchProxyType();
 
-   Class<?> getIndexRecordType();
+   Class<?> getIndexDocumentType();
 
 }

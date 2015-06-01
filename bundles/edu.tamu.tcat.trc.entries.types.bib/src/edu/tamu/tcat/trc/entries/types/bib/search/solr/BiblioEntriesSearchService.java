@@ -213,17 +213,17 @@ public class BiblioEntriesSearchService implements WorkSearchService
       removeIfPresent(work.getId());
 
       Collection<SolrInputDocument> solrDocs = new ArrayList<>();
-      WorkSolrProxy workProxy = WorkSolrProxy.createWork(work);
+      BiblioDocument workProxy = BiblioDocument.createWork(work);
       solrDocs.add(workProxy.getDocument());
 
       for(Edition edition : work.getEditions())
       {
-         WorkSolrProxy editionProxy = WorkSolrProxy.createEdition(work.getId(), edition);
+         BiblioDocument editionProxy = BiblioDocument.createEdition(work.getId(), edition);
          solrDocs.add(editionProxy.getDocument());
 
          for(Volume volume : edition.getVolumes())
          {
-            WorkSolrProxy volumeProxy = WorkSolrProxy.createVolume(work.getId(), edition, volume);
+            BiblioDocument volumeProxy = BiblioDocument.createVolume(work.getId(), edition, volume);
             solrDocs.add(volumeProxy.getDocument());
          }
       }

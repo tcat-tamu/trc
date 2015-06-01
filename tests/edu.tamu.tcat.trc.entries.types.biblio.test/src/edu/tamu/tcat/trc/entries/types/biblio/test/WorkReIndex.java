@@ -27,7 +27,7 @@ import edu.tamu.tcat.trc.entries.types.bib.Edition;
 import edu.tamu.tcat.trc.entries.types.bib.Volume;
 import edu.tamu.tcat.trc.entries.types.bib.Work;
 import edu.tamu.tcat.trc.entries.types.bib.postgres.PsqlWorkRepo;
-import edu.tamu.tcat.trc.entries.types.bib.search.solr.WorkSolrProxy;
+import edu.tamu.tcat.trc.entries.types.bib.search.solr.BiblioDocument;
 
 public class WorkReIndex
 {
@@ -120,17 +120,17 @@ public class WorkReIndex
    {
 
       Collection<SolrInputDocument> solrDocs = new ArrayList<>();
-      WorkSolrProxy workProxy = WorkSolrProxy.createWork(work);
+      BiblioDocument workProxy = BiblioDocument.createWork(work);
       solrDocs.add(workProxy.getDocument());
 
       for(Edition edition : work.getEditions())
       {
-         WorkSolrProxy editionProxy = WorkSolrProxy.createEdition(work.getId(), edition);
+         BiblioDocument editionProxy = BiblioDocument.createEdition(work.getId(), edition);
          solrDocs.add(editionProxy.getDocument());
 
          for(Volume volume : edition.getVolumes())
          {
-            WorkSolrProxy volumeProxy = WorkSolrProxy.createVolume(work.getId(), edition, volume);
+            BiblioDocument volumeProxy = BiblioDocument.createVolume(work.getId(), edition, volume);
             solrDocs.add(volumeProxy.getDocument());
          }
       }
