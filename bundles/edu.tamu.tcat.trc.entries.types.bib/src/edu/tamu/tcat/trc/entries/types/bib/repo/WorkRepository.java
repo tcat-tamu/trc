@@ -2,7 +2,6 @@ package edu.tamu.tcat.trc.entries.types.bib.repo;
 
 import java.util.function.Consumer;
 
-import edu.tamu.tcat.trc.entries.datastore.DataStore;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bib.AuthorReference;
 import edu.tamu.tcat.trc.entries.types.bib.Edition;
@@ -14,7 +13,7 @@ import edu.tamu.tcat.trc.entries.types.bio.Person;
  * Provides the main point of access for creating, editing and querying works.
  *
  */
-public interface WorkRepository extends DataStore
+public interface WorkRepository
 {
    /**
     *
