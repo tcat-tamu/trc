@@ -1,14 +1,18 @@
 package edu.tamu.tcat.trc.entries.search.solr;
 
+import java.util.Collection;
+
 import org.apache.solr.client.solrj.SolrQuery;
 
 import edu.tamu.tcat.trc.entries.search.SearchException;
 
 /**
- * An application-specific configuration for a query builder implementation to use for
+ * An application-specific configuration for an indexer and query builder implementation to use for
  * initialization, validation, and execution.
+ * <p>
+ * Instances should be stateless and may be constructed as needed for short lifecycle.
  */
-public interface SolrQueryConfig
+public interface SolrIndexConfig
 {
    void initialConfiguration(SolrQuery params) throws SearchException;
 
@@ -32,4 +36,11 @@ public interface SolrQueryConfig
 
    Class<?> getIndexDocumentType();
 
+   /*
+    * These methods are here in the config and not a part of every field to allow more
+    * flexible implementation of the properties and less overhead per field instance.
+    */
+   Collection<? extends SolrIndexField<?>> getIndexedFields();
+   Collection<? extends SolrIndexField<?>> getStoredFields();
+   Collection<? extends SolrIndexField<?>> getMultiValuedFields();
 }

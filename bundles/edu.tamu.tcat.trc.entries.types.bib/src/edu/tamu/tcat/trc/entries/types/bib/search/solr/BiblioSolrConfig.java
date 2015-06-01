@@ -1,15 +1,17 @@
 package edu.tamu.tcat.trc.entries.types.bib.search.solr;
 
 import java.time.Year;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.apache.solr.client.solrj.SolrQuery;
 
 import edu.tamu.tcat.trc.entries.search.solr.SolrIndexField;
-import edu.tamu.tcat.trc.entries.search.solr.SolrQueryConfig;
+import edu.tamu.tcat.trc.entries.search.solr.SolrIndexConfig;
 import edu.tamu.tcat.trc.entries.search.solr.impl.BasicFields;
 import edu.tamu.tcat.trc.entries.types.bib.search.BiblioSearchProxy;
 
-public class BiblioSolrConfig implements SolrQueryConfig
+public class BiblioSolrConfig implements SolrIndexConfig
 {
    public static final SolrIndexField<String> ID = new BasicFields.BasicString("id");
    public static final SolrIndexField<BiblioSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<BiblioSearchProxy>("workInfo", BiblioSearchProxy.class);
@@ -60,5 +62,28 @@ public class BiblioSolrConfig implements SolrQueryConfig
    public Class<BiblioDocument> getIndexDocumentType()
    {
       return BiblioDocument.class;
+   }
+
+   @Override
+   public Collection<? extends SolrIndexField<?>> getIndexedFields()
+   {
+      return Arrays.asList(ID,
+                           AUTHOR_NAMES,
+                           PUBLICATION_DATE);
+   }
+
+   @Override
+   public Collection<? extends SolrIndexField<?>> getStoredFields()
+   {
+      return Arrays.asList(ID,
+                           SEARCH_PROXY,
+                           AUTHOR_NAMES,
+                           PUBLICATION_DATE);
+   }
+
+   @Override
+   public Collection<? extends SolrIndexField<?>> getMultiValuedFields()
+   {
+      return Arrays.asList(AUTHOR_NAMES);
    }
 }

@@ -9,16 +9,16 @@ import org.apache.solr.common.params.SolrParams;
 import edu.tamu.tcat.trc.entries.search.SearchException;
 import edu.tamu.tcat.trc.entries.search.solr.SolrIndexField;
 import edu.tamu.tcat.trc.entries.search.solr.SolrQueryBuilder;
-import edu.tamu.tcat.trc.entries.search.solr.SolrQueryConfig;
+import edu.tamu.tcat.trc.entries.search.solr.SolrIndexConfig;
 
 //NOTE: Should have nothing "works"-specific in this builder
 public class TrcQueryBuilder implements SolrQueryBuilder
 {
    private SolrServer solr;
    private SolrQuery params;
-   private SolrQueryConfig cfg;
+   private SolrIndexConfig cfg;
 
-   public TrcQueryBuilder(SolrServer solr, SolrQueryConfig cfg) throws SearchException
+   public TrcQueryBuilder(SolrServer solr, SolrIndexConfig cfg) throws SearchException
    {
       this.solr = solr;
       this.cfg = cfg;

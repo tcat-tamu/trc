@@ -2,6 +2,7 @@ package edu.tamu.tcat.trc.entries.types.bib.search.solr;
 
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
@@ -59,7 +60,7 @@ public class BiblioDocument
 
    public BiblioDocument()
    {
-      indexDocument = new TrcDocument();
+      indexDocument = new TrcDocument(new BiblioSolrConfig());
    }
 
    public static BiblioDocument createWork(Work work) throws SearchException
@@ -68,7 +69,7 @@ public class BiblioDocument
       WorkDV workDV = WorkDV.create(work);
 
       doc.indexDocument.set(BiblioSolrConfig.ID, workDV.id);
-//      doc.addAuthors(workDV.authors);
+      doc.addAuthors(workDV.authors);
 //      doc.addTitle(workDV.titles);
 //      doc.addField(docSeries, workDV.series);
 //      doc.addField(docSummary, workDV.summary);
@@ -94,7 +95,7 @@ public class BiblioDocument
       BiblioDocument doc = new BiblioDocument();
       doc.indexDocument.set(BiblioSolrConfig.ID, editionId.toString());
 //      doc.addField(editionName, editionDV.editionName);
-//      doc.addAuthors(editionDV.authors);
+      doc.addAuthors(editionDV.authors);
 //      doc.addTitle(editionDV.titles);
       doc.addPublication(editionDV.publicationInfo);
 //      doc.addField(docSeries, editionDV.series);
@@ -124,7 +125,7 @@ public class BiblioDocument
       doc.indexDocument.set(BiblioSolrConfig.ID, volumeId.toString());
 //      doc.addField(editionName, edition.getEditionName());
 //      doc.addField(volumeNumber, volumeDV.volumeNumber);
-//      doc.addAuthors(volumeDV.authors);
+      doc.addAuthors(volumeDV.authors);
 //      doc.addTitle(volumeDV.titles);
       doc.addPublication(volumeDV.publicationInfo);
 //      doc.addField(docSeries, volumeDV.series);
@@ -147,14 +148,14 @@ public class BiblioDocument
       WorkDV workDV = WorkDV.create(work);
 
       doc.indexDocument.update(BiblioSolrConfig.ID, workDV.id);
-//      doc.addAuthors(workDV.authors);
+      doc.updateAuthors(workDV.authors);
 //      doc.addTitle(workDV.titles);
 //      doc.updateField(docSeries, workDV.series, SET);
 //      doc.updateField(docSummary, workDV.summary, SET);
 
       try
       {
-         doc.indexDocument.set(BiblioSolrConfig.SEARCH_PROXY, BiblioSearchProxy.create(work));
+         doc.indexDocument.update(BiblioSolrConfig.SEARCH_PROXY, BiblioSearchProxy.create(work));
       }
       catch (Exception e)
       {
@@ -173,15 +174,15 @@ public class BiblioDocument
       BiblioDocument doc = new BiblioDocument();
       doc.indexDocument.update(BiblioSolrConfig.ID, editionId.toString());
 //      doc.updateField(editionName, editionDV.editionName, SET);
-//      doc.addAuthors(editionDV.authors);
+      doc.updateAuthors(editionDV.authors);
 //      doc.addTitle(editionDV.titles);
-      doc.addPublication(editionDV.publicationInfo);
+      doc.updatePublication(editionDV.publicationInfo);
 //      doc.updateField(docSeries, editionDV.series, SET);
 //      doc.updateField(docSummary, editionDV.summary, SET);
 
       try
       {
-         doc.indexDocument.set(BiblioSolrConfig.SEARCH_PROXY, BiblioSearchProxy.create(workId, edition));
+         doc.indexDocument.update(BiblioSolrConfig.SEARCH_PROXY, BiblioSearchProxy.create(workId, edition));
       }
       catch (Exception e)
       {
@@ -203,7 +204,7 @@ public class BiblioDocument
       doc.indexDocument.update(BiblioSolrConfig.ID, volumeId.toString());
 //      doc.updateField(editionName, edition.getEditionName(), SET);
 //      doc.updateField(volumeNumber, volumeDV.volumeNumber, SET);
-//      doc.addAuthors(volumeDV.authors);
+      doc.updateAuthors(volumeDV.authors);
 //      doc.addTitle(volumeDV.titles);
       doc.addPublication(volumeDV.publicationInfo);
 //      doc.updateField(docSeries, volumeDV.series, SET);
@@ -211,7 +212,7 @@ public class BiblioDocument
 
       try
       {
-         doc.indexDocument.set(BiblioSolrConfig.SEARCH_PROXY, BiblioSearchProxy.create(workId, edition.getId(), volume));
+         doc.indexDocument.update(BiblioSolrConfig.SEARCH_PROXY, BiblioSearchProxy.create(workId, edition.getId(), volume));
       }
       catch (Exception e)
       {
@@ -228,41 +229,41 @@ public class BiblioDocument
 
    private void addAuthors(List<AuthorRefDV> authors) throws SearchException
    {
-//      for (AuthorRefDV author : authors)
-//      {
+      for (AuthorRefDV author : authors)
+      {
 //         if (author.authorId != null)
 //            document.addField(authorIds, author.authorId);
 //         else
 //            document.addField(authorIds, "");
-//         document.addField(authorNames, author.name);
+         indexDocument.set(BiblioSolrConfig.AUTHOR_NAMES, author.name);
 //         document.addField(authorRoles, author.role);    // not needed
-//      }
+      }
    }
 
-   private void updateAuthors(List<AuthorRefDV> authors, String updateType) throws SearchException
+   private void updateAuthors(List<AuthorRefDV> authors) throws SearchException
    {
 //      Set<String> allIds = new HashSet<>();
-//      Set<String> allNames = new HashSet<>();
+      Collection<String> allNames = new ArrayList<>();
 //      Set<String> allRoles = new HashSet<>();
 //      fieldModifier = new HashMap<>(1);
-//
-//      for (AuthorRefDV author : authors)
-//      {
+
+      for (AuthorRefDV author : authors)
+      {
 //         if (author.authorId != null)
 //            allIds.add(author.authorId);
 //         else
 //            document.addField(authorIds, "");
-//         allNames.add(author.name);
+         allNames.add(author.name);
 //         allRoles.add(author.role);
-//      }
-//
+      }
+
 //      fieldModifier.put(updateType, allIds);
 //      document.addField(authorIds, fieldModifier);
 //
 //      fieldModifier.clear();
 //      fieldModifier.put(updateType, allNames);
-//      document.addField(authorNames, fieldModifier);
-//
+      indexDocument.update(BiblioSolrConfig.AUTHOR_NAMES, allNames);
+
 //      fieldModifier.clear();
 //      fieldModifier.put(updateType, allRoles);
 //      document.addField(authorRoles, fieldModifier);
@@ -279,7 +280,7 @@ public class BiblioDocument
 //      }
    }
 
-   private void updateTitle(Collection<TitleDV> titlesDV, String updateType) throws SearchException
+   private void updateTitle(Collection<TitleDV> titlesDV) throws SearchException
    {
 //      Set<String> allTypes = new HashSet<>();
 //      Set<String> allLangs = new HashSet<>();
@@ -329,7 +330,7 @@ public class BiblioDocument
          indexDocument.set(BiblioSolrConfig.PUBLICATION_DATE, Year.from(DateTimeFormatter.ISO_DATE.parse(dateDescription.calendar)));
    }
 
-   private void updatePublication(PublicationInfoDV publication, String updateType) throws SearchException
+   private void updatePublication(PublicationInfoDV publication) throws SearchException
    {
 //      if (publication.publisher != null)
 //         document.addField(publisher, publication.publisher);
@@ -344,6 +345,6 @@ public class BiblioDocument
 //      document.addField(pubDateString, dateDescription.description);
 
       if (dateDescription.calendar != null)
-         indexDocument.set(BiblioSolrConfig.PUBLICATION_DATE, Year.from(DateTimeFormatter.ISO_DATE.parse(dateDescription.calendar)));
+         indexDocument.update(BiblioSolrConfig.PUBLICATION_DATE, Year.from(DateTimeFormatter.ISO_DATE.parse(dateDescription.calendar)));
    }
 }
