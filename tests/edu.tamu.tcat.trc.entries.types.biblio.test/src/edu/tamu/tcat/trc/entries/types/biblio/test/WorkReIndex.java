@@ -118,21 +118,27 @@ public class WorkReIndex
 
    private static Collection<SolrInputDocument> addWork(Work work)
    {
-
       Collection<SolrInputDocument> solrDocs = new ArrayList<>();
-      BiblioDocument workProxy = BiblioDocument.createWork(work);
-      solrDocs.add(workProxy.getDocument());
-
-      for(Edition edition : work.getEditions())
+      try
       {
-         BiblioDocument editionProxy = BiblioDocument.createEdition(work.getId(), edition);
-         solrDocs.add(editionProxy.getDocument());
+         BiblioDocument workProxy = BiblioDocument.createWork(work);
+         solrDocs.add(workProxy.getDocument());
 
-         for(Volume volume : edition.getVolumes())
+         for(Edition edition : work.getEditions())
          {
-            BiblioDocument volumeProxy = BiblioDocument.createVolume(work.getId(), edition, volume);
-            solrDocs.add(volumeProxy.getDocument());
+            BiblioDocument editionProxy = BiblioDocument.createEdition(work.getId(), edition);
+            solrDocs.add(editionProxy.getDocument());
+
+            for(Volume volume : edition.getVolumes())
+            {
+               BiblioDocument volumeProxy = BiblioDocument.createVolume(work.getId(), edition, volume);
+               solrDocs.add(volumeProxy.getDocument());
+            }
          }
+      }
+      catch (Exception e)
+      {
+         throw new IllegalStateException("Failed to adapt created Work to indexable data transfer objects for work id: [" + work.getId() + "]", e);
       }
 
       return solrDocs;

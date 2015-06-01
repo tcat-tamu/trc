@@ -31,21 +31,16 @@ public interface SolrQueryBuilder
 
    /**
     * Add query criteria where the parameter "matches" the provided value.
+    * Each invocation will add additional criteria to any already stored in this builder
+    * using an "OR" operation to combine any existing criteria to this new entry.
+    * <p>
     * This is used for advanced query parameters.
     */
-   <P> void query(Parameter<P> param, P value) throws SearchException;
+   <P> void query(SolrIndexField<P> param, P value) throws SearchException;
 
    /**
     * Add filter criteria where the parameter equals the provided value. This
     * is used for facets.
     */
-   <P> void filter(Parameter<P> param, Collection<P> values) throws SearchException;
-
-   interface Parameter<T>
-   {
-      String getName();
-      Class<T> getType();
-
-      String toSolrValue(T value) throws SearchException;
-   }
+   <P> void filter(SolrIndexField<P> param, Collection<P> values) throws SearchException;
 }

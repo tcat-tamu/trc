@@ -4,15 +4,15 @@ import java.time.Year;
 
 import org.apache.solr.client.solrj.SolrQuery;
 
-import edu.tamu.tcat.trc.entries.search.solr.SolrQueryBuilder;
+import edu.tamu.tcat.trc.entries.search.solr.SolrIndexField;
 import edu.tamu.tcat.trc.entries.search.solr.SolrQueryConfig;
-import edu.tamu.tcat.trc.entries.search.solr.impl.BasicProperties;
+import edu.tamu.tcat.trc.entries.search.solr.impl.BasicFields;
 import edu.tamu.tcat.trc.entries.types.bib.search.WorkSearchProxy;
 
 public class BiblioSolrConfig implements SolrQueryConfig
 {
-   public static final SolrQueryBuilder.Parameter<String> AUTHOR_NAME = new BasicProperties.BasicString("authorNames");
-   public static final SolrQueryBuilder.Parameter<Year> PUBLICATION_DATE = new BasicProperties.BasicDate<Year>("publishDateValue", Year.class);
+   public static final SolrIndexField<String> AUTHOR_NAMES = new BasicFields.BasicString("authorNames");
+   public static final SolrIndexField<Year> PUBLICATION_DATE = new BasicFields.BasicDate<Year>("publishDateValue", Year.class);
 
    public BiblioSolrConfig()
    {

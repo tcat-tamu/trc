@@ -11,6 +11,16 @@ import edu.tamu.tcat.trc.entries.search.SearchException;
 public interface SolrQueryConfig
 {
    void initialConfiguration(SolrQuery params) throws SearchException;
+
+   /**
+    * Set (or override) configuration for the "basic" search criteria. Since
+    * a "basic" search may search with different boosts over a custom set of fields,
+    * the implementation must decide how to apply the search query across the index.
+    *
+    * @param q
+    * @param params
+    * @throws SearchException
+    */
    void configureBasic(String q, SolrQuery params) throws SearchException;
 
    /**

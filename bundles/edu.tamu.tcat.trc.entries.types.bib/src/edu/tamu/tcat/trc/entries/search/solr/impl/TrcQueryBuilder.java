@@ -7,6 +7,7 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.params.SolrParams;
 
 import edu.tamu.tcat.trc.entries.search.SearchException;
+import edu.tamu.tcat.trc.entries.search.solr.SolrIndexField;
 import edu.tamu.tcat.trc.entries.search.solr.SolrQueryBuilder;
 import edu.tamu.tcat.trc.entries.search.solr.SolrQueryConfig;
 
@@ -59,13 +60,13 @@ public class TrcQueryBuilder implements SolrQueryBuilder
    }
 
    @Override
-   public <P> void query(SolrQueryBuilder.Parameter<P> param, P value) throws SearchException
+   public <P> void query(SolrIndexField<P> param, P value) throws SearchException
    {
       params.set(param.getName(), param.toSolrValue(value));
    }
 
    @Override
-   public <P> void filter(SolrQueryBuilder.Parameter<P> param, Collection<P> values)
+   public <P> void filter(SolrIndexField<P> param, Collection<P> values)
    {
       // TODO Auto-generated method stub
 

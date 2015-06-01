@@ -5,11 +5,21 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 
 import edu.tamu.tcat.trc.entries.search.SearchException;
-import edu.tamu.tcat.trc.entries.search.solr.SolrQueryBuilder;
+import edu.tamu.tcat.trc.entries.search.solr.SolrIndexField;
 
-public class BasicProperties
+public class BasicFields
 {
-   public static class BasicString implements SolrQueryBuilder.Parameter<String>
+   void f()
+   {
+      BasicFields.BasicDate<TemporalAccessor> pd = new BasicFields.BasicDate<>("date", TemporalAccessor.class);
+      SolrIndexField<?> ph = pd;
+      SolrIndexField<? extends TemporalAccessor> pta = pd;
+
+      BasicFields.BasicDate<Year> pty = new BasicFields.BasicDate<>("date", Year.class);
+      SolrIndexField<Year> pt = pty;
+   }
+
+   public static class BasicString implements SolrIndexField<String>
    {
       public final String name;
 
@@ -43,7 +53,7 @@ public class BasicProperties
       }
    }
 
-   public static class BasicDate<T extends TemporalAccessor> implements SolrQueryBuilder.Parameter<T>
+   public static class BasicDate<T extends TemporalAccessor> implements SolrIndexField<T>
    {
       public final String name;
       public final Class<T> type;

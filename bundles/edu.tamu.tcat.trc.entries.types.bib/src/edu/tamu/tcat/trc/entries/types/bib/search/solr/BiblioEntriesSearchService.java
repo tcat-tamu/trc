@@ -213,19 +213,27 @@ public class BiblioEntriesSearchService implements WorkSearchService
       removeIfPresent(work.getId());
 
       Collection<SolrInputDocument> solrDocs = new ArrayList<>();
-      BiblioDocument workProxy = BiblioDocument.createWork(work);
-      solrDocs.add(workProxy.getDocument());
-
-      for(Edition edition : work.getEditions())
+      try
       {
-         BiblioDocument editionProxy = BiblioDocument.createEdition(work.getId(), edition);
-         solrDocs.add(editionProxy.getDocument());
+         BiblioDocument workProxy = BiblioDocument.createWork(work);
+         solrDocs.add(workProxy.getDocument());
 
-         for(Volume volume : edition.getVolumes())
+         for(Edition edition : work.getEditions())
          {
-            BiblioDocument volumeProxy = BiblioDocument.createVolume(work.getId(), edition, volume);
-            solrDocs.add(volumeProxy.getDocument());
+            BiblioDocument editionProxy = BiblioDocument.createEdition(work.getId(), edition);
+            solrDocs.add(editionProxy.getDocument());
+
+            for(Volume volume : edition.getVolumes())
+            {
+               BiblioDocument volumeProxy = BiblioDocument.createVolume(work.getId(), edition, volume);
+               solrDocs.add(volumeProxy.getDocument());
+            }
          }
+      }
+      catch (Exception e)
+      {
+         logger.log(Level.SEVERE, "Failed to adapt created Work to indexable data transfer objects for work id: [" + work.getId() + "]", e);
+         return null;
       }
 
       try
@@ -235,7 +243,7 @@ public class BiblioEntriesSearchService implements WorkSearchService
       }
       catch (SolrServerException | IOException e)
       {
-         logger.log(Level.SEVERE, "Failed to commit the work id: [" + work.getId() + "] to the SOLR server. " + e);
+         logger.log(Level.SEVERE, "Failed to commit the work id: [" + work.getId() + "] to the SOLR server.", e);
       }
 
       return null;
