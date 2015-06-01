@@ -24,6 +24,11 @@ import edu.tamu.tcat.trc.entries.types.bib.dto.VolumeDV;
 import edu.tamu.tcat.trc.entries.types.bib.dto.WorkDV;
 import edu.tamu.tcat.trc.entries.types.bib.search.WorkSearchProxy;
 
+/**
+ * This one wraps a {@link SolrInputDocument} and represents a record in the search index.
+ *
+ * @see {@link WorkSearchProxy} which is the DTO stored in one of the fields of this proxy.
+ */
 public class WorkSolrProxy
 {
    // is this a proxy, mutator or builder

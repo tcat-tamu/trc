@@ -25,13 +25,15 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
+import edu.tamu.tcat.trc.entries.search.SearchException;
+import edu.tamu.tcat.trc.entries.search.solr.TrcQueryBuilder;
 import edu.tamu.tcat.trc.entries.types.bib.Edition;
 import edu.tamu.tcat.trc.entries.types.bib.Volume;
 import edu.tamu.tcat.trc.entries.types.bib.Work;
-import edu.tamu.tcat.trc.entries.types.bib.repo.WorkRepository;
 import edu.tamu.tcat.trc.entries.types.bib.repo.WorkChangeEvent;
-import edu.tamu.tcat.trc.entries.types.bib.repo.WorkNotAvailableException;
 import edu.tamu.tcat.trc.entries.types.bib.repo.WorkChangeEvent.ChangeType;
+import edu.tamu.tcat.trc.entries.types.bib.repo.WorkNotAvailableException;
+import edu.tamu.tcat.trc.entries.types.bib.repo.WorkRepository;
 import edu.tamu.tcat.trc.entries.types.bib.search.WorkQueryCommand;
 import edu.tamu.tcat.trc.entries.types.bib.search.WorkSearchService;
 
@@ -53,7 +55,7 @@ public class BiblioEntriesSearchService implements WorkSearchService
    private ConfigurationProperties config;
    private SolrServer solr;
    private AutoCloseable registration;
-   
+
    /** configured here for use by other classes in this package - these classes are effectively
     * delegates of this service's responsibilities. This is a method to create a new one and not
     * a field to force thread-safety, deduplication, and other concerns on the caller.
@@ -84,8 +86,8 @@ public class BiblioEntriesSearchService implements WorkSearchService
 
    public void activate()
    {
-      logger.fine("Activating SolrRelationshipSearchService");
-      //TODO: the check is helpful, but if required it should be statically bound in the DS configuration
+      logger.fine("Activating " + getClass().getSimpleName());
+      // Check here is only necessary for test cases which instantiate the service; DS will ensure it is not null
       Objects.requireNonNull(repo, "No work repository supplied.");
 
       // configure handlers
@@ -103,8 +105,6 @@ public class BiblioEntriesSearchService implements WorkSearchService
       logger.info("Connecting to Solr Service [" + coreUri + "]");
 
       solr = new HttpSolrServer(coreUri.toString());
-
-
    }
 
    public void deactivate()
@@ -116,15 +116,15 @@ public class BiblioEntriesSearchService implements WorkSearchService
    }
 
    @Override
-   public WorkQueryCommand createQueryCommand()
+   public WorkQueryCommand createQueryCommand() throws SearchException
    {
-      return new WorkSolrQueryCommand(solr);
+      return new WorkSolrQueryCommand(solr, new TrcQueryBuilder(solr, new BiblioSolrConfig()));
    }
 
    public boolean isIndexed(String id)
    {
       Objects.requireNonNull(solr, "The connection to Solr server is not available.");
-   
+
       SolrQuery query = new SolrQuery();
       query.setQuery("id:" + id);
       try
@@ -143,7 +143,7 @@ public class BiblioEntriesSearchService implements WorkSearchService
    {
       List<String> deleteIds = new ArrayList<>();
       deleteIds.add(id);
-   
+
       SolrQuery query = new SolrQuery();
       query.setQuery("id:" + id + "\\:*");
       try
@@ -161,7 +161,6 @@ public class BiblioEntriesSearchService implements WorkSearchService
       {
          logger.log(Level.SEVERE, "Failed to delete the work id: [" + id + "] from the the SOLR server. " + e);
       }
-   
    }
 
    private void unregisterRepoListener()
