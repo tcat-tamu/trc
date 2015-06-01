@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.search.SearchException;
-import edu.tamu.tcat.trc.entries.search.solr.TrcQueryBuilder;
+import edu.tamu.tcat.trc.entries.search.solr.impl.TrcQueryBuilder;
 import edu.tamu.tcat.trc.entries.types.bib.Edition;
 import edu.tamu.tcat.trc.entries.types.bib.Volume;
 import edu.tamu.tcat.trc.entries.types.bib.Work;

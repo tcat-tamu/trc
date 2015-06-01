@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.search.solr;
+package edu.tamu.tcat.trc.entries.search.solr.impl;
 
 import java.util.Collection;
 
@@ -7,6 +7,8 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.params.SolrParams;
 
 import edu.tamu.tcat.trc.entries.search.SearchException;
+import edu.tamu.tcat.trc.entries.search.solr.SolrQueryBuilder;
+import edu.tamu.tcat.trc.entries.search.solr.SolrQueryConfig;
 
 //NOTE: Should have nothing "works"-specific in this builder
 public class TrcQueryBuilder implements SolrQueryBuilder

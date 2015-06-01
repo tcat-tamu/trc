@@ -113,7 +113,7 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
    }
 
    @Override
-   public void queryAuthorName(String authorName)
+   public void queryAuthorName(String authorName) throws SearchException
    {
       qb.query(BiblioSolrConfig.AUTHOR_NAME, authorName);
    }
