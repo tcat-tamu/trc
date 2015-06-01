@@ -76,6 +76,16 @@ public interface WorkRepository
    EditWorkCommand create();
 
    /**
+    * Constructs an {@link EditWorkCommand} to be used to create a new work with a known ID.
+    *
+    * If a duplicate record exists with that ID, then an error will be thrown at command execution.
+    *
+    * @param id
+    * @return
+    */
+   EditWorkCommand create(String id);
+
+   /**
     * Construct an {@link EditWorkCommand} to be used to modify an existing work.
     *
     * @param id

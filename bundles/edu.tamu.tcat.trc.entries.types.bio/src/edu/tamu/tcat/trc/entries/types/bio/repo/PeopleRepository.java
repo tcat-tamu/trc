@@ -52,6 +52,15 @@ public interface PeopleRepository
    EditPersonCommand create();
 
    /**
+    * Creates a new entry with a known ID. If a duplicate record exists with that ID, then an error
+    * will be thrown upon command execution.
+    *
+    * @param id
+    * @return
+    */
+   EditPersonCommand create(String id);
+
+   /**
     * Updates the entry for the supplied historical figure. Note that this assumes that the
     * supplied person has already been created, that is, {@link #getPerson(String)} returns
     * successfully for {@code histFigure.id}.

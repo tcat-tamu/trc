@@ -195,7 +195,7 @@ public class PsqlRelationshipRepo implements RelationshipRepository
       return () -> listeners.remove(ears);
    }
 
-   private final class WorkChangeNotifier<ResultType> implements DataUpdateObserver<ResultType>
+   private final class WorkChangeNotifier<ResultType> extends DataUpdateObserverAdapter<ResultType>
    {
       private final String id;
       private final ChangeType type;
@@ -208,45 +208,9 @@ public class PsqlRelationshipRepo implements RelationshipRepository
       }
 
       @Override
-      public boolean start()
-      {
-         return true;
-      }
-
-      @Override
-      public void finish(ResultType result)
+      protected void onFinish(ResultType result)
       {
          notifyRelationshipUpdate(type, id);
-      }
-
-      @Override
-      public void aborted()
-      {
-         // no-op
-      }
-
-      @Override
-      public void error(String message, Exception ex)
-      {
-         // no-op
-      }
-
-      @Override
-      public boolean isCanceled()
-      {
-         return false;
-      }
-
-      @Override
-      public boolean isCompleted()
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public State getState()
-      {
-         throw new UnsupportedOperationException();
       }
    }
 

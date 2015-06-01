@@ -23,7 +23,10 @@ public interface UpdateListener<T>
     *       canceled. If any registered listener returns {@code false} for an update, the
     *       update will be canceled.
     */
-   boolean beforeUpdate(UpdateEvent<T> evt);
+   default boolean beforeUpdate(UpdateEvent<T> evt)
+   {
+      return true;
+   }
 
    /**
     * Called after an update to the persistence layer has been completed. This method will be

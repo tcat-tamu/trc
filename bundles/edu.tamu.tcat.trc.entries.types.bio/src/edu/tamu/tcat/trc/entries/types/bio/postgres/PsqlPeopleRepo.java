@@ -220,8 +220,15 @@ public class PsqlPeopleRepo implements PeopleRepository
    @Override
    public EditPersonCommand create()
    {
+      String id = idFactory.getNextId(ID_CONTEXT);
+      return create(id);
+   }
+
+   @Override
+   public EditPersonCommand create(String id)
+   {
       PersonDTO dto = new PersonDTO();
-      dto.id = idFactory.getNextId(ID_CONTEXT);
+      dto.id = id;
 
       EditPeopleCommandImpl command = new EditPeopleCommandImpl(dto);
       command.setCommitHook((p) -> {
@@ -230,7 +237,6 @@ public class PsqlPeopleRepo implements PeopleRepository
 
          return exec.submit(wrappedTask);
       });
-
 
       return command;
    }

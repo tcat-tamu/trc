@@ -242,8 +242,15 @@ public class PsqlWorkRepo implements WorkRepository
    @Override
    public EditWorkCommand create()
    {
+      String id = idFactory.getNextId(WORK_CONTEXT);
+      return create(id);
+   }
+
+   @Override
+   public EditWorkCommand create(String id)
+   {
       WorkDV work = new WorkDV();
-      work.id = idFactory.getNextId(WORK_CONTEXT);
+      work.id = id;
       EditWorkCommandImpl command = new EditWorkCommandImpl(work, idFactory);
       command.setCommitHook(dto -> updateWork(dto, ChangeType.CREATED));
       return command;
