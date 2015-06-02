@@ -215,18 +215,18 @@ public class BiblioEntriesSearchService implements WorkSearchService
       Collection<SolrInputDocument> solrDocs = new ArrayList<>();
       try
       {
-         BiblioDocument workProxy = BiblioDocument.createWork(work);
-         solrDocs.add(workProxy.getDocument());
+         BiblioDocument workDoc = BiblioDocument.createWork(work);
+         solrDocs.add(workDoc.getDocument());
 
          for(Edition edition : work.getEditions())
          {
-            BiblioDocument editionProxy = BiblioDocument.createEdition(work.getId(), edition);
-            solrDocs.add(editionProxy.getDocument());
+            BiblioDocument editionDoc = BiblioDocument.createEdition(work.getId(), edition);
+            solrDocs.add(editionDoc.getDocument());
 
             for(Volume volume : edition.getVolumes())
             {
-               BiblioDocument volumeProxy = BiblioDocument.createVolume(work.getId(), edition, volume);
-               solrDocs.add(volumeProxy.getDocument());
+               BiblioDocument volumeDoc = BiblioDocument.createVolume(work.getId(), edition, volume);
+               solrDocs.add(volumeDoc.getDocument());
             }
          }
       }

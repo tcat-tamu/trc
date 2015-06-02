@@ -9,7 +9,7 @@ import edu.tamu.tcat.trc.entries.search.SearchException;
 
 /**
  * Command for use in querying the associated {@link WorkSearchService} which provides
- * instances.
+ * search proxy instances.
  * <p>
  * A {@link WorkQueryCommand} is intended to be initialized, executed a single time, provide results,
  * and be discarded.

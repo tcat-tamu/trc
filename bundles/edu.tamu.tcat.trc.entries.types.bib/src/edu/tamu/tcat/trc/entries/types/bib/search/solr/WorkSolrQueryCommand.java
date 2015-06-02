@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,6 +20,7 @@ import org.apache.solr.common.SolrDocumentList;
 
 import edu.tamu.tcat.trc.entries.search.SearchException;
 import edu.tamu.tcat.trc.entries.search.solr.SolrQueryBuilder;
+import edu.tamu.tcat.trc.entries.search.solr.impl.DateRangeDTO;
 import edu.tamu.tcat.trc.entries.types.bib.search.BiblioSearchProxy;
 import edu.tamu.tcat.trc.entries.types.bib.search.WorkQueryCommand;
 
@@ -30,13 +30,11 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
 
    private static final int DEFAULT_MAX_RESULTS = 25;
 
-   // Solr field name values for works
-
    private final SolrServer solr;
    private final SolrQueryBuilder qb;
 
    private Set<String> authorIds;
-   private List<DateRange> dates;
+   private List<DateRangeDTO> dates;
 
    public WorkSolrQueryCommand(SolrServer solr, SolrQueryBuilder qb)
    {
@@ -58,7 +56,7 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
          }
          if (dates != null)
          {
-            for (DateRange dr : dates)
+            for (DateRangeDTO dr : dates)
                qb.filterRange(BiblioSolrConfig.PUBLICATION_DATE,
                               // For a "year" query, search from 1 Jan of start year through 31 Dec of end year (inclusive)
                               LocalDate.of(dr.start.getValue(), Month.JANUARY, 1),
@@ -73,7 +71,7 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
             String workInfo = null;
             try
             {
-               workInfo = doc.getFieldValue("workInfo").toString();
+               workInfo = doc.getFieldValue(BiblioSolrConfig.SEARCH_PROXY.getName()).toString();
                BiblioSearchProxy wi = BiblioEntriesSearchService.getMapper().readValue(workInfo, BiblioSearchProxy.class);
                works.add(wi);
             }
@@ -138,7 +136,7 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
          dates = new ArrayList<>();
 
       //TODO: validate date range overlaps
-      dates.add(new DateRange(start, end));
+      dates.add(new DateRangeDTO(start, end));
    }
 
    @Override
@@ -160,18 +158,5 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
    public void setMaxResults(int max)
    {
       qb.max(max);
-   }
-
-   //TODO: add constructors and fields to support unbounded date ranges
-   private static class DateRange
-   {
-      public final Year start;
-      public final Year end;
-
-      public DateRange(Year s, Year e)
-      {
-         start = Objects.requireNonNull(s, "Start date may not be null");
-         end = Objects.requireNonNull(e, "End date may not be null");
-      }
    }
 }

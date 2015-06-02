@@ -16,12 +16,11 @@ public interface SearchWorksResult
     * Get the {@link WorkQueryCommand} which executed to provide this result.
     */
    WorkQueryCommand getCommand();
-   
+
    /**
     * @return Proxies for the works that match the current search.
     */
-   @Deprecated // why return proxies? what should this return? perhaps Work?
    List<BiblioSearchProxy> get();
-   
+
    //TODO: add support for retrieving facet information
 }

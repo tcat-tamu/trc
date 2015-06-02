@@ -34,31 +34,17 @@ public class BiblioDocument
    // is this a proxy, mutator or builder
    private final static Logger logger = Logger.getLogger(BiblioDocument.class.getName());
 
-//   private final static String authorIds = "authorIds";
-//   private final static String authorRoles = "authorRole";           // not needed
-//   private final static String titleTypes = "titleTypes";            // not needed
-//   private final static String language = "lang";                    // not needed
-//   private final static String subtitles = "subtitles";              // needed? could be joined with titles unless we want to boost separately
-//   private final static String publisher = "publisher";
-//   private final static String pubLocation = "publisherLocation";
-//   private final static String pubDateString = "publishDateString";  // simply date, expressed as a YYYY-MM-DD
-//   private final static String docSeries = "series";
-//   private final static String docSummary = "summary";               // NOTE - critical search field
-
-//   private final static String editionId = "editionId";
-//   private final static String editionName = "editionName";          // not needed (store in info)
-
-//   private final static String volumeId = "volumeId";
-//   private final static String volumeNumber = "volumeNumber";        // not needed (store in info)
-
-//   private final static String workInfo = "workInfo";
-
    // composed instead of extended to not expose TrcDocument as API to this class
    private TrcDocument indexDocument;
 
    public BiblioDocument()
    {
       indexDocument = new TrcDocument(new BiblioSolrConfig());
+   }
+
+   public SolrInputDocument getDocument()
+   {
+      return indexDocument.getSolrDocument();
    }
 
    public static BiblioDocument createWork(Work work) throws SearchException
@@ -147,7 +133,7 @@ public class BiblioDocument
 
       doc.indexDocument.update(BiblioSolrConfig.ID, workDV.id);
       doc.updateAuthors(workDV.authors);
-//      doc.addTitle(workDV.titles);
+      doc.updateTitles(workDV.titles);
 //      doc.updateField(docSeries, workDV.series, SET);
 //      doc.updateField(docSummary, workDV.summary, SET);
 
@@ -173,7 +159,7 @@ public class BiblioDocument
       doc.indexDocument.update(BiblioSolrConfig.ID, editionId.toString());
 //      doc.updateField(editionName, editionDV.editionName, SET);
       doc.updateAuthors(editionDV.authors);
-//      doc.addTitle(editionDV.titles);
+      doc.updateTitles(editionDV.titles);
       doc.updatePublication(editionDV.publicationInfo);
 //      doc.updateField(docSeries, editionDV.series, SET);
 //      doc.updateField(docSummary, editionDV.summary, SET);
@@ -203,8 +189,8 @@ public class BiblioDocument
 //      doc.updateField(editionName, edition.getEditionName(), SET);
 //      doc.updateField(volumeNumber, volumeDV.volumeNumber, SET);
       doc.updateAuthors(volumeDV.authors);
-//      doc.addTitle(volumeDV.titles);
-      doc.addPublication(volumeDV.publicationInfo);
+      doc.updateTitles(volumeDV.titles);
+      doc.updatePublication(volumeDV.publicationInfo);
 //      doc.updateField(docSeries, volumeDV.series, SET);
 //      doc.updateField(docSummary, volumeDV.summary, SET);
 
@@ -217,12 +203,6 @@ public class BiblioDocument
          throw new IllegalStateException("Failed to serialize BiblioSearchProxy data", e);
       }
       return doc;
-   }
-
-
-   public SolrInputDocument getDocument()
-   {
-      return indexDocument.getSolrDocument();
    }
 
    private void addAuthors(List<AuthorRefDV> authors) throws SearchException
@@ -276,7 +256,7 @@ public class BiblioDocument
       }
    }
 
-   private void updateTitle(Collection<TitleDV> titlesDV) throws SearchException
+   private void updateTitles(Collection<TitleDV> titlesDV) throws SearchException
    {
 //      Collection<String> allTypes = new ArrayList<>();
 //      Collection<String> allLangs = new ArrayList<>();

@@ -20,10 +20,23 @@ public class BiblioSolrConfig implements SolrIndexConfig
    // Using LocalDate for yyyy-MM-dd
    public static final SolrIndexField<LocalDate> PUBLICATION_DATE = new BasicFields.BasicDate<LocalDate>("publishDateValue", LocalDate.class);
 
-   public BiblioSolrConfig()
-   {
-      // TODO Auto-generated constructor stub
-   }
+   //TODO: add additional fields
+//   private final static String authorIds = "authorIds";
+//   private final static String authorRoles = "authorRole";           // not needed
+//   private final static String titleTypes = "titleTypes";            // not needed
+//   private final static String language = "lang";                    // not needed
+//   private final static String subtitles = "subtitles";              // needed? could be joined with titles unless we want to boost separately
+//   private final static String publisher = "publisher";
+//   private final static String pubLocation = "publisherLocation";
+//   private final static String pubDateString = "publishDateString";  // simply date, expressed as a YYYY-MM-DD
+//   private final static String docSeries = "series";
+//   private final static String docSummary = "summary";               // NOTE - critical search field
+
+//   private final static String editionId = "editionId";
+//   private final static String editionName = "editionName";          // not needed (store in info)
+
+//   private final static String volumeId = "volumeId";
+//   private final static String volumeNumber = "volumeNumber";        // not needed (store in info)
 
    @Override
    public void initialConfiguration(SolrQuery params)
