@@ -87,7 +87,8 @@ public class WorksResource
     */
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.WorkSearchResultSet
+//   public RestApiV1.WorkSearchResultSet
+   public List<RestApiV1.WorkSearchResult>
    searchWorks(@QueryParam(value = "q") String q,
                @QueryParam(value = "a") List<String> authorNames,
                @QueryParam(value = "t") List<String> titles,
@@ -146,7 +147,9 @@ public class WorksResource
          else if (offset > 0 && offset < numResults)
             rs.qsPrev = "off="+(0)+"&max="+numResults+"&"+sb.toString();
 
-         return rs;
+         //HACK: until the JS is ready to accept this data vehicle, just send the list of results
+//         return rs;
+         return rs.items;
       }
       catch (Exception e)
       {

@@ -47,9 +47,9 @@ public class BiblioSolrConfig implements SolrIndexConfig
       // NOTE in general, if this is applied, the other query params are unlikely to be applied
       StringBuilder qBuilder = new StringBuilder(q);
 
-      // Don't want to avoid searching over editions and volumes
-//      qBuilder.append(" -editionName:(*)")
-//              .append(" -volumeNumber:(*)");
+      // Avoid searching over editions and volumes, only for "basic" search
+      qBuilder.append(" -editionName:(*)")
+              .append(" -volumeNumber:(*)");
 
       params.set("q", qBuilder.toString());
 
