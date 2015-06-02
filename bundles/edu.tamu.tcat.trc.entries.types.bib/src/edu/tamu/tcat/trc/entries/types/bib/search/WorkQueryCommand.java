@@ -48,12 +48,17 @@ public interface WorkQueryCommand
    void query(String basicQueryString) throws SearchException;
 
    /**
+    * Add title search criteria. Each invocation will add a literal element to a compound
+    * "OR" criteria.
+    *
     * @param q The value to search for in titles.
     */
-   void queryTitle(String q) throws SearchException;
+   void queryTitle(String title) throws SearchException;
 
    /**
-    * Set the name of the author to search for. A best effort will be made to match books whose
+    * Add author name search criteria. Each invocation will add a literal element to a compound
+    * "OR" criteria.
+    * A best effort will be made to match books whose
     * authors correspond to this name, either specifically within the bibliographic table or
     * within the affiliated person record.
     *

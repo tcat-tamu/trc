@@ -17,6 +17,8 @@ public class TrcDocument
    protected final SolrInputDocument document;
    protected final SolrIndexConfig cfg;
 
+   public static final String UPDATE_SET = "set";
+
    public TrcDocument(SolrIndexConfig cfg)
    {
       this.cfg = Objects.requireNonNull(cfg, "Missing solr config");
@@ -43,10 +45,17 @@ public class TrcDocument
    public <T> void update(SolrIndexField<T> field, T value) throws SearchException
    {
       HashMap<String, Object> map = new HashMap<>();
-      map.put("set", field.toSolrValue(value));
+      map.put(UPDATE_SET, field.toSolrValue(value));
       document.addField(field.getName(), map);
    }
 
+   /*
+    * TODO: This 'update' will only overwrite the field value with the given value.
+    * Other types of updates are:
+    *   "inc": increment a numeric field by a value
+    *   "add": add one or more elements to a multivalue
+    *   "remove": remove one or more elements from a multivalue
+    */
    public <T> void update(SolrIndexField<T> field, Collection<T> value) throws SearchException
    {
       if (!cfg.getMultiValuedFields().contains(field))
@@ -56,7 +65,7 @@ public class TrcDocument
       List<String> strs = new ArrayList<>();
       for (T v : value)
          strs.add(field.toSolrValue(v));
-      map.put("set", strs);
+      map.put(UPDATE_SET, strs);
       document.addField(field.getName(), map);
    }
 }

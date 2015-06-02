@@ -1,7 +1,5 @@
 package edu.tamu.tcat.trc.entries.search.solr;
 
-import java.util.Collection;
-
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.params.SolrParams;
 
@@ -67,8 +65,23 @@ public interface SolrQueryBuilder
    <P> void queryRangeExclusive(SolrIndexField<P> param, P start, P end, boolean excludeStart, boolean excludeEnd) throws SearchException;
 
    /**
+    * Add filter criteria where the parameter falls within the provided range. This
+    * is used for facets.
+    */
+   <P> void filter(SolrIndexField<P> param, P value) throws SearchException;
+
+   /**
+    * Add filter criteria where the parameter falls within the provided range. This
+    * is used for facets.
+    */
+   default <P> void filterRange(SolrIndexField<P> param, P start, P end) throws SearchException
+   {
+      filterRangeExclusive(param, start, end, false, false);
+   }
+
+   /**
     * Add filter criteria where the parameter equals the provided value. This
     * is used for facets.
     */
-   <P> void filter(SolrIndexField<P> param, Collection<P> values) throws SearchException;
+   <P> void filterRangeExclusive(SolrIndexField<P> param, P start, P end, boolean excludeStart, boolean excludeEnd) throws SearchException;
 }

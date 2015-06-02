@@ -1,6 +1,7 @@
 package edu.tamu.tcat.trc.entries.search.solr.impl;
 
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
 import java.util.Objects;
 
@@ -84,8 +85,19 @@ public class BasicFields
       @Override
       public String toSolrValue(T value) throws SearchException
       {
-         String out = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(value);
-         return out;
+         boolean hasTime = value.isSupported(ChronoField.HOUR_OF_DAY) &&
+                           value.isSupported(ChronoField.MINUTE_OF_HOUR) &&
+                           value.isSupported(ChronoField.SECOND_OF_MINUTE);
+         boolean hasMD = value.isSupported(ChronoField.MONTH_OF_YEAR) &&
+                         value.isSupported(ChronoField.DAY_OF_MONTH);
+         boolean hasYear = value.isSupported(ChronoField.YEAR);
+
+         // Append a literal 'Z' to all to indicate to SOLR that it is in UTC
+         if (hasYear && hasMD && hasTime)
+            return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(value) + 'Z';
+         if (hasYear && hasMD)
+            return DateTimeFormatter.ISO_LOCAL_DATE.format(value) + "T00:00:00Z";
+         throw new IllegalArgumentException("Unable to format value ["+value+"], must be YMD or YMD+HMS");
       }
    }
 

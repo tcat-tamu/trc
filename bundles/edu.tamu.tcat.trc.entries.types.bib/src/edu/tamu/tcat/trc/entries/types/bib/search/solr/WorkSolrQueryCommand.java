@@ -1,6 +1,8 @@
 package edu.tamu.tcat.trc.entries.types.bib.search.solr;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.Month;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,17 +35,8 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
    private final SolrServer solr;
    private final SolrQueryBuilder qb;
 
-//   private int start = 0;
-//   private int maxResults = 25;
-//   private String qBasic;
-
    private Set<String> authorIds;
    private List<DateRange> dates;
-
-
-//   private String advTitle;
-//   private String advAuthorName;
-//   private String location;
 
    public WorkSolrQueryCommand(SolrServer solr, SolrQueryBuilder qb)
    {
@@ -66,7 +59,10 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
          if (dates != null)
          {
             for (DateRange dr : dates)
-               qb.queryRange(BiblioSolrConfig.PUBLICATION_DATE, dr.start, dr.end);
+               qb.filterRange(BiblioSolrConfig.PUBLICATION_DATE,
+                              // For a "year" query, search from 1 Jan of start year through 31 Dec of end year (inclusive)
+                              LocalDate.of(dr.start.getValue(), Month.JANUARY, 1),
+                              LocalDate.of(dr.end.getValue(), Month.DECEMBER, 31));
          }
 
          QueryResponse response = solr.query(qb.get());
@@ -107,16 +103,17 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
    }
 
    @Override
-   public void queryTitle(String q)
+   public void queryTitle(String title) throws SearchException
    {
-      // TODO Auto-generated method stub
-
+      // Add quotes so each term acts as a literal
+      qb.query(BiblioSolrConfig.TITLES, '"' + title + '"');
    }
 
    @Override
    public void queryAuthorName(String authorName) throws SearchException
    {
-      qb.query(BiblioSolrConfig.AUTHOR_NAMES, authorName);
+      // Add quotes so each term acts as a literal
+      qb.query(BiblioSolrConfig.AUTHOR_NAMES, '"' + authorName + '"' );
    }
 
    @Override
@@ -154,7 +151,7 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
    public void setOffset(int start)
    {
       if (start < 0)
-         throw new IllegalArgumentException("Offset cannot be negative");
+         throw new IllegalArgumentException("Offset ["+start+"] cannot be negative");
 
       qb.offset(start);
    }

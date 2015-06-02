@@ -80,6 +80,8 @@ public class WorksResource
     * against various fields.
     *
     * @param q The basic search criteria.
+    * @param authorNames Each "a" argument is an individual literal; items in the list are combined via "OR" criteria
+    * @param titles Each "t" argument is an individual literal; items in the list are combined via "OR" criteria
     * @param numResults
     * @return
     */
@@ -87,8 +89,8 @@ public class WorksResource
    @Produces(MediaType.APPLICATION_JSON)
    public RestApiV1.WorkSearchResultSet
    searchWorks(@QueryParam(value = "q") String q,
-               @QueryParam(value = "a") String authorName,
-               @QueryParam(value = "t") String title,
+               @QueryParam(value = "a") List<String> authorNames,
+               @QueryParam(value = "t") List<String> titles,
                @QueryParam(value = "aid") List<String> authorIds, // specify same param with multiple values to get a list
                @QueryParam(value = "dr") List<RestApiV1.DateRangeParam> dateRanges,
                @QueryParam(value = "off") @DefaultValue("0")   int offset,
@@ -99,13 +101,15 @@ public class WorksResource
       {
          WorkQueryCommand cmd = workSearchService.createQueryCommand();
 
-         // query parameters
-         cmd.query(q);
-         cmd.queryAuthorName(authorName);
-         cmd.queryTitle(title);
-
-         //NOTE: a query can work without any parameters, so no need to validate that they typed in a 'q'
-         //      or other advanced criteria
+         // First, set query parameters
+         //NOTE: a query can work without any parameters, so no need to validate that at least a 'q'
+         //      or other advanced criteria was supplied
+         if (q != null)
+            cmd.query(q);
+         for (String n : authorNames)
+            cmd.queryAuthorName(n);
+         for (String t : titles)
+            cmd.queryTitle(t);
 
          // now filters/facets
          cmd.addFilterAuthor(authorIds);
@@ -123,9 +127,8 @@ public class WorksResource
          try
          {
             app(sb, "q", q);
-            app(sb, "a", authorName);
-            app(sb, "t", title);
-
+            authorNames.stream().forEach(s -> app(sb, "a", s));
+            titles.stream().forEach(s -> app(sb, "t", s));
             authorIds.stream().forEach(s -> app(sb, "aid", s));
             dateRanges.stream().forEach(dr -> app(sb, "dr", dr.toValue()));
          }
