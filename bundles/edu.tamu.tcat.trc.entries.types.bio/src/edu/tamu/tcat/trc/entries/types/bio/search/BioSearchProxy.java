@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.bio.rest.v1;
+package edu.tamu.tcat.trc.entries.types.bio.search;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -8,12 +8,11 @@ import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
 
 /**
- * HACK: this model is a HACK to get search results working with the autocomplete JS component
- *
- * @author matt.barry
- *
+ * JSON serializable summary information about a biographical entry (i.e. a person).
+ * Intended to be returned when only a brief summary of the person is required to save
+ * data transfer and parsing resources.
  */
-public class SimplePersonResultDV
+public class BioSearchProxy
 {
    /**
     * ID corresponding to the {@link Person} object that this simple data vehicle represents.
@@ -36,16 +35,16 @@ public class SimplePersonResultDV
    /**
     * Default constructor
     */
-   public SimplePersonResultDV()
+   public BioSearchProxy()
    {
    }
 
    /**
-    * Populate a new SimplePersonResultDV from an existing {@link Person} object.
+    * Populate a new BioSearchProxy from an existing {@link Person} object.
     *
     * @param person Existing person from which to copy data.
     */
-   public SimplePersonResultDV(Person person)
+   public BioSearchProxy(Person person)
    {
       this.id = person.getId();
       this.displayName = getDisplayName(person);

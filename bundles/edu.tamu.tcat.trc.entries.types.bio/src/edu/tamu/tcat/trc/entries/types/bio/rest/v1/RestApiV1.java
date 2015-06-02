@@ -1,6 +1,7 @@
 package edu.tamu.tcat.trc.entries.types.bio.rest.v1;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -26,7 +27,7 @@ public class RestApiV1
       public HistoricalEvent death;
       public String summary;
    }
-   
+
    public static class PersonName
    {
       public String title;
@@ -37,7 +38,7 @@ public class RestApiV1
 
       public String displayName;
    }
-   
+
    public static class HistoricalEvent
    {
 
@@ -53,7 +54,7 @@ public class RestApiV1
       @Deprecated
       public Date eventDate;
    }
-   
+
    public static class DateDescription
    {
       /** ISO 8601 local (YYYY-MM-DD) representation of this date. */
@@ -62,8 +63,17 @@ public class RestApiV1
       /** A human readable description of this date. */
       public String description;
    }
-   
-   public static class SimplePersonResult
+
+   public static class PersonSearchResultSet
+   {
+      public List<PersonSearchResult> items;
+      /** The querystring that resulted in this result set */
+      public String qs;
+      public String qsNext;
+      public String qsPrev;
+   }
+
+   public static class PersonSearchResult
    {
       /**
        * ID corresponding to the {@link Person} object that this simple data vehicle represents.

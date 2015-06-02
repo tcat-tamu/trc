@@ -2,6 +2,8 @@ package edu.tamu.tcat.trc.entries.types.bio.solr;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -9,11 +11,14 @@ import java.util.logging.Logger;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.common.SolrInputDocument;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
+import edu.tamu.tcat.trc.entries.search.SearchException;
+import edu.tamu.tcat.trc.entries.search.solr.impl.TrcQueryBuilder;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonChangeEvent;
@@ -47,11 +52,6 @@ public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleS
       mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
    }
 
-   public PeopleIndexingService()
-   {
-      // TODO Auto-generated constructor stub
-   }
-
    public void setRepo(PeopleRepository repo)
    {
       this.repo = repo;
@@ -71,15 +71,14 @@ public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleS
       // construct Solr core
       URI solrBaseUri = config.getPropertyValue(SOLR_API_ENDPOINT, URI.class);
       String solrCore = config.getPropertyValue(SOLR_CORE, String.class);
-      
+
       Objects.requireNonNull(solrBaseUri, "Failed to initialize PeopleIndexing Service. Solr API endpoint is not configured.");
       Objects.requireNonNull(solrCore, "Failed to initialize PeopleIndexing Service. Solr core is not configured.");
-      
+
       URI coreUri = solrBaseUri.resolve(solrCore);
       logger.info("Connecting to Solr Service [" + coreUri + "]");
 
       solr = new HttpSolrServer(coreUri.toString());
-
    }
 
    public void deactivate()
@@ -88,6 +87,12 @@ public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleS
 
       unregisterRepoListener();
       releaseSolrConnection();
+   }
+
+   @Override
+   public PeopleQueryCommand createQueryCommand() throws SearchException
+   {
+      return new PeopleSolrQueryCommand(solr, new TrcQueryBuilder(solr, new BioSolrConfig()));
    }
 
    private void unregisterRepoListener()
@@ -124,7 +129,6 @@ public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleS
       }
    }
 
-
    private void onUpdate(PersonChangeEvent evt)
    {
       try
@@ -153,10 +157,21 @@ public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleS
 
    private void onCreate(Person person)
    {
-      PeopleSolrProxy proxy = PeopleSolrProxy.create(person);
+      Collection<SolrInputDocument> solrDocs = new ArrayList<>();
       try
       {
-         solr.add(proxy.getDocument());
+         BioDocument doc = BioDocument.create(person);
+         solrDocs.add(doc.getDocument());
+      }
+      catch (Exception e)
+      {
+         logger.log(Level.SEVERE, "Failed to adapt Person to indexable data transfer objects for person id: [" + person.getId() + "]", e);
+         return;
+      }
+
+      try
+      {
+         solr.add(solrDocs);
          solr.commit();
       }
       catch (SolrServerException | IOException e)
@@ -167,10 +182,21 @@ public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleS
 
    private void onUpdate(Person person)
    {
-      PeopleSolrProxy proxy = PeopleSolrProxy.create(person);
+      Collection<SolrInputDocument> solrDocs = new ArrayList<>();
       try
       {
-         solr.add(proxy.getDocument());
+         BioDocument doc = BioDocument.create(person);
+         solrDocs.add(doc.getDocument());
+      }
+      catch (Exception e)
+      {
+         logger.log(Level.SEVERE, "Failed to adapt Person to indexable data transfer objects for person id: [" + person.getId() + "]", e);
+         return;
+      }
+
+      try
+      {
+         solr.add(solrDocs);
          solr.commit();
       }
       catch (SolrServerException | IOException e)
@@ -192,11 +218,4 @@ public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleS
          logger.log(Level.SEVERE, "Failed to delete the person id: [" + id + "] from the SOLR server. " + e);
       }
    }
-
-   @Override
-   public PeopleQueryCommand createQueryCommand()
-   {
-      return new PeopleSolrQueryCommand(solr);
-   }
-
 }

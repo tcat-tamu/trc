@@ -1,11 +1,10 @@
 package edu.tamu.tcat.trc.entries.types.bio.rest.v1;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -19,27 +18,19 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import edu.tamu.tcat.trc.entries.common.DateDescription;
-import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
-import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
-import edu.tamu.tcat.trc.entries.common.dto.HistoricalEventDTO;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
+import edu.tamu.tcat.trc.entries.search.SearchException;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
-import edu.tamu.tcat.trc.entries.types.bio.PersonName;
-import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
-import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleSearchService;
+import edu.tamu.tcat.trc.entries.types.bio.search.PersonSearchResult;
 
 
 @Path("/people")
 public class PeopleResource
 {
-   // TODO add authentication filter in front of this call
-   // TODO create PersonResource
-
    // records internal errors accessing the REST
    static final Logger errorLogger = Logger.getLogger(PeopleResource.class.getName());
 
@@ -55,7 +46,6 @@ public class PeopleResource
    public void setPeopleService(PeopleSearchService service)
    {
       this.peopleSearchService = service;
-
    }
 
    // called by DS
@@ -72,34 +62,66 @@ public class PeopleResource
 
    @GET
    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-   public List<RestApiV1.SimplePersonResult> listPeople(@QueryParam(value="syntheticName") String prefix,
-                                                @DefaultValue("50") @QueryParam(value="numResults") int numResults)
+//   public RestApiV1.PersonSearchResultSet
+   public List<RestApiV1.PersonSearchResult>
+   searchPeople(@QueryParam(value="syntheticName") String q,
+                @QueryParam(value = "off") @DefaultValue("0")   int offset,
+                @QueryParam(value = "max") @DefaultValue("100") int numResults)
    throws Exception
    {
+      try
+      {
+         PeopleQueryCommand cmd = peopleSearchService.createQueryCommand();
+         if (q != null)
+            cmd.query(q);
+         cmd.setMaxResults(numResults);
+         PersonSearchResult results = cmd.execute();
 
-      PeopleQueryCommand peopleQuery = peopleSearchService.createQueryCommand();
-      peopleQuery.search(prefix);
-      peopleQuery.setRowLimit(numResults);
-      List<SimplePersonResultDV> results = peopleQuery.getResults();
-      return SearchAdapter.toDTO(results);
-//      try {
-//         List<SimplePersonResultDV> results = new ArrayList<>();
-//
-//         Iterable<Person> people = (prefix == null) ? repo.findPeople() : repo.findByName(prefix);
-//         for (Person person : people) {
-//            results.add(new SimplePersonResultDV(person));
-//
-//            if (results.size() == numResults) {
-//               break;
-//            }
-//         }
-//
-//         return results;
-//      }
-//      catch (CatalogRepoException e) {
-//         e.printStackTrace();
-//         return Collections.emptyList();
-//      }
+         RestApiV1.PersonSearchResultSet rs = new RestApiV1.PersonSearchResultSet();
+         rs.items = SearchAdapter.toDTO(results.get());
+
+         StringBuilder sb = new StringBuilder();
+         try
+         {
+            app(sb, "q", q);
+         }
+         catch (Exception e)
+         {
+            throw new SearchException("Failed building querystring", e);
+         }
+
+         rs.qs = "off="+offset+"&max="+numResults+"&"+sb.toString();
+         //TODO: does this depend on the number of results returned (i.e. whether < numResults), or do we assume there are infinite results?
+         rs.qsNext = "off="+(offset + numResults)+"&max="+numResults+"&"+sb.toString();
+         if (offset >= numResults)
+            rs.qsPrev = "off="+(offset - numResults)+"&max="+numResults+"&"+sb.toString();
+         // first page got off; reset to zero offset
+         else if (offset > 0 && offset < numResults)
+            rs.qsPrev = "off="+(0)+"&max="+numResults+"&"+sb.toString();
+
+         //HACK: until the JS is ready to accept this data vehicle, just send the list of results
+//         return rs;
+         return rs.items;
+      }
+      catch (Exception e)
+      {
+         errorLogger.log(Level.SEVERE, "Error", e);
+         throw new SearchException(e);
+      }
+   }
+
+   private static void app(StringBuilder sb, String p, String v)
+   {
+      if (v == null)
+         return;
+      if (sb.length() > 0)
+         sb.append("&");
+      try {
+         sb.append(p).append("=").append(URLEncoder.encode(v, "UTF-8"));
+         // suppress exception so this method can be used in lambdas
+      } catch (UnsupportedEncodingException e) {
+         throw new IllegalArgumentException("Failed encoding ["+v+"]", e);
+      }
    }
 
    @GET
@@ -116,7 +138,7 @@ public class PeopleResource
       Person figure = repo.get(personId);
       return RepoAdapter.toDTO(figure);
    }
-   
+
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
@@ -140,7 +162,7 @@ public class PeopleResource
       EditPersonCommand updateCommand = repo.update(person.id);
       updateCommand.setAll(RepoAdapter.toRepo(person));
       updateCommand.execute().get();
-      
+
       RestApiV1.PersonId personId = new RestApiV1.PersonId();
       personId.id = person.id;
       return personId;

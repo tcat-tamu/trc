@@ -2,89 +2,90 @@ package edu.tamu.tcat.trc.entries.types.bio.solr;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 
-import com.google.common.base.Joiner;
-
-import edu.tamu.tcat.trc.entries.types.bio.rest.v1.SimplePersonResultDV;
+import edu.tamu.tcat.trc.entries.search.SearchException;
+import edu.tamu.tcat.trc.entries.search.solr.SolrQueryBuilder;
+import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleQueryCommand;
 
 public class PeopleSolrQueryCommand implements PeopleQueryCommand
 {
    private final static Logger logger = Logger.getLogger(PeopleSolrQueryCommand.class.getName());
 
-   private final static String personInfo = "personInfo";
+   private static final int DEFAULT_MAX_RESULTS = 25;
 
-   private SolrQuery query = new SolrQuery();
-   private Collection<String> criteria = new ArrayList<>();
+   private final SolrServer solr;
+   private final SolrQueryBuilder qb;
 
-   private SolrServer solr;
-
-   public PeopleSolrQueryCommand(SolrServer solr)
+   public PeopleSolrQueryCommand(SolrServer solr, SolrQueryBuilder qb)
    {
       this.solr = solr;
+      this.qb = qb;
+      qb.max(DEFAULT_MAX_RESULTS);
    }
 
    @Override
-   public List<SimplePersonResultDV> getResults() throws Exception
+   public SolrPersonResults execute() throws SearchException
    {
       try
       {
-         QueryResponse response = solr.query(getQuery());
+         QueryResponse response = solr.query(qb.get());
          SolrDocumentList results = response.getResults();
 
-         List<SimplePersonResultDV> people = new ArrayList<>();
-         for (SolrDocument result : results)
+         List<BioSearchProxy> people = new ArrayList<>();
+         for (SolrDocument doc : results)
          {
-            String person = result.getFieldValue(personInfo).toString();
-            SimplePersonResultDV simplePerson = PeopleIndexingService.mapper.readValue(person, SimplePersonResultDV.class);
+            String person = doc.getFieldValue(BioSolrConfig.SEARCH_PROXY.getName()).toString();
+            BioSearchProxy simplePerson = PeopleIndexingService.mapper.readValue(person, BioSearchProxy.class);
             people.add(simplePerson);
          }
-         
-         return people;
+
+         return new SolrPersonResults(this, people);
       }
       catch (SolrServerException | IOException sse)
       {
-         throw new Exception("The following error occurred while querying the author core :" + sse, sse);
+         throw new SearchException("An error occurred while querying the author core: " + sse, sse);
       }
    }
 
-
-   public SolrQuery getQuery()
+   @Override
+   public void query(String q) throws SearchException
    {
-      String queryString = Joiner.on(" AND ").join(criteria);
-      query.setQuery(queryString);
-      return query;
+      qb.basic(q);
+   }
+
+   public void queryAll() throws SearchException
+   {
+      qb.basic("*:*");
    }
 
    @Override
-   public PeopleQueryCommand search(String syntheticName)
+   public void queryFamilyName(String familyName) throws SearchException
    {
-      criteria.add("syntheticName:(" + syntheticName + ")");
-      return this;
+      // Add quotes so each term acts as a literal
+      qb.query(BioSolrConfig.FAMILY_NAME, '"' + familyName + '"');
    }
 
    @Override
-   public PeopleQueryCommand byFamilyName(String familyName)
+   public void setOffset(int start)
    {
-      criteria.add("familyName:\"" + familyName + "\"");
-      return this;
+      if (start < 0)
+         throw new IllegalArgumentException("Offset ["+start+"] cannot be negative");
+
+      qb.offset(start);
    }
 
    @Override
-   public PeopleQueryCommand setRowLimit(int rows)
+   public void setMaxResults(int max)
    {
-      query.setRows(Integer.valueOf(rows));
-      return this;
+      qb.max(max);
    }
-
 }

@@ -27,7 +27,7 @@ import edu.tamu.tcat.sda.catalog.psql.provider.PsqlDataSourceProvider;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.postgres.PsqlPeopleRepo;
-import edu.tamu.tcat.trc.entries.types.bio.solr.PeopleSolrProxy;
+import edu.tamu.tcat.trc.entries.types.bio.solr.BioDocument;
 
 public class PeopleReIndex
 {
@@ -108,11 +108,11 @@ public class PeopleReIndex
          Iterable<Person> people = repo.findPeople();
          for (Person person : people)
          {
-            PeopleSolrProxy peopleProxy = PeopleSolrProxy.create(person);
+            BioDocument peopleProxy = BioDocument.create(person);
             solrDocs.add(peopleProxy.getDocument());
          }
       }
-      catch (CatalogRepoException e)
+      catch (Exception e)
       {
          logger.log(Level.SEVERE, "Failed to pull people from the db. " + e);
       }
