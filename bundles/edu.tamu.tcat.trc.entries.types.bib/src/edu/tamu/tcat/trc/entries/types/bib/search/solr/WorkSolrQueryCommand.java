@@ -21,8 +21,8 @@ import org.apache.solr.common.SolrDocumentList;
 
 import edu.tamu.tcat.trc.entries.search.SearchException;
 import edu.tamu.tcat.trc.entries.search.solr.SolrQueryBuilder;
-import edu.tamu.tcat.trc.entries.types.bib.search.WorkQueryCommand;
 import edu.tamu.tcat.trc.entries.types.bib.search.BiblioSearchProxy;
+import edu.tamu.tcat.trc.entries.types.bib.search.WorkQueryCommand;
 
 public class WorkSolrQueryCommand implements WorkQueryCommand
 {
