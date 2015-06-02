@@ -15,28 +15,27 @@ public class BiblioSolrConfig implements SolrIndexConfig
 {
    public static final SolrIndexField<String> ID = new BasicFields.BasicString("id");
    public static final BasicFields.SearchProxyField<BiblioSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<BiblioSearchProxy>("workInfo", BiblioSearchProxy.class);
+   public static final SolrIndexField<String> AUTHOR_IDS = new BasicFields.BasicString("authorIds");
    public static final SolrIndexField<String> AUTHOR_NAMES = new BasicFields.BasicString("authorNames");
+   public static final SolrIndexField<String> AUTHOR_ROLES = new BasicFields.BasicString("authorRole");  // not needed
+   public static final SolrIndexField<String> TITLE_TYPES = new BasicFields.BasicString("titleTypes");   // not needed
+   public static final SolrIndexField<String> LANGUAGES = new BasicFields.BasicString("lang");           // not needed
    public static final SolrIndexField<String> TITLES = new BasicFields.BasicString("titles");
+   public static final SolrIndexField<String> SUBTITLES = new BasicFields.BasicString("subtitles");      // needed? could be joined with titles unless we want to boost separately
+   public static final SolrIndexField<String> PUBLISHER = new BasicFields.BasicString("publisher");
+   public static final SolrIndexField<String> PUBLISHER_LOCATION = new BasicFields.BasicString("publisherLocation");
+   public static final SolrIndexField<String> PUBLICATION_DATE_STRING = new BasicFields.BasicString("publishDateString");  // simply date, expressed as a YYYY-MM-DD
    // Using LocalDate for yyyy-MM-dd
    public static final SolrIndexField<LocalDate> PUBLICATION_DATE = new BasicFields.BasicDate<LocalDate>("publishDateValue", LocalDate.class);
-
-   //TODO: add additional fields
-//   private final static String authorIds = "authorIds";
-//   private final static String authorRoles = "authorRole";           // not needed
-//   private final static String titleTypes = "titleTypes";            // not needed
-//   private final static String language = "lang";                    // not needed
-//   private final static String subtitles = "subtitles";              // needed? could be joined with titles unless we want to boost separately
-//   private final static String publisher = "publisher";
-//   private final static String pubLocation = "publisherLocation";
-//   private final static String pubDateString = "publishDateString";  // simply date, expressed as a YYYY-MM-DD
-//   private final static String docSeries = "series";
-//   private final static String docSummary = "summary";               // NOTE - critical search field
-
-//   private final static String editionId = "editionId";
-//   private final static String editionName = "editionName";          // not needed (store in info)
-
-//   private final static String volumeId = "volumeId";
-//   private final static String volumeNumber = "volumeNumber";        // not needed (store in info)
+   public static final SolrIndexField<String> SERIES = new BasicFields.BasicString("series");
+   public static final SolrIndexField<String> SUMMARY = new BasicFields.BasicString("summary");          // NOTE - critical search field
+   public static final SolrIndexField<String> EDITION_ID = new BasicFields.BasicString("editionId");
+   public static final SolrIndexField<String> EDITION_NAME = new BasicFields.BasicString("editionName");    // not needed (store in info)
+   public static final SolrIndexField<String> VOLUME_ID = new BasicFields.BasicString("volumeId");
+   public static final SolrIndexField<String> VOLUME_NUMBER = new BasicFields.BasicString("volumeNumber");  // not needed (store in info)
+   public static final SolrIndexField<String> HAS_IMAGES = new BasicFields.BasicString("hasImages");
+   public static final SolrIndexField<String> VOLUME_TAGS = new BasicFields.BasicString("volumeTags");
+   public static final SolrIndexField<String> VOLUME_NOTES = new BasicFields.BasicString("volumeNotes");
 
    @Override
    public void initialConfiguration(SolrQuery params)
@@ -86,9 +85,24 @@ public class BiblioSolrConfig implements SolrIndexConfig
    public Collection<? extends SolrIndexField<?>> getIndexedFields()
    {
       return Arrays.asList(ID,
+                           AUTHOR_IDS,
                            AUTHOR_NAMES,
+                           LANGUAGES,
                            TITLES,
-                           PUBLICATION_DATE);
+                           SUBTITLES,
+                           PUBLISHER,
+                           PUBLISHER_LOCATION,
+                           PUBLICATION_DATE_STRING,
+                           PUBLICATION_DATE,
+                           SERIES,
+                           SUMMARY,
+                           EDITION_ID,
+                           EDITION_NAME,
+                           VOLUME_ID,
+                           VOLUME_NUMBER,
+                           HAS_IMAGES,
+                           VOLUME_TAGS,
+                           VOLUME_NOTES);
    }
 
    @Override
@@ -96,15 +110,39 @@ public class BiblioSolrConfig implements SolrIndexConfig
    {
       return Arrays.asList(ID,
                            SEARCH_PROXY,
+                           AUTHOR_IDS,
                            AUTHOR_NAMES,
+                           AUTHOR_ROLES,
+                           TITLE_TYPES,
+                           LANGUAGES,
                            TITLES,
-                           PUBLICATION_DATE);
+                           SUBTITLES,
+                           PUBLISHER,
+                           PUBLISHER_LOCATION,
+                           PUBLICATION_DATE_STRING,
+                           PUBLICATION_DATE,
+                           SERIES,
+                           SUMMARY,
+                           EDITION_ID,
+                           EDITION_NAME,
+                           VOLUME_ID,
+                           VOLUME_NUMBER,
+                           HAS_IMAGES,
+                           VOLUME_TAGS,
+                           VOLUME_NOTES);
    }
 
    @Override
    public Collection<? extends SolrIndexField<?>> getMultiValuedFields()
    {
-      return Arrays.asList(AUTHOR_NAMES,
-                           TITLES);
+      return Arrays.asList(AUTHOR_IDS,
+                           AUTHOR_NAMES,
+                           AUTHOR_ROLES,
+                           TITLE_TYPES,
+                           LANGUAGES,
+                           TITLES,
+                           SUBTITLES,
+                           VOLUME_TAGS,
+                           VOLUME_NOTES);
    }
 }
