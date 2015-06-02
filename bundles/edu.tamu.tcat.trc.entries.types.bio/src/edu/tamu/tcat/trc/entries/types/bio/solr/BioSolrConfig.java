@@ -14,7 +14,7 @@ import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
 public class BioSolrConfig implements SolrIndexConfig
 {
    public static final SolrIndexField<String> ID = new BasicFields.BasicString("id");
-   public static final SolrIndexField<BioSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<BioSearchProxy>("personInfo", BioSearchProxy.class);
+   public static final BasicFields.SearchProxyField<BioSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<BioSearchProxy>("personInfo", BioSearchProxy.class);
    public static final SolrIndexField<String> SYNTHETIC_NAME = new BasicFields.BasicString("syntheticName");
    public static final SolrIndexField<String> FAMILY_NAME = new BasicFields.BasicString("familyName");
    public static final SolrIndexField<String> DISPLAY_NAME = new BasicFields.BasicString("displayName");

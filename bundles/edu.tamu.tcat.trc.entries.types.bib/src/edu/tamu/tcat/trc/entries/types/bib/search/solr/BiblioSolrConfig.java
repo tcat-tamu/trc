@@ -14,7 +14,7 @@ import edu.tamu.tcat.trc.entries.types.bib.search.BiblioSearchProxy;
 public class BiblioSolrConfig implements SolrIndexConfig
 {
    public static final SolrIndexField<String> ID = new BasicFields.BasicString("id");
-   public static final SolrIndexField<BiblioSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<BiblioSearchProxy>("workInfo", BiblioSearchProxy.class);
+   public static final BasicFields.SearchProxyField<BiblioSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<BiblioSearchProxy>("workInfo", BiblioSearchProxy.class);
    public static final SolrIndexField<String> AUTHOR_NAMES = new BasicFields.BasicString("authorNames");
    public static final SolrIndexField<String> TITLES = new BasicFields.BasicString("titles");
    // Using LocalDate for yyyy-MM-dd

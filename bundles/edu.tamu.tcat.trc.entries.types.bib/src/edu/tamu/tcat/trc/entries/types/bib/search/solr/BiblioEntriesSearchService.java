@@ -21,9 +21,6 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.search.SearchException;
 import edu.tamu.tcat.trc.entries.search.solr.impl.TrcQueryBuilder;
@@ -55,17 +52,6 @@ public class BiblioEntriesSearchService implements WorkSearchService
    private ConfigurationProperties config;
    private SolrServer solr;
    private AutoCloseable registration;
-
-   /** configured here for use by other classes in this package - these classes are effectively
-    * delegates of this service's responsibilities. This is a method to create a new one and not
-    * a field to force thread-safety, deduplication, and other concerns on the caller.
-    */
-   /*package*/ static ObjectMapper getMapper()
-   {
-      ObjectMapper mapper = new ObjectMapper();
-      mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-      return mapper;
-   }
 
    /**
     * @param repo The repository that is used to manage persistence of bibliographic entries.

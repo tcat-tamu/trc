@@ -101,6 +101,12 @@ public class BasicFields
       }
    }
 
+   /**
+    * A field that stores a search proxy instance as a JSON literal. This class
+    * also contains utilities to parse the value for returning results.
+    *
+    * @param <T>
+    */
    public static class SearchProxyField<T> extends FieldBase<T>
    {
       public SearchProxyField(String name, Class<T> type)
@@ -121,7 +127,23 @@ public class BasicFields
          }
       }
 
-      // Allow subclass override
+      /**
+       * Parse the JSON literal form of the object into the type represented by
+       * this field. The JSON mapping implementation is implementation-defined and
+       * may be overridden to provide different means of serializing.
+       */
+      public T parse(String str) throws Exception
+      {
+         return getMapper().readValue(str, type);
+      }
+
+      /**
+       * Configured here for internal use. This method may be overridden to provide
+       * a variant configuration for an ObjectMapper.
+       * <p>
+       * Implementations should return a new instance
+       * to aid with thread-safety, deduplication, and other concerns on the caller.
+       */
       protected ObjectMapper getMapper()
       {
          ObjectMapper mapper = new ObjectMapper();

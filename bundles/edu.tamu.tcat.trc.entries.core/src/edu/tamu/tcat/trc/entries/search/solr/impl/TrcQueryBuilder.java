@@ -1,7 +1,12 @@
 package edu.tamu.tcat.trc.entries.search.solr.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.SolrParams;
 
 import edu.tamu.tcat.trc.entries.search.SearchException;
@@ -45,6 +50,30 @@ public class TrcQueryBuilder implements SolrQueryBuilder
       if (max < 0)
          throw new IllegalArgumentException("Rows cannot be negative");
       params.set("rows", max);
+   }
+
+   public <T,F extends BasicFields.SearchProxyField<T>>
+   List<T>
+   unpack(SolrDocumentList docs,
+          F searchProxyField)
+   throws SearchException
+   {
+      List<T> rv = new ArrayList<>();
+      for (SolrDocument doc : docs)
+      {
+         String workInfo = null;
+         try
+         {
+            workInfo = doc.getFieldValue(searchProxyField.getName()).toString();
+            T wi = searchProxyField.parse(workInfo);
+            rv.add(wi);
+         }
+         catch (Exception e)
+         {
+            throw new SearchException("Failed to parse search proxy: [" + workInfo + "]", e);
+         }
+      }
+      return rv;
    }
 
    @Override

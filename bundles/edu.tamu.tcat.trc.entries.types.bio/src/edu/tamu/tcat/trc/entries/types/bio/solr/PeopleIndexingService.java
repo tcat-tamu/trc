@@ -13,9 +13,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.search.SearchException;
 import edu.tamu.tcat.trc.entries.search.solr.impl.TrcQueryBuilder;
@@ -38,19 +35,10 @@ public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleS
    /** Configuration property key that defines Solr core to be used for relationships. */
    public static final String SOLR_CORE = "catalogentries.authors.solr.core";
 
-   // configured here for use by other classes in this package - these classes are effectively
-   // delegates of this service's responsibilities
-   static final ObjectMapper mapper;
-
    private PeopleRepository repo;
    private ConfigurationProperties config;
    private SolrServer solr;
    private AutoCloseable registration;
-
-   static {
-      mapper = new ObjectMapper();
-      mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-   }
 
    public void setRepo(PeopleRepository repo)
    {

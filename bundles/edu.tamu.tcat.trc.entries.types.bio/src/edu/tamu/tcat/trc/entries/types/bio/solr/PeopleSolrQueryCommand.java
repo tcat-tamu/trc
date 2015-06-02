@@ -1,18 +1,14 @@
 package edu.tamu.tcat.trc.entries.types.bio.solr;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 
 import edu.tamu.tcat.trc.entries.search.SearchException;
-import edu.tamu.tcat.trc.entries.search.solr.SolrQueryBuilder;
+import edu.tamu.tcat.trc.entries.search.solr.impl.TrcQueryBuilder;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleQueryCommand;
 
@@ -23,9 +19,9 @@ public class PeopleSolrQueryCommand implements PeopleQueryCommand
    private static final int DEFAULT_MAX_RESULTS = 25;
 
    private final SolrServer solr;
-   private final SolrQueryBuilder qb;
+   private final TrcQueryBuilder qb;
 
-   public PeopleSolrQueryCommand(SolrServer solr, SolrQueryBuilder qb)
+   public PeopleSolrQueryCommand(SolrServer solr, TrcQueryBuilder qb)
    {
       this.solr = solr;
       this.qb = qb;
@@ -40,19 +36,12 @@ public class PeopleSolrQueryCommand implements PeopleQueryCommand
          QueryResponse response = solr.query(qb.get());
          SolrDocumentList results = response.getResults();
 
-         List<BioSearchProxy> people = new ArrayList<>();
-         for (SolrDocument doc : results)
-         {
-            String person = doc.getFieldValue(BioSolrConfig.SEARCH_PROXY.getName()).toString();
-            BioSearchProxy simplePerson = PeopleIndexingService.mapper.readValue(person, BioSearchProxy.class);
-            people.add(simplePerson);
-         }
-
+         List<BioSearchProxy> people = qb.unpack(results, BioSolrConfig.SEARCH_PROXY);
          return new SolrPersonResults(this, people);
       }
-      catch (SolrServerException | IOException sse)
+      catch (Exception e)
       {
-         throw new SearchException("An error occurred while querying the author core: " + sse, sse);
+         throw new SearchException("An error occurred while querying the author core: " + e, e);
       }
    }
 

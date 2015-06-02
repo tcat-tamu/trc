@@ -1,6 +1,5 @@
 package edu.tamu.tcat.trc.entries.types.bib.search.solr;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
@@ -9,18 +8,16 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 
 import edu.tamu.tcat.trc.entries.search.SearchException;
-import edu.tamu.tcat.trc.entries.search.solr.SolrQueryBuilder;
 import edu.tamu.tcat.trc.entries.search.solr.impl.DateRangeDTO;
+import edu.tamu.tcat.trc.entries.search.solr.impl.TrcQueryBuilder;
 import edu.tamu.tcat.trc.entries.types.bib.search.BiblioSearchProxy;
 import edu.tamu.tcat.trc.entries.types.bib.search.WorkQueryCommand;
 
@@ -31,12 +28,12 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
    private static final int DEFAULT_MAX_RESULTS = 25;
 
    private final SolrServer solr;
-   private final SolrQueryBuilder qb;
+   private final TrcQueryBuilder qb;
 
    private Set<String> authorIds;
    private List<DateRangeDTO> dates;
 
-   public WorkSolrQueryCommand(SolrServer solr, SolrQueryBuilder qb)
+   public WorkSolrQueryCommand(SolrServer solr, TrcQueryBuilder qb)
    {
       this.solr = solr;
       this.qb = qb;
@@ -46,8 +43,6 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
    @Override
    public SolrWorksResults execute() throws SearchException
    {
-      List<BiblioSearchProxy> works = new ArrayList<>();
-
       try
       {
          if (authorIds != null)
@@ -66,27 +61,13 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
          QueryResponse response = solr.query(qb.get());
          SolrDocumentList results = response.getResults();
 
-         for (SolrDocument doc : results)
-         {
-            String workInfo = null;
-            try
-            {
-               workInfo = doc.getFieldValue(BiblioSolrConfig.SEARCH_PROXY.getName()).toString();
-               BiblioSearchProxy wi = BiblioEntriesSearchService.getMapper().readValue(workInfo, BiblioSearchProxy.class);
-               works.add(wi);
-            }
-            catch (IOException ioe)
-            {
-               logger.log(Level.SEVERE, "Failed to parse relationship record: [" + workInfo + "]. " + ioe);
-            }
-         }
+         List<BiblioSearchProxy> works = qb.unpack(results, BiblioSolrConfig.SEARCH_PROXY);
+         return new SolrWorksResults(this, works);
       }
       catch (SolrServerException e)
       {
          throw new SearchException("An error occurred while querying the works core", e);
       }
-
-      return new SolrWorksResults(this, works);
    }
 
    @Override
