@@ -85,9 +85,15 @@ public class MockWorkRepository implements WorkRepository
    @Override
    public EditWorkCommand create()
    {
+      return create(idFactory.getNextId("works"));
+   }
+
+   @Override
+   public EditWorkCommand create(String id)
+   {
       // TODO Auto-generated method stub
       WorkDV dto = new WorkDV();
-      dto.id = idFactory.getNextId("works");
+      dto.id = id;
       return new MockEditWorkCommand(dto, idFactory, (update) ->
       {
          // TODO fire notifications
