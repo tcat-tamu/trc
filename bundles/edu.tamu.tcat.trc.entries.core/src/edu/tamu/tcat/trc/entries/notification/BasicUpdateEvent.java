@@ -22,10 +22,10 @@ public class BasicUpdateEvent<T> implements UpdateEvent<T>
                            Supplier<T> origSupplier,
                            Supplier<T> currSupplier)
    {
-      this.action = UpdateAction.DELETE;
-      this.id = id.toString();
+      this.action = action;
+      this.id = id;
       this.origRef = origSupplier;
-      this.currRef = origSupplier;
+      this.currRef = currSupplier;
    }
 
    @Override
