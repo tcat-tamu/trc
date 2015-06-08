@@ -3,7 +3,10 @@ package edu.tamu.tcat.trc.notes.repo;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Future;
 
+import edu.tamu.tcat.trc.entries.notification.UpdateListener;
+import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.notes.Notes;
 
 public interface NotesRepository
@@ -13,14 +16,14 @@ public interface NotesRepository
     * @param noteId The id of the specific Notes to be returned
     * @return Notes
     */
-   Notes getNote(UUID noteId);
+   Notes get(UUID noteId) throws NoSuchCatalogRecordException;
 
    /**
     * Retrieves a {@code List} of {@link Notes} provided a valid URI.
     * @param entityURI URI that may contain {@link Notes}.
     * @return Collection of Notes
     */
-   List<Notes> getNotes(URI entityURI);
+   List<Notes> getNotes(URI entityURI) throws NoSuchCatalogRecordException;
 
    /**
     * Builds a new {@link EditNotesCommand} to create a new {@link Notes}.
@@ -32,11 +35,12 @@ public interface NotesRepository
     * Modifies a {@link EditNotesCommand} to allow editing a {@link Notes}.
     * @return
     */
-   EditNotesCommand edit();
+   EditNotesCommand edit(UUID noteId) throws NoSuchCatalogRecordException;
 
    /**
     * Removes a {@link Notes} entry from the database.
     */
-   void delete();
+   Future<Boolean> remove(UUID noteId);
 
+   AutoCloseable register(UpdateListener<Notes> ears);
 }
