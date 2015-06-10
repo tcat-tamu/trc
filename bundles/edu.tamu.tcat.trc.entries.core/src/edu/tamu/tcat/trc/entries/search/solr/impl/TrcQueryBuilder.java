@@ -14,7 +14,10 @@ import edu.tamu.tcat.trc.entries.search.solr.SolrIndexConfig;
 import edu.tamu.tcat.trc.entries.search.solr.SolrIndexField;
 import edu.tamu.tcat.trc.entries.search.solr.SolrQueryBuilder;
 
-//NOTE: Should have nothing "works"-specific in this builder
+/**
+ * The main TRC implementation of a {@link SolrQueryBuilder}. This class also offers utilities
+ * for handling {@link SolrIndexField} elements of SOLR documents.
+ */
 public class TrcQueryBuilder implements SolrQueryBuilder
 {
    private SolrServer solr;
@@ -52,6 +55,21 @@ public class TrcQueryBuilder implements SolrQueryBuilder
       params.set("rows", max);
    }
 
+   /**
+    * Unpack data of the given {@link BasicFields.SearchProxyField SearchProxyField} type from each
+    * document in the provided collection. This involves deserializing
+    * the JSON literal stored in the SOLR document into the field's type.
+    *
+    * @param <T> The type of data to be returned. This is a "search proxy" stored in each
+    *            document.
+    * @param <F> The type of {@link BasicFields.SearchProxyField SearchProxyField}, supplied for the <T> argument.
+    * @param docs The SOLR documents from which to unpack search proxies.
+    * @param searchProxyField The field representing the search proxy data in the documents,
+    *             typically statically referenced from a {@link SolrIndexConfig} implementation
+    *             for the module associated with the SOLR documents and core.
+    * @return
+    * @throws SearchException
+    */
    public <T,F extends BasicFields.SearchProxyField<T>>
    List<T>
    unpack(SolrDocumentList docs,
