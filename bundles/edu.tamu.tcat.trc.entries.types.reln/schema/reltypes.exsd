@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="edu.tamu.tcat.trc.entries.reln" xmlns="http://www.w3.org/2001/XMLSchema">
+<schema targetNamespace="edu.tamu.tcat.trc.entries.types.reln" xmlns="http://www.w3.org/2001/XMLSchema">
    <annotation>
       <appinfo>
-         <meta.schema plugin="edu.tamu.tcat.trc.entries.reln" id="edu.tamu.tcat.catalogentries.relationships.types" name="Relationship Type"/>
+         <meta.schema plugin="edu.tamu.tcat.trc.entries.types.reln" id="edu.tamu.tcat.catalogentries.relationships.types" name="Relationship Type"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]

@@ -1,24 +1,20 @@
 package edu.tamu.tcat.trc.entries.types.reln.search;
 
 import java.net.URI;
-import java.util.Collection;
 
-import edu.tamu.tcat.trc.entries.types.reln.Relationship;
+import edu.tamu.tcat.trc.entries.search.SearchException;
 
 public interface RelationshipQueryCommand
 {
+   RelationshipSearchResult execute() throws SearchException;
 
-   Collection<Relationship> getResults();
+   //TODO: convert this query to use edismax and rename methods to proper pattern
+   @Deprecated // rename to "query*" or "filter*"
+   void forEntity(URI entity, RelationshipDirection direction) throws SearchException;
 
-   RelationshipQueryCommand forEntity(URI entity, RelationshipDirection direction);
+   @Deprecated // rename to "query*" or "filter*"
+   void byType(String typeId) throws SearchException;
 
-   RelationshipQueryCommand forEntity(URI entity);
-
-   RelationshipQueryCommand byType(String typeId);
-
-   RelationshipQueryCommand setRowLimit(int rows);
-
-   // TODO: decide on the proper way to organize the results
-   RelationshipQueryCommand oderBy();
-
+   void setOffset(int start);
+   void setMaxResults(int rows);
 }

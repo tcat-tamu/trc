@@ -1,19 +1,16 @@
-package edu.tamu.tcat.trc.entries.types.reln.solr;
+package edu.tamu.tcat.trc.entries.types.reln.search.solr;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
+import edu.tamu.tcat.trc.entries.search.SearchException;
+import edu.tamu.tcat.trc.entries.search.solr.impl.TrcQueryBuilder;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipChangeEvent;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
@@ -22,10 +19,6 @@ import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchIndexManager;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchService;
 
-/**
- *  TODO include documentation about expected fields and format of the solr core.
- *
- */
 public class SolrRelationshipSearchService implements RelationshipSearchIndexManager, RelationshipSearchService
 {
    private final static Logger logger = Logger.getLogger(SolrRelationshipSearchService.class.getName());
@@ -36,25 +29,11 @@ public class SolrRelationshipSearchService implements RelationshipSearchIndexMan
    /** Configuration property key that defines Solr core to be used for relationships. */
    public static final String SOLR_CORE = "catalogentries.relationships.solr.core";
 
-   // configured here for use by other classes in this package - these classes are effectively
-   // delegates of this service's responsibilities
-   static final ObjectMapper mapper;
-   static {
-      mapper = new ObjectMapper();
-      mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-   }
-
-
    private RelationshipRepository repo;
    private AutoCloseable registration;
-
    private SolrServer solr;
    private ConfigurationProperties config;
    private RelationshipTypeRegistry typeReg;
-
-   public SolrRelationshipSearchService()
-   {
-   }
 
    // HACK: Relationships are set to the db in an asynchronous matter. It can not be quarenteed that db operations will be
    //       completed before the next operation starts, causing an error. The create/update/delete process "should" not have
@@ -96,6 +75,12 @@ public class SolrRelationshipSearchService implements RelationshipSearchIndexMan
 
       unregisterRepoListener();
       releaseSolrConnection();
+   }
+
+   @Override
+   public RelationshipQueryCommand createQueryCommand() throws SearchException
+   {
+      return new RelationshipSolrQueryCommand(solr, typeReg, new TrcQueryBuilder(solr, new RelnSolrConfig()));
    }
 
    private void unregisterRepoListener()
@@ -143,7 +128,7 @@ public class SolrRelationshipSearchService implements RelationshipSearchIndexMan
                onCreate(evt.getRelationship());
                break;
             case MODIFIED:
-               onChange(evt.getRelationship());
+               onUpdate(evt.getRelationship());
                break;
             case DELETED:
                onDelete(evt.getRelationshipId());
@@ -162,25 +147,25 @@ public class SolrRelationshipSearchService implements RelationshipSearchIndexMan
    {
       try
       {
-         RelnSolrProxy proxy = RelnSolrProxy.create(reln);
+         RelnDocument proxy = RelnDocument.create(reln);
          solr.add(proxy.getDocument());
          solr.commit();
       }
-      catch (SolrServerException | IOException e)
+      catch (Exception e)
       {
          logger.log(Level.SEVERE, "Failed to commit new relationship id: [" + reln.getId() + "] to the SOLR server. " + e);
       }
    }
 
-   private void onChange(Relationship reln)
+   private void onUpdate(Relationship reln)
    {
       try
       {
-         RelnSolrProxy proxy = RelnSolrProxy.update(reln);
+         RelnDocument proxy = RelnDocument.update(reln);
          solr.add(proxy.getDocument());
          solr.commit();
       }
-      catch (SolrServerException | IOException e)
+      catch (Exception e)
       {
          logger.log(Level.SEVERE, "Failed to commit the updated relationship id: [" + reln.getId() + "] to the SOLR server. " + e);
       }
@@ -193,48 +178,9 @@ public class SolrRelationshipSearchService implements RelationshipSearchIndexMan
          solr.deleteById(id);
          solr.commit();
       }
-      catch (SolrServerException | IOException e)
+      catch (Exception e)
       {
          logger.log(Level.SEVERE, "Failed to delete relationship id: [" + id + "] to the SOLR server. " + e);
       }
    }
-
-   @Override
-   public Iterable<Relationship> findRelationshipsFor(URI entry)
-   {
-      return createQueryCommand().forEntity(entry).getResults();
-   }
-
-   @Override
-   public Iterable<Relationship> findRelationshipsBy(URI creator)
-   {
-      // TODO Auto-generated method stub
-      return null;
-   }
-
-   @Override
-   public RelationshipQueryCommand createQueryCommand()
-   {
-      return new RelationshipSolrQueryCommand(solr, typeReg);
-   }
-
 }
-
-//Here is an example of how to do a partial update via Solr’s Java client, SolrJ:
-//
-//// create the SolrJ client
-//HttpSolrServer client = new HttpSolrServer("http://localhost:8983/solr");
-//
-//// create the document
-//SolrInputDocument sdoc = new SolrInputDocument();
-//sdoc.addField("id","book1");
-//Map<String,Object> fieldModifier = new HashMap<>(1);
-//fieldModifier.put("set","Cyberpunk"); set or replace a value, remove value if null is specified as the new value
-//fieldModifier.put("add","Cyberpunk"); adds a value to a list
-//fieldModifier.put("remove","Cyberpunk"); remove or list of values from a list
-//fieldModifier.put("inc",1); increment a number
-//sdoc.addField("cat", fieldModifier);  // add the map as the field value
-//
-//client.add( sdoc );  // send it to the solr server
-//
-//client.shutdown();

@@ -20,6 +20,7 @@ import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipNotAvailableException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipPersistenceException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
+import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchService;
 
 @Path("/relationships/{id}")
 public class RelationshipService
@@ -27,10 +28,16 @@ public class RelationshipService
    private static final Logger logger = Logger.getLogger(RelationshipService.class.getName());
 
    private RelationshipRepository repo;
+   private RelationshipSearchService svcSearch;
 
    public void setRepository(RelationshipRepository repo)
    {
       this.repo = repo;
+   }
+
+   public void setSearch(RelationshipSearchService svc)
+   {
+      svcSearch = svc;
    }
 
    public void activate()

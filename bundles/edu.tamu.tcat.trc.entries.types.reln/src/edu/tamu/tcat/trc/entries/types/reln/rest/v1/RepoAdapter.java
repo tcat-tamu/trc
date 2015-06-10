@@ -57,6 +57,40 @@ public class RepoAdapter
       return dto;
    }
 
+   public static RestApiV1.Relationship toDTO(RelationshipDV orig)
+   {
+      if (orig == null)
+         return null;
+      RestApiV1.Relationship dto = new RestApiV1.Relationship();
+      dto.id = orig.id;
+      dto.typeId = orig.typeId;
+      dto.description = orig.description;
+      dto.descriptionMimeType = orig.descriptionMimeType;
+
+      // TODO provide better support for error messaging.
+      dto.provenance = toDTO(orig.provenance);
+
+      if (orig.relatedEntities != null)
+      {
+         dto.relatedEntities = new HashSet<>();
+         for (AnchorDV anchor : orig.relatedEntities)
+         {
+            dto.relatedEntities.add(toDTO(anchor));
+         }
+      }
+
+      if (orig.targetEntities != null)
+      {
+         dto.targetEntities = new HashSet<>();
+         for (AnchorDV anchor : orig.targetEntities)
+         {
+            dto.targetEntities.add(toDTO(anchor));
+         }
+      }
+
+      return dto;
+   }
+
    public static RestApiV1.Provenance toDTO(Provenance orig)
    {
       if (orig == null)
@@ -72,7 +106,22 @@ public class RepoAdapter
 
       return dto;
    }
-   
+
+   public static RestApiV1.Provenance toDTO(ProvenanceDV orig)
+   {
+      if (orig == null)
+         return null;
+      RestApiV1.Provenance dto = new RestApiV1.Provenance();
+      dto.dateCreated = orig.dateCreated;
+      dto.dateModified = orig.dateModified;
+
+      dto.creatorUris = new HashSet<>();
+      if (orig.creatorUris != null)
+         dto.creatorUris.addAll(orig.creatorUris);
+
+      return dto;
+   }
+
    public static RestApiV1.Anchor toDTO(Anchor orig)
    {
       if (orig == null)
@@ -86,7 +135,20 @@ public class RepoAdapter
 
       return dto;
    }
-   
+
+   public static RestApiV1.Anchor toDTO(AnchorDV orig)
+   {
+      if (orig == null)
+         return null;
+      RestApiV1.Anchor dto = new RestApiV1.Anchor();
+      if (orig.entryUris != null)
+      {
+         dto.entryUris = new HashSet<>(orig.entryUris);
+      }
+
+      return dto;
+   }
+
    public static RestApiV1.RelationshipType toDTO(RelationshipType orig)
    {
       if (orig == null)
@@ -100,7 +162,7 @@ public class RepoAdapter
 
       return dto;
    }
-   
+
    public static RelationshipDV toRepo(RestApiV1.Relationship orig)
    {
       if (orig == null)
@@ -108,7 +170,7 @@ public class RepoAdapter
       RelationshipDV dto = new RelationshipDV();
       dto.id = orig.id;
       dto.typeId = orig.typeId;
-      
+
       dto.description = orig.description;
       dto.descriptionMimeType = orig.descriptionMimeType;
 
@@ -131,7 +193,7 @@ public class RepoAdapter
             dto.targetEntities.add(toRepo(anchor));
          }
       }
-      
+
       return dto;
    }
 
@@ -155,7 +217,7 @@ public class RepoAdapter
       dto.dateModified = orig.dateModified;
       if (orig.creatorUris != null)
          dto.creatorUris = new HashSet<>(orig.creatorUris);
-      
+
       return dto;
    }
 }
