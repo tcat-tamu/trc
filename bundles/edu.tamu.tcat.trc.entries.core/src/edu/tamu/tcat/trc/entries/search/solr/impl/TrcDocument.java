@@ -35,6 +35,13 @@ public class TrcDocument
       document.addField(field.getName(), field.toSolrValue(value));
    }
 
+   // Not yet implemented: need to handle cases where the collection contains nulls or empty strings
+//   public <T> void set(SolrIndexField<T> field, Collection<T> value) throws SearchException
+//   {
+//      for (T v : value)
+//         document.addField(field.getName(), field.toSolrValue(v));
+//   }
+
    /*
     * TODO: This 'update' will only overwrite the field value with the given value.
     * Other types of updates are:

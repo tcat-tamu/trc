@@ -74,6 +74,7 @@ public class PeopleResource
          PeopleQueryCommand cmd = peopleSearchService.createQueryCommand();
          if (q != null)
             cmd.query(q);
+         cmd.setOffset(offset);
          cmd.setMaxResults(numResults);
          PersonSearchResult results = cmd.execute();
 

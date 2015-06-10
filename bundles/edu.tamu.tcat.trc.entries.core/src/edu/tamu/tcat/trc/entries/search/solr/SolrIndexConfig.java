@@ -14,7 +14,10 @@ import edu.tamu.tcat.trc.entries.search.SearchException;
  */
 public interface SolrIndexConfig
 {
-   void initialConfiguration(SolrQuery params) throws SearchException;
+   default void initialConfiguration(SolrQuery params) throws SearchException
+   {
+      // default impl is no-op
+   }
 
    /**
     * Set (or override) configuration for the "basic" search criteria. Since
@@ -25,7 +28,10 @@ public interface SolrIndexConfig
     * @param params
     * @throws SearchException
     */
-   void configureBasic(String q, SolrQuery params) throws SearchException;
+   default void configureBasic(String q, SolrQuery params) throws SearchException
+   {
+      throw new UnsupportedOperationException("Basic configuration not supported");
+   }
 
    /**
     * The DTO type to use for a "search proxy", which is a serialized JSON data transfer
