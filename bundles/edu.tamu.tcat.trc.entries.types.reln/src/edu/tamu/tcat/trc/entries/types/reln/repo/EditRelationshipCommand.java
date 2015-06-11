@@ -6,9 +6,9 @@ import java.util.concurrent.Future;
 import edu.tamu.tcat.trc.entries.types.reln.AnchorSet;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
-import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDV;
-import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDV;
-import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;
+import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDTO;
+import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDTO;
+import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 
 /**
  * Gives the ability to edit a {@link Relationship}. This will allow the clients
@@ -17,10 +17,10 @@ import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;
 public interface EditRelationshipCommand
 {
    /**
-    * Set all properties defined in a {@link RelationshipDV}
+    * Set all properties defined in a {@link RelationshipDTO}
     * @param realtionship The Relationship to be edited.
     */
-   void setAll(RelationshipDV realtionship);
+   void setAll(RelationshipDTO realtionship);
 
    /**
     * Set the {@link RelationshipType} of the {@link Relationship}.
@@ -50,7 +50,7 @@ public interface EditRelationshipCommand
     *
     * @param provenance
     */
-   void setProvenance(ProvenanceDV provenance);
+   void setProvenance(ProvenanceDTO provenance);
 
    /**
     *
@@ -61,19 +61,19 @@ public interface EditRelationshipCommand
    /**
     * @param related
     */
-   void addRelatedEntities(Set<AnchorDV> related);
+   void addRelatedEntities(Set<AnchorDTO> related);
 
    /**
     *
     * @param anchor
     */
-   void addRelatedEntity(AnchorDV anchor);
+   void addRelatedEntity(AnchorDTO anchor);
 
    /**
     *
     * @param anchor
     */
-   void removeRelatedEntity(AnchorDV anchor);
+   void removeRelatedEntity(AnchorDTO anchor);
 
    /**
     *
@@ -84,19 +84,19 @@ public interface EditRelationshipCommand
    /**
     * @param target
     */
-   void addTargetEntities(Set<AnchorDV> target);
+   void addTargetEntities(Set<AnchorDTO> target);
 
    /**
     *
     * @param anchor
     */
-   void addTargetEntity(AnchorDV anchor);
+   void addTargetEntity(AnchorDTO anchor);
 
    /**
     *
     * @param anchor
     */
-   void removeTargetEntity(AnchorDV anchor);
+   void removeTargetEntity(AnchorDTO anchor);
 
    /**
     *

@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
-import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;
+import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 
 public class PsqlGetRelationshipTask implements SqlExecutor.ExecutorTask<Relationship>
@@ -47,8 +47,8 @@ public class PsqlGetRelationshipTask implements SqlExecutor.ExecutorTask<Relatio
             String relationshipJson = pgo.toString();
             try
             {
-               RelationshipDV dv = jsonMapper.readValue(relationshipJson, RelationshipDV.class);
-               return RelationshipDV.instantiate(dv, typeReg);
+               RelationshipDTO dv = jsonMapper.readValue(relationshipJson, RelationshipDTO.class);
+               return RelationshipDTO.instantiate(dv, typeReg);
             }
             catch (IOException e)
             {

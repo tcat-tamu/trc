@@ -20,7 +20,7 @@ import edu.tamu.tcat.trc.entries.core.IdFactory;
 import edu.tamu.tcat.trc.entries.notification.DataUpdateObserverAdapter;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
-import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;
+import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipChangeEvent;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipChangeEvent.ChangeType;
@@ -132,7 +132,7 @@ public class PsqlRelationshipRepo implements RelationshipRepository
    @Override
    public EditRelationshipCommand create() throws RelationshipPersistenceException
    {
-      RelationshipDV relationship = new RelationshipDV();
+      RelationshipDTO relationship = new RelationshipDTO();
       relationship.id = idFactory.getNextId(ID_CONTEXT);
 
       EditRelationshipCommandImpl command = new EditRelationshipCommandImpl(relationship, idFactory);
@@ -151,7 +151,7 @@ public class PsqlRelationshipRepo implements RelationshipRepository
    @Override
    public EditRelationshipCommand edit(final String id) throws RelationshipNotAvailableException, RelationshipPersistenceException
    {
-      EditRelationshipCommandImpl command = new EditRelationshipCommandImpl(RelationshipDV.create(get(id)) , idFactory);
+      EditRelationshipCommandImpl command = new EditRelationshipCommandImpl(RelationshipDTO.create(get(id)) , idFactory);
       command.setCommitHook((r) -> {
          PsqlUpdateRelationshipTask task = new PsqlUpdateRelationshipTask(r, mapper);
 

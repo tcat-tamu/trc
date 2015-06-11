@@ -11,31 +11,31 @@ import edu.tamu.tcat.trc.entries.core.IdFactory;
 import edu.tamu.tcat.trc.entries.types.reln.Anchor;
 import edu.tamu.tcat.trc.entries.types.reln.AnchorSet;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
-import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDV;
-import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDV;
-import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;
+import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDTO;
+import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDTO;
+import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.internal.dto.BasicAnchorSet;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 
 
 public class EditRelationshipCommandImpl implements EditRelationshipCommand
 {
-   private final RelationshipDV relationship;
+   private final RelationshipDTO relationship;
 
-   private Function<RelationshipDV, Future<String>> commitHook;
+   private Function<RelationshipDTO, Future<String>> commitHook;
 
-   public EditRelationshipCommandImpl(RelationshipDV relationship, IdFactory idFactory)
+   public EditRelationshipCommandImpl(RelationshipDTO relationship, IdFactory idFactory)
    {
       this.relationship = relationship;
    }
 
-   public void setCommitHook(Function<RelationshipDV, Future<String>> hook)
+   public void setCommitHook(Function<RelationshipDTO, Future<String>> hook)
    {
       commitHook = hook;
    }
 
    @Override
-   public void setAll(RelationshipDV relationship)
+   public void setAll(RelationshipDTO relationship)
    {
        setTypeId(relationship.typeId);
        setDescription(relationship.description);
@@ -45,15 +45,15 @@ public class EditRelationshipCommandImpl implements EditRelationshipCommand
        setRelatedEntities(createAnchorSet(relationship.relatedEntities));
    }
 
-   private static BasicAnchorSet createAnchorSet(Set<AnchorDV> entities)
+   private static BasicAnchorSet createAnchorSet(Set<AnchorDTO> entities)
    {
       if (entities.isEmpty())
          return new BasicAnchorSet(new HashSet<>());
 
       Set<Anchor> anchors = new HashSet<>();
-      for (AnchorDV anchorData : entities)
+      for (AnchorDTO anchorData : entities)
       {
-         anchors.add(AnchorDV.instantiate(anchorData));
+         anchors.add(AnchorDTO.instantiate(anchorData));
       }
 
       return new BasicAnchorSet(anchors);
@@ -84,7 +84,7 @@ public class EditRelationshipCommandImpl implements EditRelationshipCommand
    }
 
    @Override
-   public void setProvenance(ProvenanceDV provenance)
+   public void setProvenance(ProvenanceDTO provenance)
    {
       relationship.provenance = provenance;
    }
@@ -96,24 +96,24 @@ public class EditRelationshipCommandImpl implements EditRelationshipCommand
          return;
 
       relationship.relatedEntities = related.getAnchors().parallelStream()
-                       .map(anchor -> AnchorDV.create(anchor))
+                       .map(anchor -> AnchorDTO.create(anchor))
                        .collect(Collectors.toSet());
    }
 
    @Override
-   public void addRelatedEntity(AnchorDV anchor)
+   public void addRelatedEntity(AnchorDTO anchor)
    {
       relationship.relatedEntities.add(anchor);
    }
 
    @Override
-   public void addRelatedEntities(Set<AnchorDV> anchor)
+   public void addRelatedEntities(Set<AnchorDTO> anchor)
    {
       relationship.relatedEntities.addAll(anchor);
    }
 
    @Override
-   public void removeRelatedEntity(AnchorDV anchor)
+   public void removeRelatedEntity(AnchorDTO anchor)
    {
       relationship.relatedEntities.remove(anchor);
    }
@@ -125,24 +125,24 @@ public class EditRelationshipCommandImpl implements EditRelationshipCommand
          return;
 
       relationship.targetEntities = target.getAnchors().parallelStream()
-            .map(anchor -> AnchorDV.create(anchor))
+            .map(anchor -> AnchorDTO.create(anchor))
             .collect(Collectors.toSet());
    }
 
    @Override
-   public void addTargetEntity(AnchorDV anchor)
+   public void addTargetEntity(AnchorDTO anchor)
    {
       relationship.targetEntities.add(anchor);
    }
 
    @Override
-   public void addTargetEntities(Set<AnchorDV> anchor)
+   public void addTargetEntities(Set<AnchorDTO> anchor)
    {
       relationship.targetEntities.addAll(anchor);
    }
 
    @Override
-   public void removeTargetEntity(AnchorDV anchor)
+   public void removeTargetEntity(AnchorDTO anchor)
    {
       relationship.targetEntities.remove(anchor);
    }

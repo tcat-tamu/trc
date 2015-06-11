@@ -6,8 +6,8 @@ import java.util.Set;
 import edu.tamu.tcat.trc.entries.types.reln.Anchor;
 import edu.tamu.tcat.trc.entries.types.reln.AnchorSet;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
-import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDV;
-import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDV;
+import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDTO;
+import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDTO;
 
 /**
  * JSON serializable summary information about a relationship entry.
@@ -20,9 +20,9 @@ public class RelnSearchProxy
    public String typeId;
    public String description;
    public String descriptionMimeType;
-   public ProvenanceDV provenance;
-   public Set<AnchorDV> relatedEntities;
-   public Set<AnchorDV> targetEntities;
+   public ProvenanceDTO provenance;
+   public Set<AnchorDTO> relatedEntities;
+   public Set<AnchorDTO> targetEntities;
 
    public static RelnSearchProxy create(Relationship reln)
    {
@@ -32,7 +32,7 @@ public class RelnSearchProxy
       result.description = reln.getDescription();
       result.descriptionMimeType = reln.getDescriptionFormat();
 
-      result.provenance = ProvenanceDV.create(reln.getProvenance());
+      result.provenance = ProvenanceDTO.create(reln.getProvenance());
 
       AnchorSet related = reln.getRelatedEntities();
       if (related != null)
@@ -40,7 +40,7 @@ public class RelnSearchProxy
          result.relatedEntities = new HashSet<>();
          for (Anchor anchor : related.getAnchors())
          {
-            result.relatedEntities.add(AnchorDV.create(anchor));
+            result.relatedEntities.add(AnchorDTO.create(anchor));
          }
       }
 
@@ -50,7 +50,7 @@ public class RelnSearchProxy
          result.targetEntities = new HashSet<>();
          for (Anchor anchor : target.getAnchors())
          {
-            result.targetEntities.add(AnchorDV.create(anchor));
+            result.targetEntities.add(AnchorDTO.create(anchor));
          }
       }
 

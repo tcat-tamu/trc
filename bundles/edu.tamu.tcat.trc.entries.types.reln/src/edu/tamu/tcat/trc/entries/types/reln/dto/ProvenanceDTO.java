@@ -10,22 +10,22 @@ import edu.tamu.tcat.trc.entries.types.reln.Provenance;
 import edu.tamu.tcat.trc.entries.types.reln.URIParseHelper;
 import edu.tamu.tcat.trc.entries.types.reln.internal.dto.BasicProvenance;
 
-public class ProvenanceDV
+public class ProvenanceDTO
 {
    private static final DateTimeFormatter iso8601Formatter = DateTimeFormatter.ISO_INSTANT;
 
    /** The string-valued URIs associated with the creators of the associated annotation. */
    public Set<String> creatorUris;
 
-   /** Date created in ISO 8601 format such as '2011-12-03T10:15:30Z' */
+   /** Date created in ISO 8601 "instant" format such as '2011-12-03T10:15:30Z' */
    public String dateCreated;
 
-   /** Date modified in ISO 8601 format such as '2011-12-03T10:15:30Z' */
+   /** Date modified in ISO 8601 "instant" format such as '2011-12-03T10:15:30Z' */
    public String dateModified;
 
-   public static ProvenanceDV create(Provenance prov)
+   public static ProvenanceDTO create(Provenance prov)
    {
-      ProvenanceDV result = new ProvenanceDV();
+      ProvenanceDTO result = new ProvenanceDTO();
       Instant created = prov.getDateCreated();
       result.dateCreated = (created != null) ? iso8601Formatter.format(created) : null;
 
@@ -45,7 +45,7 @@ public class ProvenanceDV
     * @param data
     * @return
     */
-   public static Provenance instantiate(ProvenanceDV data)
+   public static Provenance instantiate(ProvenanceDTO data)
    {
       // TODO handle format errors
       Instant created = (data.dateCreated != null) ? Instant.parse(data.dateCreated) : Instant.now();

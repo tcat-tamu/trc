@@ -11,16 +11,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.repo.ExecutionFailedException;
-import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;
+import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 
 public class PsqlCreateRelationshipTask implements SqlExecutor.ExecutorTask<String>
 {
    private final static String insert = "INSERT INTO relationships (id, relationship) VALUES(?,?)";
 
-   private final RelationshipDV relationship;
+   private final RelationshipDTO relationship;
    private final ObjectMapper mapper;
 
-   public PsqlCreateRelationshipTask(RelationshipDV relationship, ObjectMapper jsonMapper)
+   public PsqlCreateRelationshipTask(RelationshipDTO relationship, ObjectMapper jsonMapper)
    {
       this.relationship = relationship;
       this.mapper = jsonMapper;

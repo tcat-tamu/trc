@@ -20,9 +20,9 @@ import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 
 @Path("/relationships/types")
-public class RelationshipTypeService
+public class RelationshipTypeResource
 {
-   private static final Logger logger = Logger.getLogger(RelationshipTypeService.class.getName());
+   private static final Logger logger = Logger.getLogger(RelationshipTypeResource.class.getName());
 
    private RelationshipTypeRegistry registry;
 

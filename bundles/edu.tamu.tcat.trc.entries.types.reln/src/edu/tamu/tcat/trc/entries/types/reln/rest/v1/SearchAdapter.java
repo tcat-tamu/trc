@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDV;
+import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDTO;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelnSearchProxy;
 
 /**
@@ -29,7 +29,7 @@ public class SearchAdapter
          if (orig.relatedEntities != null)
          {
             dto.relatedEntities = new HashSet<>();
-            for (AnchorDV dv : orig.relatedEntities)
+            for (AnchorDTO dv : orig.relatedEntities)
             {
                dto.relatedEntities.add(RepoAdapter.toDTO(dv));
             }
@@ -37,7 +37,7 @@ public class SearchAdapter
          if (orig.targetEntities != null)
          {
             dto.targetEntities = new HashSet<>();
-            for (AnchorDV dv : orig.targetEntities)
+            for (AnchorDTO dv : orig.targetEntities)
             {
                dto.targetEntities.add(RepoAdapter.toDTO(dv));
             }

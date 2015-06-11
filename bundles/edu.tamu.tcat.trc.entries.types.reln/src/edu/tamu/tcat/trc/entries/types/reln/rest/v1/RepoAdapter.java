@@ -11,9 +11,9 @@ import edu.tamu.tcat.trc.entries.types.reln.Provenance;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 import edu.tamu.tcat.trc.entries.types.reln.URIParseHelper;
-import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDV;
-import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDV;
-import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;
+import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDTO;
+import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDTO;
+import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 
 /**
  * An encapsulation of adapter methods to convert between the repository API and
@@ -57,7 +57,7 @@ public class RepoAdapter
       return dto;
    }
 
-   public static RestApiV1.Relationship toDTO(RelationshipDV orig)
+   public static RestApiV1.Relationship toDTO(RelationshipDTO orig)
    {
       if (orig == null)
          return null;
@@ -73,7 +73,7 @@ public class RepoAdapter
       if (orig.relatedEntities != null)
       {
          dto.relatedEntities = new HashSet<>();
-         for (AnchorDV anchor : orig.relatedEntities)
+         for (AnchorDTO anchor : orig.relatedEntities)
          {
             dto.relatedEntities.add(toDTO(anchor));
          }
@@ -82,7 +82,7 @@ public class RepoAdapter
       if (orig.targetEntities != null)
       {
          dto.targetEntities = new HashSet<>();
-         for (AnchorDV anchor : orig.targetEntities)
+         for (AnchorDTO anchor : orig.targetEntities)
          {
             dto.targetEntities.add(toDTO(anchor));
          }
@@ -107,7 +107,7 @@ public class RepoAdapter
       return dto;
    }
 
-   public static RestApiV1.Provenance toDTO(ProvenanceDV orig)
+   public static RestApiV1.Provenance toDTO(ProvenanceDTO orig)
    {
       if (orig == null)
          return null;
@@ -136,7 +136,7 @@ public class RepoAdapter
       return dto;
    }
 
-   public static RestApiV1.Anchor toDTO(AnchorDV orig)
+   public static RestApiV1.Anchor toDTO(AnchorDTO orig)
    {
       if (orig == null)
          return null;
@@ -163,11 +163,11 @@ public class RepoAdapter
       return dto;
    }
 
-   public static RelationshipDV toRepo(RestApiV1.Relationship orig)
+   public static RelationshipDTO toRepo(RestApiV1.Relationship orig)
    {
       if (orig == null)
          return null;
-      RelationshipDV dto = new RelationshipDV();
+      RelationshipDTO dto = new RelationshipDTO();
       dto.id = orig.id;
       dto.typeId = orig.typeId;
 
@@ -197,22 +197,22 @@ public class RepoAdapter
       return dto;
    }
 
-   private static AnchorDV toRepo(RestApiV1.Anchor orig)
+   private static AnchorDTO toRepo(RestApiV1.Anchor orig)
    {
       if (orig == null)
          return null;
-      AnchorDV dto = new AnchorDV();
+      AnchorDTO dto = new AnchorDTO();
       if (orig.entryUris != null)
          dto.entryUris = new HashSet<>(orig.entryUris);
 
       return dto;
    }
 
-   private static ProvenanceDV toRepo(RestApiV1.Provenance orig)
+   private static ProvenanceDTO toRepo(RestApiV1.Provenance orig)
    {
       if (orig == null)
          return null;
-      ProvenanceDV dto = new ProvenanceDV();
+      ProvenanceDTO dto = new ProvenanceDTO();
       dto.dateCreated = orig.dateCreated;
       dto.dateModified = orig.dateModified;
       if (orig.creatorUris != null)

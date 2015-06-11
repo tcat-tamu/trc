@@ -12,9 +12,9 @@ import edu.tamu.tcat.trc.entries.search.SearchException;
 import edu.tamu.tcat.trc.entries.search.solr.SolrIndexField;
 import edu.tamu.tcat.trc.entries.search.solr.impl.TrcDocument;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
-import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDV;
-import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDV;
-import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;
+import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDTO;
+import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDTO;
+import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelnSearchProxy;
 
 /**
@@ -40,7 +40,7 @@ public class RelnDocument
    public static RelnDocument create(Relationship reln) throws SearchException
    {
       RelnDocument doc = new RelnDocument();
-      RelationshipDV relnDV = RelationshipDV.create(reln);
+      RelationshipDTO relnDV = RelationshipDTO.create(reln);
 
       doc.indexDocument.set(RelnSolrConfig.ID, relnDV.id);
       doc.indexDocument.set(RelnSolrConfig.DESCRIPTION, relnDV.description);
@@ -65,7 +65,7 @@ public class RelnDocument
    public static RelnDocument update(Relationship reln) throws SearchException
    {
       RelnDocument doc = new RelnDocument();
-      RelationshipDV relnDV = RelationshipDV.create(reln);
+      RelationshipDTO relnDV = RelationshipDTO.create(reln);
 
       doc.indexDocument.update(RelnSolrConfig.ID, relnDV.id);
 
@@ -88,9 +88,9 @@ public class RelnDocument
       return doc;
    }
 
-   private void addEntities(SolrIndexField<String> field, Set<AnchorDV> anchors) throws SearchException
+   private void addEntities(SolrIndexField<String> field, Set<AnchorDTO> anchors) throws SearchException
    {
-      for (AnchorDV anchor : anchors)
+      for (AnchorDTO anchor : anchors)
       {
          for (String uri : anchor.entryUris)
          {
@@ -99,11 +99,11 @@ public class RelnDocument
       }
    }
 
-   private void updateEntities(SolrIndexField<String> field, Set<AnchorDV> anchors) throws SearchException
+   private void updateEntities(SolrIndexField<String> field, Set<AnchorDTO> anchors) throws SearchException
    {
       Set<String> allEntities = new HashSet<>();
 
-      for (AnchorDV anchor : anchors)
+      for (AnchorDTO anchor : anchors)
       {
          allEntities.addAll(anchor.entryUris);
       }
@@ -111,7 +111,7 @@ public class RelnDocument
       indexDocument.update(field, allEntities);
    }
 
-   private void addProvenance(ProvenanceDV prov) throws SearchException
+   private void addProvenance(ProvenanceDTO prov) throws SearchException
    {
       Set<String> uris = new HashSet<>();
       for (String uri : uris)
@@ -123,7 +123,7 @@ public class RelnDocument
          indexDocument.set(RelnSolrConfig.PROV_MODIFIED_DATE, LocalDate.from(DateTimeFormatter.ISO_DATE.parse(prov.dateModified)));
    }
 
-   private void updateProvenance(ProvenanceDV prov) throws SearchException
+   private void updateProvenance(ProvenanceDTO prov) throws SearchException
    {
       indexDocument.update(RelnSolrConfig.PROV_CREATORS, prov.creatorUris);
       if (prov.dateCreated != null)

@@ -28,9 +28,9 @@ import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchResult;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchService;
 
 @Path("/relationships")
-public class RelationshipsCollectionService
+public class RelationshipsResource
 {
-   private static final Logger debug = Logger.getLogger(RelationshipsCollectionService.class.getName());
+   private static final Logger debug = Logger.getLogger(RelationshipsResource.class.getName());
 
    private RelationshipRepository repo;
    private RelationshipSearchService relnSearchService;

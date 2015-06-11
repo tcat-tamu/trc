@@ -153,7 +153,7 @@ public class SolrRelationshipSearchService implements RelationshipSearchIndexMan
       }
       catch (Exception e)
       {
-         logger.log(Level.SEVERE, "Failed to commit new relationship id: [" + reln.getId() + "] to the SOLR server. " + e);
+         logger.log(Level.SEVERE, "Failed to commit new relationship id: [" + reln.getId() + "] to the SOLR server.", e);
       }
    }
 
@@ -167,7 +167,7 @@ public class SolrRelationshipSearchService implements RelationshipSearchIndexMan
       }
       catch (Exception e)
       {
-         logger.log(Level.SEVERE, "Failed to commit the updated relationship id: [" + reln.getId() + "] to the SOLR server. " + e);
+         logger.log(Level.SEVERE, "Failed to commit the updated relationship id: [" + reln.getId() + "] to the SOLR server.", e);
       }
    }
 
@@ -180,7 +180,7 @@ public class SolrRelationshipSearchService implements RelationshipSearchIndexMan
       }
       catch (Exception e)
       {
-         logger.log(Level.SEVERE, "Failed to delete relationship id: [" + id + "] to the SOLR server. " + e);
+         logger.log(Level.SEVERE, "Failed to delete relationship id: [" + id + "] to the SOLR server.", e);
       }
    }
 }

@@ -8,11 +8,11 @@ import edu.tamu.tcat.trc.entries.types.reln.Anchor;
 import edu.tamu.tcat.trc.entries.types.reln.URIParseHelper;
 import edu.tamu.tcat.trc.entries.types.reln.internal.dto.BasicAnchor;
 
-public class AnchorDV
+public class AnchorDTO
 {
    public Set<String> entryUris = new HashSet<>();
 
-   public AnchorDV()
+   public AnchorDTO()
    {
 
    }
@@ -24,7 +24,7 @@ public class AnchorDV
     *       into catalog entries.
     *
     */
-   public AnchorDV(Set<String> uris)
+   public AnchorDTO(Set<String> uris)
    {
       // validate that the supplied values are valid URIs.
       URIParseHelper.validate(uris);
@@ -37,9 +37,9 @@ public class AnchorDV
     * @param anchor The anchor for which to construct a data vehicle.
     * @return The instantiated (mutable) data vehicle.
     */
-   public static AnchorDV create(Anchor anchor)
+   public static AnchorDTO create(Anchor anchor)
    {
-      AnchorDV result = new AnchorDV();
+      AnchorDTO result = new AnchorDTO();
       for (URI uri : anchor.getEntryIds())
       {
          result.entryUris.add(uri.toASCIIString());
@@ -54,7 +54,7 @@ public class AnchorDV
     * @param data The source data from which to create an API instance.
     * @return The created anchor.
     */
-   public static Anchor instantiate(AnchorDV data)
+   public static Anchor instantiate(AnchorDTO data)
    {
       return new BasicAnchor(URIParseHelper.parse(data.entryUris));
    }

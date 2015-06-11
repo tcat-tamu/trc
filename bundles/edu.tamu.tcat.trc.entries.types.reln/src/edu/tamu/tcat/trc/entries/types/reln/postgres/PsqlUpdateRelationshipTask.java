@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.repo.ExecutionFailedException;
-import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDV;
+import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 
 public class PsqlUpdateRelationshipTask implements SqlExecutor.ExecutorTask<String>
 {
@@ -20,10 +20,10 @@ public class PsqlUpdateRelationshipTask implements SqlExecutor.ExecutorTask<Stri
                                       + "      modified = now()"
                                       + "  WHERE id = ?";
 
-   private final RelationshipDV relationship;
+   private final RelationshipDTO relationship;
    private final ObjectMapper jsonMapper;
 
-   public PsqlUpdateRelationshipTask(RelationshipDV relationship, ObjectMapper jsonMapper)
+   public PsqlUpdateRelationshipTask(RelationshipDTO relationship, ObjectMapper jsonMapper)
    {
       this.relationship = relationship;
       this.jsonMapper = jsonMapper;
