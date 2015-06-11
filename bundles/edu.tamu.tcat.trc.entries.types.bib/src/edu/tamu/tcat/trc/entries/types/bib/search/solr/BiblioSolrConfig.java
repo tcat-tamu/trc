@@ -26,7 +26,7 @@ public class BiblioSolrConfig implements SolrIndexConfig
    public static final SolrIndexField<String> PUBLISHER_LOCATION = new BasicFields.BasicString("publisherLocation");
    public static final SolrIndexField<String> PUBLICATION_DATE_STRING = new BasicFields.BasicString("publishDateString");  // simply date, expressed as a YYYY-MM-DD
    // Using LocalDate for yyyy-MM-dd
-   public static final SolrIndexField<LocalDate> PUBLICATION_DATE = new BasicFields.BasicDate<LocalDate>("publishDateValue", LocalDate.class);
+   public static final SolrIndexField<LocalDate> PUBLICATION_DATE = new BasicFields.BasicDate("publishDateValue");
    public static final SolrIndexField<String> SERIES = new BasicFields.BasicString("series");
    public static final SolrIndexField<String> SUMMARY = new BasicFields.BasicString("summary");          // NOTE - critical search field
    public static final SolrIndexField<String> EDITION_ID = new BasicFields.BasicString("editionId");

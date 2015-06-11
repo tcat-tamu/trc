@@ -1,8 +1,9 @@
 package edu.tamu.tcat.trc.entries.search.solr.impl;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
-import java.time.temporal.TemporalAccessor;
 import java.util.Objects;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -75,29 +76,67 @@ public class BasicFields
       }
    }
 
-   public static class BasicDate<T extends TemporalAccessor> extends FieldBase<T>
+   public static class BasicDate extends FieldBase<LocalDate>
    {
-      public BasicDate(String name, Class<T> type)
+      public BasicDate(String name)
       {
-         super(name, type);
+         super(name, LocalDate.class);
       }
 
       @Override
-      public String toSolrValue(T value) throws SearchException
+      public String toSolrValue(LocalDate value) throws SearchException
       {
-         boolean hasTime = value.isSupported(ChronoField.HOUR_OF_DAY) &&
-                           value.isSupported(ChronoField.MINUTE_OF_HOUR) &&
-                           value.isSupported(ChronoField.SECOND_OF_MINUTE);
-         boolean hasMD = value.isSupported(ChronoField.MONTH_OF_YEAR) &&
-                         value.isSupported(ChronoField.DAY_OF_MONTH);
-         boolean hasYear = value.isSupported(ChronoField.YEAR);
-
-         // Append a literal 'Z' to all to indicate to SOLR that it is in UTC
-         if (hasYear && hasMD && hasTime)
-            return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(value) + 'Z';
-         if (hasYear && hasMD)
+         try
+         {
             return DateTimeFormatter.ISO_LOCAL_DATE.format(value) + "T00:00:00Z";
-         throw new IllegalArgumentException("Unable to format value ["+value+"], must be YMD or YMD+HMS");
+         }
+         catch (Exception e)
+         {
+            throw new IllegalArgumentException("Unable to format 'date' value ["+value+"]", e);
+         }
+      }
+   }
+
+   public static class BasicDateTime extends FieldBase<LocalDateTime>
+   {
+      public BasicDateTime(String name)
+      {
+         super(name, LocalDateTime.class);
+      }
+
+      @Override
+      public String toSolrValue(LocalDateTime value) throws SearchException
+      {
+         try
+         {
+            // Append a literal 'Z' to all to indicate to SOLR that it is in UTC
+            return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(value) + 'Z';
+         }
+         catch (Exception e)
+         {
+            throw new IllegalArgumentException("Unable to format 'date-time' value ["+value+"]", e);
+         }
+      }
+   }
+
+   public static class BasicInstant extends FieldBase<Instant>
+   {
+      public BasicInstant(String name)
+      {
+         super(name, Instant.class);
+      }
+
+      @Override
+      public String toSolrValue(Instant value) throws SearchException
+      {
+         try
+         {
+            return DateTimeFormatter.ISO_INSTANT.format(value);
+         }
+         catch (Exception e)
+         {
+            throw new IllegalArgumentException("Unable to format 'instant' value ["+value+"]", e);
+         }
       }
    }
 

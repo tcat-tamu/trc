@@ -23,8 +23,8 @@ public class RelnSolrConfig implements SolrIndexConfig
    public static final SolrIndexField<String> TARGET_ENTITIES = new BasicFields.BasicString("targetEntities");
    public static final SolrIndexField<String> PROV_CREATORS = new BasicFields.BasicString("provCreator");
    // Using Instant for yyyy-MM-ddTHH:mm:ssZ
-   public static final SolrIndexField<Instant> PROV_CREATED_DATE = new BasicFields.BasicDate<Instant>("provCreateDate", Instant.class);
-   public static final SolrIndexField<Instant> PROV_MODIFIED_DATE = new BasicFields.BasicDate<Instant>("provModifiedDate", Instant  .class);
+   public static final SolrIndexField<Instant> PROV_CREATED_DATE = new BasicFields.BasicInstant("provCreateDate");
+   public static final SolrIndexField<Instant> PROV_MODIFIED_DATE = new BasicFields.BasicInstant("provModifiedDate");
 
    @Override
    public void initialConfiguration(SolrQuery params)

@@ -19,9 +19,9 @@ public class BioSolrConfig implements SolrIndexConfig
    public static final SolrIndexField<String> FAMILY_NAME = new BasicFields.BasicString("familyName");
    public static final SolrIndexField<String> DISPLAY_NAME = new BasicFields.BasicString("displayName");
    // Using LocalDate for yyyy-MM-dd
-   public static final SolrIndexField<LocalDate> BIRTH_DATE = new BasicFields.BasicDate<LocalDate>("birthDate", LocalDate.class);
+   public static final SolrIndexField<LocalDate> BIRTH_DATE = new BasicFields.BasicDate("birthDate");
    public static final SolrIndexField<String> BIRTH_LOCATION = new BasicFields.BasicString("birthLocation");
-   public static final SolrIndexField<LocalDate> DEATH_DATE = new BasicFields.BasicDate<LocalDate>("deathDate", LocalDate.class);
+   public static final SolrIndexField<LocalDate> DEATH_DATE = new BasicFields.BasicDate("deathDate");
    public static final SolrIndexField<String> DEATH_LOCATION = new BasicFields.BasicString("deathLocation");
    public static final SolrIndexField<String> SUMMARY = new BasicFields.BasicString("summary");
 
