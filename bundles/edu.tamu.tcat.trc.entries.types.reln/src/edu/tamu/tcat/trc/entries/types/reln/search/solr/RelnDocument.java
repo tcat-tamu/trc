@@ -1,6 +1,6 @@
 package edu.tamu.tcat.trc.entries.types.reln.search.solr;
 
-import java.time.LocalDate;
+import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
@@ -118,17 +118,17 @@ public class RelnDocument
          indexDocument.set(RelnSolrConfig.PROV_CREATORS, uri);
 
       if (prov.dateCreated != null)
-         indexDocument.set(RelnSolrConfig.PROV_CREATED_DATE, LocalDate.from(DateTimeFormatter.ISO_DATE.parse(prov.dateCreated)));
+         indexDocument.set(RelnSolrConfig.PROV_CREATED_DATE, Instant.from(DateTimeFormatter.ISO_INSTANT.parse(prov.dateCreated)));
       if (prov.dateModified != null)
-         indexDocument.set(RelnSolrConfig.PROV_MODIFIED_DATE, LocalDate.from(DateTimeFormatter.ISO_DATE.parse(prov.dateModified)));
+         indexDocument.set(RelnSolrConfig.PROV_MODIFIED_DATE, Instant.from(DateTimeFormatter.ISO_INSTANT.parse(prov.dateModified)));
    }
 
    private void updateProvenance(ProvenanceDTO prov) throws SearchException
    {
       indexDocument.update(RelnSolrConfig.PROV_CREATORS, prov.creatorUris);
       if (prov.dateCreated != null)
-         indexDocument.update(RelnSolrConfig.PROV_CREATED_DATE, LocalDate.from(DateTimeFormatter.ISO_DATE.parse(prov.dateCreated)));
+         indexDocument.update(RelnSolrConfig.PROV_CREATED_DATE, Instant.from(DateTimeFormatter.ISO_INSTANT.parse(prov.dateCreated)));
       if (prov.dateModified != null)
-         indexDocument.update(RelnSolrConfig.PROV_MODIFIED_DATE, LocalDate.from(DateTimeFormatter.ISO_DATE.parse(prov.dateModified)));
+         indexDocument.update(RelnSolrConfig.PROV_MODIFIED_DATE, Instant.from(DateTimeFormatter.ISO_INSTANT.parse(prov.dateModified)));
    }
 }

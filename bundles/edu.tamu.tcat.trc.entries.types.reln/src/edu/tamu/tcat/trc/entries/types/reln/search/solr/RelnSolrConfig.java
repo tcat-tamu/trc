@@ -1,6 +1,6 @@
 package edu.tamu.tcat.trc.entries.types.reln.search.solr;
 
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -22,9 +22,9 @@ public class RelnSolrConfig implements SolrIndexConfig
    public static final SolrIndexField<String> RELATED_ENTITIES = new BasicFields.BasicString("relatedEntities");
    public static final SolrIndexField<String> TARGET_ENTITIES = new BasicFields.BasicString("targetEntities");
    public static final SolrIndexField<String> PROV_CREATORS = new BasicFields.BasicString("provCreator");
-   // Using LocalDate for yyyy-MM-dd
-   public static final SolrIndexField<LocalDate> PROV_CREATED_DATE = new BasicFields.BasicDate<LocalDate>("provCreateDate", LocalDate.class);
-   public static final SolrIndexField<LocalDate> PROV_MODIFIED_DATE = new BasicFields.BasicDate<LocalDate>("provModifiedDate", LocalDate.class);
+   // Using Instant for yyyy-MM-ddTHH:mm:ssZ
+   public static final SolrIndexField<Instant> PROV_CREATED_DATE = new BasicFields.BasicDate<Instant>("provCreateDate", Instant.class);
+   public static final SolrIndexField<Instant> PROV_MODIFIED_DATE = new BasicFields.BasicDate<Instant>("provModifiedDate", Instant  .class);
 
    @Override
    public void initialConfiguration(SolrQuery params)
