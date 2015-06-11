@@ -94,7 +94,7 @@
     <repository>
       <id>HT</id>
       <layout>p2</layout>
-      <url>${repo-base-url}/oss.hathitrust-dev/lastSuccessfulBuild/artifact/targetPlatform/</url>
+      <url>${repo-base-url}/oss.hathitrust/lastSuccessfulBuild/artifact/targetPlatform/</url>
     </repository>
   </repositories>
 
