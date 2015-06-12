@@ -207,7 +207,7 @@ public class PsqlNotesRepo implements NotesRepository
       {
          return new BasicUpdateEvent<>(note.getId().toString(),
                                        UpdateAction.CREATE,
-                                       () -> null,
+                                       () -> note,
                                        () -> note);
       }
 
