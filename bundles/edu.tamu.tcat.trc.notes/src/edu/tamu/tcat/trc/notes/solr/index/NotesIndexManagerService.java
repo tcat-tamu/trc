@@ -1,10 +1,17 @@
 package edu.tamu.tcat.trc.notes.solr.index;
 
+import java.io.IOException;
+import java.net.URI;
 import java.util.logging.Logger;
+
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
@@ -29,10 +36,9 @@ public class NotesIndexManagerService implements NotesIndexManager
 
    private NotesRepository repo;
 
-//   private SolrServer solr;
-//   private ConfigurationProperties config;
+   private SolrServer solr;
+   private ConfigurationProperties config;
 
-//   private UpdateListener<Notes> ears;
    private AutoCloseable register;
    private EntryUpdateHelper<Notes> listener;
 
@@ -41,19 +47,24 @@ public class NotesIndexManagerService implements NotesIndexManager
       this.repo = repo;
    }
 
+   public void setConfiguration(ConfigurationProperties config)
+   {
+      this.config = config;
+   }
+
    public void activate()
    {
       listener = new EntryUpdateHelper<Notes>();
       listener.register(new NotesUpdateListener());
       register = repo.register(new NotesUpdateListener());
       // construct Solr core
-//      URI solrBaseUri = config.getPropertyValue(SOLR_API_ENDPOINT, URI.class);
-//      String solrCore = config.getPropertyValue(SOLR_CORE, String.class);
-//
-//      URI coreUri = solrBaseUri.resolve(solrCore);
-//      logger.info("Connecting to Solr Service [" + coreUri + "]");
-//
-//      solr = new HttpSolrServer(coreUri.toString());
+      URI solrBaseUri = config.getPropertyValue(SOLR_API_ENDPOINT, URI.class);
+      String solrCore = config.getPropertyValue(SOLR_CORE, String.class);
+
+      URI coreUri = solrBaseUri.resolve(solrCore);
+      logger.info("Connecting to Solr Service [" + coreUri + "]");
+
+      solr = new HttpSolrServer(coreUri.toString());
    }
 
    private void onEvtChange(UpdateEvent<Notes> evt)
@@ -75,7 +86,16 @@ public class NotesIndexManagerService implements NotesIndexManager
 
    private void onCreate(Notes note)
    {
-      logger.info("A note has been created, and notified NotesIndexManager");
+      NotesSolrProxy proxy = new NotesSolrProxy();
+      try
+      {
+         solr.add(proxy.create(note));
+         solr.commit();
+      }
+      catch (SolrServerException | IOException e)
+      {
+         logger.finer("An Error has occurred while attempting to index note id: " + note.getId() + " Plese check the log file for futher information");
+      }
    }
 
    private void onUpdate(Notes note)

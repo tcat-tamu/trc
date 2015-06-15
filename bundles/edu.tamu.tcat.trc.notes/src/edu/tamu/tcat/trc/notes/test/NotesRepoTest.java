@@ -67,6 +67,7 @@ public class NotesRepoTest
 
       noteService = new NotesIndexManagerService();
       noteService.setNotesRepo(repo);
+      noteService.setConfiguration(config);
       noteService.activate();
    }
 
