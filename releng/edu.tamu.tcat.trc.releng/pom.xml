@@ -71,30 +71,14 @@
       <url>${repo-base-url}/Eclipse%20Orbit%20Repository%20Mirror/lastSuccessfulBuild/artifact/target/repository/</url>
     </repository>
     <repository>
-      <id>Mirror.Deps</id>
+      <id>TCAT OSS</id>
       <layout>p2</layout>
-      <url>${repo-base-url}/mirror.dependencies/lastSuccessfulBuild/artifact/targetPlatform/</url>
+      <url>https://sda-dev.citd.tamu.edu/sdk/</url>
     </repository>
     <repository>
-      <id>Jackson</id>
+      <id>JAX RS</id>
+      <url>http://hstaudacher.github.io/osgi-jax-rs-connector</url>
       <layout>p2</layout>
-      <url>${repo-base-url}/Jackson.P2/lastSuccessfulBuild/artifact/targetPlatform/</url>
-    </repository>
-    <repository>
-      <id>JAX-RS</id>
-      <layout>p2</layout>
-      <url>${repo-base-url}/JAX-RS.Mirror/lastSuccessfulBuild/artifact/target/repository/</url>
-    </repository>
-    
-    <repository>
-      <id>CITD Releases</id>
-      <layout>p2</layout>
-      <url>https://download.citd.tamu.edu/sdk</url>
-    </repository>
-    <repository>
-      <id>HT</id>
-      <layout>p2</layout>
-      <url>${repo-base-url}/oss.hathitrust/lastSuccessfulBuild/artifact/targetPlatform/</url>
     </repository>
   </repositories>
 
