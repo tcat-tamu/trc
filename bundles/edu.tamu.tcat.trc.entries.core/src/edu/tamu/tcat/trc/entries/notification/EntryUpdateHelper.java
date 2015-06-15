@@ -10,21 +10,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Provides thread-safe support for registering {@link UpdateListener}s and fire before/after
+ * Provides thread-safe support for registering {@link UpdateListener}s and firing
  * notifications of changes. This is intended to be used by repository implementations to
- * support the task of notifying listeners about updates to
- *
- * @param <T>
+ * support the task of notifying listeners about updates to data elements.
  */
-public final class EntryUpdateHelper<T> implements AutoCloseable
+public final class EntryUpdateHelper<EventType extends UpdateEvent> implements AutoCloseable
 {
    private final static Logger logger = Logger.getLogger(EntryUpdateHelper.class.getName());
 
    private ExecutorService notifications;
-   private final CopyOnWriteArrayList<UpdateListener<T>> listeners = new CopyOnWriteArrayList<>();
+   private final CopyOnWriteArrayList<UpdateListener<EventType>> listeners = new CopyOnWriteArrayList<>();
 
    public EntryUpdateHelper()
    {
+      //HACK: make this configurable
       notifications = Executors.newCachedThreadPool();
    }
 
@@ -55,28 +54,12 @@ public final class EntryUpdateHelper<T> implements AutoCloseable
       }
    }
 
-   public AutoCloseable register(UpdateListener<T> ears)
+   public AutoCloseable register(UpdateListener<EventType> ears)
    {
       Objects.requireNonNull(notifications, "This helper has been closed.");
 
       listeners.add(ears);
       return () -> listeners.remove(ears);
-   }
-
-   /**
-    * Notifies all registered listeners of the pending update and waits until all notifications
-    * have been processed. If any listener returns <code>false</code>, this method will return
-    * <code>false</code> indicating that the proposed update should be canceled.
-    *
-    * @param evt The update action that is about to execute.
-    * @return <code>true</code> if all supplied listeners return <code>true</code>,
-    *    <code>false</code> if any registered listener votes to cancel the update.
-    */
-   public boolean before(UpdateEvent<T> evt)
-   {
-      // TODO should we throw an 'UpdatePreventedException' rather than simply return false?
-      Objects.requireNonNull(notifications, "This helper has been closed.");
-      return listeners.stream().parallel().allMatch(ears -> fireBeforeUpdate(evt, ears));
    }
 
    /**
@@ -86,7 +69,7 @@ public final class EntryUpdateHelper<T> implements AutoCloseable
     *
     * @param evt The update action that has been completed.
     */
-   public void after(UpdateEvent<T> evt)
+   public void after(EventType evt)
    {
       Objects.requireNonNull(notifications, "This helper has been closed.");
       listeners.stream().forEach(ears -> fireAfterUpdate(evt, ears));
@@ -95,31 +78,13 @@ public final class EntryUpdateHelper<T> implements AutoCloseable
    /**
     * @param evt The event to fire.
     * @param ears The listener to notify.
-    * @return {@code false} of the update should be canceled.
     */
-   private boolean fireBeforeUpdate(UpdateEvent<T> evt, UpdateListener<T> ears)
-   {
-      try
-      {
-         return ears.beforeUpdate(evt);
-      }
-      catch (Exception ex)
-      {
-         logger.log(Level.WARNING, "Call to update event listener failed for update [" + evt + "].", ex);
-         return false;
-      }
-   }
-
-   /**
-    * @param evt The event to fire.
-    * @param ears The listener to notify.
-    */
-   private void fireAfterUpdate(UpdateEvent<T> evt, UpdateListener<T> ears)
+   private void fireAfterUpdate(EventType evt, UpdateListener<EventType> ears)
    {
       notifications.submit(() -> {
          try
          {
-            ears.afterUpdate(evt);
+            ears.handle(evt);
          }
          catch (Exception ex)
          {

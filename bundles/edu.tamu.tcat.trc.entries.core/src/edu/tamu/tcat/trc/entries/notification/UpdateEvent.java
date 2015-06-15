@@ -1,38 +1,73 @@
 package edu.tamu.tcat.trc.entries.notification;
 
-import java.util.function.Supplier;
-
-public interface UpdateEvent<T> extends Supplier<T>
+/**
+ * A base event type to be used to notify listeners of TRC entry repositories of
+ * additions, mutations, and deletions. Subtypes are intended to be used to access
+ * details for a repository.
+ */
+public interface UpdateEvent
 {
-   // TODO need to support fine-grained updates for auditing, provenance and to minimize
-   //      impact of concurrent changes.
-
    /**
-    * Possible update action types. Note that this is intended for coarse grained
-    * update notifications only.
+    * The type of action for an {@link UpdateEvent}.
+    * <p>
+    * This set is appropriate as an enum because it is closed. All changes must either
+    * be an addition, removal, or mutation, and there is no expectation of another
+    * category of mutation.
     */
-   public static enum UpdateAction {
+   enum UpdateAction
+   {
       CREATE, UPDATE, DELETE;
    }
 
    /**
-    * @return An identifier for the entity that was updated.
+    * @return The type of change that occurred. Not {@code null}
+    */
+   UpdateAction getUpdateAction();
+
+   /**
+    * Get the canonical identifier for the updated entity. If a deletion, the entity
+    * referenced by the returned value likely is no longer accessible.
+    * <p>
+    * This requires that any entity in the system for which an update event may be
+    * registered also be uniquely identified via this identifier. If granular updates
+    * are made to a larger element, then the event sub-type should have API allowing access
+    * to the sub-elements updated.
+    */
+   /*
+    * The String may represent a UUID or URI, depending on what the repo wants. The
+    * consumer will need to know to interpret it properly, if necessary. However, the event
+    * sub-type will take most of the burden of resolving the entity and its changes from this
+    * API, allowing each repository to specialize and provide API to manage sub-entities
+    * as well as collections.
+    *
+    * Using a URI instead of String:
+    * The URI should not be the same as what is used to reference the element via REST. This
+    * URI is a path understood between the event source and consumer. To allow for changes
+    * to sub-entities, the URI becomes a path relative within the repository to the entity
+    * changed. However, the URI must then be parsed to determine the exact scope of the change
+    * rather than using a subclass API to help determine it. If a subclass is available, just
+    * use it to determine the change scope.
+    * One problem with this approach is management of collections, such as a list or set
+    * of items that are not individually identified, perhaps only by ordinal. If each has
+    * a unique identifier, they may as well use that String as a shorter form.
+    *
+    * Using a UUID instead of String:
+    * Requires each element that can send changes to be uniquely identified, but still
+    * does not solve the problem of set or list ordinal or collection mutations.
+    * Also, the UUID of sub-elements may not be resolved easily within the repository,
+    * creating the burden of maintaining a large UUID to entity index
     */
    String getEntityId();
 
-   /**
-    * @return The type of update that was performed.
-    */
-   UpdateAction getAction();
+//   /**
+//    * Get the account for the instigator of the change. May be a user account or
+//    * internal system account.
+//    */
+//   Object getActor();
 
-   /**
-    * @return A reference to the state of the updated object prior to this update.
-    */
-   T getOriginal();
-
-   /**
-    * @return A reference to the state of the entity immediately following this update.
-    */
-   @Override
-   T get();
+//   /**
+//    * Get the time the change was made. This is useful for logging purposes as well
+//    * as for subsequent changes to be allowed to occur at the "same time".
+//    */
+//   Instant getTimestamp();
 }
