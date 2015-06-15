@@ -122,24 +122,24 @@ public class SolrRelationshipSearchService implements RelationshipSearchIndexMan
       // NOTE: since this is an event listener, it serves as a fault barrier
       try
       {
-         switch (evt.getChangeType())
+         switch (evt.getUpdateAction())
          {
-            case CREATED:
+            case CREATE:
                onCreate(evt.getRelationship());
                break;
-            case MODIFIED:
+            case UPDATE:
                onUpdate(evt.getRelationship());
                break;
-            case DELETED:
-               onDelete(evt.getRelationshipId());
+            case DELETE:
+               onDelete(evt.getEntityId());
                break;
             default:
-               logger.log(Level.INFO, "Unexpected relationship change event [" + evt.getRelationshipId() +"]: " + evt.getChangeType());
+               logger.log(Level.INFO, "Unexpected relationship change event " + evt);
          }
       }
       catch (Exception ex)
       {
-         logger.log(Level.WARNING, "Failed to update search indices following a change to relationship [" + evt.getRelationshipId() +"]: " + evt, ex);
+         logger.log(Level.WARNING, "Failed to update search indices following a change to relationship: " + evt, ex);
       }
    }
 

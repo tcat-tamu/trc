@@ -17,13 +17,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.core.IdFactory;
+import edu.tamu.tcat.trc.entries.notification.BaseUpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.DataUpdateObserverAdapter;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
+import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
+import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipChangeEvent;
-import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipChangeEvent.ChangeType;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipNotAvailableException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipPersistenceException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
@@ -31,12 +33,7 @@ import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 
 public class PsqlRelationshipRepo implements RelationshipRepository
 {
-
    private static final Logger logger = Logger.getLogger(PsqlRelationshipRepo.class.getName());
-
-   public PsqlRelationshipRepo()
-   {
-   }
 
    private static final String ID_CONTEXT = "relationships";
    private SqlExecutor exec;
@@ -47,7 +44,6 @@ public class PsqlRelationshipRepo implements RelationshipRepository
    private ExecutorService notifications;
 
    private final CopyOnWriteArrayList<Consumer<RelationshipChangeEvent>> listeners = new CopyOnWriteArrayList<>();
-
 
    public void setDatabaseExecutor(SqlExecutor exec)
    {
@@ -139,7 +135,7 @@ public class PsqlRelationshipRepo implements RelationshipRepository
       command.setCommitHook((r) -> {
          PsqlCreateRelationshipTask task = new PsqlCreateRelationshipTask(r, mapper);
 
-         WorkChangeNotifier<String> workChangeNotifier = new WorkChangeNotifier<>(r.id, ChangeType.CREATED);
+         RelnChangeNotifier<String> workChangeNotifier = new RelnChangeNotifier<>(r.id, UpdateEvent.UpdateAction.CREATE);
          ObservableTaskWrapper<String> wrappedTask = new ObservableTaskWrapper<String>(task, workChangeNotifier);
 
          Future<String> future = exec.submit(wrappedTask);
@@ -155,7 +151,7 @@ public class PsqlRelationshipRepo implements RelationshipRepository
       command.setCommitHook((r) -> {
          PsqlUpdateRelationshipTask task = new PsqlUpdateRelationshipTask(r, mapper);
 
-         WorkChangeNotifier<String> workChangeNotifier = new WorkChangeNotifier<>(id, ChangeType.MODIFIED);
+         RelnChangeNotifier<String> workChangeNotifier = new RelnChangeNotifier<>(id, UpdateEvent.UpdateAction.UPDATE);
          ObservableTaskWrapper<String> wrappedTask = new ObservableTaskWrapper<String>(task, workChangeNotifier);
 
          Future<String> future = exec.submit(wrappedTask);
@@ -168,13 +164,13 @@ public class PsqlRelationshipRepo implements RelationshipRepository
    public void delete(String id) throws RelationshipNotAvailableException, RelationshipPersistenceException
    {
       PsqlDeleteRelationshipTask deleteTask = new PsqlDeleteRelationshipTask(id);
-      WorkChangeNotifier<Void> workChangeNotifier = new WorkChangeNotifier<>(id, ChangeType.DELETED);
+      RelnChangeNotifier<Void> workChangeNotifier = new RelnChangeNotifier<>(id, UpdateEvent.UpdateAction.DELETE);
       ObservableTaskWrapper<Void> wrappedTask = new ObservableTaskWrapper<>(deleteTask, workChangeNotifier);
 
       exec.submit(wrappedTask);
    }
 
-   private void notifyRelationshipUpdate(ChangeType type, String relnId)
+   private void notifyRelationshipUpdate(UpdateEvent.UpdateAction type, String relnId)
    {
       RelationshipChangeEventImpl evt = new RelationshipChangeEventImpl(type, relnId);
       listeners.forEach(ears -> {
@@ -195,12 +191,12 @@ public class PsqlRelationshipRepo implements RelationshipRepository
       return () -> listeners.remove(ears);
    }
 
-   private final class WorkChangeNotifier<ResultType> extends DataUpdateObserverAdapter<ResultType>
+   private final class RelnChangeNotifier<ResultType> extends DataUpdateObserverAdapter<ResultType>
    {
       private final String id;
-      private final ChangeType type;
+      private final UpdateEvent.UpdateAction type;
 
-      public WorkChangeNotifier(String id, ChangeType type)
+      public RelnChangeNotifier(String id, UpdateEvent.UpdateAction type)
       {
          this.id = id;
          this.type = type;
@@ -214,47 +210,30 @@ public class PsqlRelationshipRepo implements RelationshipRepository
       }
    }
 
-   private class RelationshipChangeEventImpl implements RelationshipChangeEvent
+   private class RelationshipChangeEventImpl extends BaseUpdateEvent implements RelationshipChangeEvent
    {
-      private final ChangeType type;
-      private final String id;
-
-      public RelationshipChangeEventImpl(ChangeType type, String id)
+      public RelationshipChangeEventImpl(UpdateEvent.UpdateAction type, String id)
       {
-         this.type = type;
-         this.id = id;
+         super(id, type);
       }
 
       @Override
-      public ChangeType getChangeType()
-      {
-         return type;
-      }
-
-      @Override
-      public String getRelationshipId()
-      {
-         return id;
-      }
-
-      @Override
-      public Relationship getRelationship() throws RelationshipNotAvailableException
+      public Relationship getRelationship() throws CatalogRepoException
       {
          try
          {
             return get(id);
          }
-         catch (RelationshipPersistenceException e)
+         catch (Exception e)
          {
-            throw new RelationshipNotAvailableException("Internal error failed to retrieve relationship [" + id + "].", e);
+            throw new CatalogRepoException("Failed to retrieve relationship [" + id + "].", e);
          }
       }
 
       @Override
       public String toString()
       {
-         return "Relationship Change Event: action = " + type + "; id = " + id;
+         return "Relationship Change " + super.toString();
       }
    }
-
 }
