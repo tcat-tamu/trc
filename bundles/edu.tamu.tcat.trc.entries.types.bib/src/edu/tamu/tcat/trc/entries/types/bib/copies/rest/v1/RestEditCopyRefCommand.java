@@ -10,13 +10,14 @@ import edu.tamu.tcat.trc.entries.types.bib.copies.UpdateCanceledException;
 import edu.tamu.tcat.trc.entries.types.bib.copies.dto.BaseEditCopyRefCmd;
 import edu.tamu.tcat.trc.entries.types.bib.copies.dto.CopyRefDTO;
 import edu.tamu.tcat.trc.entries.types.bib.copies.postgres.PsqlDigitalCopyLinkRepo.UpdateEventFactory;
+import edu.tamu.tcat.trc.entries.types.bib.copies.repo.CopyChangeEvent;
 
 public class RestEditCopyRefCommand extends BaseEditCopyRefCmd
 {
 
    private final CopyReference original;
    private final AtomicBoolean executed = new AtomicBoolean(false);
-   private EntryUpdateHelper<CopyReference> notifier;
+   private EntryUpdateHelper<CopyChangeEvent> notifier;
 
    /**
     * Edit an existing copy.
@@ -27,7 +28,7 @@ public class RestEditCopyRefCommand extends BaseEditCopyRefCmd
     * @param dto
     */
    public RestEditCopyRefCommand(SqlExecutor sqlExecutor,
-                                 EntryUpdateHelper<CopyReference> notifier,
+                                 EntryUpdateHelper<CopyChangeEvent> notifier,
                                  UpdateEventFactory factory,
                                  CopyRefDTO dto)
    {

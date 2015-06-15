@@ -1,10 +1,10 @@
-package edu.tamu.tcat.trc.entries.types.bib.repo;
+package edu.tamu.tcat.trc.entries.types.bib.copies.repo;
 
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
-import edu.tamu.tcat.trc.entries.types.bib.Work;
+import edu.tamu.tcat.trc.entries.types.bib.copies.CopyReference;
 
-public interface WorkChangeEvent extends UpdateEvent
+public interface CopyChangeEvent extends UpdateEvent
 {
    /**
     * Retrieves the element that was changed. Implementations should attempt to return
@@ -18,5 +18,7 @@ public interface WorkChangeEvent extends UpdateEvent
    /*
     * See the note on RelationshipChangeEvent
     */
-   Work getWork() throws CatalogRepoException;
+   CopyReference get() throws CatalogRepoException;
+
+   CopyReference getOriginal() throws CatalogRepoException;
 }

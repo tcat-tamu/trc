@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
-import edu.tamu.tcat.trc.entries.notification.BasicUpdateEvent;
+import edu.tamu.tcat.trc.entries.notification.BaseUpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.DataUpdateObserverAdapter;
 import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
@@ -31,6 +31,7 @@ import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bib.copies.CopyReference;
 import edu.tamu.tcat.trc.entries.types.bib.copies.dto.CopyRefDTO;
+import edu.tamu.tcat.trc.entries.types.bib.copies.repo.CopyChangeEvent;
 import edu.tamu.tcat.trc.entries.types.bib.copies.repo.CopyReferenceException;
 import edu.tamu.tcat.trc.entries.types.bib.copies.repo.CopyReferenceRepository;
 import edu.tamu.tcat.trc.entries.types.bib.copies.repo.EditCopyReferenceCommand;
@@ -62,7 +63,7 @@ public class PsqlDigitalCopyLinkRepo implements CopyReferenceRepository
 
    private SqlExecutor exec;
 
-   private EntryUpdateHelper<CopyReference> listeners;
+   private EntryUpdateHelper<CopyChangeEvent> listeners;
 
    private ObjectMapper mapper;
 
@@ -154,12 +155,10 @@ public class PsqlDigitalCopyLinkRepo implements CopyReferenceRepository
    public Future<Boolean> remove(UUID id) throws CopyReferenceException
    {
       UpdateEventFactory factory = new UpdateEventFactory();
-      UpdateEvent<CopyReference> evt = factory.makeDeleteEvent(id);
-
-      boolean shouldExecute = listeners.before(evt);
+      CopyChangeEvent evt = factory.delete(id);
 
       return exec.submit(new ObservableTaskWrapper<Boolean>(
-            makeRemoveTask(id, shouldExecute),
+            makeRemoveTask(id),
             new DataUpdateObserverAdapter<Boolean>()
             {
                @Override
@@ -170,12 +169,9 @@ public class PsqlDigitalCopyLinkRepo implements CopyReferenceRepository
             }));
    }
 
-   private SqlExecutor.ExecutorTask<Boolean> makeRemoveTask(UUID id, boolean shouldExecute)
+   private SqlExecutor.ExecutorTask<Boolean> makeRemoveTask(UUID id)
    {
       return (conn) -> {
-         if (!shouldExecute)
-            return Boolean.valueOf(false);
-
          try (PreparedStatement ps = conn.prepareStatement(REMOVE_SQL))
          {
             ps.setString(1, id.toString());
@@ -195,36 +191,61 @@ public class PsqlDigitalCopyLinkRepo implements CopyReferenceRepository
       };
    }
 
+   private static class CopyChangeEventImpl extends BaseUpdateEvent implements CopyChangeEvent
+   {
+      private final CopyReference old;
+      private final CopyReference updated;
+
+      public CopyChangeEventImpl(String id, UpdateEvent.UpdateAction type, CopyReference old, CopyReference updated)
+      {
+         super(id, type);
+         this.old = old;
+         this.updated = updated;
+      }
+
+      @Override
+      public CopyReference get()
+      {
+         return updated;
+      }
+
+      @Override
+      public CopyReference getOriginal()
+      {
+         return old;
+      }
+   }
+
    public class UpdateEventFactory
    {
-      public UpdateEvent<CopyReference> create(CopyReference newRef)
+      public CopyChangeEvent create(CopyReference newRef)
       {
-         return new BasicUpdateEvent<>(newRef.getId().toString(),
-                                       UpdateAction.CREATE,
-                                       () -> null,
-                                       () -> newRef);
+         return new CopyChangeEventImpl(newRef.getId().toString(),
+                                        UpdateAction.CREATE,
+                                        null,
+                                        newRef);
       }
 
-      public UpdateEvent<CopyReference> edit(CopyReference orig, CopyReference updated)
+      public CopyChangeEvent edit(CopyReference orig, CopyReference updated)
       {
-         return new BasicUpdateEvent<>(updated.getId().toString(),
-               UpdateAction.UPDATE,
-               () -> orig,
-               () -> updated);
+         return new CopyChangeEventImpl(updated.getId().toString(),
+                                        UpdateAction.UPDATE,
+                                        orig,
+                                        updated);
       }
 
-      public UpdateEvent<CopyReference> makeDeleteEvent(UUID id)
+      public CopyChangeEvent delete(UUID id)
       {
-         return new BasicUpdateEvent<>(id.toString(),
-               UpdateAction.DELETE,
-               () -> {
-                  try {
-                     return CopyRefDTO.instantiate(getCopyDTO(GET_ANY_SQL, id));
-                  } catch (Exception ex) {
-                     return null;
-                  }
-               },
-               () -> null);
+         CopyReference old = null;
+         try {
+            old = CopyRefDTO.instantiate(getCopyDTO(GET_ANY_SQL, id));
+         } catch (Exception e) {
+            logger.log(Level.WARNING, "Failed accessing old value for deleted copy", e);
+         }
+         return new CopyChangeEventImpl(id.toString(),
+                                        UpdateAction.DELETE,
+                                        old,
+                                        null);
       }
    }
 
@@ -297,9 +318,9 @@ public class PsqlDigitalCopyLinkRepo implements CopyReferenceRepository
          throw new IllegalStateException("Failed to retrive copy reference [" + id + "]. ", e);
       }
    }
-   
+
    @Override
-   public AutoCloseable register(UpdateListener<CopyReference> ears)
+   public AutoCloseable register(UpdateListener<CopyChangeEvent> ears)
    {
       Objects.requireNonNull(listeners, "Update registration is not available at this time.");
       return listeners.register(ears);

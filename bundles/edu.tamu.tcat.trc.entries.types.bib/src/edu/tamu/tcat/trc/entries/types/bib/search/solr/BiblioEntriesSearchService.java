@@ -22,14 +22,13 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
+import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.search.SearchException;
 import edu.tamu.tcat.trc.entries.search.solr.impl.TrcQueryBuilder;
 import edu.tamu.tcat.trc.entries.types.bib.Edition;
 import edu.tamu.tcat.trc.entries.types.bib.Volume;
 import edu.tamu.tcat.trc.entries.types.bib.Work;
 import edu.tamu.tcat.trc.entries.types.bib.repo.WorkChangeEvent;
-import edu.tamu.tcat.trc.entries.types.bib.repo.WorkChangeEvent.ChangeType;
-import edu.tamu.tcat.trc.entries.types.bib.repo.WorkNotAvailableException;
 import edu.tamu.tcat.trc.entries.types.bib.repo.WorkRepository;
 import edu.tamu.tcat.trc.entries.types.bib.search.WorkQueryCommand;
 import edu.tamu.tcat.trc.entries.types.bib.search.WorkSearchService;
@@ -78,10 +77,10 @@ public class BiblioEntriesSearchService implements WorkSearchService
 
       // configure handlers
       EntryChangeHandlers<WorkChangeEvent> updateHandlers = new EntryChangeHandlers<WorkChangeEvent>();
-      updateHandlers.register(WorkChangeEvent.ChangeType.CREATED, this::onCreate);
-      updateHandlers.register(WorkChangeEvent.ChangeType.MODIFIED, this::onWorkUpdate);
-      updateHandlers.register(WorkChangeEvent.ChangeType.DELETED, this::onDelete);
-      registration = repo.addAfterUpdateListener(updateHandlers::handle);
+      updateHandlers.register(UpdateEvent.UpdateAction.CREATE, this::onCreate);
+      updateHandlers.register(UpdateEvent.UpdateAction.UPDATE, this::onWorkUpdate);
+      updateHandlers.register(UpdateEvent.UpdateAction.DELETE, this::onDelete);
+      registration = repo.addUpdateListener(updateHandlers::handle);
 
       // construct Solr core
       URI solrBaseUri = config.getPropertyValue(SOLR_API_ENDPOINT, URI.class);
@@ -188,11 +187,11 @@ public class BiblioEntriesSearchService implements WorkSearchService
       Work work;
       try
       {
-         work = evt.getWorkEvt();
+         work = evt.getWork();
       }
-      catch (WorkNotAvailableException ex)
+      catch (Exception ex)
       {
-
+         logger.log(Level.WARNING, "Failed accessing work after create " + evt, ex);
          return null;
       }
 
@@ -245,7 +244,7 @@ public class BiblioEntriesSearchService implements WorkSearchService
 
    private Void onDelete(WorkChangeEvent workEvt)
    {
-      String id = workEvt.getWorkId();
+      String id = workEvt.getEntityId();
       try
       {
          solr.deleteById(id);
@@ -268,16 +267,16 @@ public class BiblioEntriesSearchService implements WorkSearchService
    private static class EntryChangeHandlers<EVENT extends WorkChangeEvent>
    {
       // TODO to make this more general purpose, change to ChangeEvent.
-      Map<WorkChangeEvent.ChangeType, Function<EVENT, Void>> changeHandlers = new HashMap<>();
+      Map<UpdateEvent.UpdateAction, Function<EVENT, Void>> changeHandlers = new HashMap<>();
 
-      public void register(WorkChangeEvent.ChangeType type, Function<EVENT, Void> handler)
+      public void register(UpdateEvent.UpdateAction type, Function<EVENT, Void> handler)
       {
          changeHandlers.put(type, handler);
       }
 
       public synchronized void handle(EVENT event)
       {
-         ChangeType type = event.getChangeType();
+         UpdateEvent.UpdateAction type = event.getUpdateAction();
          Function<EVENT, Void> handler = changeHandlers.get(type);
          if (handler == null)
          {
@@ -291,7 +290,7 @@ public class BiblioEntriesSearchService implements WorkSearchService
          }
          catch (Exception ex)
          {
-            logger.log(Level.SEVERE, "Failed to handle " + type + " event for [" + event.getWorkId() + "] ", ex);
+            logger.log(Level.SEVERE, "Failed to handle event " + event, ex);
          }
       }
    }

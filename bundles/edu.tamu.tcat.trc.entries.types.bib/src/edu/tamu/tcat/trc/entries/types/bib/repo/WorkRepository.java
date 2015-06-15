@@ -96,12 +96,8 @@ public interface WorkRepository
 
    void delete(String id);
 
-   @Deprecated
-   AutoCloseable addBeforeUpdateListener(Consumer<WorkChangeEvent> ears);
+   AutoCloseable addUpdateListener(Consumer<WorkChangeEvent> ears);
 
-   @Deprecated
-   AutoCloseable addAfterUpdateListener(Consumer<WorkChangeEvent> ears);
-//
 //   @Deprecated // use the EditWorkCommand methods
 //   void create(WorkDV work, DataUpdateObserver<String> observer);
 //

@@ -15,12 +15,12 @@ import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.notification.DataUpdateObserverAdapter;
 import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
-import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.types.bib.copies.CopyReference;
 import edu.tamu.tcat.trc.entries.types.bib.copies.UpdateCanceledException;
 import edu.tamu.tcat.trc.entries.types.bib.copies.dto.BaseEditCopyRefCmd;
 import edu.tamu.tcat.trc.entries.types.bib.copies.dto.CopyRefDTO;
 import edu.tamu.tcat.trc.entries.types.bib.copies.postgres.PsqlDigitalCopyLinkRepo.UpdateEventFactory;
+import edu.tamu.tcat.trc.entries.types.bib.copies.repo.CopyChangeEvent;
 import edu.tamu.tcat.trc.entries.types.bib.copies.repo.EditCopyReferenceCommand;
 
 public class EditCopyRefCmdImpl extends BaseEditCopyRefCmd implements EditCopyReferenceCommand
@@ -36,13 +36,13 @@ public class EditCopyRefCmdImpl extends BaseEditCopyRefCmd implements EditCopyRe
 
 
    private final SqlExecutor sqlExecutor;
-   private final EntryUpdateHelper<CopyReference> notifier;
+   private final EntryUpdateHelper<CopyChangeEvent> notifier;
    private final UpdateEventFactory factory;
 
    private final AtomicBoolean executed = new AtomicBoolean(false);
 
    public EditCopyRefCmdImpl(SqlExecutor sqlExecutor,
-                             EntryUpdateHelper<CopyReference> notifier,
+                             EntryUpdateHelper<CopyChangeEvent> notifier,
                              UpdateEventFactory factory,
                              CopyRefDTO dto)
    {
@@ -54,7 +54,7 @@ public class EditCopyRefCmdImpl extends BaseEditCopyRefCmd implements EditCopyRe
    }
 
    public EditCopyRefCmdImpl(SqlExecutor sqlExecutor,
-                             EntryUpdateHelper<CopyReference> notifier,
+                             EntryUpdateHelper<CopyChangeEvent> notifier,
                              UpdateEventFactory factory)
    {
       super();
@@ -71,9 +71,7 @@ public class EditCopyRefCmdImpl extends BaseEditCopyRefCmd implements EditCopyRe
       if (!executed.compareAndSet(false, true))
          throw new IllegalStateException("This edit copy command has already been invoked.");
 
-      UpdateEvent<CopyReference> evt = constructEvent();
-      if (!notifier.before(evt))
-         throw new UpdateCanceledException();
+      CopyChangeEvent evt = constructEvent();
 
       String sql = isNew() ? CREATE_SQL : UPDATE_SQL;
       if (dto.id == null)
@@ -90,10 +88,10 @@ public class EditCopyRefCmdImpl extends BaseEditCopyRefCmd implements EditCopyRe
             }));
    }
 
-   private UpdateEvent<CopyReference> constructEvent()
+   private CopyChangeEvent constructEvent()
    {
       CopyReference updated = CopyRefDTO.instantiate(dto);
-      UpdateEvent<CopyReference> evt = isNew()
+      CopyChangeEvent evt = isNew()
             ? factory.create(updated)
             : factory.edit(original, updated);
       return evt;

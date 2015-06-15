@@ -25,8 +25,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor.ExecutorTask;
 import edu.tamu.tcat.trc.entries.core.IdFactory;
+import edu.tamu.tcat.trc.entries.notification.BaseUpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.DataUpdateObserverAdapter;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
+import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
+import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bib.AuthorReference;
 import edu.tamu.tcat.trc.entries.types.bib.Edition;
@@ -36,10 +39,8 @@ import edu.tamu.tcat.trc.entries.types.bib.Work;
 import edu.tamu.tcat.trc.entries.types.bib.dto.EditionDV;
 import edu.tamu.tcat.trc.entries.types.bib.dto.WorkDV;
 import edu.tamu.tcat.trc.entries.types.bib.repo.EditWorkCommand;
-import edu.tamu.tcat.trc.entries.types.bib.repo.WorkRepository;
 import edu.tamu.tcat.trc.entries.types.bib.repo.WorkChangeEvent;
-import edu.tamu.tcat.trc.entries.types.bib.repo.WorkNotAvailableException;
-import edu.tamu.tcat.trc.entries.types.bib.repo.WorkChangeEvent.ChangeType;
+import edu.tamu.tcat.trc.entries.types.bib.repo.WorkRepository;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
 
@@ -56,7 +57,7 @@ public class PsqlWorkRepo implements WorkRepository
 
    public static final String WORK_CONTEXT = "works";
 
-   private final WorkUpdateNotifier deleteNotifier = new WorkUpdateNotifier(ChangeType.DELETED);
+   private final WorkUpdateNotifier deleteNotifier = new WorkUpdateNotifier(UpdateEvent.UpdateAction.DELETE);
 
    private SqlExecutor exec;
    private ObjectMapper mapper;
@@ -252,7 +253,7 @@ public class PsqlWorkRepo implements WorkRepository
       WorkDV work = new WorkDV();
       work.id = id;
       EditWorkCommandImpl command = new EditWorkCommandImpl(work, idFactory);
-      command.setCommitHook(dto -> updateWork(dto, ChangeType.CREATED));
+      command.setCommitHook(dto -> updateWork(dto, UpdateEvent.UpdateAction.CREATE));
       return command;
    }
 
@@ -261,11 +262,11 @@ public class PsqlWorkRepo implements WorkRepository
    {
       Work work = getWork(id);
       EditWorkCommandImpl command = new EditWorkCommandImpl(WorkDV.create(work), idFactory);
-      command.setCommitHook(dto -> updateWork(dto, ChangeType.MODIFIED));
+      command.setCommitHook(dto -> updateWork(dto, UpdateEvent.UpdateAction.UPDATE));
       return command;
    }
 
-   public Future<String> updateWork(WorkDV workDv, ChangeType changeType)
+   public Future<String> updateWork(WorkDV workDv, UpdateEvent.UpdateAction changeType)
    {
       String sql = getUpdateSql(changeType);
 
@@ -282,9 +283,6 @@ public class PsqlWorkRepo implements WorkRepository
       }
       catch (Exception e)
       {
-         if (e instanceof RuntimeException)
-            throw (RuntimeException)e;
-
          throw new IllegalStateException("Failed to update work [" + workDv.id + "]", e);
       }
    }
@@ -296,15 +294,15 @@ public class PsqlWorkRepo implements WorkRepository
       exec.submit(new ObservableTaskWrapper<String>(task, deleteNotifier));
    }
 
-   private String getUpdateSql(ChangeType changeType)
+   private String getUpdateSql(UpdateEvent.UpdateAction changeType)
    {
       String sql;
       switch (changeType)
       {
-         case MODIFIED:
+         case UPDATE:
             sql = UPDATE_WORK_SQL;
             break;
-         case CREATED:
+         case CREATE:
             sql = CREATE_WORK_SQL;
             break;
          default:
@@ -420,7 +418,7 @@ public class PsqlWorkRepo implements WorkRepository
       };
    }
 
-   private void notifyRelationshipUpdate(ChangeType type, String relnId)
+   private void notifyUpdate(UpdateEvent.UpdateAction type, String relnId)
    {
       WorksChangeEventImpl evt = new WorksChangeEventImpl(type, relnId);
       listeners.forEach(ears -> {
@@ -435,67 +433,44 @@ public class PsqlWorkRepo implements WorkRepository
    }
 
    @Override
-   public AutoCloseable addBeforeUpdateListener(Consumer<WorkChangeEvent> ears)
-   {
-      throw new UnsupportedOperationException("not impl");
-   }
-
-   @Override
-   public AutoCloseable addAfterUpdateListener(Consumer<WorkChangeEvent> ears)
+   public AutoCloseable addUpdateListener(Consumer<WorkChangeEvent> ears)
    {
       listeners.add(ears);
       return () -> listeners.remove(ears);
    }
 
-   private class WorksChangeEventImpl implements WorkChangeEvent
+   private class WorksChangeEventImpl extends BaseUpdateEvent implements WorkChangeEvent
    {
-      private final ChangeType type;
-      private final String id;
-
-      public WorksChangeEventImpl(ChangeType type, String id)
+      public WorksChangeEventImpl(UpdateEvent.UpdateAction type, String id)
       {
-         this.type = type;
-         this.id = id;
+         super(id, type);
       }
 
       @Override
-      public ChangeType getChangeType()
-      {
-         return type;
-      }
-
-      @Override
-      public String getWorkId()
-      {
-         return id;
-      }
-
-      @Override
-      public Work getWorkEvt() throws WorkNotAvailableException
+      public Work getWork() throws CatalogRepoException
       {
          try
          {
-            return getWork(id);
+            return PsqlWorkRepo.this.getWork(id);
          }
          catch (NoSuchCatalogRecordException e)
          {
-            throw new WorkNotAvailableException("Internal error occured while retrieving work [" + id + "]");
+            throw new CatalogRepoException("Failed retrieving work [" + id + "]", e);
          }
       }
 
       @Override
       public String toString()
       {
-         return "Relationship Change Event: action = " + type + "; id = " + id;
+         return "Work Change Event " + super.toString();
       }
-
    }
 
    private final class WorkUpdateNotifier extends DataUpdateObserverAdapter<String>
    {
-      private final ChangeType type;
+      private final UpdateEvent.UpdateAction type;
 
-      public WorkUpdateNotifier(ChangeType type)
+      public WorkUpdateNotifier(UpdateEvent.UpdateAction type)
       {
          this.type = type;
       }
@@ -503,7 +478,7 @@ public class PsqlWorkRepo implements WorkRepository
       @Override
       public void onFinish(String id)
       {
-         notifyRelationshipUpdate(type, id);
+         notifyUpdate(type, id);
       }
    }
 

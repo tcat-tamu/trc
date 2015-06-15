@@ -62,5 +62,5 @@ public interface CopyReferenceRepository
     */
    Future<Boolean> remove(UUID id) throws CopyReferenceException;
 
-   AutoCloseable register(UpdateListener<CopyReference> ears);
+   AutoCloseable register(UpdateListener<CopyChangeEvent> ears);
 }

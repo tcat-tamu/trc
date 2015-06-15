@@ -13,9 +13,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
+import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bib.copies.CopyReference;
+import edu.tamu.tcat.trc.entries.types.bib.copies.repo.CopyChangeEvent;
 import edu.tamu.tcat.trc.entries.types.bib.copies.repo.CopyReferenceException;
 import edu.tamu.tcat.trc.entries.types.bib.copies.repo.CopyReferenceRepository;
 import edu.tamu.tcat.trc.entries.types.bib.copies.repo.EditCopyReferenceCommand;
@@ -25,7 +27,7 @@ public class BibCopiesRestClientRepo implements CopyReferenceRepository
    private final static String HACK_HARD_CODED_API_ENDPOINT = "https://neal.citd.tamu.edu/sda/api/catalog/copies/";
 
    private static final Logger logger = Logger.getLogger(BibCopiesRestClientRepo.class.getName());
-   private EntryUpdateHelper<Object> listeners;
+   private EntryUpdateHelper<UpdateEvent> listeners;
    private ObjectMapper mapper;
 //   private CloseableHttpClient httpclient;
 
@@ -93,7 +95,7 @@ public class BibCopiesRestClientRepo implements CopyReferenceRepository
    }
 
    @Override
-   public AutoCloseable register(UpdateListener<CopyReference> ears)
+   public AutoCloseable register(UpdateListener<CopyChangeEvent> ears)
    {
       // TODO Auto-generated method stub
       return null;

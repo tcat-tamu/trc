@@ -119,14 +119,7 @@ public class MockWorkRepository implements WorkRepository
    }
 
    @Override
-   public AutoCloseable addBeforeUpdateListener(Consumer<WorkChangeEvent> ears)
-   {
-      // TODO Auto-generated method stub
-      return null;
-   }
-
-   @Override
-   public AutoCloseable addAfterUpdateListener(Consumer<WorkChangeEvent> ears)
+   public AutoCloseable addUpdateListener(Consumer<WorkChangeEvent> ears)
    {
       // TODO Auto-generated method stub
       return null;
