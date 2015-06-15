@@ -24,8 +24,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.core.IdFactory;
+import edu.tamu.tcat.trc.entries.notification.BaseUpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.DataUpdateObserverAdapter;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
+import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.repo.ExecutionFailedException;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
@@ -35,7 +37,6 @@ import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonChangeEvent;
-import edu.tamu.tcat.trc.entries.types.bio.repo.PersonChangeEvent.ChangeType;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNotAvailableException;
 
 /**
@@ -232,7 +233,7 @@ public class PsqlPeopleRepo implements PeopleRepository
 
       EditPeopleCommandImpl command = new EditPeopleCommandImpl(dto);
       command.setCommitHook((p) -> {
-         PeopleChangeNotifier createdNotifier = new PeopleChangeNotifier(ChangeType.CREATED);
+         PeopleChangeNotifier createdNotifier = new PeopleChangeNotifier(UpdateEvent.UpdateAction.CREATE);
          ObservableTaskWrapper<String> wrappedTask = new ObservableTaskWrapper<String>(makeCreateTask(p), createdNotifier);
 
          return exec.submit(wrappedTask);
@@ -247,7 +248,7 @@ public class PsqlPeopleRepo implements PeopleRepository
       PersonDTO dto = PersonDTO.create(get(personId));
       EditPeopleCommandImpl command = new EditPeopleCommandImpl(dto);
       command.setCommitHook((p) -> {
-         PeopleChangeNotifier modifiedNotifier = new PeopleChangeNotifier(ChangeType.MODIFIED);
+         PeopleChangeNotifier modifiedNotifier = new PeopleChangeNotifier(UpdateEvent.UpdateAction.UPDATE);
          ObservableTaskWrapper<String> wrappedTask = new ObservableTaskWrapper<String>(makeUpdateTask(p), modifiedNotifier);
 
          return exec.submit(wrappedTask);
@@ -263,7 +264,7 @@ public class PsqlPeopleRepo implements PeopleRepository
       PersonDTO dto = PersonDTO.create(get(personId));
       EditPeopleCommandImpl command = new EditPeopleCommandImpl(dto);
       command.setCommitHook((p) -> {
-         PeopleChangeNotifier deletedNotifier = new PeopleChangeNotifier(ChangeType.DELETED);
+         PeopleChangeNotifier deletedNotifier = new PeopleChangeNotifier(UpdateEvent.UpdateAction.DELETE);
          ObservableTaskWrapper<String> wrappedTask = new ObservableTaskWrapper<String>(makeDeleteTask(personId), deletedNotifier);
 
          return exec.submit(wrappedTask);
@@ -369,7 +370,7 @@ public class PsqlPeopleRepo implements PeopleRepository
       }
    }
 
-   private void notifyPersonUpdate(ChangeType type, String id)
+   private void notifyPersonUpdate(UpdateEvent.UpdateAction type, String id)
    {
       PeopleChangeEventImpl evt = new PeopleChangeEventImpl(type, id);
       listeners.forEach(ears -> {
@@ -392,27 +393,11 @@ public class PsqlPeopleRepo implements PeopleRepository
       return () -> listeners.remove(ears);
    }
 
-   private class PeopleChangeEventImpl implements PersonChangeEvent
+   private class PeopleChangeEventImpl extends BaseUpdateEvent implements PersonChangeEvent
    {
-      private final ChangeType type;
-      private final String id;
-
-      public PeopleChangeEventImpl(ChangeType type, String id)
+      public PeopleChangeEventImpl(UpdateEvent.UpdateAction type, String id)
       {
-         this.type = type;
-         this.id = id;
-      }
-
-      @Override
-      public ChangeType getChangeType()
-      {
-         return type;
-      }
-
-      @Override
-      public String getPersonId()
-      {
-         return id;
+         super(id, type);
       }
 
       @Override
@@ -422,19 +407,18 @@ public class PsqlPeopleRepo implements PeopleRepository
          {
             return get(id);
          }
-         catch (NoSuchCatalogRecordException e)
+         catch (Exception e)
          {
-            throw new PersonNotAvailableException("Internal error attempting to retrieve person [" + id + "]");
+            throw new PersonNotAvailableException("Failed to retrieve person [" + id + "]", e);
          }
       }
-
    }
 
    private final class PeopleChangeNotifier extends DataUpdateObserverAdapter<String>
    {
-      private final ChangeType type;
+      private final UpdateEvent.UpdateAction type;
 
-      public PeopleChangeNotifier(ChangeType type)
+      public PeopleChangeNotifier(UpdateEvent.UpdateAction type)
       {
          this.type = type;
       }

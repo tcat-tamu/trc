@@ -25,8 +25,6 @@ import edu.tamu.tcat.trc.entries.types.bio.search.PeopleSearchService;
 
 public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleSearchService
 {
-
-
    private final static Logger logger = Logger.getLogger(PeopleIndexingService.class.getName());
 
    /** Configuration property key that defines the URI for the Solr server. */
@@ -121,25 +119,24 @@ public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleS
    {
       try
       {
-         switch(evt.getChangeType())
+         switch(evt.getUpdateAction())
          {
-            case CREATED:
+            case CREATE:
                onCreate(evt.getPerson());
                break;
-            case MODIFIED:
+            case UPDATE:
                onUpdate(evt.getPerson());
                break;
-            case DELETED:
+            case DELETE:
                onDelete(evt.getPerson());
                break;
             default:
-               logger.log(Level.INFO, "Unexpected work change event [" + evt.getPersonId() +"]: " + evt.getChangeType());
+               logger.log(Level.INFO, "Unexpected change event " + evt);
          }
-
       }
       catch(Exception e)
       {
-         logger.log(Level.WARNING, "Failed to update search indices following a change to work [" + evt.getPersonId() +"]: " + evt, e);
+         logger.log(Level.WARNING, "Failed to update search indices following a change " + evt, e);
       }
    }
 
