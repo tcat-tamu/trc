@@ -15,9 +15,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
+import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
-import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipNotAvailableException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipPersistenceException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchService;
@@ -57,16 +57,16 @@ public class RelationshipResource
          Relationship reln = repo.get(id);
          return RepoAdapter.toDTO(reln);
       }
-      catch (RelationshipNotAvailableException nae)
-      {
-         String msg = "Relationship does not exist [relationship/" + id + "]";
-         logger.info(msg);
-         throw new NotFoundException(msg);
-      }
       catch (RelationshipPersistenceException perEx)
       {
          logger.log(Level.SEVERE, "Data access error trying to retrieve relationship [relationship/" + id + "]", perEx);
          throw new InternalServerErrorException("Failed to retrive relationship [relationship/" + id + "]");
+      }
+      catch (CatalogRepoException nae)
+      {
+         String msg = "Relationship not found [relationship/" + id + "]";
+         logger.info(msg);
+         throw new NotFoundException(msg);
       }
    }
 
@@ -110,7 +110,7 @@ public class RelationshipResource
    }
 
    @DELETE
-   public void remove(@PathParam(value = "id") String id) throws RelationshipNotAvailableException, RelationshipPersistenceException
+   public void remove(@PathParam(value = "id") String id) throws CatalogRepoException
    {
       repo.delete(id);
    }

@@ -1,11 +1,12 @@
 package edu.tamu.tcat.trc.entries.types.reln.repo;
 
+import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
+
 /**
  * Indicates that an attempt to access the underlying persistence layer failed for some reason.
  */
-public class RelationshipPersistenceException extends Exception
+public class RelationshipPersistenceException extends CatalogRepoException
 {
-
    public RelationshipPersistenceException()
    {
    }

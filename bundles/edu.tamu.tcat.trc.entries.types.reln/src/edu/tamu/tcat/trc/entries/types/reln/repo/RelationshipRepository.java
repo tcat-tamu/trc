@@ -2,6 +2,7 @@ package edu.tamu.tcat.trc.entries.types.reln.repo;
 
 import java.util.function.Consumer;
 
+import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 
 
@@ -25,10 +26,9 @@ public interface RelationshipRepository
     * @param id The id of the relationship to retrieve.
     * @return The relationship with the provided id.
     *
-    * @throws RelationshipNotAvailableException If there is no relationship with the supplied id.
-    * @throws RelationshipPersistenceException If there are errors accessing the persistence layer.
+    * @throws CatalogRepoException If there is no relationship with the supplied id or there are errors accessing the persistence layer.
     */
-   Relationship get(String id) throws RelationshipNotAvailableException, RelationshipPersistenceException;
+   Relationship get(String id) throws CatalogRepoException;
 
    // Relationship get(URI relnUri);
 
@@ -37,10 +37,10 @@ public interface RelationshipRepository
     *
     *  @return An {@link EditRelationshipCommand} for use in updating the properties
     *       of the relationship to be created.
-    *  @throws RelationshipPersistenceException If a new command instance could not be
+    *  @throws CatalogRepoException If a new command instance could not be
     *       created.
     */
-   EditRelationshipCommand create() throws RelationshipPersistenceException;
+   EditRelationshipCommand create() throws CatalogRepoException;
 
    /**
     * Construct an {@link EditRelationshipCommand} to modify an existing relationship.
@@ -48,19 +48,17 @@ public interface RelationshipRepository
     * @param id The id of the {@link Relationship} to edit.
     * @return An {@code EditRelationshipCommand} for use in modifying the
     *       identified {@code Relationship}.
-    * @throws RelationshipNotAvailableException If the identified relationship does not exist.
-    * @throws RelationshipPersistenceException If there are errors accessing the persistence layer.
+    * @throws CatalogRepoException If the identified relationship does not exist or there are errors accessing the persistence layer.
     */
-   EditRelationshipCommand edit(String id) throws RelationshipNotAvailableException, RelationshipPersistenceException;
+   EditRelationshipCommand edit(String id) throws CatalogRepoException;
 
    /**
     * Delete an existing {@link Relationship}.
     *
     * @param id The id of the {@link Relationship} to delete.
-    * @throws RelationshipNotAvailableException If the identified relationship does not exist
-    * @throws RelationshipPersistenceException If there are errors accessing the persistence layer.
+    * @throws CatalogRepoException If the identified relationship does not exist or there are errors accessing the persistence layer.
     */
-   void delete(String id) throws RelationshipNotAvailableException, RelationshipPersistenceException;
+   void delete(String id) throws CatalogRepoException;
 
    /**
     * Add listener to be notified whenever a relationship is modified (created, updated or deleted).

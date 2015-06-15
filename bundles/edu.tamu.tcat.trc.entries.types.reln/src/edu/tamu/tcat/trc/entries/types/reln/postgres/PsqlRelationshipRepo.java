@@ -26,7 +26,6 @@ import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipChangeEvent;
-import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipNotAvailableException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipPersistenceException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
@@ -103,7 +102,7 @@ public class PsqlRelationshipRepo implements RelationshipRepository
    }
 
    @Override
-   public Relationship get(String id) throws RelationshipNotAvailableException, RelationshipPersistenceException
+   public Relationship get(String id) throws CatalogRepoException
    {
       PsqlGetRelationshipTask task = new PsqlGetRelationshipTask(id, mapper, typeReg);
       try
@@ -113,8 +112,10 @@ public class PsqlRelationshipRepo implements RelationshipRepository
       catch (ExecutionException e)
       {
          Throwable cause = e.getCause();
-         if (cause instanceof RelationshipNotAvailableException)
-            throw (RelationshipNotAvailableException)cause;
+         if (cause instanceof RelationshipPersistenceException)
+            throw (RelationshipPersistenceException)cause;
+         if (cause instanceof CatalogRepoException)
+            throw (CatalogRepoException)cause;
          if (cause instanceof RuntimeException)
             throw (RuntimeException)cause;
 
@@ -126,7 +127,7 @@ public class PsqlRelationshipRepo implements RelationshipRepository
    }
 
    @Override
-   public EditRelationshipCommand create() throws RelationshipPersistenceException
+   public EditRelationshipCommand create() throws CatalogRepoException
    {
       RelationshipDTO relationship = new RelationshipDTO();
       relationship.id = idFactory.getNextId(ID_CONTEXT);
@@ -145,7 +146,7 @@ public class PsqlRelationshipRepo implements RelationshipRepository
    }
 
    @Override
-   public EditRelationshipCommand edit(final String id) throws RelationshipNotAvailableException, RelationshipPersistenceException
+   public EditRelationshipCommand edit(final String id) throws CatalogRepoException
    {
       EditRelationshipCommandImpl command = new EditRelationshipCommandImpl(RelationshipDTO.create(get(id)) , idFactory);
       command.setCommitHook((r) -> {
@@ -161,7 +162,7 @@ public class PsqlRelationshipRepo implements RelationshipRepository
    }
 
    @Override
-   public void delete(String id) throws RelationshipNotAvailableException, RelationshipPersistenceException
+   public void delete(String id) throws CatalogRepoException
    {
       PsqlDeleteRelationshipTask deleteTask = new PsqlDeleteRelationshipTask(id);
       RelnChangeNotifier<Void> workChangeNotifier = new RelnChangeNotifier<>(id, UpdateEvent.UpdateAction.DELETE);
