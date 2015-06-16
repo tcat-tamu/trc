@@ -42,5 +42,5 @@ public interface NotesRepository
     */
    Future<Boolean> remove(UUID noteId);
 
-   AutoCloseable register(UpdateListener<Notes> ears);
+   AutoCloseable register(UpdateListener<NoteChangeEvent> ears);
 }

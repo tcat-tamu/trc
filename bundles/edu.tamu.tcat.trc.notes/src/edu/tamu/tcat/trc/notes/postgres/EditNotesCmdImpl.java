@@ -15,12 +15,12 @@ import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.notification.DataUpdateObserverAdapter;
 import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
-import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.notes.Notes;
 import edu.tamu.tcat.trc.notes.UpdateNotesCanceledException;
 import edu.tamu.tcat.trc.notes.dto.NotesDTO;
 import edu.tamu.tcat.trc.notes.postgres.PsqlNotesRepo.UpdateEventFactory;
 import edu.tamu.tcat.trc.notes.repo.EditNotesCommand;
+import edu.tamu.tcat.trc.notes.repo.NoteChangeEvent;
 import edu.tamu.tcat.trc.notes.repo.basic.BasicEditNotesCommand;
 
 public class EditNotesCmdImpl extends BasicEditNotesCommand implements EditNotesCommand
@@ -35,13 +35,13 @@ public class EditNotesCmdImpl extends BasicEditNotesCommand implements EditNotes
 
 
    private final SqlExecutor sqlExecutor;
-   private final EntryUpdateHelper<Notes> notifier;
+   private final EntryUpdateHelper<NoteChangeEvent> notifier;
    private final UpdateEventFactory factory;
 
    private final AtomicBoolean executed = new AtomicBoolean(false);
 
    public EditNotesCmdImpl(SqlExecutor sqlExecutor,
-                             EntryUpdateHelper<Notes> notifier,
+                             EntryUpdateHelper<NoteChangeEvent> notifier,
                              UpdateEventFactory factory,
                              NotesDTO dto)
    {
@@ -53,7 +53,7 @@ public class EditNotesCmdImpl extends BasicEditNotesCommand implements EditNotes
    }
 
    public EditNotesCmdImpl(SqlExecutor sqlExecutor,
-                             EntryUpdateHelper<Notes> notifier,
+                             EntryUpdateHelper<NoteChangeEvent> notifier,
                              UpdateEventFactory factory)
    {
       super();
@@ -70,9 +70,7 @@ public class EditNotesCmdImpl extends BasicEditNotesCommand implements EditNotes
       if (!executed.compareAndSet(false, true))
          throw new IllegalStateException("This edit copy command has already been invoked.");
 
-      UpdateEvent<Notes> evt = constructEvent();
-      if (!notifier.before(evt))
-         throw new UpdateNotesCanceledException();
+      NoteChangeEvent evt = constructEvent();
 
       String sql = isNew() ? CREATE_SQL : UPDATE_SQL;
       if (dto.id == null)
@@ -89,10 +87,10 @@ public class EditNotesCmdImpl extends BasicEditNotesCommand implements EditNotes
             }));
    }
 
-   private UpdateEvent<Notes> constructEvent()
+   private NoteChangeEvent constructEvent()
    {
       Notes updated = NotesDTO.instantiate(dto);
-      UpdateEvent<Notes> evt = isNew()
+      NoteChangeEvent evt = isNew()
             ? factory.create(updated)
             : factory.update(original, updated);
       return evt;

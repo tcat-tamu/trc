@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -21,17 +22,19 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
-import edu.tamu.tcat.trc.entries.notification.BasicUpdateEvent;
+import edu.tamu.tcat.trc.entries.notification.BaseUpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.DataUpdateObserverAdapter;
 import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent.UpdateAction;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
+import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.notes.Notes;
 import edu.tamu.tcat.trc.notes.dto.NotesDTO;
 import edu.tamu.tcat.trc.notes.repo.EditNotesCommand;
+import edu.tamu.tcat.trc.notes.repo.NoteChangeEvent;
 import edu.tamu.tcat.trc.notes.repo.NotesRepository;
 
 public class PsqlNotesRepo implements NotesRepository
@@ -61,8 +64,10 @@ public class PsqlNotesRepo implements NotesRepository
          +     " date_modified = now() "
          +"WHERE note_id = ?";
 
+   //HACK: doesn't really matter for now, but once authz is in place, this will be the user's id
+   private static final UUID ACCOUNT_ID_REPO = UUID.randomUUID();
 
-   private EntryUpdateHelper<Notes> listeners;
+   private EntryUpdateHelper<NoteChangeEvent> listeners;
    private SqlExecutor exec;
    private ObjectMapper mapper;
 
@@ -77,7 +82,7 @@ public class PsqlNotesRepo implements NotesRepository
 
    public void activate()
    {
-      listeners = new EntryUpdateHelper<Notes>();
+      listeners = new EntryUpdateHelper<>();
 
       mapper = new ObjectMapper();
       mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -153,12 +158,10 @@ public class PsqlNotesRepo implements NotesRepository
    public Future<Boolean> remove(UUID noteId)
    {
       UpdateEventFactory factory = new UpdateEventFactory();
-      UpdateEvent<Notes> evt = factory.remove(noteId);
-
-      boolean shouldExecute = listeners.before(evt);
+      NoteChangeEvent evt = factory.remove(noteId);
 
       return exec.submit(new ObservableTaskWrapper<Boolean>(
-            makeRemoveTask(noteId, shouldExecute),
+            makeRemoveTask(noteId),
             new DataUpdateObserverAdapter<Boolean>()
             {
                @Override
@@ -169,12 +172,9 @@ public class PsqlNotesRepo implements NotesRepository
             }));
    }
 
-   private SqlExecutor.ExecutorTask<Boolean> makeRemoveTask(UUID id, boolean shouldExecute)
+   private SqlExecutor.ExecutorTask<Boolean> makeRemoveTask(UUID id)
    {
       return (conn) -> {
-         if (!shouldExecute)
-            return Boolean.valueOf(false);
-
          try (PreparedStatement ps = conn.prepareStatement(SQL_REMOVE))
          {
             ps.setString(1, id.toString());
@@ -195,7 +195,7 @@ public class PsqlNotesRepo implements NotesRepository
    }
 
    @Override
-   public AutoCloseable register(UpdateListener<Notes> ears)
+   public AutoCloseable register(UpdateListener<NoteChangeEvent> ears)
    {
       Objects.requireNonNull(listeners, "Registration for updates is not available.");
       return listeners.register(ears);
@@ -203,34 +203,31 @@ public class PsqlNotesRepo implements NotesRepository
 
    public class UpdateEventFactory
    {
-      public UpdateEvent<Notes> create(Notes note)
+      public NoteChangeEvent create(Notes note)
       {
-         return new BasicUpdateEvent<>(note.getId().toString(),
+         return new NoteChangeEventImpl(note.getId(),
                                        UpdateAction.CREATE,
-                                       () -> note,
-                                       () -> note);
+                                       note);
       }
 
-      public UpdateEvent<Notes> update(Notes orig, Notes updated)
+      public NoteChangeEvent update(Notes orig, Notes updated)
       {
-         return new BasicUpdateEvent<>(updated.getId().toString(),
-                                       UpdateAction.UPDATE,
-                                       () -> orig,
-                                       () -> updated);
+         return new NoteChangeEventImpl(updated.getId(),
+                                        UpdateAction.UPDATE,
+                                        updated);
       }
 
-      public UpdateEvent<Notes> remove(UUID noteId)
+      public NoteChangeEvent remove(UUID noteId)
       {
-         return new BasicUpdateEvent<>(noteId.toString(),
-               UpdateAction.DELETE,
-               () -> {
-                  try {
-                     return NotesDTO.instantiate(getNotesDTO(SQL_GET_ALL_BY_ID, noteId));
-                  } catch (Exception ex) {
-                     return null;
-                  }
-               },
-               () -> null);
+         Notes n = null;
+         try {
+            n = NotesDTO.instantiate(getNotesDTO(SQL_GET_ALL_BY_ID, noteId));
+         } catch (Exception ex) {
+            logger.log(Level.WARNING, "Failed accessing old value for deleted notes", ex);
+         }
+         return new NoteChangeEventImpl(noteId,
+                                        UpdateAction.DELETE,
+                                        n);
       }
    }
 
@@ -303,4 +300,36 @@ public class PsqlNotesRepo implements NotesRepository
         throw new IllegalStateException("Failed to retrive copy reference [" + id + "]. ", e);
      }
   }
+
+   private class NoteChangeEventImpl extends BaseUpdateEvent implements NoteChangeEvent
+   {
+      private final Notes note;
+      private final UUID noteId;
+
+      public NoteChangeEventImpl(UUID id, UpdateEvent.UpdateAction type, Notes note)
+      {
+         super(id.toString(), type, ACCOUNT_ID_REPO, Instant.now());
+         this.noteId = id;
+         this.note = note;
+      }
+
+      @Override
+      public Notes getNotes() throws CatalogRepoException
+      {
+         try
+         {
+            return get(noteId);
+         }
+         catch (Exception e)
+         {
+            throw new CatalogRepoException("Failed to retrieve relationship [" + id + "].", e);
+         }
+      }
+
+      @Override
+      public String toString()
+      {
+         return "Relationship Change " + super.toString();
+      }
+   }
 }

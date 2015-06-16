@@ -2,6 +2,7 @@ package edu.tamu.tcat.trc.notes.solr.index;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.solr.client.solrj.SolrServer;
@@ -13,9 +14,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
-import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.notes.Notes;
+import edu.tamu.tcat.trc.notes.repo.NoteChangeEvent;
 import edu.tamu.tcat.trc.notes.repo.NotesRepository;
 
 public class NotesIndexManagerService implements NotesIndexManager
@@ -40,7 +41,7 @@ public class NotesIndexManagerService implements NotesIndexManager
    private ConfigurationProperties config;
 
    private AutoCloseable register;
-   private EntryUpdateHelper<Notes> listener;
+   private EntryUpdateHelper<NoteChangeEvent> listener;
 
    public void setNotesRepo(NotesRepository repo)
    {
@@ -54,7 +55,7 @@ public class NotesIndexManagerService implements NotesIndexManager
 
    public void activate()
    {
-      listener = new EntryUpdateHelper<Notes>();
+      listener = new EntryUpdateHelper<>();
       listener.register(new NotesUpdateListener());
       register = repo.register(new NotesUpdateListener());
       // construct Solr core
@@ -67,20 +68,28 @@ public class NotesIndexManagerService implements NotesIndexManager
       solr = new HttpSolrServer(coreUri.toString());
    }
 
-   private void onEvtChange(UpdateEvent<Notes> evt)
+   private void onEvtChange(NoteChangeEvent evt)
    {
-      switch (evt.getAction())
+      try
       {
-         case CREATE:
-            onCreate(evt.getOriginal());
-            break;
-         case UPDATE:
-            onUpdate(evt.getOriginal());
-            break;
-         case DELETE:
-            onDelete(evt.getEntityId());
-            break;
-         default:
+         switch (evt.getUpdateAction())
+         {
+            case CREATE:
+               onCreate(evt.getNotes());
+               break;
+            case UPDATE:
+               onUpdate(evt.getNotes());
+               break;
+            case DELETE:
+               onDelete(evt.getEntityId());
+               break;
+            default:
+               logger.log(Level.INFO, "Unexpected notes change event " + evt);
+         }
+      }
+      catch (Exception ex)
+      {
+         logger.log(Level.WARNING, "Failed to update search indices following a change to notes: " + evt, ex);
       }
    }
 
@@ -108,22 +117,12 @@ public class NotesIndexManagerService implements NotesIndexManager
       logger.info("A note has been deleted, and notified NotesIndexManager");
    }
 
-   private class NotesUpdateListener implements UpdateListener<Notes>
+   private class NotesUpdateListener implements UpdateListener<NoteChangeEvent>
    {
-
-      private UpdateEvent<Notes> evt;
-
       @Override
-      public boolean beforeUpdate(UpdateEvent<Notes> evt)
-      {
-         return true;
-      }
-
-      @Override
-      public void afterUpdate(UpdateEvent<Notes> evt)
+      public void handle(NoteChangeEvent evt)
       {
          onEvtChange(evt);
       }
-
    }
 }
