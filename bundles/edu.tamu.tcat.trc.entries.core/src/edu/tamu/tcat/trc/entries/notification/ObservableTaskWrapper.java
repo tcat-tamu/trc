@@ -5,6 +5,8 @@ import java.sql.Connection;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 
 /**
+ * Encapsulates a {@link DataUpdateObserver} into this {@link SqlExecutor.ExecutorTask}, managing the
+ * observer's lifecycle and task execution, passing the task result into the observer upon completion.
  */
 public class ObservableTaskWrapper<ResultType> implements SqlExecutor.ExecutorTask<ResultType>
 {

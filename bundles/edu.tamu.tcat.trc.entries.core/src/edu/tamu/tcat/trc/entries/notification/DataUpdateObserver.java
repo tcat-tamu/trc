@@ -2,18 +2,18 @@ package edu.tamu.tcat.trc.entries.notification;
 
 
 /**
- * Supports fine-grained listening for data update actions. The observer will be called when
+ * Supports listening to the lifecycle of a data update action. The observer will be called when
  * the update starts processing, finishes, is aborted or encounters an error.
  *
- * <p>A simple implementation has been provide in the {@link DataUpdateObserverAdapter}. This
+ * <p>A simple implementation has been provided in the {@link DataUpdateObserverAdapter}. This
  * correctly handles state changes and supplies event notification methods that can be
- * overwritten by implementations to take action as needed. In most cases, clients should
+ * overridden by implementations to take action as needed. In most cases, clients should
  * extend this adapter rather than implementing the {@code DataUpdateObserver} interface directly.
  *
  * <p>
  * Implementations should be thread-safe.
  *
- * @param <R>
+ * @param <R> The type of result passed into this observer upon data update action completion.
  */
 public interface DataUpdateObserver<R>
 {

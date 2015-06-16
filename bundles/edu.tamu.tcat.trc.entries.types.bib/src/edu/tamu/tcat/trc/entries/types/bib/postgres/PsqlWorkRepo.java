@@ -57,8 +57,6 @@ public class PsqlWorkRepo implements WorkRepository
 
    public static final String WORK_CONTEXT = "works";
 
-   private final WorkUpdateNotifier deleteNotifier = new WorkUpdateNotifier(UpdateEvent.UpdateAction.DELETE);
-
    private SqlExecutor exec;
    private ObjectMapper mapper;
    private PeopleRepository peopleRepo;
@@ -291,7 +289,7 @@ public class PsqlWorkRepo implements WorkRepository
    public void delete(String id)
    {
       ExecutorTask<String> task = makeDeleteTask(id);
-      exec.submit(new ObservableTaskWrapper<String>(task, deleteNotifier));
+      exec.submit(new ObservableTaskWrapper<String>(task, new WorkUpdateNotifier(UpdateEvent.UpdateAction.DELETE)));
    }
 
    private String getUpdateSql(UpdateEvent.UpdateAction changeType)
