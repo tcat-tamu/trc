@@ -1,5 +1,8 @@
 package edu.tamu.tcat.trc.entries.notification;
 
+import java.time.Instant;
+import java.util.UUID;
+
 /**
  * A base event type to be used to notify listeners of TRC entry repositories of
  * additions, mutations, and deletions. Subtypes are intended to be used to access
@@ -59,15 +62,15 @@ public interface UpdateEvent
     */
    String getEntityId();
 
-//   /**
-//    * Get the account for the instigator of the change. May be a user account or
-//    * internal system account.
-//    */
-//   Object getActor();
+   /**
+    * Get the identifier of the account that was the instigator of the change. May be a
+    * user account or internal system account.
+    */
+   UUID getActor();
 
-//   /**
-//    * Get the time the change was made. This is useful for logging purposes as well
-//    * as for subsequent changes to be allowed to occur at the "same time".
-//    */
-//   Instant getTimestamp();
+   /**
+    * Get the time the change was made. This is useful for logging purposes as well
+    * as for subsequent changes to be allowed to occur at the "same time".
+    */
+   Instant getTimestamp();
 }

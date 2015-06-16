@@ -1,7 +1,9 @@
 package edu.tamu.tcat.trc.entries.types.reln.postgres;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -33,6 +35,9 @@ import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 public class PsqlRelationshipRepo implements RelationshipRepository
 {
    private static final Logger logger = Logger.getLogger(PsqlRelationshipRepo.class.getName());
+
+   //HACK: doesn't really matter for now, but once authz is in place, this will be the user's id
+   private static final UUID ACCOUNT_ID_REPO = UUID.randomUUID();
 
    private static final String ID_CONTEXT = "relationships";
    private SqlExecutor exec;
@@ -215,7 +220,7 @@ public class PsqlRelationshipRepo implements RelationshipRepository
    {
       public RelationshipChangeEventImpl(UpdateEvent.UpdateAction type, String id)
       {
-         super(id, type);
+         super(id, type, ACCOUNT_ID_REPO, Instant.now());
       }
 
       @Override

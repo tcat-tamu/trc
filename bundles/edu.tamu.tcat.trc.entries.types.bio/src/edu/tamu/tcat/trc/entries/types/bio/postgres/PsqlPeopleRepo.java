@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -51,6 +53,9 @@ public class PsqlPeopleRepo implements PeopleRepository
    private static final String INSERT_SQL = "INSERT INTO people (historical_figure, id) VALUES(?, ?)";
    private static final String UPDATE_SQL = "UPDATE people SET historical_figure = ?, modified = now() WHERE id = ?";
    private final static String DELETE_SQL =  "UPDATE people SET active = false, modified = now() WHERE id = ?";
+
+   //HACK: doesn't really matter for now, but once authz is in place, this will be the user's id
+   private static final UUID ACCOUNT_ID_REPO = UUID.randomUUID();
 
    private static final String ID_CONTEXT = "people";
    private SqlExecutor exec;
@@ -397,7 +402,7 @@ public class PsqlPeopleRepo implements PeopleRepository
    {
       public PeopleChangeEventImpl(UpdateEvent.UpdateAction type, String id)
       {
-         super(id, type);
+         super(id, type, ACCOUNT_ID_REPO, Instant.now());
       }
 
       @Override

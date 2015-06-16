@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -54,6 +56,8 @@ public class PsqlWorkRepo implements WorkRepository
    private final static String CREATE_WORK_SQL = "INSERT INTO works (work, id) VALUES(?, ?)";
    private final static String DELETE_SQL = "UPDATE works SET active = false WHERE id = ?";
 
+   //HACK: doesn't really matter for now, but once authz is in place, this will be the user's id
+   private static final UUID ACCOUNT_ID_REPO = UUID.randomUUID();
 
    public static final String WORK_CONTEXT = "works";
 
@@ -441,7 +445,7 @@ public class PsqlWorkRepo implements WorkRepository
    {
       public WorksChangeEventImpl(UpdateEvent.UpdateAction type, String id)
       {
-         super(id, type);
+         super(id, type, ACCOUNT_ID_REPO, Instant.now());
       }
 
       @Override

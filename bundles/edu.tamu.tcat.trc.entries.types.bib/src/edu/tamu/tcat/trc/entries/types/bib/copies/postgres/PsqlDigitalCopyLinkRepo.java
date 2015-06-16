@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -60,6 +61,8 @@ public class PsqlDigitalCopyLinkRepo implements CopyReferenceRepository
          +     " date_modified = now() "
          +"WHERE ref_id = ?";
 
+   //HACK: doesn't really matter for now, but once authz is in place, this will be the user's id
+   private static final UUID ACCOUNT_ID_REPO = UUID.randomUUID();
 
    private SqlExecutor exec;
 
@@ -198,7 +201,7 @@ public class PsqlDigitalCopyLinkRepo implements CopyReferenceRepository
 
       public CopyChangeEventImpl(String id, UpdateEvent.UpdateAction type, CopyReference old, CopyReference updated)
       {
-         super(id, type);
+         super(id, type, ACCOUNT_ID_REPO, Instant.now());
          this.old = old;
          this.updated = updated;
       }
