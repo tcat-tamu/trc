@@ -22,7 +22,7 @@ public class TitleDefinitionImpl implements TitleDefinition
    public Title getCanonicalTitle()
    {
       return titles.stream()
-                   .filter(t -> t.getType().equalsIgnoreCase("canonical"))
+                   .filter(t -> "canonical".equalsIgnoreCase(t.getType()))
                    .findAny()
                    .orElse(titles.stream().findAny().orElse(null));
    }
@@ -31,7 +31,7 @@ public class TitleDefinitionImpl implements TitleDefinition
    public Title getShortTitle()
    {
       return titles.stream()
-            .filter(t -> t.getType().equalsIgnoreCase("short"))
+            .filter(t -> "short".equalsIgnoreCase(t.getType()))
             .findAny()
             .orElse(null);
    }
@@ -40,7 +40,7 @@ public class TitleDefinitionImpl implements TitleDefinition
    public Set<Title> getAlternateTitles()
    {
       return titles.stream()
-            .filter(t -> !t.getType().equalsIgnoreCase("canonical"))
+            .filter(t -> !"canonical".equalsIgnoreCase(t.getType()))
             .collect(Collectors.toSet());
    }
 
@@ -48,7 +48,7 @@ public class TitleDefinitionImpl implements TitleDefinition
    public Title getTitle(Locale language)
    {
       return titles.stream()
-            .filter(t -> t.getLanguage().equalsIgnoreCase(language.getLanguage()))
+            .filter(t -> language.getLanguage().equalsIgnoreCase(t.getLanguage()))
             .findAny()
             .orElse(null);
    }

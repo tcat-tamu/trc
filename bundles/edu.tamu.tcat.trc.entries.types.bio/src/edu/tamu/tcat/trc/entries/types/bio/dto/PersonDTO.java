@@ -54,8 +54,16 @@ public class PersonDTO
                         .map(PersonNameDTO::instantiate)
                         .collect(Collectors.toSet());
 
-      person.birth = new HistoricalEventImpl(figure.birth);
-      person.death = new HistoricalEventImpl(figure.death);
+      if (figure.birth != null)
+      {
+         person.birth = new HistoricalEventImpl(figure.birth);
+      }
+
+      if (figure.death != null)
+      {
+         person.death = new HistoricalEventImpl(figure.death);
+      }
+
       person.summary = figure.summary;
 
       return person;
@@ -104,13 +112,15 @@ public class PersonDTO
          {
             String fn = name.familyName;
             String gn = name.givenName;
-            if (fn != null && !fn.trim().isEmpty())
+            if (fn != null && !fn.trim().isEmpty()) {
                sb.append(fn.trim());
+            }
 
             if (gn != null && !gn.trim().isEmpty())
             {
-               if (sb.length() > 0)
+               if (sb.length() > 0) {
                   sb.append(", ");
+               }
 
                sb.append(gn.trim());
             }
@@ -199,13 +209,15 @@ public class PersonDTO
             {
                String fn = name.getFamilyName();
                String gn = name.getGivenName();
-               if (fn != null && !fn.trim().isEmpty())
+               if (fn != null && !fn.trim().isEmpty()) {
                   sb.append(fn.trim());
+               }
 
                if (gn != null && !gn.trim().isEmpty())
                {
-                  if (sb.length() > 0)
+                  if (sb.length() > 0) {
                      sb.append(", ");
+                  }
 
                   sb.append(gn.trim());
                }

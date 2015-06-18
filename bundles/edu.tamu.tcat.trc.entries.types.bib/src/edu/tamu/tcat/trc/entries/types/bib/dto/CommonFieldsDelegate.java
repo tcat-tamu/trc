@@ -30,17 +30,26 @@ public class CommonFieldsDelegate
    public CommonFieldsDelegate(List<AuthorRefDV> authors, Collection<TitleDV> titles, List<AuthorRefDV> others, String summary)
    {
 
-      this.authors = authors.stream()
-            .map(AuthorRefDV::instantiate)
-            .collect(Collectors.toList());
+      if (authors != null)
+      {
+         this.authors = authors.stream()
+               .map(AuthorRefDV::instantiate)
+               .collect(Collectors.toList());
+      }
 
-      this.titles = titles.parallelStream()
-            .map(TitleDV::instantiate)
-            .collect(Collectors.toSet());
+      if (titles != null)
+      {
+         this.titles = titles.parallelStream()
+               .map(TitleDV::instantiate)
+               .collect(Collectors.toSet());
+      }
 
-      this.otherAuthors = others.stream()
-            .map(AuthorRefDV::instantiate)
-            .collect(Collectors.toList());
+      if (others != null)
+      {
+         this.otherAuthors = others.stream()
+               .map(AuthorRefDV::instantiate)
+               .collect(Collectors.toList());
+      }
 
       this.summary = summary;
    }

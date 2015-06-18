@@ -21,9 +21,9 @@ import edu.tamu.tcat.trc.entries.types.bib.Work;
 public class WorkDV
 {
    public String id;
-   public List<AuthorRefDV> authors;
-   public Collection<TitleDV> titles;
-   public List<AuthorRefDV> otherAuthors;
+   public List<AuthorRefDV> authors = new ArrayList<>();
+   public Collection<TitleDV> titles = new ArrayList<>();
+   public List<AuthorRefDV> otherAuthors = new ArrayList<>();
    public String series;
    public String summary;
 
