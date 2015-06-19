@@ -43,7 +43,7 @@ public class PsqlNotesRepo implements NotesRepository
 
 
    private static final String SQL_GET_ALL =
-         "SELECT note_id "
+         "SELECT note "
         +  "FROM notes "
         + "WHERE reference->>'associatedEntry' LIKE ? AND active = true "
         + "ORDER BY reference->>'associatedEntry'";
@@ -54,14 +54,14 @@ public class PsqlNotesRepo implements NotesRepository
                + "WHERE note_id = ? AND active = true";
 
    private static final String SQL_GET_ALL_BY_ID =
-         "SELECT note_id "
+         "SELECT note "
         +  "FROM notes "
         + "WHERE note_id = ?";
 
    private static final String SQL_REMOVE =
          "UPDATE notes "
-         + " SET active = false, "
-         +     " date_modified = now() "
+         + " SET active = FALSE, "
+         +     " modified = now() "
          +"WHERE note_id = ?";
 
    //HACK: doesn't really matter for now, but once authz is in place, this will be the user's id
@@ -181,7 +181,7 @@ public class PsqlNotesRepo implements NotesRepository
             int ct = ps.executeUpdate();
             if (ct == 0)
             {
-               logger.log(Level.WARNING, "Failed to remove note reference [" + id + "]. Reference may not exist.", id);
+               logger.log(Level.WARNING, "Failed to remove note  [" + id + "]. Reference may not exist.", id);
                return Boolean.valueOf(false);
             }
 
@@ -189,7 +189,7 @@ public class PsqlNotesRepo implements NotesRepository
          }
          catch(SQLException e)
          {
-            throw new IllegalStateException("Failed to remove copy reference [" + id + "]. ", e);
+            throw new IllegalStateException("Failed to remove note [" + id + "]. ", e);
          }
       };
    }
@@ -291,7 +291,7 @@ public class PsqlNotesRepo implements NotesRepository
            if (!rs.next())
               throw new NoSuchCatalogRecordException("No catalog record exists for work id=" + id);
 
-           PGobject pgo = (PGobject)rs.getObject("reference");
+           PGobject pgo = (PGobject)rs.getObject("note");
            return parseCopyRefJson(pgo.toString());
         }
      }
