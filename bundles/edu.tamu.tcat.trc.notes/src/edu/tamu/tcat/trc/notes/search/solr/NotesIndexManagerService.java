@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.notes.solr.index;
+package edu.tamu.tcat.trc.notes.search.solr;
 
 import java.io.IOException;
 import java.net.URI;
@@ -18,6 +18,7 @@ import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.notes.Notes;
 import edu.tamu.tcat.trc.notes.repo.NoteChangeEvent;
 import edu.tamu.tcat.trc.notes.repo.NotesRepository;
+import edu.tamu.tcat.trc.notes.search.NotesIndexManager;
 
 public class NotesIndexManagerService implements NotesIndexManager
 {
@@ -102,7 +103,7 @@ public class NotesIndexManagerService implements NotesIndexManager
 
    private void onCreate(Notes note)
    {
-      NotesSolrProxy proxy = new NotesSolrProxy();
+      NotesDocument proxy = new NotesDocument();
       try
       {
          solr.add(proxy.create(note));

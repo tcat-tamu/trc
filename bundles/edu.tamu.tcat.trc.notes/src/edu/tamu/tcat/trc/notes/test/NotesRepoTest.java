@@ -23,7 +23,7 @@ import edu.tamu.tcat.trc.notes.UpdateNotesCanceledException;
 import edu.tamu.tcat.trc.notes.dto.NotesDTO;
 import edu.tamu.tcat.trc.notes.postgres.PsqlNotesRepo;
 import edu.tamu.tcat.trc.notes.repo.EditNotesCommand;
-import edu.tamu.tcat.trc.notes.solr.index.NotesIndexManagerService;
+import edu.tamu.tcat.trc.notes.search.solr.NotesIndexManagerService;
 
 public class NotesRepoTest
 {

@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.notes.solr.index;
+package edu.tamu.tcat.trc.notes.search.solr;
 
 import java.net.URI;
 import java.util.UUID;
@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.tamu.tcat.trc.notes.Notes;
 import edu.tamu.tcat.trc.notes.dto.NotesDTO;
 
-public class NotesSolrProxy
+public class NotesDocument
 {
    private final String NOTE_ID = "id";
    private final String AUTHOR_ID = "author_id";
@@ -23,7 +23,7 @@ public class NotesSolrProxy
 
    private SolrInputDocument noteDoc;
 
-   public NotesSolrProxy()
+   public NotesDocument()
    {
       noteDoc = new SolrInputDocument();
    }
