@@ -2,12 +2,15 @@ package edu.tamu.tcat.trc.notes.search.solr;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.common.SolrInputDocument;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -103,26 +106,61 @@ public class NotesIndexManagerService implements NotesIndexManager
 
    private void onCreate(Notes note)
    {
-      NotesDocument proxy = new NotesDocument();
       try
       {
-         solr.add(proxy.create(note));
-         solr.commit();
+         NotesDocument proxy = NotesDocument.create(note);
+         postDocument(proxy);
       }
       catch (SolrServerException | IOException e)
       {
-         logger.finer("An Error has occurred while attempting to index note id: " + note.getId() + " Plese check the log file for futher information");
+         logger.log(Level.SEVERE, "Failed to adapt Notes to indexable data transfer objects for note id: [" + note.getId() + "]", e);
+         return;
+      }
+      catch (Exception e)
+      {
+         logger.log(Level.SEVERE, "Failed to adapt Notes to indexable data transfer objects for note id: [" + note.getId() + "]", e);
+         return;
       }
    }
 
    private void onUpdate(Notes note)
    {
-      logger.info("A note has been updated, and notified NotesIndexManager");
+      try
+      {
+         NotesDocument proxy = NotesDocument.update(note);
+         postDocument(proxy);
+      }
+      catch (SolrServerException | IOException e)
+      {
+         logger.log(Level.SEVERE, "Failed to adapt Notes to indexable data transfer objects for note id: [" + note.getId() + "]", e);
+         return;
+      }
+      catch (Exception e)
+      {
+         logger.log(Level.SEVERE, "Failed to adapt Notes to indexable data transfer objects for note id: [" + note.getId() + "]", e);
+         return;
+      }
+   }
+
+   private void postDocument(NotesDocument doc) throws SolrServerException, IOException
+   {
+      Collection<SolrInputDocument> solrDocs = new ArrayList<>();
+      solrDocs.add(doc.getDocument());
+      solr.add(solrDocs);
+      solr.commit();
    }
 
    private void onDelete(String id)
    {
-      logger.info("A note has been deleted, and notified NotesIndexManager");
+      try
+      {
+         solr.deleteById(id);
+         solr.commit();
+      }
+      catch (SolrServerException | IOException e)
+      {
+         logger.log(Level.SEVERE, "Failed to commit the note id: [" + id + "] to the SOLR server. " + e);
+      }
    }
 
    private class NotesUpdateListener implements UpdateListener<NoteChangeEvent>
