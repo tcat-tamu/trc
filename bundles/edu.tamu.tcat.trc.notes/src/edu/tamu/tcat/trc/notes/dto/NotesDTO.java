@@ -4,19 +4,19 @@ import java.net.URI;
 import java.util.UUID;
 
 import edu.tamu.tcat.trc.notes.Notes;
-import edu.tamu.tcat.trc.notes.repo.basic.BasicNotesImpl;
+import edu.tamu.tcat.trc.notes.internal.dto.BasicNotes;
 
 public class NotesDTO
 {
    public UUID id;
    public URI associatedEntity;
-   public UUID authorId;
+   public String authorId;
    public String mimeType;
    public String content;
 
    public static Notes instantiate(NotesDTO dto)
    {
-      return new BasicNotesImpl(dto.id, dto.associatedEntity, dto.authorId, dto.mimeType, dto.content);
+      return new BasicNotes(dto.id, dto.associatedEntity, dto.authorId, dto.mimeType, dto.content);
    }
 
    public static NotesDTO create(Notes notes)
@@ -25,7 +25,7 @@ public class NotesDTO
 
       dto.id = notes.getId();
       dto.associatedEntity = notes.getEntity();
-      dto.authorId = notes.getAuthorId();
+      dto.authorId = notes.getAuthorId().toString();
       dto.mimeType = notes.getMimeType();
       dto.content = notes.getContent();
 

@@ -83,7 +83,7 @@ public class NotesRepoTest
    {
       EditNotesCommand create = repo.create();
       NotesDTO updateDTO = new NotesDTO();
-      updateDTO.authorId = UUID.randomUUID();
+      updateDTO.authorId = UUID.randomUUID().toString();
       updateDTO.associatedEntity = URI.create("notes/1");
       updateDTO.content = "The contents of the note";
       updateDTO.mimeType = "Text";

@@ -1,19 +1,19 @@
-package edu.tamu.tcat.trc.notes.repo.basic;
+package edu.tamu.tcat.trc.notes.internal.dto;
 
 import java.net.URI;
 import java.util.UUID;
 
 import edu.tamu.tcat.trc.notes.Notes;
 
-public class BasicNotesImpl implements Notes
+public class BasicNotes implements Notes
 {
    private final UUID id;
    private final URI associatedEntity;
-   private final UUID authorId;
+   private final String authorId;
    private final String mimeType;
    private final String content;
 
-   public BasicNotesImpl(UUID id, URI associatedEntity, UUID authorId, String mimeType, String content)
+   public BasicNotes(UUID id, URI associatedEntity, String authorId, String mimeType, String content)
    {
       this.id = id;
       this.associatedEntity = associatedEntity;
@@ -37,7 +37,7 @@ public class BasicNotesImpl implements Notes
    @Override
    public UUID getAuthorId()
    {
-      return authorId;
+      return UUID.fromString(authorId);
    }
 
    @Override

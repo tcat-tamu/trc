@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.notes.repo.basic;
+package edu.tamu.tcat.trc.notes.postgres;
 
 import java.net.URI;
 import java.util.Objects;
@@ -44,13 +44,23 @@ public abstract class BasicEditNotesCommand implements EditNotesCommand
          setEntity(updateDTO.associatedEntity);
 
       if (updateDTO.authorId != null)
-         setAuthorId(updateDTO.authorId);
+         setAuthorId(UUID.fromString(updateDTO.authorId));
 
       if (updateDTO.mimeType != null)
          setMimeType(updateDTO.mimeType);
 
       if (updateDTO.content != null)
          setContent(updateDTO.content);
+   }
+
+   @Override
+   public EditNotesCommand setAll(NotesDTO note)
+   {
+      setEntity(note.associatedEntity);
+      setAuthorId(UUID.fromString(note.authorId));
+      setMimeType(note.mimeType);
+      setContent(note.content);
+      return this;
    }
 
    @Override
@@ -69,7 +79,7 @@ public abstract class BasicEditNotesCommand implements EditNotesCommand
    @Override
    public EditNotesCommand setAuthorId(UUID authorId)
    {
-      dto.authorId = authorId;
+      dto.authorId = authorId.toString();
       return this;
    }
 

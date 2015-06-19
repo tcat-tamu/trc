@@ -14,6 +14,8 @@ public interface EditNotesCommand
 
    void update(NotesDTO updateDTO);
 
+   EditNotesCommand setAll(NotesDTO note);
+
    EditNotesCommand setEntity(URI entityURI);
 
    EditNotesCommand setAuthorId(UUID authorId);
