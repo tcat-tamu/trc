@@ -68,6 +68,13 @@ public class NotesIndexManagerService implements NotesIndexManager
       solr = new HttpSolrServer(coreUri.toString());
    }
 
+   public void dispose()
+   {
+      listener = null;
+      register = null;
+      solr.shutdown();
+   }
+
    private void onEvtChange(NoteChangeEvent evt)
    {
       try
