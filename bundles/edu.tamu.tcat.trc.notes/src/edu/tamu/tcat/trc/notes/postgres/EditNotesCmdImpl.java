@@ -21,7 +21,6 @@ import edu.tamu.tcat.trc.notes.dto.NotesDTO;
 import edu.tamu.tcat.trc.notes.postgres.PsqlNotesRepo.UpdateEventFactory;
 import edu.tamu.tcat.trc.notes.repo.EditNotesCommand;
 import edu.tamu.tcat.trc.notes.repo.NoteChangeEvent;
-import edu.tamu.tcat.trc.notes.repo.basic.BasicEditNotesCommand;
 
 public class EditNotesCmdImpl extends BasicEditNotesCommand implements EditNotesCommand
 {
