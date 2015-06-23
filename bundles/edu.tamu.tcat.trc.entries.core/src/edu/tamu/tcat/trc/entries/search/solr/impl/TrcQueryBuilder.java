@@ -1,7 +1,9 @@
 package edu.tamu.tcat.trc.entries.search.solr.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.StringJoiner;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -140,6 +142,48 @@ public class TrcQueryBuilder implements SolrQueryBuilder
    {
       // add another 'fq' parameter with the new value
       params.add("fq", param.getName() + ":" + param.toSolrValue(value));
+   }
+
+   @Override
+   public <P> void filterMulti(SolrIndexField<P> param, Collection<P> values) throws SearchException
+   {
+      if (values == null || values.isEmpty())
+      {
+         throw new IllegalArgumentException("No filter values provided");
+      }
+
+      // add another 'fq' parameter with the new values
+      StringJoiner joiner = new StringJoiner(" OR ");
+
+      try
+      {
+         values.parallelStream()
+               .map(value -> param.getName() + ":(" + toSolrValue(param, value) + ")")
+               .forEach(joiner::add);
+
+         params.add("fq", joiner.toString());
+      }
+      catch (Exception e)
+      {
+         // threw runtime exception to use streams; send original
+         if (e.getCause() instanceof SearchException)
+         {
+            throw (SearchException)e.getCause();
+         }
+         throw e;
+      }
+   }
+
+   private static <P> String toSolrValue(SolrIndexField<P> param, P value)
+   {
+      try
+      {
+         return param.toSolrValue(value);
+      }
+      catch (Exception e)
+      {
+         throw new IllegalStateException("failed to convert value to Solr String value", e);
+      }
    }
 
    @Override

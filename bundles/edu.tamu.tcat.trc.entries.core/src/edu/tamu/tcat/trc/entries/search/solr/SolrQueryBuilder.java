@@ -1,5 +1,8 @@
 package edu.tamu.tcat.trc.entries.search.solr;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.params.SolrParams;
 
@@ -68,7 +71,20 @@ public interface SolrQueryBuilder
     * Add filter criteria where the parameter falls within the provided range. This
     * is used for facets.
     */
-   <P> void filter(SolrIndexField<P> param, P value) throws SearchException;
+   default <P> void filter(SolrIndexField<P> param, P value) throws SearchException
+   {
+      filterMulti(param, Collections.singleton(value));
+   }
+
+   /**
+    * Add filter criteria for multiple parameter values. This is used for facets.
+    * Uses OR clause to combine values.
+    *
+    * @param param
+    * @param values
+    * @throws SearchException
+    */
+   <P> void filterMulti(SolrIndexField<P> param, Collection<P> values) throws SearchException;
 
    /**
     * Add filter criteria where the parameter falls within the provided range. This
