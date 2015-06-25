@@ -2,9 +2,11 @@ package edu.tamu.tcat.trc.entries.types.bib.search.solr;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.solr.common.SolrInputDocument;
@@ -285,8 +287,26 @@ public class BiblioDocument
       DateDescriptionDTO dateDescription = publication.date;
       indexDocument.set(BiblioSolrConfig.PUBLICATION_DATE_STRING, dateDescription.description);
 
-      if (dateDescription.calendar != null)
-         indexDocument.set(BiblioSolrConfig.PUBLICATION_DATE, LocalDate.from(DateTimeFormatter.ISO_DATE.parse(dateDescription.calendar)));
+
+      LocalDate pubDate = extractDate(dateDescription.calendar);
+      indexDocument.set(BiblioSolrConfig.PUBLICATION_DATE, pubDate);
+   }
+
+   private LocalDate extractDate(String calendar)
+   {
+      // TODO Auto-generated method stub
+      if (calendar == null || calendar.trim().isEmpty())
+         return null;
+
+      try
+      {
+         return LocalDate.from(DateTimeFormatter.ISO_DATE.parse(calendar));
+      }
+      catch (DateTimeParseException dtpe)
+      {
+         logger.log(Level.WARNING, "Failed to parse supplied publication date: " + calendar + ". This date will not be avialable for indexing", dtpe);
+         return null;
+      }
    }
 
    private void updatePublication(PublicationInfoDV publication) throws SearchException
@@ -303,7 +323,8 @@ public class BiblioDocument
       DateDescriptionDTO dateDescription = publication.date;
       indexDocument.update(BiblioSolrConfig.PUBLICATION_DATE_STRING, dateDescription.description);
 
-      if (dateDescription.calendar != null)
-         indexDocument.update(BiblioSolrConfig.PUBLICATION_DATE, LocalDate.from(DateTimeFormatter.ISO_DATE.parse(dateDescription.calendar)));
+      LocalDate pubDate = extractDate(dateDescription.calendar);
+      indexDocument.update(BiblioSolrConfig.PUBLICATION_DATE, pubDate);
+
    }
 }
