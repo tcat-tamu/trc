@@ -88,6 +88,9 @@ public class BasicFields
       {
          try
          {
+            if (value == null)
+               return "";
+
             return DateTimeFormatter.ISO_LOCAL_DATE.format(value) + "T00:00:00Z";
          }
          catch (Exception e)
@@ -109,6 +112,9 @@ public class BasicFields
       {
          try
          {
+            if (value == null)
+               return "";
+
             // Append a literal 'Z' to all to indicate to SOLR that it is in UTC
             return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(value) + 'Z';
          }
@@ -131,6 +137,9 @@ public class BasicFields
       {
          try
          {
+            if (value == null)
+               return "";
+
             return DateTimeFormatter.ISO_INSTANT.format(value);
          }
          catch (Exception e)
