@@ -4,13 +4,13 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
 import edu.tamu.tcat.trc.entries.common.dto.HistoricalEventDTO;
 import edu.tamu.tcat.trc.entries.search.SearchException;
+import edu.tamu.tcat.trc.entries.search.solr.SolrIndexField;
 import edu.tamu.tcat.trc.entries.search.solr.impl.TrcDocument;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
@@ -25,8 +25,6 @@ import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
  */
 public class BioDocument
 {
-   private final static Logger logger = Logger.getLogger(BioDocument.class.getName());
-
    // composed instead of extended to not expose TrcDocument as API to this class
    private TrcDocument indexDocument;
 
@@ -64,18 +62,35 @@ public class BioDocument
 
       HistoricalEventDTO birth = personDV.birth;
       doc.indexDocument.set(BioSolrConfig.BIRTH_LOCATION, guardNull(birth.location));
-      DateDescriptionDTO bDate = birth.date;
-      if (bDate != null)
-         doc.indexDocument.set(BioSolrConfig.BIRTH_DATE, convertDate(bDate));
+      setDateValue(doc, BioSolrConfig.BIRTH_DATE, birth.date);
 
       HistoricalEventDTO death = personDV.birth;
       doc.indexDocument.set(BioSolrConfig.DEATH_LOCATION, guardNull(death.location));
-      if (death.date != null)
-         doc.indexDocument.set(BioSolrConfig.DEATH_DATE, convertDate(death.date));
+      setDateValue(doc, BioSolrConfig.DEATH_DATE, death.date);
 
       doc.indexDocument.set(BioSolrConfig.SUMMARY, guardNull(personDV.summary));
 
       return doc;
+   }
+
+   /**
+    * Must not supply null values, so perform the required check here.
+    *
+    * @param doc
+    * @param field
+    * @param date
+    * @throws SearchException
+    */
+   private static void setDateValue(BioDocument doc, SolrIndexField<LocalDate> field, DateDescriptionDTO date) throws SearchException
+   {
+      if (date == null)
+         return;
+
+      LocalDate value = convertDate(date);
+      if (value == null)
+         return;
+
+      doc.indexDocument.set(field, value);
    }
 
    private static String guardNull(String value)
