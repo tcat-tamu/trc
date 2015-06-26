@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.bib.copies.solr;
+package edu.tamu.tcat.trc.entries.types.bib.copies.search.solr;
 
 import org.apache.solr.common.SolrInputDocument;
 

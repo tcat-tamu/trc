@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.bib.copies.solr;
+package edu.tamu.tcat.trc.entries.types.bib.copies.search.solr;
 
 import java.net.URI;
 import java.nio.file.Paths;
@@ -18,16 +18,15 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 
-import edu.tamu.tcat.hathitrust.HathiTrustClientException;
 import edu.tamu.tcat.hathitrust.htrc.features.simple.ExtractedFeatures;
-import edu.tamu.tcat.hathitrust.htrc.features.simple.ExtractedFeaturesProvider;
 import edu.tamu.tcat.hathitrust.htrc.features.simple.impl.DefaultExtractedFeaturesProvider;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.bib.copies.CopyReference;
-import edu.tamu.tcat.trc.entries.bib.copies.CopyReferenceRepository;
-import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent.UpdateAction;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
+import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
+import edu.tamu.tcat.trc.entries.types.bib.copies.CopyReference;
+import edu.tamu.tcat.trc.entries.types.bib.copies.repo.CopyChangeEvent;
+import edu.tamu.tcat.trc.entries.types.bib.copies.repo.CopyReferenceRepository;
 
 public class SolrCopyReferenceIndex implements CopyReferenceIndex
 {
@@ -66,29 +65,29 @@ public class SolrCopyReferenceIndex implements CopyReferenceIndex
    {
 
       provider = new DefaultExtractedFeaturesProvider(Paths.get(FILES_PATH_ROOT));
-      repo.register(new UpdateListener<CopyReference>()
+      repo.register(new UpdateListener<CopyChangeEvent>()
       {
-
          @Override
-         public boolean beforeUpdate(UpdateEvent<CopyReference> evt)
+         public void handle(CopyChangeEvent evt)
          {
-            return true;
-         }
-
-         @Override
-         public void afterUpdate(UpdateEvent<CopyReference> evt)
-         {
-            UpdateAction action = evt.getAction();
-            switch (action)
+            // TODO Auto-generated method stub
+            UpdateAction action = evt.getUpdateAction();
+            try
             {
-               case CREATE: onCreate(evt.getOriginal());
-                  break;
-               case UPDATE: onUpdate(evt.get());
-                  break;
-               case DELETE: onDelete(evt.get());
-                  break;
+               switch (action)
+               {
+                  case CREATE: onCreate(evt.getOriginal());
+                     break;
+                  case UPDATE: onUpdate(evt.get());
+                     break;
+                  case DELETE: onDelete(evt.get());
+                     break;
+               }
             }
-
+            catch (CatalogRepoException e)
+            {
+               logger.log(Level.WARNING, "Failed to update full text index for digital copy '" + evt.getEntityId() + "' on update action " + action, e);
+            }
          }
       });
 
@@ -240,8 +239,6 @@ public class SolrCopyReferenceIndex implements CopyReferenceIndex
 
    private void doTokens(String id, ExtractedFeatures feat, Consumer<Pkg> f) throws Exception
    {
-
-      String vid = feat.getVolumeId();
 
       int pageCount = feat.pageCount();
       for (int pg=0; pg < pageCount; ++pg)
