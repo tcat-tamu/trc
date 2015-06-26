@@ -138,13 +138,6 @@ public class TrcQueryBuilder implements SolrQueryBuilder
    }
 
    @Override
-   public <P> void filter(SolrIndexField<P> param, P value) throws SearchException
-   {
-      // add another 'fq' parameter with the new value
-      params.add("fq", param.getName() + ":" + param.toSolrValue(value));
-   }
-
-   @Override
    public <P> void filterMulti(SolrIndexField<P> param, Collection<P> values, String tag) throws SearchException
    {
       if (values == null || values.isEmpty())
