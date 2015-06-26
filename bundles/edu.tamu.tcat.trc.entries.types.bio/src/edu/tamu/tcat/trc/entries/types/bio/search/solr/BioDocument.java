@@ -64,7 +64,7 @@ public class BioDocument
       doc.indexDocument.set(BioSolrConfig.BIRTH_LOCATION, guardNull(birth.location));
       setDateValue(doc, BioSolrConfig.BIRTH_DATE, birth.date);
 
-      HistoricalEventDTO death = personDV.birth;
+      HistoricalEventDTO death = personDV.death;
       doc.indexDocument.set(BioSolrConfig.DEATH_LOCATION, guardNull(death.location));
       setDateValue(doc, BioSolrConfig.DEATH_DATE, death.date);
 
