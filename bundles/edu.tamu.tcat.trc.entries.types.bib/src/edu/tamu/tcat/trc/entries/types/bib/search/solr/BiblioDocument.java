@@ -215,7 +215,7 @@ public class BiblioDocument
             indexDocument.set(BiblioSolrConfig.AUTHOR_IDS, author.authorId);
          else
             indexDocument.set(BiblioSolrConfig.AUTHOR_IDS, "");
-         indexDocument.set(BiblioSolrConfig.AUTHOR_NAMES, author.name);
+         indexDocument.set(BiblioSolrConfig.AUTHOR_NAMES,  author.firstName + " " + author.lastName);
          indexDocument.set(BiblioSolrConfig.AUTHOR_ROLES, author.role);    // not needed
       }
    }
@@ -232,7 +232,7 @@ public class BiblioDocument
             allIds.add(author.authorId);
          else
             indexDocument.update(BiblioSolrConfig.AUTHOR_IDS, "");
-         allNames.add(author.name);
+         allNames.add( author.firstName + " " + author.lastName);
          allRoles.add(author.role);
       }
 
