@@ -287,9 +287,9 @@ public class BiblioDocument
       DateDescriptionDTO dateDescription = publication.date;
       indexDocument.set(BiblioSolrConfig.PUBLICATION_DATE_STRING, dateDescription.description);
 
-
       LocalDate pubDate = extractDate(dateDescription.calendar);
-      indexDocument.set(BiblioSolrConfig.PUBLICATION_DATE, pubDate);
+      if (pubDate != null)
+         indexDocument.set(BiblioSolrConfig.PUBLICATION_DATE, pubDate);
    }
 
    private LocalDate extractDate(String calendar)
@@ -324,7 +324,9 @@ public class BiblioDocument
       indexDocument.update(BiblioSolrConfig.PUBLICATION_DATE_STRING, dateDescription.description);
 
       LocalDate pubDate = extractDate(dateDescription.calendar);
-      indexDocument.update(BiblioSolrConfig.PUBLICATION_DATE, pubDate);
+      // TODO if null, we need to remove it from the index
+      if (pubDate != null)
+         indexDocument.update(BiblioSolrConfig.PUBLICATION_DATE, pubDate);
 
    }
 }
