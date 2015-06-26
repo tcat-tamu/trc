@@ -70,10 +70,19 @@ public interface SolrQueryBuilder
    /**
     * Add filter criteria where the parameter falls within the provided range. This
     * is used for facets.
+    *
+    * @param param
+    * @param value
+    * @param tag A tag that will be used for facet exclusion. No tag should be added if this parameter is null or empty.
     */
+   default <P> void filter(SolrIndexField<P> param, P value, String tag) throws SearchException
+   {
+      filterMulti(param, Collections.singleton(value), tag);
+   }
+
    default <P> void filter(SolrIndexField<P> param, P value) throws SearchException
    {
-      filterMulti(param, Collections.singleton(value));
+      filter(param, value, null);
    }
 
    /**
@@ -82,9 +91,15 @@ public interface SolrQueryBuilder
     *
     * @param param
     * @param values
+    * @param tag A tag that will be used for facet exclusion. No tag should be added if this parameter is null or empty.
     * @throws SearchException
     */
-   <P> void filterMulti(SolrIndexField<P> param, Collection<P> values) throws SearchException;
+   <P> void filterMulti(SolrIndexField<P> param, Collection<P> values, String tag) throws SearchException;
+
+   default <P> void filterMulti(SolrIndexField<P> param, Collection<P> values) throws SearchException
+   {
+      filterMulti(param, values, null);
+   }
 
    /**
     * Add filter criteria where the parameter falls within the provided range. This

@@ -145,7 +145,7 @@ public class TrcQueryBuilder implements SolrQueryBuilder
    }
 
    @Override
-   public <P> void filterMulti(SolrIndexField<P> param, Collection<P> values) throws SearchException
+   public <P> void filterMulti(SolrIndexField<P> param, Collection<P> values, String tag) throws SearchException
    {
       if (values == null || values.isEmpty())
       {
@@ -157,11 +157,12 @@ public class TrcQueryBuilder implements SolrQueryBuilder
 
       try
       {
+         // TODO: should quoting of the value be done here or as part of the field definition?
          values.parallelStream()
-               .map(value -> param.getName() + ":(" + toSolrValue(param, value) + ")")
+               .map(value -> param.getName() + ":\"" + toSolrValue(param, value).replace("\\", "\\\\").replace("\"", "\\\"") + "\"")
                .forEach(joiner::add);
 
-         params.add("fq", joiner.toString());
+         params.add("fq", (tag == null || tag.isEmpty() ? "" : "{!tag=\"" + tag + "\"}") + joiner.toString());
       }
       catch (Exception e)
       {
