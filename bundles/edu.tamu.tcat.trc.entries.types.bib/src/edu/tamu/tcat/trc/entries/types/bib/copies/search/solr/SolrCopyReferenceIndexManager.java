@@ -1,7 +1,7 @@
 package edu.tamu.tcat.trc.entries.types.bib.copies.search.solr;
 
 import java.net.URI;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -22,21 +22,22 @@ import edu.tamu.tcat.hathitrust.htrc.features.simple.ExtractedFeatures;
 import edu.tamu.tcat.hathitrust.htrc.features.simple.impl.DefaultExtractedFeaturesProvider;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent.UpdateAction;
-import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.types.bib.copies.CopyReference;
 import edu.tamu.tcat.trc.entries.types.bib.copies.repo.CopyChangeEvent;
 import edu.tamu.tcat.trc.entries.types.bib.copies.repo.CopyReferenceRepository;
 
-public class SolrCopyReferenceIndex implements CopyReferenceIndex
+public class SolrCopyReferenceIndexManager implements CopyReferenceIndex
 {
-   private static Logger logger = Logger.getLogger(SolrCopyReferenceIndex.class.getName());
+   private static Logger logger = Logger.getLogger(SolrCopyReferenceIndexManager.class.getName());
    private static final Pattern copyIdPattern = Pattern.compile("^htid:(\\d{9})#(.*)$");
 
    private static final String FILES_PATH_ROOT = "\\\\citd.tamu.edu\\citdfs\\archive\\HTRC_Dataset\\";
 
    /** Configuration property key that defines the URI for the Solr server. */
    public static final String SOLR_API_ENDPOINT = "solr.api.endpoint";
+
+   public static final String HTRC_EX_FEATURES_PATH = "htrc.extracted_features.path";
 
    /** Configuration property key that defines Solr core to be used for relationships. */
    public static final String SOLR_CORE_VOLS = "trc.entries.bib.copies.volumes.core";
@@ -46,10 +47,10 @@ public class SolrCopyReferenceIndex implements CopyReferenceIndex
    private SolrServer solrPages;
 
    private ConfigurationProperties config;
-
    private CopyReferenceRepository repo;
 
    private DefaultExtractedFeaturesProvider provider;
+   private AutoCloseable registration;
 
    public void setConfig(ConfigurationProperties config)
    {
@@ -63,49 +64,36 @@ public class SolrCopyReferenceIndex implements CopyReferenceIndex
 
    public void activate()
    {
+      registration = repo.register(this::onUpdate);
 
-      provider = new DefaultExtractedFeaturesProvider(Paths.get(FILES_PATH_ROOT));
-      repo.register(new UpdateListener<CopyChangeEvent>()
-      {
-         @Override
-         public void handle(CopyChangeEvent evt)
-         {
-            // TODO Auto-generated method stub
-            UpdateAction action = evt.getUpdateAction();
-            try
-            {
-               switch (action)
-               {
-                  case CREATE: onCreate(evt.getOriginal());
-                     break;
-                  case UPDATE: onUpdate(evt.get());
-                     break;
-                  case DELETE: onDelete(evt.get());
-                     break;
-               }
-            }
-            catch (CatalogRepoException e)
-            {
-               logger.log(Level.WARNING, "Failed to update full text index for digital copy '" + evt.getEntityId() + "' on update action " + action, e);
-            }
-         }
-      });
+      Path exFeatPath = config.getPropertyValue(SOLR_API_ENDPOINT, Path.class);
+      provider = new DefaultExtractedFeaturesProvider(exFeatPath);
 
       URI solrBaseURI = config.getPropertyValue(SOLR_API_ENDPOINT, URI.class);
       String volCore = config.getPropertyValue(SOLR_CORE_VOLS, String.class, "volumes");
-      String pageCore = config.getPropertyValue(SOLR_CORE_PAGES, String.class, "pages");
-
       URI volURI = solrBaseURI.resolve(volCore);
-      URI pageURI = solrBaseURI.resolve(pageCore);
-
       solrVols = new HttpSolrServer(volURI.toString());
+
+      String pageCore = config.getPropertyValue(SOLR_CORE_PAGES, String.class, "pages");
+      URI pageURI = solrBaseURI.resolve(pageCore);
       solrPages = new HttpSolrServer(pageURI.toString());
    }
 
    public void deactivate()
    {
+      unregisterRepoListener();
+
       releaseSolrConnection(solrVols);
       releaseSolrConnection(solrPages);
+
+      releaseFeaturesProvider();
+   }
+
+   private void releaseFeaturesProvider()
+   {
+      if (provider == null)
+         return;
+
       try
       {
          provider.close();
@@ -114,7 +102,30 @@ public class SolrCopyReferenceIndex implements CopyReferenceIndex
       {
          logger.log(Level.WARNING, "Failed to cleanly shut down FeatureProvider.", e);
       }
+      finally
+      {
+         provider = null;
+      }
    }
+
+   private void unregisterRepoListener()
+   {
+      if (registration != null)
+      {
+         try
+         {
+            registration.close();
+         }
+         catch (Exception e)
+         {
+            logger.log(Level.WARNING, "Failed to unregister update listener on people repository.", e);
+         }
+         finally {
+            registration = null;
+         }
+      }
+   }
+
 
    private void releaseSolrConnection(SolrServer solr)
    {
@@ -129,6 +140,28 @@ public class SolrCopyReferenceIndex implements CopyReferenceIndex
       catch (Exception e)
       {
          logger.log(Level.WARNING, "Failed to cleanly shut down connection to Solr server.", e);
+      }
+   }
+
+   private void onUpdate(CopyChangeEvent evt)
+   {
+      // TODO Auto-generated method stub
+      UpdateAction action = evt.getUpdateAction();
+      try
+      {
+         switch (action)
+         {
+            case CREATE: onCreate(evt.getOriginal());
+               break;
+            case UPDATE: onUpdate(evt.get());
+               break;
+            case DELETE: onDelete(evt.get());
+               break;
+         }
+      }
+      catch (CatalogRepoException e)
+      {
+         logger.log(Level.WARNING, "Failed to update full text index for digital copy '" + evt.getEntityId() + "' on update action " + action, e);
       }
    }
 
