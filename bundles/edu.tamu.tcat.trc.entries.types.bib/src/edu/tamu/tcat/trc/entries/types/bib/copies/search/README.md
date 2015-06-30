@@ -1,0 +1,3 @@
+Defined a Search API over the full text contents of digital copies of books. This distinguishes between volume level search (i.e. searching for documents that match a particular query) and page level search (finding a search result within an individual page. This design choice is motivated by a combination of how we expect people to perform full-text searches as well as the pragmatic constraints of using the HTRC's extracted feature set as a basis for obtaining the full text representation of a book.
+
+This API is expected to be significantly revised as we refine and enhance our full-text search tools and as we integrate richer sources of text.
