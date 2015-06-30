@@ -76,6 +76,20 @@ public class BasicFields
       }
    }
 
+   public static class BasicInteger extends FieldBase<Integer>
+   {
+      public BasicInteger(String name)
+      {
+         super(name, Integer.class);
+      }
+
+      @Override
+      public String toSolrValue(Integer value) throws SearchException
+      {
+         return value != null ? value.toString() : null;
+      }
+   }
+
    public static class BasicDate extends FieldBase<LocalDate>
    {
       public BasicDate(String name)
