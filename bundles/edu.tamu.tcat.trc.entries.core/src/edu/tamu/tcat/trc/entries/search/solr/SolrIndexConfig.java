@@ -14,6 +14,25 @@ import edu.tamu.tcat.trc.entries.search.SearchException;
  */
 public interface SolrIndexConfig
 {
+   /**
+    * Allows the SOLR configuration to supply initial query parameters to be used by all
+    * queries. For example, this could be used to programmatically define facets to be used
+    * by default or to override the default query type.
+    *
+    * <p>
+    * In general, default query parameters should be done through the use of the SOLR core's
+    * XML configuration file rather than through use of the REST-based query API. Consequently,
+    * this method should be used to set values that need to differ across application defined
+    * query configurations that will be executed against the same underlying document core.
+    * This method can also be useful when defining a search client to be executed against a
+    * SOLR installation that the application developer does not have permission to configure.
+    *
+    * <p>A default, no-op implementation of this method is provided to support the anticipated
+    * common case.
+    *
+    * @param params The query parameters that will be used to define the query being built.
+    * @throws SearchException If the query parameters cannot be initialized.
+    */
    default void initialConfiguration(SolrQuery params) throws SearchException
    {
       // default impl is no-op
