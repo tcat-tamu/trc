@@ -2,6 +2,9 @@ package edu.tamu.tcat.trc.entries.types.bib.copies.search.solr;
 
 import org.apache.solr.common.SolrInputDocument;
 
+@Deprecated // legacy proxy used to wrap a SolrInputDocument and set values for the
+            // purpose of creating or adding a document to the index.
+            // Use ??? instead
 public class VolumeSolrProxy
 {
    private final static String ID = "id";
