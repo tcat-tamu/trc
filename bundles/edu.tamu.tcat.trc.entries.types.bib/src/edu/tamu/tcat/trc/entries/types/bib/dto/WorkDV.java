@@ -21,6 +21,7 @@ import edu.tamu.tcat.trc.entries.types.bib.Work;
 public class WorkDV
 {
    public String id;
+   public String type;
    public List<AuthorRefDV> authors = new ArrayList<>();
    public Collection<TitleDV> titles = new ArrayList<>();
    public List<AuthorRefDV> otherAuthors = new ArrayList<>();
@@ -35,6 +36,7 @@ public class WorkDV
       BasicWorkImpl work = new BasicWorkImpl();
       work.id = dto.id;
 
+      work.type = dto.type;
       work.authors = AuthorListDV.instantiate(dto.authors);
       work.title = new TitleDefinitionImpl(dto.titles);
       work.otherAuthors = AuthorListDV.instantiate(dto.otherAuthors);
@@ -52,6 +54,7 @@ public class WorkDV
       WorkDV dto = new WorkDV();
 
       dto.id = work.getId();
+      dto.type = work.getType();
       dto.authors = new ArrayList<>();
       work.getAuthors().forEach(ref -> dto.authors.add(AuthorRefDV.create(ref)));
 
@@ -75,6 +78,7 @@ public class WorkDV
    public static class BasicWorkImpl implements Work
    {
          private String id;
+         private String type;
          private AuthorList authors;
          private AuthorList otherAuthors;
          private TitleDefinitionImpl title;
@@ -86,6 +90,12 @@ public class WorkDV
          public String getId()
          {
             return id;
+         }
+
+         @Override
+         public String getType()
+         {
+            return type;
          }
 
          @Override

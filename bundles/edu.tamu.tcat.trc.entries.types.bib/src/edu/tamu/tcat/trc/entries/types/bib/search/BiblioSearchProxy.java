@@ -27,6 +27,7 @@ public class BiblioSearchProxy
    // FIXME this mixes works, editions and volume information
 
    public String id;
+   public String type;
    public String uri;
    public List<AuthorRefDV> authors = new ArrayList<>();
    public String title;
@@ -56,6 +57,7 @@ public class BiblioSearchProxy
       String name = getAuthorName(authRef);
 
       result.id = w.getId();
+      result.type = w.getType();
       result.uri = "works/" + w.getId();        // TODO make a more flexible tool for creating work URIs
       result.title = getEntityTitle(titles);
 

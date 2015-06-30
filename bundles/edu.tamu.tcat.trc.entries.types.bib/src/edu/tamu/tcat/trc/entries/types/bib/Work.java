@@ -19,6 +19,15 @@ public interface Work
    String getId();      // TODO create named ID type
 
    /**
+    * A system that has multiple types of works in a single repository needs to be able to
+    * distinguish between the different types.
+    *
+    * @return a free-form, machine-readable string that can be used by client software to
+    *    distinguish work type.
+    */
+   String getType();
+
+   /**
     * @return The authors of this work.
     */
    AuthorList getAuthors();

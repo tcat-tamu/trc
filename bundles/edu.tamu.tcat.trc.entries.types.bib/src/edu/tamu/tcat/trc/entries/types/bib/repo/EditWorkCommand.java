@@ -57,6 +57,12 @@ public interface EditWorkCommand
 
    /**
     *
+    * @param type
+    */
+   void setType(String type);
+
+   /**
+    *
     * @param series
     */
    void setSeries(String series);

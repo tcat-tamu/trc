@@ -44,6 +44,7 @@ public class EditWorkCommandImpl implements EditWorkCommand
    @Override
    public void setAll(WorkDV work) throws InvalidDataException
    {
+      setType(work.type);
       setSeries(work.series);
       setSummary(work.summary);
       setAuthors(work.authors);
@@ -77,6 +78,12 @@ public class EditWorkCommandImpl implements EditWorkCommand
 
          mutator.setAll(edition);
       }
+   }
+
+   @Override
+   public void setType(String type)
+   {
+      work.type = type;
    }
 
    @Override
