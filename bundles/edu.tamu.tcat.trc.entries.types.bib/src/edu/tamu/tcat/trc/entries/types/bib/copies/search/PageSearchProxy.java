@@ -16,7 +16,6 @@ public class PageSearchProxy
 
    public PageSearchProxy()
    {
-      // TODO Auto-generated constructor stub
    }
 
 }
