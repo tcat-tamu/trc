@@ -2,22 +2,21 @@ package edu.tamu.tcat.trc.entries.types.bib.copies.search.solr;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.common.SolrInputDocument;
 
+import edu.tamu.tcat.hathitrust.HathiTrustClientException;
 import edu.tamu.tcat.hathitrust.htrc.features.simple.ExtractedFeatures;
 import edu.tamu.tcat.hathitrust.htrc.features.simple.impl.DefaultExtractedFeaturesProvider;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
@@ -29,18 +28,24 @@ import edu.tamu.tcat.trc.entries.types.bib.copies.repo.CopyReferenceRepository;
 
 public class SolrCopyReferenceIndexManager implements CopyReferenceIndex
 {
+   // TODO remove dependency on HTRC to copy implementation.
+
    private static Logger logger = Logger.getLogger(SolrCopyReferenceIndexManager.class.getName());
    private static final Pattern copyIdPattern = Pattern.compile("^htid:(\\d{9})#(.*)$");
-
-   private static final String FILES_PATH_ROOT = "\\\\citd.tamu.edu\\citdfs\\archive\\HTRC_Dataset\\";
 
    /** Configuration property key that defines the URI for the Solr server. */
    public static final String SOLR_API_ENDPOINT = "solr.api.endpoint";
 
+   /** Configuration property key that defines the path to the HathiTrust extracted
+    *  features data set to be used to pull full text information about a copy. */
+   // HACK need a more flexible mechanism for defining how to retrieve the full text
+   //      of a digital copy.
    public static final String HTRC_EX_FEATURES_PATH = "htrc.extracted_features.path";
 
-   /** Configuration property key that defines Solr core to be used for relationships. */
+   /** Configuration property key that defines Solr core to be used volume-level full text. */
    public static final String SOLR_CORE_VOLS = "trc.entries.bib.copies.volumes.core";
+
+   /** Configuration property key that defines Solr core to be used page-level full text. */
    public static final String SOLR_CORE_PAGES = "trc.entries.bib.copies.pages.core";
 
    private SolrServer solrVols;
@@ -52,6 +57,11 @@ public class SolrCopyReferenceIndexManager implements CopyReferenceIndex
    private DefaultExtractedFeaturesProvider provider;
    private AutoCloseable registration;
 
+   /**
+    * Supply the configure properties to be used
+    * <p>Intended to be called by the OSGi DS framework.
+    * @param config
+    */
    public void setConfig(ConfigurationProperties config)
    {
       this.config = config;
@@ -126,7 +136,6 @@ public class SolrCopyReferenceIndexManager implements CopyReferenceIndex
       }
    }
 
-
    private void releaseSolrConnection(SolrServer solr)
    {
       logger.fine("Releasing connection to Solr server");
@@ -167,79 +176,40 @@ public class SolrCopyReferenceIndexManager implements CopyReferenceIndex
 
    private void onCreate(CopyReference copyRef)
    {
-      PageSolrProxy pageDoc = new PageSolrProxy();
-      Collection<SolrInputDocument> pageDocs = new HashSet<>();
+      String copyId = copyRef.getCopyId();
+
       try
       {
-         String copyId = copyRef.getCopyId();
-         Matcher matcher = copyIdPattern.matcher(copyId);
-         if (!matcher.find())
-            throw new IllegalArgumentException("Id does not match current patterns: " + copyId);
-
-         ExtractedFeatures feature = provider.getExtractedFeatures(matcher.group(2));
-
-         final AtomicInteger currentPage = new AtomicInteger();
-         StringBuilder pageContents = new StringBuilder();
-         doTokens(copyId, feature, (pkg) ->
-         {
-            try
-            {
-               int pg = currentPage.get();
-               // ended page, flush contents
-               if (pg != pkg.pageNum)
-               {
-                  if (pageContents.length() > 0)
-                  {
-                     pageDoc.create()
-                     .setId(copyId+":"+pg)
-                     .setPageSequence(pg)
-                     .setPageText(pageContents.toString());
-
-                     pageDocs.add(pageDoc.getDocument());
-
-                     pageContents.delete(0, pageContents.length());
-                  }
-                  currentPage.set(pkg.pageNum);
-               }
-
-               int count = pkg.bodyData.getCount(pkg.token);
-               Collections.nCopies(count, pkg.token).stream().forEach(s -> pageContents.append(s).append(" "));
-
-            } catch (Exception e) {
-               logger.log(Level.SEVERE, "Error", e);
-            }
-         });
+         Collection<PageTextDocument> pages = getPageText(copyRef);
 
          String associatedEntry = copyRef.getAssociatedEntry().toString();
-         VolumeSolrProxy volDoc = new VolumeSolrProxy();
-         StringBuilder volText = new StringBuilder();
-         for (SolrInputDocument doc : pageDocs)
-         {
-            String text = doc.getFieldValue("pageText").toString();
-            volText.append(text);
-         }
-         volDoc.create();
-         volDoc.setId(copyId)
-               .setAssociatedEntry(associatedEntry)
-               .setVolumeText(volText.toString());
-         try
-         {
-            solrPages.add(pageDocs);
-            solrPages.commit();
-            solrVols.add(volDoc.getDocument());
-            solrVols.commit();
-         }
-         catch(SolrServerException e)
-         {
-            logger.log(Level.SEVERE, "Failed processing page to solr ["+copyId+"]", e);
-         }
+         String volumeText = pages.parallelStream()
+               .map(PageTextDocument::getText)
+               .collect(Collectors.joining(" "));
+         VolumeTextDocument volume = VolumeTextDocument.create(copyId, associatedEntry, volumeText);
 
+         solrPages.add(pages.parallelStream()
+               .map(PageTextDocument::getDocument)
+               .collect(Collectors.toList()));
+         solrVols.add(volume.getDocument());
+         solrPages.commit();
+         solrVols.commit();
       }
-      catch (Exception e)
+      catch(Exception e)
       {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
+         logger.log(Level.SEVERE, "Failed processing page to solr [" + copyId + "]", e);
       }
+   }
+
+   private String getHtid(CopyReference copyRef)
+   {
+      String copyId = copyRef.getCopyId();
+      Matcher matcher = copyIdPattern.matcher(copyId);
+      if (!matcher.find())
+         throw new IllegalArgumentException("Id does not match current patterns: " + copyId);
+
+      String htid = matcher.group(2);
+      return htid;
    }
 
    private void onUpdate(CopyReference copyRef)
@@ -251,37 +221,59 @@ public class SolrCopyReferenceIndexManager implements CopyReferenceIndex
    {
 
    }
-   static class Pkg
-   {
-      String token;
-      ExtractedFeatures.ExtractedPagePartOfSpeechData bodyData;
-      int pageNum;
-      ExtractedFeatures.ExtractedPageFeatures page;
 
-      Pkg(String t,
-          int pg,
-          ExtractedFeatures.ExtractedPageFeatures page,
-          ExtractedFeatures.ExtractedPagePartOfSpeechData p)
+   private Collection<PageTextDocument> getPageText(CopyReference copyRef)
+         throws HathiTrustClientException, Exception
+   {
+      // TODO need a general puprose mechanism for extracting this information that is
+      //      not tied to SOLR. This seems like a common requirement.
+      String htid = getHtid(copyRef);
+      ExtractedFeatures feature = provider.getExtractedFeatures(htid);
+
+      List<PageTextDocument> pages = new ArrayList<>();
+      int pageCount = feature.pageCount();
+      for (int pg = 0; pg < pageCount; ++pg)
       {
-         token = t;
-         pageNum = pg;
-         this.page = page;
-         bodyData = p;
+         String pgId = htid + ":" + pg;
+         String pgText = extractPageTokens(feature, pg);
+         pages.add(PageTextDocument.create(pgId, pg, pgText));
       }
+
+      return pages;
    }
 
-   private void doTokens(String id, ExtractedFeatures feat, Consumer<Pkg> f) throws Exception
+   /**
+    * Creates a synthetic representation of the content of a page that contains the words of
+    * the page as represented within the HTRC extracted feature set are present in the same
+    * number as on the original page, but arbitrarily ordered (alphabetically with each word
+    * repeated the same number of time it occurs in the original page).
+    *
+    * @param feat
+    * @param pg
+    * @return
+    * @throws HathiTrustClientException
+    */
+   private String extractPageTokens(ExtractedFeatures feat, int pg) throws HathiTrustClientException
    {
+      // HACK: this needs to be generalized so that we can get text from a wide range of source copies
+      ExtractedFeatures.ExtractedPageFeatures page = feat.getPage(pg);
+      ExtractedFeatures.ExtractedPagePartOfSpeechData bodyData = page.getBodyData();
+      Set<String> toks = bodyData.tokens();
 
-      int pageCount = feat.pageCount();
-      for (int pg=0; pg < pageCount; ++pg)
-      {
-         ExtractedFeatures.ExtractedPageFeatures page = feat.getPage(pg);
-         ExtractedFeatures.ExtractedPagePartOfSpeechData bodyData = page.getBodyData();
-         Set<String> toks = bodyData.tokens();
-         final int fpg = pg;
-         toks.stream().sorted().forEach(tok -> f.accept(new Pkg(tok, fpg, page, bodyData)));
+      StringBuilder pageContents = new StringBuilder();
+      toks.stream().sorted()
+          .forEach(token -> {
+             try
+             {
+                int count = bodyData.getCount(token);
+                Collections.nCopies(count, token).stream().forEach(s -> pageContents.append(s).append(" "));
+             }
+             catch (Exception ex)
+             {
+                logger.log(Level.SEVERE, "Failed to represent token: " + token, ex);
+             }
+          });
 
-      }
+      return pageContents.toString();
    }
 }
