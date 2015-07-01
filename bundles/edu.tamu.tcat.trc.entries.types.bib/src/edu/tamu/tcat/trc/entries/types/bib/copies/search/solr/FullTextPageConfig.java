@@ -19,9 +19,9 @@ public class FullTextPageConfig implements SolrIndexConfig
 {
 
    public static final SolrIndexField<String> ID = new BasicFields.BasicString("id");
-   private final static SolrIndexField<String> TEXT = new BasicFields.BasicString("pageText");
-   private final static SolrIndexField<Integer> NUMBER = new BasicFields.BasicInteger("pageNumber");
-   private final static SolrIndexField<String> SEQUENCE = new BasicFields.BasicString("pageSequence");
+   public static final SolrIndexField<String> TEXT = new BasicFields.BasicString("pageText");
+   public static final SolrIndexField<Integer> NUMBER = new BasicFields.BasicInteger("pageNumber");
+   public static final SolrIndexField<String> SEQUENCE = new BasicFields.BasicString("pageSequence");
 
 
    public FullTextPageConfig()
