@@ -57,6 +57,14 @@ public class TrcQueryBuilder implements SolrQueryBuilder
       params.set("rows", max);
    }
 
+   public void facetLimit(int max)
+   {
+      if (max < 0)
+         throw new IllegalArgumentException("Facet limit cannot be negative");
+      params.setFacetLimit(max);
+
+   }
+
    /**
     * Unpack data of the given {@link BasicFields.SearchProxyField SearchProxyField} type from each
     * document in the provided collection. This involves deserializing
