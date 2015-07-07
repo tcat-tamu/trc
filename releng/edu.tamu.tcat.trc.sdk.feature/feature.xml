@@ -6,11 +6,12 @@
       provider-name="Texas A&amp;M Engineering Experiment Station">
 
    <description>
-      Exposes the plugins built into the CITD Thematic Research Collections Library
+      Exposes the plugins built into the TCAT Thematic Research Collections
+Library
    </description>
 
    <copyright>
-      Copyright © 2014, All Rights Reserved.
+      Copyright © 2014-2015, All Rights Reserved.
 Texas Center for Applied Technology
 Texas A&amp;M Engineering Experiment Station
 1470 William D. Fitch Parkway
@@ -18,7 +19,7 @@ College Station, Texas, USA 77845
    </copyright>
 
    <license url="http://www.apache.org/licenses/LICENSE-2.0">
-      Copyright 2014 Texas A&amp;M Engineering Experiment Station
+      Copyright 2014-20015 Texas A&amp;M Engineering Experiment Station
 
 Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
 you may not use this file except in compliance with the License.
@@ -102,6 +103,7 @@ limitations under the License.
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
+
    <plugin
          id="edu.tamu.tcat.trc.entries.types.biblio.postgres"
          download-size="0"
@@ -115,7 +117,8 @@ limitations under the License.
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
- <plugin
+
+   <plugin
          id="edu.tamu.tcat.trc.entries.types.biblio.search.solr"
          download-size="0"
          install-size="0"
@@ -142,7 +145,7 @@ limitations under the License.
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
-         
+
    <plugin
          id="edu.tamu.tcat.trc.entries.types.bio.rest"
          download-size="0"
@@ -170,7 +173,7 @@ limitations under the License.
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
-         
+
    <plugin
          id="edu.tamu.tcat.trc.entries.types.bio.search.solr"
          download-size="0"
@@ -184,7 +187,7 @@ limitations under the License.
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
-         
+
    <plugin
          id="edu.tamu.tcat.trc.entries.types.reln"
          download-size="0"
@@ -198,7 +201,7 @@ limitations under the License.
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
-     
+
    <plugin
          id="edu.tamu.tcat.trc.entries.types.reln.rest"
          download-size="0"
@@ -212,7 +215,7 @@ limitations under the License.
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
-     
+
    <plugin
          id="edu.tamu.tcat.trc.entries.types.reln.postgres"
          download-size="0"
@@ -226,7 +229,7 @@ limitations under the License.
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
-     
+
    <plugin
          id="edu.tamu.tcat.trc.entries.types.reln.search.solr"
          download-size="0"
