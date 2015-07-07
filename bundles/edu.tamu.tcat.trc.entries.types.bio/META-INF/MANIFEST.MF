@@ -9,8 +9,7 @@ Export-Package: edu.tamu.tcat.trc.entries.types.bio,
  edu.tamu.tcat.trc.entries.types.bio.dto,
  edu.tamu.tcat.trc.entries.types.bio.postgres,
  edu.tamu.tcat.trc.entries.types.bio.repo,
- edu.tamu.tcat.trc.entries.types.bio.search,
- edu.tamu.tcat.trc.entries.types.bio.search.solr
+ edu.tamu.tcat.trc.entries.types.bio.search
 Import-Package: com.fasterxml.jackson.annotation;version="2.3.1",
  com.fasterxml.jackson.core;version="2.3.1",
  com.fasterxml.jackson.databind;version="2.3.1",

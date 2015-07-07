@@ -1,7 +1,6 @@
 package edu.tamu.tcat.trc.entries.types.bio.search.solr;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -14,8 +13,6 @@ import edu.tamu.tcat.trc.entries.types.bio.search.PeopleQueryCommand;
 
 public class PeopleSolrQueryCommand implements PeopleQueryCommand
 {
-   private final static Logger logger = Logger.getLogger(PeopleSolrQueryCommand.class.getName());
-
    private static final int DEFAULT_MAX_RESULTS = 25;
 
    private final SolrServer solr;
