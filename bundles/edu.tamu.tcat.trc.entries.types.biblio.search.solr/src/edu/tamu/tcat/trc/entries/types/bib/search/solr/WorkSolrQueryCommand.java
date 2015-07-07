@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -23,8 +22,6 @@ import edu.tamu.tcat.trc.entries.types.bib.search.WorkQueryCommand;
 
 public class WorkSolrQueryCommand implements WorkQueryCommand
 {
-   private final static Logger logger = Logger.getLogger(WorkSolrQueryCommand.class.getName());
-
    private static final int DEFAULT_MAX_RESULTS = 25;
 
    private final SolrServer solr;
