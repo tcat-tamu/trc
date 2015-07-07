@@ -8,13 +8,9 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: edu.tamu.tcat.trc.entries.types.bib,
  edu.tamu.tcat.trc.entries.types.bib.copies,
  edu.tamu.tcat.trc.entries.types.bib.copies.dto,
- edu.tamu.tcat.trc.entries.types.bib.copies.postgres,
  edu.tamu.tcat.trc.entries.types.bib.copies.repo,
- edu.tamu.tcat.trc.entries.types.bib.copies.rest.v1,
  edu.tamu.tcat.trc.entries.types.bib.dto,
- edu.tamu.tcat.trc.entries.types.bib.postgres,
  edu.tamu.tcat.trc.entries.types.bib.repo,
- edu.tamu.tcat.trc.entries.types.bib.rest.v1,
  edu.tamu.tcat.trc.entries.types.bib.search,
  edu.tamu.tcat.trc.entries.types.bib.search.solr
 Import-Package: com.fasterxml.jackson.core;version="2.3.1",
