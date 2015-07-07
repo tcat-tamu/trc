@@ -48,9 +48,21 @@
     <module>oss.trc/releng/edu.tamu.tcat.trc.sdk.feature</module>
     
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.core</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.bib</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio.rest</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio.postgres</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio.search.solr</module>
+    
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.bio</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.bio.rest</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.bio.postgres</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.bio.search.solr</module>
+    
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.reln</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.reln.rest</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.reln.postgres</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.reln.search.solr</module>
+    
     <module>oss.trc/bundles/edu.tamu.tcat.trc.resources</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.resources.books.hathitrust</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.resources.rest</module>
