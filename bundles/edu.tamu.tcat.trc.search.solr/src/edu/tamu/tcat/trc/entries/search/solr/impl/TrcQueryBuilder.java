@@ -22,13 +22,13 @@ import edu.tamu.tcat.trc.entries.search.solr.SolrQueryBuilder;
  */
 public class TrcQueryBuilder implements SolrQueryBuilder
 {
-   private SolrServer solr;
+//   private SolrServer solr;
    private SolrQuery params;
    private SolrIndexConfig cfg;
 
    public TrcQueryBuilder(SolrServer solr, SolrIndexConfig cfg) throws SearchException
    {
-      this.solr = solr;
+//      this.solr = solr;
       this.cfg = cfg;
       params = new SolrQuery();
 
