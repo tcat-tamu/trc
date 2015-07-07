@@ -10,11 +10,11 @@ Import-Package: com.google.common.util.concurrent;version="15.0.0",
  edu.tamu.tcat.hathitrust.bibliography,
  edu.tamu.tcat.hathitrust.client.v1.basic,
  edu.tamu.tcat.osgi.config;version="1.0.3",
- edu.tamu.tcat.trc.resources.books.discovery,
- edu.tamu.tcat.trc.resources.books.resolve,
+ edu.tamu.tcat.trc.digires.books.discovery,
+ edu.tamu.tcat.trc.digires.books.resolve,
  org.apache.solr.client.solrj;version="4.9.0",
  org.apache.solr.client.solrj.impl;version="4.9.0",
  org.apache.solr.client.solrj.response;version="4.9.0",
  org.apache.solr.common;version="4.9.0",
  org.apache.solr.common.params;version="4.9.0"
-Export-Package: edu.tamu.tcat.trc.resources.books.hathitrust
+Export-Package: edu.tamu.tcat.trc.digires.books.hathitrust
