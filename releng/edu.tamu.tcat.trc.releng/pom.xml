@@ -77,18 +77,20 @@
     <repository>
       <id>Eclipse Platform</id>
       <layout>p2</layout>
-<!--       <url>http://download.eclipse.org/releases/luna/</url> -->
-      <url>${repo-base-url}/Eclipse.Repository.Mirror.Luna/lastSuccessfulBuild/artifact/target/repository/</url>
+      <url>http://download.eclipse.org/releases/mars/</url>
+<!--       <url>${repo-base-url}/Eclipse.Repository.Mirror.Luna/lastSuccessfulBuild/artifact/target/repository/</url> -->
     </repository>
     <repository>
       <id>Eclipse Orbit</id>
       <layout>p2</layout>
-      <url>${repo-base-url}/Eclipse%20Orbit%20Repository%20Mirror/lastSuccessfulBuild/artifact/target/repository/</url>
+      <url>http://download.eclipse.org/tools/orbit/downloads/drops/R20150519210750/repository/</url>
+<!--       <url>${repo-base-url}/Eclipse%20Orbit%20Repository%20Mirror/lastSuccessfulBuild/artifact/target/repository/</url> -->
     </repository>
     <repository>
       <id>TCAT OSS</id>
       <layout>p2</layout>
-      <url>https://sda-dev.citd.tamu.edu/sdk/</url>
+      <url>http://tcat-tamu.github.io/releng/p2/</url>
+<!--       <url>https://sda-dev.citd.tamu.edu/sdk/</url> -->
     </repository>
     <repository>
       <id>JAX RS</id>
