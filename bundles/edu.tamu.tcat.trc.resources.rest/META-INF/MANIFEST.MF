@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: TRC Resources REST API
-Bundle-SymbolicName: edu.tamu.tcat.trc.resources.rest
+Bundle-SymbolicName: edu.tamu.tcat.trc.digires.rest
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Texas A&M Engineering Experiment Station
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
