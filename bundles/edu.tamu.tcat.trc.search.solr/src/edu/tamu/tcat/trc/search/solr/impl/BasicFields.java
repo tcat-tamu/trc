@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.search.solr.impl;
+package edu.tamu.tcat.trc.search.solr.impl;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -9,8 +9,8 @@ import java.util.Objects;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.tcat.trc.entries.search.SearchException;
-import edu.tamu.tcat.trc.entries.search.solr.SolrIndexField;
+import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.search.solr.SolrIndexField;
 
 public class BasicFields
 {

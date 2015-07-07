@@ -1,6 +1,6 @@
 package edu.tamu.tcat.trc.entries.types.bio.search;
 
-import edu.tamu.tcat.trc.entries.search.SearchException;
+import edu.tamu.tcat.trc.search.SearchException;
 
 /**
  * Command for use in querying the associated {@link PeopleSearchService} which provides

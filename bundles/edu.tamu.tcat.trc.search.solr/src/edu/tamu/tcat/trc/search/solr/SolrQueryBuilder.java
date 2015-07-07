@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.search.solr;
+package edu.tamu.tcat.trc.search.solr;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -6,7 +6,7 @@ import java.util.Collections;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.params.SolrParams;
 
-import edu.tamu.tcat.trc.entries.search.SearchException;
+import edu.tamu.tcat.trc.search.SearchException;
 
 /**
  * A query builder for a SOLR query. This API is intended to wrap the basic REST API

@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.search.solr.impl;
+package edu.tamu.tcat.trc.search.solr.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,10 +11,10 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.SolrParams;
 
-import edu.tamu.tcat.trc.entries.search.SearchException;
-import edu.tamu.tcat.trc.entries.search.solr.SolrIndexConfig;
-import edu.tamu.tcat.trc.entries.search.solr.SolrIndexField;
-import edu.tamu.tcat.trc.entries.search.solr.SolrQueryBuilder;
+import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.search.solr.SolrIndexConfig;
+import edu.tamu.tcat.trc.search.solr.SolrIndexField;
+import edu.tamu.tcat.trc.search.solr.SolrQueryBuilder;
 
 /**
  * The main TRC implementation of a {@link SolrQueryBuilder}. This class also offers utilities

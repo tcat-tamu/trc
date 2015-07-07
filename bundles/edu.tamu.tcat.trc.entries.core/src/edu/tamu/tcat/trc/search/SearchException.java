@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.search;
+package edu.tamu.tcat.trc.search;
 
 /**
  * A base exception type for entry types to use within their search modules.

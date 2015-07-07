@@ -9,13 +9,13 @@ import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
 import edu.tamu.tcat.trc.entries.common.dto.HistoricalEventDTO;
-import edu.tamu.tcat.trc.entries.search.SearchException;
-import edu.tamu.tcat.trc.entries.search.solr.SolrIndexField;
-import edu.tamu.tcat.trc.entries.search.solr.impl.TrcDocument;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
+import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.search.solr.SolrIndexField;
+import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 
 /**
  * Represents a document in the SOLR search index. Exports its representation as

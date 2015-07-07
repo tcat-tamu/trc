@@ -1,7 +1,7 @@
 package edu.tamu.tcat.trc.entries.types.bib.search;
 
-import edu.tamu.tcat.trc.entries.search.SearchException;
 import edu.tamu.tcat.trc.entries.types.bib.repo.WorkRepository;
+import edu.tamu.tcat.trc.search.SearchException;
 
 /**
  * The main API for searching a {@link WorkRepository}.

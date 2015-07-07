@@ -2,8 +2,8 @@ package edu.tamu.tcat.trc.entries.types.bib.copies.search.solr;
 
 import org.apache.solr.common.SolrInputDocument;
 
-import edu.tamu.tcat.trc.entries.search.SearchException;
-import edu.tamu.tcat.trc.entries.search.solr.impl.TrcDocument;
+import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 
 public class VolumeTextDocument
 {

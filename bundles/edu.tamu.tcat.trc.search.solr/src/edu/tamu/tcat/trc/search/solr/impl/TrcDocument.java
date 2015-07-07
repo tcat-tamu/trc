@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.search.solr.impl;
+package edu.tamu.tcat.trc.search.solr.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,9 +8,9 @@ import java.util.Objects;
 
 import org.apache.solr.common.SolrInputDocument;
 
-import edu.tamu.tcat.trc.entries.search.SearchException;
-import edu.tamu.tcat.trc.entries.search.solr.SolrIndexConfig;
-import edu.tamu.tcat.trc.entries.search.solr.SolrIndexField;
+import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.search.solr.SolrIndexConfig;
+import edu.tamu.tcat.trc.search.solr.SolrIndexField;
 
 public class TrcDocument
 {

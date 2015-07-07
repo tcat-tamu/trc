@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.search.solr.impl;
+package edu.tamu.tcat.trc.search.solr.impl;
 
 import java.time.Year;
 import java.util.Objects;

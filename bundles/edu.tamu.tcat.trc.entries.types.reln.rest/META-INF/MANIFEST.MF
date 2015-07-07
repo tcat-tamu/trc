@@ -8,10 +8,10 @@ Bundle-Vendor: Texas A&M Engineering Experiment Station
 Export-Package: edu.tamu.tcat.trc.entries.types.reln.rest.v1
 Import-Package: com.google.common.base;version="15.0.0",
  edu.tamu.tcat.trc.entries.repo,
- edu.tamu.tcat.trc.entries.search,
  edu.tamu.tcat.trc.entries.types.reln,
  edu.tamu.tcat.trc.entries.types.reln.dto,
  edu.tamu.tcat.trc.entries.types.reln.repo,
  edu.tamu.tcat.trc.entries.types.reln.search,
+ edu.tamu.tcat.trc.search,
  javax.ws.rs;version="2.0.0",
  javax.ws.rs.core;version="2.0.0"

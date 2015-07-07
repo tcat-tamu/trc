@@ -12,8 +12,6 @@ import java.util.logging.Logger;
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
-import edu.tamu.tcat.trc.entries.search.SearchException;
-import edu.tamu.tcat.trc.entries.search.solr.impl.TrcDocument;
 import edu.tamu.tcat.trc.entries.types.bib.Edition;
 import edu.tamu.tcat.trc.entries.types.bib.Volume;
 import edu.tamu.tcat.trc.entries.types.bib.Work;
@@ -24,6 +22,8 @@ import edu.tamu.tcat.trc.entries.types.bib.dto.TitleDV;
 import edu.tamu.tcat.trc.entries.types.bib.dto.VolumeDV;
 import edu.tamu.tcat.trc.entries.types.bib.dto.WorkDV;
 import edu.tamu.tcat.trc.entries.types.bib.search.BiblioSearchProxy;
+import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 
 /**
  * Represents a document in the SOLR search index. Exports its representation as

@@ -9,8 +9,6 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.search.SearchException;
-import edu.tamu.tcat.trc.entries.search.solr.impl.TrcQueryBuilder;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipChangeEvent;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
@@ -18,6 +16,8 @@ import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchIndexManager;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchService;
+import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
 public class SolrRelationshipSearchService implements RelationshipSearchIndexManager, RelationshipSearchService
 {

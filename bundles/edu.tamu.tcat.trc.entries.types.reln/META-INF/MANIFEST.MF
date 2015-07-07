@@ -12,4 +12,4 @@ Export-Package: edu.tamu.tcat.trc.entries.types.reln,
  edu.tamu.tcat.trc.entries.types.reln.search
 Import-Package: edu.tamu.tcat.trc.entries.notification,
  edu.tamu.tcat.trc.entries.repo,
- edu.tamu.tcat.trc.entries.search
+ edu.tamu.tcat.trc.search

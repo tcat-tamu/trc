@@ -6,10 +6,10 @@ import java.util.Collections;
 
 import org.apache.solr.client.solrj.SolrQuery;
 
-import edu.tamu.tcat.trc.entries.search.SearchException;
-import edu.tamu.tcat.trc.entries.search.solr.SolrIndexConfig;
-import edu.tamu.tcat.trc.entries.search.solr.SolrIndexField;
-import edu.tamu.tcat.trc.entries.search.solr.impl.BasicFields;
+import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.search.solr.SolrIndexConfig;
+import edu.tamu.tcat.trc.search.solr.SolrIndexField;
+import edu.tamu.tcat.trc.search.solr.impl.BasicFields;
 
 /**
  * Defines the Solr configuration for indexing full text search results on a page level.
