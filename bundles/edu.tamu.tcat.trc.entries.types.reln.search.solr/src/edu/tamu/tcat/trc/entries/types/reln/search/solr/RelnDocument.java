@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import org.apache.solr.common.SolrInputDocument;
 
@@ -22,8 +21,6 @@ import edu.tamu.tcat.trc.entries.types.reln.search.RelnSearchProxy;
  */
 public class RelnDocument
 {
-   private final static Logger logger = Logger.getLogger(RelnDocument.class.getName());
-
    // composed instead of extended to not expose TrcDocument as API to this class
    private TrcDocument indexDocument;
 

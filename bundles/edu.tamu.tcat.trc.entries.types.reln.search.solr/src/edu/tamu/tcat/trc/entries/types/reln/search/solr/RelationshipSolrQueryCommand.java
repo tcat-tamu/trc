@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Logger;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -22,7 +21,6 @@ import edu.tamu.tcat.trc.entries.types.reln.search.RelnSearchProxy;
 
 public class RelationshipSolrQueryCommand implements RelationshipQueryCommand
 {
-   private final static Logger logger = Logger.getLogger(RelationshipSolrQueryCommand.class.getName());
    private static final int DEFAULT_MAX_RESULTS = 25;
 
    private final SolrServer solr;

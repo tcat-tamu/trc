@@ -9,8 +9,7 @@ Export-Package: edu.tamu.tcat.trc.entries.types.reln,
  edu.tamu.tcat.trc.entries.types.reln.dto,
  edu.tamu.tcat.trc.entries.types.reln.internal.dto,
  edu.tamu.tcat.trc.entries.types.reln.repo,
- edu.tamu.tcat.trc.entries.types.reln.search,
- edu.tamu.tcat.trc.entries.types.reln.search.solr
+ edu.tamu.tcat.trc.entries.types.reln.search
 Import-Package: com.fasterxml.jackson.core;version="2.3.1",
  com.fasterxml.jackson.databind;version="2.3.1",
  com.google.common.base;version="15.0.0",
