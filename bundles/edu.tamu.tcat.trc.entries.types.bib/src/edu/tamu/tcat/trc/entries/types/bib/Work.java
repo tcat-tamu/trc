@@ -19,12 +19,16 @@ public interface Work
    String getId();      // TODO create named ID type
 
    /**
-    * A system that has multiple types of works in a single repository needs to be able to
-    * distinguish between the different types.
+    * Applications may need to distinguish between multiple types of works stored within a
+    * single repository for analytical purposes.
     *
-    * @return a free-form, machine-readable string that can be used by client software to
-    *    distinguish work type.
+    * @return a application-defined type identifier for this work.
+    * @deprecated we should probably support the use of multiple WorkRepositories to
+    *       represent different types of bibliographic entries. Applications can then look
+    *       up the repo that they need.
     */
+   @Deprecated  // FIXME we should probably create multiple WorkRepos to represent the
+                //       different work types and
    String getType();
 
    /**
