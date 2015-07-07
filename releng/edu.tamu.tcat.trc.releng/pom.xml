@@ -47,7 +47,10 @@
     <module>oss.trc/releng/edu.tamu.tcat.trc.releng/repo.product</module>
     <module>oss.trc/releng/edu.tamu.tcat.trc.sdk.feature</module>
     
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.search.solr</module>
+    
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.core</module>
+    
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio.rest</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio.postgres</module>

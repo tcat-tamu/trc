@@ -6,7 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: edu.tamu.tcat.trc.entries.types.bib.copies.rest.v1,
  edu.tamu.tcat.trc.entries.types.bib.rest.v1
-Import-Package: com.fasterxml.jackson.databind;version="2.3.1",
+Import-Package: com.fasterxml.jackson.core;version="2.3.1",
+ com.fasterxml.jackson.databind;version="2.3.1",
  edu.tamu.tcat.db.exec.sql;version="1.0.0",
  edu.tamu.tcat.osgi.config;version="1.0.3",
  edu.tamu.tcat.trc.entries.common,
