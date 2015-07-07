@@ -2,9 +2,9 @@ package edu.tamu.tcat.trc.entries.types.bib.search.solr;
 
 import java.util.List;
 
-import edu.tamu.tcat.trc.entries.types.bib.search.BiblioSearchProxy;
-import edu.tamu.tcat.trc.entries.types.bib.search.SearchWorksResult;
-import edu.tamu.tcat.trc.entries.types.bib.search.WorkQueryCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.search.BiblioSearchProxy;
+import edu.tamu.tcat.trc.entries.types.biblio.search.SearchWorksResult;
+import edu.tamu.tcat.trc.entries.types.biblio.search.WorkQueryCommand;
 
 public class SolrWorksResults implements SearchWorksResult
 {

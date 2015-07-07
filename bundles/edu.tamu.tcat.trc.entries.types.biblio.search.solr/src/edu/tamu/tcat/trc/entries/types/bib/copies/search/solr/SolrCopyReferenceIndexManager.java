@@ -22,9 +22,9 @@ import edu.tamu.tcat.hathitrust.htrc.features.simple.impl.DefaultExtractedFeatur
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent.UpdateAction;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
-import edu.tamu.tcat.trc.entries.types.bib.copies.CopyReference;
-import edu.tamu.tcat.trc.entries.types.bib.copies.repo.CopyChangeEvent;
-import edu.tamu.tcat.trc.entries.types.bib.copies.repo.CopyReferenceRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.CopyChangeEvent;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.CopyReferenceRepository;
 
 public class SolrCopyReferenceIndexManager implements CopyReferenceIndex
 {

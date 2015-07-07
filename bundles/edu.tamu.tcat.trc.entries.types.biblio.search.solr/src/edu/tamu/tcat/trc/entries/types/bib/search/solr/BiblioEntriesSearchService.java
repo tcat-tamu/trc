@@ -23,13 +23,13 @@ import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
-import edu.tamu.tcat.trc.entries.types.bib.Edition;
-import edu.tamu.tcat.trc.entries.types.bib.Volume;
-import edu.tamu.tcat.trc.entries.types.bib.Work;
-import edu.tamu.tcat.trc.entries.types.bib.repo.WorkChangeEvent;
-import edu.tamu.tcat.trc.entries.types.bib.repo.WorkRepository;
-import edu.tamu.tcat.trc.entries.types.bib.search.WorkQueryCommand;
-import edu.tamu.tcat.trc.entries.types.bib.search.WorkSearchService;
+import edu.tamu.tcat.trc.entries.types.biblio.Edition;
+import edu.tamu.tcat.trc.entries.types.biblio.Volume;
+import edu.tamu.tcat.trc.entries.types.biblio.Work;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkChangeEvent;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.search.WorkQueryCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.search.WorkSearchService;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 

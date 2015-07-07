@@ -3,8 +3,8 @@ package edu.tamu.tcat.trc.entries.types.bib.rest.v1;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.tamu.tcat.trc.entries.types.bib.dto.AuthorRefDV;
-import edu.tamu.tcat.trc.entries.types.bib.search.BiblioSearchProxy;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorRefDV;
+import edu.tamu.tcat.trc.entries.types.biblio.search.BiblioSearchProxy;
 
 /**
  * An encapsulation of adapter methods to convert between the search API and

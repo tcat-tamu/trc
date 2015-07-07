@@ -6,7 +6,7 @@ import java.util.Collections;
 
 import org.apache.solr.client.solrj.SolrQuery;
 
-import edu.tamu.tcat.trc.entries.types.bib.copies.search.PageSearchProxy;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.search.PageSearchProxy;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.SolrIndexConfig;
 import edu.tamu.tcat.trc.search.solr.SolrIndexField;

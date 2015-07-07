@@ -5,12 +5,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
-import edu.tamu.tcat.trc.entries.types.bib.copies.CopyReference;
-import edu.tamu.tcat.trc.entries.types.bib.copies.UpdateCanceledException;
-import edu.tamu.tcat.trc.entries.types.bib.copies.dto.BaseEditCopyRefCmd;
-import edu.tamu.tcat.trc.entries.types.bib.copies.dto.CopyRefDTO;
 import edu.tamu.tcat.trc.entries.types.bib.copies.postgres.PsqlDigitalCopyLinkRepo.UpdateEventFactory;
-import edu.tamu.tcat.trc.entries.types.bib.copies.repo.CopyChangeEvent;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.UpdateCanceledException;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.dto.BaseEditCopyRefCmd;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.dto.CopyRefDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.CopyChangeEvent;
 
 @Deprecated // appears to be unused. should be DB layer concern
 public class RestEditCopyRefCommand extends BaseEditCopyRefCmd

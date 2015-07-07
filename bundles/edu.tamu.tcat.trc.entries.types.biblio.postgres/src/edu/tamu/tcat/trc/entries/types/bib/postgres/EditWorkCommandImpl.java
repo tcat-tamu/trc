@@ -13,13 +13,13 @@ import java.util.stream.Collectors;
 import edu.tamu.tcat.trc.entries.core.IdFactory;
 import edu.tamu.tcat.trc.entries.core.InvalidDataException;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
-import edu.tamu.tcat.trc.entries.types.bib.dto.AuthorRefDV;
-import edu.tamu.tcat.trc.entries.types.bib.dto.EditionDV;
-import edu.tamu.tcat.trc.entries.types.bib.dto.TitleDV;
-import edu.tamu.tcat.trc.entries.types.bib.dto.VolumeDV;
-import edu.tamu.tcat.trc.entries.types.bib.dto.WorkDV;
-import edu.tamu.tcat.trc.entries.types.bib.repo.EditWorkCommand;
-import edu.tamu.tcat.trc.entries.types.bib.repo.EditionMutator;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorRefDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDV;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 
 public class EditWorkCommandImpl implements EditWorkCommand
 {

@@ -27,12 +27,12 @@ import javax.ws.rs.core.MediaType;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.core.InvalidDataException;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
-import edu.tamu.tcat.trc.entries.types.bib.Work;
-import edu.tamu.tcat.trc.entries.types.bib.dto.WorkDV;
-import edu.tamu.tcat.trc.entries.types.bib.repo.EditWorkCommand;
-import edu.tamu.tcat.trc.entries.types.bib.repo.WorkRepository;
-import edu.tamu.tcat.trc.entries.types.bib.search.WorkQueryCommand;
-import edu.tamu.tcat.trc.entries.types.bib.search.WorkSearchService;
+import edu.tamu.tcat.trc.entries.types.biblio.Work;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDV;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.search.WorkQueryCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.search.WorkSearchService;
 import edu.tamu.tcat.trc.search.SearchException;
 
 @Path("/works")

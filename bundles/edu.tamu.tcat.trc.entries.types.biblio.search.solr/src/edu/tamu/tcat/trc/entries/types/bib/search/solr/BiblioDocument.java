@@ -12,16 +12,16 @@ import java.util.logging.Logger;
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
-import edu.tamu.tcat.trc.entries.types.bib.Edition;
-import edu.tamu.tcat.trc.entries.types.bib.Volume;
-import edu.tamu.tcat.trc.entries.types.bib.Work;
-import edu.tamu.tcat.trc.entries.types.bib.dto.AuthorRefDV;
-import edu.tamu.tcat.trc.entries.types.bib.dto.EditionDV;
-import edu.tamu.tcat.trc.entries.types.bib.dto.PublicationInfoDV;
-import edu.tamu.tcat.trc.entries.types.bib.dto.TitleDV;
-import edu.tamu.tcat.trc.entries.types.bib.dto.VolumeDV;
-import edu.tamu.tcat.trc.entries.types.bib.dto.WorkDV;
-import edu.tamu.tcat.trc.entries.types.bib.search.BiblioSearchProxy;
+import edu.tamu.tcat.trc.entries.types.biblio.Edition;
+import edu.tamu.tcat.trc.entries.types.biblio.Volume;
+import edu.tamu.tcat.trc.entries.types.biblio.Work;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorRefDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDV;
+import edu.tamu.tcat.trc.entries.types.biblio.search.BiblioSearchProxy;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 

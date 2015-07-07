@@ -7,17 +7,17 @@ import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
-import edu.tamu.tcat.trc.entries.types.bib.AuthorReference;
-import edu.tamu.tcat.trc.entries.types.bib.Edition;
-import edu.tamu.tcat.trc.entries.types.bib.PublicationInfo;
-import edu.tamu.tcat.trc.entries.types.bib.Title;
-import edu.tamu.tcat.trc.entries.types.bib.Volume;
-import edu.tamu.tcat.trc.entries.types.bib.dto.AuthorRefDV;
-import edu.tamu.tcat.trc.entries.types.bib.dto.EditionDV;
-import edu.tamu.tcat.trc.entries.types.bib.dto.PublicationInfoDV;
-import edu.tamu.tcat.trc.entries.types.bib.dto.TitleDV;
-import edu.tamu.tcat.trc.entries.types.bib.dto.VolumeDV;
-import edu.tamu.tcat.trc.entries.types.bib.dto.WorkDV;
+import edu.tamu.tcat.trc.entries.types.biblio.AuthorReference;
+import edu.tamu.tcat.trc.entries.types.biblio.Edition;
+import edu.tamu.tcat.trc.entries.types.biblio.PublicationInfo;
+import edu.tamu.tcat.trc.entries.types.biblio.Title;
+import edu.tamu.tcat.trc.entries.types.biblio.Volume;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorRefDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDV;
 
 /**
  * An encapsulation of adapter methods to convert between the repository API and

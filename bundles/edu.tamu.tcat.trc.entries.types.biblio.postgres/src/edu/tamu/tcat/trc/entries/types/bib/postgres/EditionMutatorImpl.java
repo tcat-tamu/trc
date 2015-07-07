@@ -11,13 +11,13 @@ import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.core.InvalidDataException;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
-import edu.tamu.tcat.trc.entries.types.bib.dto.AuthorRefDV;
-import edu.tamu.tcat.trc.entries.types.bib.dto.EditionDV;
-import edu.tamu.tcat.trc.entries.types.bib.dto.PublicationInfoDV;
-import edu.tamu.tcat.trc.entries.types.bib.dto.TitleDV;
-import edu.tamu.tcat.trc.entries.types.bib.dto.VolumeDV;
-import edu.tamu.tcat.trc.entries.types.bib.repo.EditionMutator;
-import edu.tamu.tcat.trc.entries.types.bib.repo.VolumeMutator;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorRefDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDV;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.VolumeMutator;
 
 public class EditionMutatorImpl implements EditionMutator
 {

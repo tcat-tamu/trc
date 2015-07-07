@@ -6,14 +6,14 @@ import java.util.function.Consumer;
 
 import edu.tamu.tcat.trc.entries.core.IdFactory;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
-import edu.tamu.tcat.trc.entries.types.bib.AuthorReference;
-import edu.tamu.tcat.trc.entries.types.bib.Edition;
-import edu.tamu.tcat.trc.entries.types.bib.Volume;
-import edu.tamu.tcat.trc.entries.types.bib.Work;
-import edu.tamu.tcat.trc.entries.types.bib.dto.WorkDV;
-import edu.tamu.tcat.trc.entries.types.bib.repo.EditWorkCommand;
-import edu.tamu.tcat.trc.entries.types.bib.repo.WorkRepository;
-import edu.tamu.tcat.trc.entries.types.bib.repo.WorkChangeEvent;
+import edu.tamu.tcat.trc.entries.types.biblio.AuthorReference;
+import edu.tamu.tcat.trc.entries.types.biblio.Edition;
+import edu.tamu.tcat.trc.entries.types.biblio.Volume;
+import edu.tamu.tcat.trc.entries.types.biblio.Work;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDV;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkChangeEvent;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 
 /**

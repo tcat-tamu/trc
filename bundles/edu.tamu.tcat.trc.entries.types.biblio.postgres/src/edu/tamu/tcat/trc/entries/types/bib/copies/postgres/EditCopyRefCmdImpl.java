@@ -15,13 +15,13 @@ import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.notification.DataUpdateObserverAdapter;
 import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
-import edu.tamu.tcat.trc.entries.types.bib.copies.CopyReference;
-import edu.tamu.tcat.trc.entries.types.bib.copies.UpdateCanceledException;
-import edu.tamu.tcat.trc.entries.types.bib.copies.dto.BaseEditCopyRefCmd;
-import edu.tamu.tcat.trc.entries.types.bib.copies.dto.CopyRefDTO;
 import edu.tamu.tcat.trc.entries.types.bib.copies.postgres.PsqlDigitalCopyLinkRepo.UpdateEventFactory;
-import edu.tamu.tcat.trc.entries.types.bib.copies.repo.CopyChangeEvent;
-import edu.tamu.tcat.trc.entries.types.bib.copies.repo.EditCopyReferenceCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.UpdateCanceledException;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.dto.BaseEditCopyRefCmd;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.dto.CopyRefDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.CopyChangeEvent;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.EditCopyReferenceCommand;
 
 public class EditCopyRefCmdImpl extends BaseEditCopyRefCmd implements EditCopyReferenceCommand
 {

@@ -30,12 +30,12 @@ import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent.UpdateAction;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
-import edu.tamu.tcat.trc.entries.types.bib.copies.CopyReference;
-import edu.tamu.tcat.trc.entries.types.bib.copies.dto.CopyRefDTO;
-import edu.tamu.tcat.trc.entries.types.bib.copies.repo.CopyChangeEvent;
-import edu.tamu.tcat.trc.entries.types.bib.copies.repo.CopyReferenceException;
-import edu.tamu.tcat.trc.entries.types.bib.copies.repo.CopyReferenceRepository;
-import edu.tamu.tcat.trc.entries.types.bib.copies.repo.EditCopyReferenceCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.dto.CopyRefDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.CopyChangeEvent;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.CopyReferenceException;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.CopyReferenceRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.EditCopyReferenceCommand;
 
 public class PsqlDigitalCopyLinkRepo implements CopyReferenceRepository
 {
