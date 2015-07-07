@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: REST API for Biographical Entries
+Bundle-SymbolicName: edu.tamu.tcat.trc.entries.types.bio.rest
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: edu.tamu.tcat.osgi.config;version="1.0.3",
+ edu.tamu.tcat.trc.entries.common,
+ edu.tamu.tcat.trc.entries.common.dto,
+ edu.tamu.tcat.trc.entries.repo,
+ edu.tamu.tcat.trc.entries.search,
+ edu.tamu.tcat.trc.entries.types.bio,
+ edu.tamu.tcat.trc.entries.types.bio.dto,
+ edu.tamu.tcat.trc.entries.types.bio.repo,
+ edu.tamu.tcat.trc.entries.types.bio.search,
+ javax.ws.rs;version="2.0.0",
+ javax.ws.rs.core;version="2.0.0"
