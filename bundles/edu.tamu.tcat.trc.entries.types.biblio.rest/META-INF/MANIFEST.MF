@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: REST API for Biblio Entry Type
+Bundle-SymbolicName: edu.tamu.tcat.trc.entries.types.biblio.rest
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: edu.tamu.tcat.trc.entries.types.bib.copies.rest.v1,
+ edu.tamu.tcat.trc.entries.types.bib.rest.v1
+Import-Package: com.fasterxml.jackson.databind;version="2.3.1",
+ edu.tamu.tcat.db.exec.sql;version="1.0.0",
+ edu.tamu.tcat.osgi.config;version="1.0.3",
+ edu.tamu.tcat.trc.entries.common,
+ edu.tamu.tcat.trc.entries.common.dto,
+ edu.tamu.tcat.trc.entries.core,
+ edu.tamu.tcat.trc.entries.notification,
+ edu.tamu.tcat.trc.entries.repo,
+ edu.tamu.tcat.trc.entries.search,
+ edu.tamu.tcat.trc.entries.types.bib,
+ edu.tamu.tcat.trc.entries.types.bib.copies,
+ edu.tamu.tcat.trc.entries.types.bib.copies.dto,
+ edu.tamu.tcat.trc.entries.types.bib.copies.postgres,
+ edu.tamu.tcat.trc.entries.types.bib.copies.repo,
+ edu.tamu.tcat.trc.entries.types.bib.dto,
+ edu.tamu.tcat.trc.entries.types.bib.repo,
+ edu.tamu.tcat.trc.entries.types.bib.search,
+ javax.ws.rs;version="2.0.0",
+ javax.ws.rs.core;version="2.0.0"
