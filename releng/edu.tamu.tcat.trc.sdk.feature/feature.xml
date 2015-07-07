@@ -34,42 +34,42 @@ limitations under the License.
    </license>
 
    <plugin
-         id="edu.tamu.tcat.trc.resources"
+         id="edu.tamu.tcat.trc.digires"
          download-size="0"
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
 
    <plugin
-         id="edu.tamu.tcat.trc.resources.source"
+         id="edu.tamu.tcat.trc.digires.source"
          download-size="0"
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
 
    <plugin
-         id="edu.tamu.tcat.trc.resources.books.hathitrust"
+         id="edu.tamu.tcat.trc.digires.books.hathitrust"
          download-size="0"
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
 
    <plugin
-         id="edu.tamu.tcat.trc.resources.books.hathitrust.source"
+         id="edu.tamu.tcat.trc.digires.books.hathitrust.source"
          download-size="0"
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
 
    <plugin
-         id="edu.tamu.tcat.trc.resources.rest"
+         id="edu.tamu.tcat.trc.digires.rest"
          download-size="0"
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
 
    <plugin
-         id="edu.tamu.tcat.trc.resources.rest.source"
+         id="edu.tamu.tcat.trc.digires.rest.source"
          download-size="0"
          install-size="0"
          version="1.0.0.qualifier"

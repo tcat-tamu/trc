@@ -66,9 +66,9 @@
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.reln.postgres</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.reln.search.solr</module>
     
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.resources</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.resources.books.hathitrust</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.resources.rest</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.digires</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.digires.books.hathitrust</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.digires.rest</module>
     <!-- Remove from the build until dependencies are resolved -->
 <!--     <module>oss.trc/tests/edu.tamu.tcat.trc.entries.types.biblio.test</module> -->
   </modules>
