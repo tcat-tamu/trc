@@ -41,6 +41,12 @@ public class MockEditWorkCommand implements EditWorkCommand
    }
 
    @Override
+   public void setType(String type)
+   {
+      dto.type = type;
+   }
+
+   @Override
    public void setSeries(String series)
    {
       dto.series = series;
