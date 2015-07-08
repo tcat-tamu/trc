@@ -16,7 +16,6 @@ import edu.tamu.tcat.trc.entries.notification.DataUpdateObserverAdapter;
 import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
 import edu.tamu.tcat.trc.notes.Note;
-import edu.tamu.tcat.trc.notes.UpdateNotesCanceledException;
 import edu.tamu.tcat.trc.notes.dto.NotesDTO;
 import edu.tamu.tcat.trc.notes.postgres.PsqlNotesRepo.UpdateEventFactory;
 import edu.tamu.tcat.trc.notes.repo.EditNotesCommand;
@@ -52,8 +51,8 @@ public class EditNotesCmdImpl extends BasicEditNotesCommand implements EditNotes
    }
 
    public EditNotesCmdImpl(SqlExecutor sqlExecutor,
-                             EntryUpdateHelper<NoteChangeEvent> notifier,
-                             UpdateEventFactory factory)
+                           EntryUpdateHelper<NoteChangeEvent> notifier,
+                           UpdateEventFactory factory)
    {
       super();
 
@@ -64,7 +63,7 @@ public class EditNotesCmdImpl extends BasicEditNotesCommand implements EditNotes
    }
 
    @Override
-   public synchronized Future<Note> execute() throws UpdateNotesCanceledException
+   public synchronized Future<Note> execute()
    {
       if (!executed.compareAndSet(false, true))
          throw new IllegalStateException("This edit copy command has already been invoked.");
