@@ -21,9 +21,8 @@ import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.repo.NoteChangeEvent;
 import edu.tamu.tcat.trc.notes.repo.NotesRepository;
-import edu.tamu.tcat.trc.notes.search.NotesIndexManager;
 
-public class NotesIndexManagerService implements NotesIndexManager
+public class NotesIndexManagerService
 {
    private final static Logger logger = Logger.getLogger(NotesIndexManagerService.class.getName());
 
