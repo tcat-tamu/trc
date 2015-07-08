@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -50,8 +50,8 @@ public interface UpdateEvent
     * registered also be uniquely identified via this identifier. If granular updates
     * are made to a larger element, then the event sub-type should have API allowing access
     * to the sub-elements updated.
-    */
-   /*
+    *
+    * @implNote
     * The String may represent a UUID or URI, depending on what the repo wants. The
     * consumer will need to know to interpret it properly, if necessary. However, the event
     * sub-type will take most of the burden of resolving the entity and its changes from this
