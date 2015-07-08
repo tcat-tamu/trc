@@ -78,7 +78,7 @@ public class NotesRepoTest
    }
 
    @Test
-   public void testNotesCreation() throws InterruptedException, ExecutionException
+   public void testNotesCreation() throws Exception
    {
       EditNoteCommand create = repo.create();
       NoteDTO updateDTO = new NoteDTO();
@@ -86,11 +86,11 @@ public class NotesRepoTest
       updateDTO.associatedEntity = URI.create("notes/1");
       updateDTO.content = "The contents of the note";
       updateDTO.mimeType = "Text";
-      create.update(updateDTO );
+      create.setAll(updateDTO);
 
-      Future<Note> execute = create.execute();
-      Note notes = execute.get();
+      Future<UUID> promise = create.execute();
+      Note note = repo.get(promise.get());
 
-      Assert.assertEquals(updateDTO.authorId, notes.getAuthorId());
+      Assert.assertEquals(updateDTO.authorId, note.getAuthorId());
    }
 }
