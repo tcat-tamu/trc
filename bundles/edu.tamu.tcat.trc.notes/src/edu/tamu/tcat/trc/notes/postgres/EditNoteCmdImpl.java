@@ -16,12 +16,12 @@ import edu.tamu.tcat.trc.entries.notification.DataUpdateObserverAdapter;
 import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
 import edu.tamu.tcat.trc.notes.Note;
-import edu.tamu.tcat.trc.notes.dto.NotesDTO;
+import edu.tamu.tcat.trc.notes.dto.NoteDTO;
 import edu.tamu.tcat.trc.notes.postgres.PsqlNotesRepo.UpdateEventFactory;
-import edu.tamu.tcat.trc.notes.repo.EditNotesCommand;
+import edu.tamu.tcat.trc.notes.repo.EditNoteCommand;
 import edu.tamu.tcat.trc.notes.repo.NoteChangeEvent;
 
-public class EditNotesCmdImpl extends BasicEditNotesCommand implements EditNotesCommand
+public class EditNoteCmdImpl extends BasicEditNoteCommand implements EditNoteCommand
 {
    private static String CREATE_SQL =
          "INSERT INTO notes (note, note_id) VALUES(?, ?)";
@@ -38,10 +38,10 @@ public class EditNotesCmdImpl extends BasicEditNotesCommand implements EditNotes
 
    private final AtomicBoolean executed = new AtomicBoolean(false);
 
-   public EditNotesCmdImpl(SqlExecutor sqlExecutor,
+   public EditNoteCmdImpl(SqlExecutor sqlExecutor,
                              EntryUpdateHelper<NoteChangeEvent> notifier,
                              UpdateEventFactory factory,
-                             NotesDTO dto)
+                             NoteDTO dto)
    {
       super(dto);
 
@@ -50,7 +50,7 @@ public class EditNotesCmdImpl extends BasicEditNotesCommand implements EditNotes
       this.factory = factory;
    }
 
-   public EditNotesCmdImpl(SqlExecutor sqlExecutor,
+   public EditNoteCmdImpl(SqlExecutor sqlExecutor,
                            EntryUpdateHelper<NoteChangeEvent> notifier,
                            UpdateEventFactory factory)
    {
@@ -87,7 +87,7 @@ public class EditNotesCmdImpl extends BasicEditNotesCommand implements EditNotes
 
    private NoteChangeEvent constructEvent()
    {
-      Note updated = NotesDTO.instantiate(dto);
+      Note updated = NoteDTO.instantiate(dto);
       NoteChangeEvent evt = isNew()
             ? factory.create(updated)
             : factory.update(original, updated);
@@ -113,7 +113,7 @@ public class EditNotesCmdImpl extends BasicEditNotesCommand implements EditNotes
             if (cnt != 1)
                throw new IllegalStateException("Failed to update copy reference [" + dto.id +"]");
 
-            return NotesDTO.instantiate(dto);
+            return NoteDTO.instantiate(dto);
          }
          catch(SQLException e)
          {

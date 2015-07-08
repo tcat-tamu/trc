@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import edu.tamu.tcat.trc.notes.Note;
 
-public class BasicNotes implements Note
+public class BasicNote implements Note
 {
    private final UUID id;
    private final URI associatedEntity;
@@ -13,7 +13,7 @@ public class BasicNotes implements Note
    private final String mimeType;
    private final String content;
 
-   public BasicNotes(UUID id, URI associatedEntity, String authorId, String mimeType, String content)
+   public BasicNote(UUID id, URI associatedEntity, String authorId, String mimeType, String content)
    {
       this.id = id;
       this.associatedEntity = associatedEntity;

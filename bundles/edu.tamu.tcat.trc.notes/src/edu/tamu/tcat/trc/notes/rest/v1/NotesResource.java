@@ -21,8 +21,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.notes.Note;
-import edu.tamu.tcat.trc.notes.dto.NotesDTO;
-import edu.tamu.tcat.trc.notes.repo.EditNotesCommand;
+import edu.tamu.tcat.trc.notes.dto.NoteDTO;
+import edu.tamu.tcat.trc.notes.repo.EditNoteCommand;
 import edu.tamu.tcat.trc.notes.repo.NotesRepository;
 
 
@@ -62,9 +62,9 @@ public class NotesResource
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.NotesId create(NotesDTO noteDTO) throws InterruptedException, ExecutionException
+   public RestApiV1.NotesId create(NoteDTO noteDTO) throws InterruptedException, ExecutionException
    {
-      EditNotesCommand noteCommand = repo.create();
+      EditNoteCommand noteCommand = repo.create();
       noteCommand.setAll(noteDTO);
       RestApiV1.NotesId noteId = new RestApiV1.NotesId();
       Note notes = noteCommand.execute().get();
@@ -76,9 +76,9 @@ public class NotesResource
    @Path("{noteid}")
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.NotesId update(@PathParam(value="noteid") String noteId, NotesDTO noteDTO) throws InterruptedException, ExecutionException, NoSuchCatalogRecordException
+   public RestApiV1.NotesId update(@PathParam(value="noteid") String noteId, NoteDTO noteDTO) throws InterruptedException, ExecutionException, NoSuchCatalogRecordException
    {
-      EditNotesCommand noteCommand = repo.edit(UUID.fromString(noteId));
+      EditNoteCommand noteCommand = repo.edit(UUID.fromString(noteId));
       noteCommand.setAll(noteDTO);
       RestApiV1.NotesId restNoteId = new RestApiV1.NotesId();
       Note notes = noteCommand.execute().get();

@@ -19,9 +19,9 @@ import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.sda.catalog.psql.provider.PsqlDataSourceProvider;
 import edu.tamu.tcat.trc.notes.Note;
-import edu.tamu.tcat.trc.notes.dto.NotesDTO;
+import edu.tamu.tcat.trc.notes.dto.NoteDTO;
 import edu.tamu.tcat.trc.notes.postgres.PsqlNotesRepo;
-import edu.tamu.tcat.trc.notes.repo.EditNotesCommand;
+import edu.tamu.tcat.trc.notes.repo.EditNoteCommand;
 import edu.tamu.tcat.trc.notes.search.solr.NotesIndexManagerService;
 
 public class NotesRepoTest
@@ -80,8 +80,8 @@ public class NotesRepoTest
    @Test
    public void testNotesCreation() throws InterruptedException, ExecutionException
    {
-      EditNotesCommand create = repo.create();
-      NotesDTO updateDTO = new NotesDTO();
+      EditNoteCommand create = repo.create();
+      NoteDTO updateDTO = new NoteDTO();
       updateDTO.authorId = UUID.randomUUID().toString();
       updateDTO.associatedEntity = URI.create("notes/1");
       updateDTO.content = "The contents of the note";

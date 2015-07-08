@@ -108,7 +108,7 @@ public class NotesIndexManagerService implements NotesIndexManager
    {
       try
       {
-         NotesDocument proxy = NotesDocument.create(note);
+         NoteDocument proxy = NoteDocument.create(note);
          postDocument(proxy);
       }
       catch (SolrServerException | IOException e)
@@ -127,7 +127,7 @@ public class NotesIndexManagerService implements NotesIndexManager
    {
       try
       {
-         NotesDocument proxy = NotesDocument.update(note);
+         NoteDocument proxy = NoteDocument.update(note);
          postDocument(proxy);
       }
       catch (SolrServerException | IOException e)
@@ -142,7 +142,7 @@ public class NotesIndexManagerService implements NotesIndexManager
       }
    }
 
-   private void postDocument(NotesDocument doc) throws SolrServerException, IOException
+   private void postDocument(NoteDocument doc) throws SolrServerException, IOException
    {
       Collection<SolrInputDocument> solrDocs = new ArrayList<>();
       solrDocs.add(doc.getDocument());

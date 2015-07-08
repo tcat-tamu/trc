@@ -26,16 +26,16 @@ public interface NotesRepository
    List<Note> getNotes(URI entityURI) throws NoSuchCatalogRecordException;
 
    /**
-    * Builds a new {@link EditNotesCommand} to create a new {@link Note}.
+    * Builds a new {@link EditNoteCommand} to create a new {@link Note}.
     * @return
     */
-   EditNotesCommand create();
+   EditNoteCommand create();
 
    /**
-    * Modifies a {@link EditNotesCommand} to allow editing a {@link Note}.
+    * Modifies a {@link EditNoteCommand} to allow editing a {@link Note}.
     * @return
     */
-   EditNotesCommand edit(UUID noteId) throws NoSuchCatalogRecordException;
+   EditNoteCommand edit(UUID noteId) throws NoSuchCatalogRecordException;
 
    /**
     * Removes a {@link Note} entry from the database.

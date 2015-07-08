@@ -25,9 +25,9 @@ public class NotesSolrConfig implements SolrIndexConfig
    }
 
    @Override
-   public Class<NotesDocument> getIndexDocumentType()
+   public Class<NoteDocument> getIndexDocumentType()
    {
-      return NotesDocument.class;
+      return NoteDocument.class;
    }
 
    @Override

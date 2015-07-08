@@ -5,30 +5,30 @@ import java.util.Objects;
 import java.util.UUID;
 
 import edu.tamu.tcat.trc.notes.Note;
-import edu.tamu.tcat.trc.notes.dto.NotesDTO;
-import edu.tamu.tcat.trc.notes.repo.EditNotesCommand;
+import edu.tamu.tcat.trc.notes.dto.NoteDTO;
+import edu.tamu.tcat.trc.notes.repo.EditNoteCommand;
 
-public abstract class BasicEditNotesCommand implements EditNotesCommand
+public abstract class BasicEditNoteCommand implements EditNoteCommand
 {
 
    protected final Note original;
-   protected final NotesDTO dto;
+   protected final NoteDTO dto;
 
-   public BasicEditNotesCommand()
+   public BasicEditNoteCommand()
    {
       this.original = null;
-      this.dto = new NotesDTO();
+      this.dto = new NoteDTO();
       this.dto.id = UUID.randomUUID();
    }
 
-   public BasicEditNotesCommand(NotesDTO dto)
+   public BasicEditNoteCommand(NoteDTO dto)
    {
-      this.original = NotesDTO.instantiate(dto);
-      this.dto = NotesDTO.copy(dto);
+      this.original = NoteDTO.instantiate(dto);
+      this.dto = NoteDTO.copy(dto);
    }
 
    @Override
-   public final void update(NotesDTO updateDTO)
+   public final void update(NoteDTO updateDTO)
    {
       if (!isNew())
       {
@@ -54,7 +54,7 @@ public abstract class BasicEditNotesCommand implements EditNotesCommand
    }
 
    @Override
-   public EditNotesCommand setAll(NotesDTO note)
+   public EditNoteCommand setAll(NoteDTO note)
    {
       setEntity(note.associatedEntity);
       setAuthorId(UUID.fromString(note.authorId));
@@ -70,28 +70,28 @@ public abstract class BasicEditNotesCommand implements EditNotesCommand
    }
 
    @Override
-   public EditNotesCommand setEntity(URI entityURI)
+   public EditNoteCommand setEntity(URI entityURI)
    {
       dto.associatedEntity = entityURI;
       return this;
    }
 
    @Override
-   public EditNotesCommand setAuthorId(UUID authorId)
+   public EditNoteCommand setAuthorId(UUID authorId)
    {
       dto.authorId = authorId.toString();
       return this;
    }
 
    @Override
-   public EditNotesCommand setMimeType(String mimeType)
+   public EditNoteCommand setMimeType(String mimeType)
    {
       dto.mimeType = mimeType;
       return this;
    }
 
    @Override
-   public EditNotesCommand setContent(String content)
+   public EditNoteCommand setContent(String content)
    {
       dto.content = content;
       return this;

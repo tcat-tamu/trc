@@ -32,8 +32,8 @@ import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.notes.Note;
-import edu.tamu.tcat.trc.notes.dto.NotesDTO;
-import edu.tamu.tcat.trc.notes.repo.EditNotesCommand;
+import edu.tamu.tcat.trc.notes.dto.NoteDTO;
+import edu.tamu.tcat.trc.notes.repo.EditNoteCommand;
 import edu.tamu.tcat.trc.notes.repo.NoteChangeEvent;
 import edu.tamu.tcat.trc.notes.repo.NotesRepository;
 
@@ -102,7 +102,7 @@ public class PsqlNotesRepo implements NotesRepository
    @Override
    public Note get(UUID noteId) throws NoSuchCatalogRecordException
    {
-      return NotesDTO.instantiate(getNotesDTO(SQL_GET, noteId));
+      return NoteDTO.instantiate(getNotesDTO(SQL_GET, noteId));
    }
 
    @Override
@@ -118,8 +118,8 @@ public class PsqlNotesRepo implements NotesRepository
                while (rs.next())
                {
                   PGobject pgo = (PGobject)rs.getObject("note");
-                  NotesDTO note = parseCopyRefJson(pgo.toString());
-                  notes.add(NotesDTO.instantiate(note));
+                  NoteDTO note = parseCopyRefJson(pgo.toString());
+                  notes.add(NoteDTO.instantiate(note));
                }
 
                return notes;
@@ -142,16 +142,16 @@ public class PsqlNotesRepo implements NotesRepository
    }
 
    @Override
-   public EditNotesCommand create()
+   public EditNoteCommand create()
    {
-      return new EditNotesCmdImpl(exec, listeners, new UpdateEventFactory());
+      return new EditNoteCmdImpl(exec, listeners, new UpdateEventFactory());
    }
 
    @Override
-   public EditNotesCommand edit(UUID noteId) throws NoSuchCatalogRecordException
+   public EditNoteCommand edit(UUID noteId) throws NoSuchCatalogRecordException
    {
-      NotesDTO dto = getNotesDTO(SQL_GET, noteId);
-      return new EditNotesCmdImpl(exec, listeners, new UpdateEventFactory(), dto);
+      NoteDTO dto = getNotesDTO(SQL_GET, noteId);
+      return new EditNoteCmdImpl(exec, listeners, new UpdateEventFactory(), dto);
    }
 
    @Override
@@ -221,7 +221,7 @@ public class PsqlNotesRepo implements NotesRepository
       {
          Note n = null;
          try {
-            n = NotesDTO.instantiate(getNotesDTO(SQL_GET_ALL_BY_ID, noteId));
+            n = NoteDTO.instantiate(getNotesDTO(SQL_GET_ALL_BY_ID, noteId));
          } catch (Exception ex) {
             logger.log(Level.WARNING, "Failed accessing old value for deleted notes", ex);
          }
@@ -231,11 +231,11 @@ public class PsqlNotesRepo implements NotesRepository
       }
    }
 
-   private NotesDTO parseCopyRefJson(String json)
+   private NoteDTO parseCopyRefJson(String json)
    {
       try
       {
-         return mapper.readValue(json, NotesDTO.class);
+         return mapper.readValue(json, NoteDTO.class);
       }
       catch (IOException e)
       {
@@ -243,9 +243,9 @@ public class PsqlNotesRepo implements NotesRepository
       }
    }
 
-   private NotesDTO getNotesDTO(String sql, UUID id) throws NoSuchCatalogRecordException
+   private NoteDTO getNotesDTO(String sql, UUID id) throws NoSuchCatalogRecordException
    {
-      Future<NotesDTO> result = exec.submit((conn) -> executeGetQuery(sql, conn, id));
+      Future<NoteDTO> result = exec.submit((conn) -> executeGetQuery(sql, conn, id));
       return unwrapGetResults(result, id.toString());
    }
 
@@ -281,7 +281,7 @@ public class PsqlNotesRepo implements NotesRepository
      }
   }
 
-  private NotesDTO executeGetQuery(String sql, Connection conn, UUID id) throws NoSuchCatalogRecordException
+  private NoteDTO executeGetQuery(String sql, Connection conn, UUID id) throws NoSuchCatalogRecordException
   {
      try (PreparedStatement ps = conn.prepareStatement(sql))
      {
