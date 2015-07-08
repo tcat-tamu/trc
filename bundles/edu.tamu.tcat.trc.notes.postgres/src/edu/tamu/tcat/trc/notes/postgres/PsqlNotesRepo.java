@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,7 +28,6 @@ import edu.tamu.tcat.trc.entries.notification.DataUpdateObserverAdapter;
 import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
-import edu.tamu.tcat.trc.entries.notification.UpdateEvent.UpdateAction;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
@@ -40,7 +40,6 @@ import edu.tamu.tcat.trc.notes.repo.NotesRepository;
 public class PsqlNotesRepo implements NotesRepository
 {
    private static final Logger logger = Logger.getLogger(PsqlNotesRepo.class.getName());
-
 
    private static final String SQL_GET_ALL =
          "SELECT note "
@@ -57,6 +56,15 @@ public class PsqlNotesRepo implements NotesRepository
          "SELECT note "
         +  "FROM notes "
         + "WHERE note_id = ?";
+
+   private static String CREATE_SQL =
+         "INSERT INTO notes (note, note_id) VALUES(?, ?)";
+
+   private static String UPDATE_SQL =
+         "UPDATE notes "
+         + " SET note = ?, "
+         +     " modified = now() "
+         +"WHERE note_id = ?";
 
    private static final String SQL_REMOVE =
          "UPDATE notes "
@@ -90,11 +98,18 @@ public class PsqlNotesRepo implements NotesRepository
 
    public void dispose()
    {
+      try
+      {
+         if (listeners != null)
+            listeners.close();
+      }
+      catch (Exception ex)
+      {
+         logger.log(Level.WARNING, "Failed to shut down event notification helper.", ex);
+      }
+
+      // managed by supplier. no need to shut down
       this.exec = null;
-
-      if (listeners != null)
-         listeners.close();
-
       listeners = null;
       mapper = null;
    }
@@ -144,22 +159,36 @@ public class PsqlNotesRepo implements NotesRepository
    @Override
    public EditNoteCommand create()
    {
-      return new EditNoteCmdImpl(exec, listeners, new UpdateEventFactory());
+      NoteDTO note = new NoteDTO();
+      note.id = UUID.randomUUID();
+
+      PostgresEditNoteCmd cmd = new PostgresEditNoteCmd(note);
+      cmd.setCommitHook((n) -> {
+         PeopleChangeNotifier notifier = new PeopleChangeNotifier(UpdateEvent.UpdateAction.CREATE);
+         return exec.submit(new ObservableTaskWrapper<UUID>(makeSaveTask(n, CREATE_SQL), notifier));
+      });
+
+      return cmd;
    }
 
    @Override
    public EditNoteCommand edit(UUID noteId) throws NoSuchCatalogRecordException
    {
-      NoteDTO dto = getNotesDTO(SQL_GET, noteId);
-      return new EditNoteCmdImpl(exec, listeners, new UpdateEventFactory(), dto);
+      NoteDTO note = getNotesDTO(SQL_GET, noteId);
+
+      PostgresEditNoteCmd cmd = new PostgresEditNoteCmd(note);
+      cmd.setCommitHook((n) -> {
+         PeopleChangeNotifier notifier = new PeopleChangeNotifier(UpdateEvent.UpdateAction.UPDATE);
+         return exec.submit(new ObservableTaskWrapper<UUID>(makeSaveTask(n, UPDATE_SQL), notifier));
+      });
+
+      return cmd;
    }
 
    @Override
    public Future<Boolean> remove(UUID noteId)
    {
-      UpdateEventFactory factory = new UpdateEventFactory();
-      NoteChangeEvent evt = factory.remove(noteId);
-
+      NoteChangeEvent evt = new NoteChangeEventImpl(noteId, UpdateEvent.UpdateAction.UPDATE);
       return exec.submit(new ObservableTaskWrapper<Boolean>(
             makeRemoveTask(noteId),
             new DataUpdateObserverAdapter<Boolean>()
@@ -170,6 +199,13 @@ public class PsqlNotesRepo implements NotesRepository
                      listeners.after(evt);
                }
             }));
+   }
+
+   @Override
+   public AutoCloseable register(UpdateListener<NoteChangeEvent> ears)
+   {
+      Objects.requireNonNull(listeners, "Registration for updates is not available.");
+      return listeners.register(ears);
    }
 
    private SqlExecutor.ExecutorTask<Boolean> makeRemoveTask(UUID id)
@@ -194,41 +230,34 @@ public class PsqlNotesRepo implements NotesRepository
       };
    }
 
-   @Override
-   public AutoCloseable register(UpdateListener<NoteChangeEvent> ears)
+   private SqlExecutor.ExecutorTask<UUID> makeSaveTask(NoteDTO dto, String sql)
    {
-      Objects.requireNonNull(listeners, "Registration for updates is not available.");
-      return listeners.register(ears);
-   }
+      ObjectMapper mapper = new ObjectMapper();
+      mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-   public class UpdateEventFactory
-   {
-      public NoteChangeEvent create(Note note)
-      {
-         return new NoteChangeEventImpl(note.getId(),
-                                       UpdateAction.CREATE,
-                                       note);
-      }
+      return (conn) -> {
+         try (PreparedStatement ps = conn.prepareStatement(sql))
+         {
+            PGobject jsonObject = new PGobject();
+            jsonObject.setType("json");
+            jsonObject.setValue(mapper.writeValueAsString(dto));
 
-      public NoteChangeEvent update(Note orig, Note updated)
-      {
-         return new NoteChangeEventImpl(updated.getId(),
-                                        UpdateAction.UPDATE,
-                                        updated);
-      }
+            ps.setObject(1, jsonObject);
+            ps.setString(2, dto.id.toString());
 
-      public NoteChangeEvent remove(UUID noteId)
-      {
-         Note n = null;
-         try {
-            n = NoteDTO.instantiate(getNotesDTO(SQL_GET_ALL_BY_ID, noteId));
-         } catch (Exception ex) {
-            logger.log(Level.WARNING, "Failed accessing old value for deleted notes", ex);
+            int cnt = ps.executeUpdate();
+            if (cnt != 1)
+               throw new IllegalStateException("Failed to update copy reference [" + dto.id +"]");
+
+            return dto.id;
          }
-         return new NoteChangeEventImpl(noteId,
-                                        UpdateAction.DELETE,
-                                        n);
-      }
+         catch(SQLException e)
+         {
+            throw new IllegalStateException("Failed to update note reference [" + dto.id + "]. "
+                  + "\n\tEntry [" + dto.associatedEntity + "]"
+                  + "\n\tCopy  [" + dto.id + "]", e);
+         }
+      };
    }
 
    private NoteDTO parseCopyRefJson(String json)
@@ -249,7 +278,7 @@ public class PsqlNotesRepo implements NotesRepository
       return unwrapGetResults(result, id.toString());
    }
 
-   /**
+  /**
    *
    * @param result The future to unwrap
    * @param id For error messaging purposes
@@ -301,24 +330,46 @@ public class PsqlNotesRepo implements NotesRepository
      }
   }
 
+   private final class PeopleChangeNotifier extends DataUpdateObserverAdapter<UUID>
+   {
+      private final UpdateEvent.UpdateAction type;
+
+      public PeopleChangeNotifier(UpdateEvent.UpdateAction type)
+      {
+         this.type = type;
+      }
+
+      @Override
+      public void onFinish(UUID id)
+      {
+         listeners.after(new NoteChangeEventImpl(id, type));
+      }
+   }
+
    private class NoteChangeEventImpl extends BaseUpdateEvent implements NoteChangeEvent
    {
-      private final Note note;
+      private AtomicReference<Note> note;
       private final UUID noteId;
 
-      public NoteChangeEventImpl(UUID id, UpdateEvent.UpdateAction type, Note note)
+      public NoteChangeEventImpl(UUID id, UpdateEvent.UpdateAction type)
       {
          super(id.toString(), type, ACCOUNT_ID_REPO, Instant.now());
          this.noteId = id;
-         this.note = note;
       }
 
       @Override
       public Note getNotes() throws CatalogRepoException
       {
+         // TODO better to use a future
+         Note n = note.get();
+         if (n != null)
+            return n;
+
          try
          {
-            return get(noteId);
+            n = get(noteId);
+            note.set(n);
+            return n;
          }
          catch (Exception e)
          {
