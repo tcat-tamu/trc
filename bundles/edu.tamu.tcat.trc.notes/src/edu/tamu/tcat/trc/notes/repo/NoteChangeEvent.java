@@ -2,7 +2,7 @@ package edu.tamu.tcat.trc.notes.repo;
 
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
-import edu.tamu.tcat.trc.notes.Notes;
+import edu.tamu.tcat.trc.notes.Note;
 
 /**
  * An event notification sent from a {@link NotesRepository} due to a data change.
@@ -19,5 +19,5 @@ public interface NoteChangeEvent extends UpdateEvent
    /*
     * See the note on RelationshipChangeEvent
     */
-   Notes getNotes() throws CatalogRepoException;
+   Note getNotes() throws CatalogRepoException;
 }

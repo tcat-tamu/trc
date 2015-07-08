@@ -31,7 +31,7 @@ import edu.tamu.tcat.trc.entries.notification.UpdateEvent.UpdateAction;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
-import edu.tamu.tcat.trc.notes.Notes;
+import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.dto.NotesDTO;
 import edu.tamu.tcat.trc.notes.repo.EditNotesCommand;
 import edu.tamu.tcat.trc.notes.repo.NoteChangeEvent;
@@ -100,21 +100,21 @@ public class PsqlNotesRepo implements NotesRepository
    }
 
    @Override
-   public Notes get(UUID noteId) throws NoSuchCatalogRecordException
+   public Note get(UUID noteId) throws NoSuchCatalogRecordException
    {
       return NotesDTO.instantiate(getNotesDTO(SQL_GET, noteId));
    }
 
    @Override
-   public List<Notes> getNotes(URI entityURI) throws NoSuchCatalogRecordException
+   public List<Note> getNotes(URI entityURI) throws NoSuchCatalogRecordException
    {
-      Future<List<Notes>> results = exec.submit(conn -> {
+      Future<List<Note>> results = exec.submit(conn -> {
          try (PreparedStatement ps = conn.prepareStatement(SQL_GET_ALL))
          {
             ps.setString(1, entityURI.toString() + "%");
             try (ResultSet rs = ps.executeQuery())
             {
-               List<Notes> notes = new ArrayList<>();
+               List<Note> notes = new ArrayList<>();
                while (rs.next())
                {
                   PGobject pgo = (PGobject)rs.getObject("note");
@@ -203,14 +203,14 @@ public class PsqlNotesRepo implements NotesRepository
 
    public class UpdateEventFactory
    {
-      public NoteChangeEvent create(Notes note)
+      public NoteChangeEvent create(Note note)
       {
          return new NoteChangeEventImpl(note.getId(),
                                        UpdateAction.CREATE,
                                        note);
       }
 
-      public NoteChangeEvent update(Notes orig, Notes updated)
+      public NoteChangeEvent update(Note orig, Note updated)
       {
          return new NoteChangeEventImpl(updated.getId(),
                                         UpdateAction.UPDATE,
@@ -219,7 +219,7 @@ public class PsqlNotesRepo implements NotesRepository
 
       public NoteChangeEvent remove(UUID noteId)
       {
-         Notes n = null;
+         Note n = null;
          try {
             n = NotesDTO.instantiate(getNotesDTO(SQL_GET_ALL_BY_ID, noteId));
          } catch (Exception ex) {
@@ -303,10 +303,10 @@ public class PsqlNotesRepo implements NotesRepository
 
    private class NoteChangeEventImpl extends BaseUpdateEvent implements NoteChangeEvent
    {
-      private final Notes note;
+      private final Note note;
       private final UUID noteId;
 
-      public NoteChangeEventImpl(UUID id, UpdateEvent.UpdateAction type, Notes note)
+      public NoteChangeEventImpl(UUID id, UpdateEvent.UpdateAction type, Note note)
       {
          super(id.toString(), type, ACCOUNT_ID_REPO, Instant.now());
          this.noteId = id;
@@ -314,7 +314,7 @@ public class PsqlNotesRepo implements NotesRepository
       }
 
       @Override
-      public Notes getNotes() throws CatalogRepoException
+      public Note getNotes() throws CatalogRepoException
       {
          try
          {

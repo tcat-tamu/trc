@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
-import edu.tamu.tcat.trc.notes.Notes;
+import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.UpdateNotesCanceledException;
 import edu.tamu.tcat.trc.notes.dto.NotesDTO;
 import edu.tamu.tcat.trc.notes.repo.EditNotesCommand;
@@ -68,7 +68,7 @@ public class NotesResource
       EditNotesCommand noteCommand = repo.create();
       noteCommand.setAll(noteDTO);
       RestApiV1.NotesId noteId = new RestApiV1.NotesId();
-      Notes notes = noteCommand.execute().get();
+      Note notes = noteCommand.execute().get();
       noteId.id = notes.getId().toString();
       return noteId;
    }
@@ -82,7 +82,7 @@ public class NotesResource
       EditNotesCommand noteCommand = repo.edit(UUID.fromString(noteId));
       noteCommand.setAll(noteDTO);
       RestApiV1.NotesId restNoteId = new RestApiV1.NotesId();
-      Notes notes = noteCommand.execute().get();
+      Note notes = noteCommand.execute().get();
       restNoteId.id = notes.getId().toString();
       return restNoteId;
    }

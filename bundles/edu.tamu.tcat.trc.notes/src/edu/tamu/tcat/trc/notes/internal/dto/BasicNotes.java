@@ -3,9 +3,9 @@ package edu.tamu.tcat.trc.notes.internal.dto;
 import java.net.URI;
 import java.util.UUID;
 
-import edu.tamu.tcat.trc.notes.Notes;
+import edu.tamu.tcat.trc.notes.Note;
 
-public class BasicNotes implements Notes
+public class BasicNotes implements Note
 {
    private final UUID id;
    private final URI associatedEntity;

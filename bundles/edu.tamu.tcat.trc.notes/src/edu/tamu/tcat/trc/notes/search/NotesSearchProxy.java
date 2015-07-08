@@ -1,6 +1,6 @@
 package edu.tamu.tcat.trc.notes.search;
 
-import edu.tamu.tcat.trc.notes.Notes;
+import edu.tamu.tcat.trc.notes.Note;
 
 public class NotesSearchProxy
 {
@@ -16,7 +16,7 @@ public class NotesSearchProxy
    {
    }
 
-   public NotesSearchProxy(Notes note)
+   public NotesSearchProxy(Note note)
    {
       this.id = note.getId().toString();
       this.authorId = note.getAuthorId().toString();

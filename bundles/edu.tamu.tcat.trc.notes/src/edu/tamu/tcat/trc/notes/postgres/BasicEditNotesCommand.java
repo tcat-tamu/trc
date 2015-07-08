@@ -4,14 +4,14 @@ import java.net.URI;
 import java.util.Objects;
 import java.util.UUID;
 
-import edu.tamu.tcat.trc.notes.Notes;
+import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.dto.NotesDTO;
 import edu.tamu.tcat.trc.notes.repo.EditNotesCommand;
 
 public abstract class BasicEditNotesCommand implements EditNotesCommand
 {
 
-   protected final Notes original;
+   protected final Note original;
    protected final NotesDTO dto;
 
    public BasicEditNotesCommand()

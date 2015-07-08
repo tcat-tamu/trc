@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
-import edu.tamu.tcat.trc.notes.Notes;
+import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.repo.NoteChangeEvent;
 import edu.tamu.tcat.trc.notes.repo.NotesRepository;
 import edu.tamu.tcat.trc.notes.search.NotesIndexManager;
@@ -104,7 +104,7 @@ public class NotesIndexManagerService implements NotesIndexManager
       }
    }
 
-   private void onCreate(Notes note)
+   private void onCreate(Note note)
    {
       try
       {
@@ -123,7 +123,7 @@ public class NotesIndexManagerService implements NotesIndexManager
       }
    }
 
-   private void onUpdate(Notes note)
+   private void onUpdate(Note note)
    {
       try
       {

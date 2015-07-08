@@ -15,7 +15,7 @@ import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.notification.DataUpdateObserverAdapter;
 import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
-import edu.tamu.tcat.trc.notes.Notes;
+import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.UpdateNotesCanceledException;
 import edu.tamu.tcat.trc.notes.dto.NotesDTO;
 import edu.tamu.tcat.trc.notes.postgres.PsqlNotesRepo.UpdateEventFactory;
@@ -64,7 +64,7 @@ public class EditNotesCmdImpl extends BasicEditNotesCommand implements EditNotes
    }
 
    @Override
-   public synchronized Future<Notes> execute() throws UpdateNotesCanceledException
+   public synchronized Future<Note> execute() throws UpdateNotesCanceledException
    {
       if (!executed.compareAndSet(false, true))
          throw new IllegalStateException("This edit copy command has already been invoked.");
@@ -75,12 +75,12 @@ public class EditNotesCmdImpl extends BasicEditNotesCommand implements EditNotes
       if (dto.id == null)
          dto.id = UUID.randomUUID();
 
-      return sqlExecutor.submit(new ObservableTaskWrapper<Notes>(
+      return sqlExecutor.submit(new ObservableTaskWrapper<Note>(
             makeCreateTask(sql),
-            new DataUpdateObserverAdapter<Notes>()
+            new DataUpdateObserverAdapter<Note>()
             {
                @Override
-               protected void onFinish(Notes result) {
+               protected void onFinish(Note result) {
                   notifier.after(evt);
                }
             }));
@@ -88,14 +88,14 @@ public class EditNotesCmdImpl extends BasicEditNotesCommand implements EditNotes
 
    private NoteChangeEvent constructEvent()
    {
-      Notes updated = NotesDTO.instantiate(dto);
+      Note updated = NotesDTO.instantiate(dto);
       NoteChangeEvent evt = isNew()
             ? factory.create(updated)
             : factory.update(original, updated);
       return evt;
    }
 
-   private SqlExecutor.ExecutorTask<Notes> makeCreateTask(String sql)
+   private SqlExecutor.ExecutorTask<Note> makeCreateTask(String sql)
    {
       ObjectMapper mapper = new ObjectMapper();
       mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

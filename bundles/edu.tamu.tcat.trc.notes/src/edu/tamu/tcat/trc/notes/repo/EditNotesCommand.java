@@ -4,7 +4,7 @@ import java.net.URI;
 import java.util.UUID;
 import java.util.concurrent.Future;
 
-import edu.tamu.tcat.trc.notes.Notes;
+import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.UpdateNotesCanceledException;
 import edu.tamu.tcat.trc.notes.dto.NotesDTO;
 
@@ -24,5 +24,5 @@ public interface EditNotesCommand
 
    EditNotesCommand setContent(String content);
 
-   Future<Notes> execute() throws UpdateNotesCanceledException;
+   Future<Note> execute() throws UpdateNotesCanceledException;
 }

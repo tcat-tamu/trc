@@ -3,7 +3,7 @@ package edu.tamu.tcat.trc.notes;
 import java.net.URI;
 import java.util.UUID;
 
-public interface Notes
+public interface Note
 {
    public enum NotesMimeType
    {
@@ -11,6 +11,9 @@ public interface Notes
       HTML
    }
 
+   /**
+    * @return A unique identifier for this note.
+    */
    UUID getId();
 
    /**

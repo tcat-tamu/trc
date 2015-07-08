@@ -18,7 +18,7 @@ import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.sda.catalog.psql.provider.PsqlDataSourceProvider;
-import edu.tamu.tcat.trc.notes.Notes;
+import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.UpdateNotesCanceledException;
 import edu.tamu.tcat.trc.notes.dto.NotesDTO;
 import edu.tamu.tcat.trc.notes.postgres.PsqlNotesRepo;
@@ -89,11 +89,11 @@ public class NotesRepoTest
       updateDTO.mimeType = "Text";
       create.update(updateDTO );
 
-      Future<Notes> execute;
+      Future<Note> execute;
       try
       {
          execute = create.execute();
-         Notes notes = execute.get();
+         Note notes = execute.get();
 
          Assert.assertEquals(updateDTO.authorId, notes.getAuthorId());
 

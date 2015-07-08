@@ -3,7 +3,7 @@ package edu.tamu.tcat.trc.notes.dto;
 import java.net.URI;
 import java.util.UUID;
 
-import edu.tamu.tcat.trc.notes.Notes;
+import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.internal.dto.BasicNotes;
 
 public class NotesDTO
@@ -14,12 +14,12 @@ public class NotesDTO
    public String mimeType;
    public String content;
 
-   public static Notes instantiate(NotesDTO dto)
+   public static Note instantiate(NotesDTO dto)
    {
       return new BasicNotes(dto.id, dto.associatedEntity, dto.authorId, dto.mimeType, dto.content);
    }
 
-   public static NotesDTO create(Notes notes)
+   public static NotesDTO create(Note notes)
    {
       NotesDTO dto = new NotesDTO();
 

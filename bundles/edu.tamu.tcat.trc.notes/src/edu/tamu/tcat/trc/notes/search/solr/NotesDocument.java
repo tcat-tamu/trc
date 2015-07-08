@@ -4,7 +4,7 @@ import org.apache.solr.common.SolrInputDocument;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import edu.tamu.tcat.trc.notes.Notes;
+import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.dto.NotesDTO;
 import edu.tamu.tcat.trc.notes.search.NotesSearchProxy;
 import edu.tamu.tcat.trc.search.SearchException;
@@ -24,7 +24,7 @@ public class NotesDocument
       return indexDoc.getSolrDocument();
    }
 
-   public static NotesDocument create(Notes note) throws JsonProcessingException, SearchException
+   public static NotesDocument create(Note note) throws JsonProcessingException, SearchException
    {
       NotesDocument doc = new NotesDocument();
 
@@ -48,7 +48,7 @@ public class NotesDocument
       return doc;
    }
 
-   public static NotesDocument update(Notes note) throws SearchException
+   public static NotesDocument update(Note note) throws SearchException
    {
       NotesDocument doc = new NotesDocument();
       NotesDTO dto = NotesDTO.create(note);
