@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.function.Function;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -118,6 +119,35 @@ public class TrcQueryBuilder implements SolrQueryBuilder
       }
       return rv;
    }
+
+   /**
+   * Unpack data from each document in the provided collection using the supplied {@link Function}.
+   *
+   * @param <T> The type of data to be returned. This is a "search proxy" will be generated
+   *            from data stored in each document.
+   * @param docs The SOLR documents from which to unpack search proxies.
+   * @param adapter A function that will be used to convert the result Solr document into a
+   *             an instance of the type to be returned by the query.
+   * @return
+   * @throws SearchException
+   */
+  public <T> List<T> unpack(SolrDocumentList docs, Function<SolrDocument, T> adapter) throws SearchException
+  {
+     List<T> rv = new ArrayList<>();
+     for (SolrDocument doc : docs)
+     {
+        String workInfo = null;
+        try
+        {
+           rv.add(adapter.apply(doc));
+        }
+        catch (Exception e)
+        {
+           throw new SearchException("Failed to parse search proxy: [" + workInfo + "]", e);
+        }
+     }
+     return rv;
+  }
 
    @Override
    public void basic(String q) throws SearchException
