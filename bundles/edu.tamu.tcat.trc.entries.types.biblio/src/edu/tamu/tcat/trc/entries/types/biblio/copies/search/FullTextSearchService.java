@@ -1,10 +1,12 @@
 package edu.tamu.tcat.trc.entries.types.biblio.copies.search;
 
+import edu.tamu.tcat.trc.search.SearchException;
+
 public interface FullTextSearchService
 {
 
-   VolumeSearchCommand getVolumeSearchCommand();
+   VolumeSearchCommand getVolumeSearchCommand() throws SearchException;
 
-   PageSearchCommand getPageSearchCommand();
+   PageSearchCommand getPageSearchCommand() throws SearchException;
 
 }
