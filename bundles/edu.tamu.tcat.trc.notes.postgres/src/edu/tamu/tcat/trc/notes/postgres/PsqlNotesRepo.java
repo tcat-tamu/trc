@@ -117,7 +117,7 @@ public class PsqlNotesRepo implements NotesRepository
    @Override
    public Note get(UUID noteId) throws NoSuchCatalogRecordException
    {
-      return NoteDTO.instantiate(getNotesDTO(SQL_GET, noteId));
+      return adapt(getNotesDTO(SQL_GET, noteId));
    }
 
    @Override
@@ -134,7 +134,8 @@ public class PsqlNotesRepo implements NotesRepository
                {
                   PGobject pgo = (PGobject)rs.getObject("note");
                   NoteDTO note = parseCopyRefJson(pgo.toString());
-                  notes.add(NoteDTO.instantiate(note));
+                  Note n = adapt(note);
+                  notes.add(n);
                }
 
                return notes;
@@ -154,6 +155,11 @@ public class PsqlNotesRepo implements NotesRepository
       {
          throw new IllegalStateException("Unexpected internal error", e);
       }
+   }
+
+   private static Note adapt(NoteDTO note)
+   {
+      return new PsqlNote(note.id, note.associatedEntity, note.authorId, note.mimeType, note.content);
    }
 
    @Override
@@ -381,6 +387,54 @@ public class PsqlNotesRepo implements NotesRepository
       public String toString()
       {
          return "Relationship Change " + super.toString();
+      }
+   }
+
+   private static class PsqlNote implements Note
+   {
+      private final UUID id;
+      private final URI associatedEntity;
+      private final String authorId;
+      private final String mimeType;
+      private final String content;
+
+      public PsqlNote(UUID id, URI associatedEntity, String authorId, String mimeType, String content)
+      {
+         this.id = id;
+         this.associatedEntity = associatedEntity;
+         this.authorId = authorId;
+         this.mimeType = mimeType;
+         this.content = content;
+      }
+
+      @Override
+      public UUID getId()
+      {
+         return id;
+      }
+
+      @Override
+      public URI getEntity()
+      {
+         return associatedEntity;
+      }
+
+      @Override
+      public UUID getAuthorId()
+      {
+         return UUID.fromString(authorId);
+      }
+
+      @Override
+      public String getMimeType()
+      {
+         return mimeType;
+      }
+
+      @Override
+      public String getContent()
+      {
+         return content;
       }
    }
 }
