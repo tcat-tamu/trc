@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,8 +40,13 @@ import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.CopyChangeEvent;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.CopyReferenceRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.search.FullTextSearchService;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.search.PageSearchCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.search.VolumeSearchCommand;
+import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
-public class SolrCopyReferenceIndexManager implements CopyReferenceIndex
+public class SolrCopyReferenceIndexManager implements FullTextSearchService
 {
    // TODO remove dependency on HTRC to copy implementation.
 
@@ -112,6 +117,18 @@ public class SolrCopyReferenceIndexManager implements CopyReferenceIndex
       releaseSolrConnection(solrPages);
 
       releaseFeaturesProvider();
+   }
+
+   @Override
+   public VolumeSearchCommand getVolumeSearchCommand() throws SearchException
+   {
+      return new VolumeSolrSearchCommand(solrVols, new TrcQueryBuilder(solrVols, new FullTextVolumeConfig()));
+   }
+
+   @Override
+   public PageSearchCommand getPageSearchCommand() throws SearchException
+   {
+      return new PageSolrSearchCommand(solrPages, new TrcQueryBuilder(solrPages, new FullTextPageConfig()));
    }
 
    private void releaseFeaturesProvider()
