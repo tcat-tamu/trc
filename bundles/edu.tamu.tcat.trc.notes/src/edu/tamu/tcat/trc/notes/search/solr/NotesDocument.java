@@ -4,11 +4,11 @@ import org.apache.solr.common.SolrInputDocument;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import edu.tamu.tcat.trc.entries.search.SearchException;
-import edu.tamu.tcat.trc.entries.search.solr.impl.TrcDocument;
 import edu.tamu.tcat.trc.notes.Notes;
 import edu.tamu.tcat.trc.notes.dto.NotesDTO;
 import edu.tamu.tcat.trc.notes.search.NotesSearchProxy;
+import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 
 public class NotesDocument
 {

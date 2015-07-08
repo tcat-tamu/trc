@@ -3,10 +3,10 @@ package edu.tamu.tcat.trc.notes.search.solr;
 import java.util.Arrays;
 import java.util.Collection;
 
-import edu.tamu.tcat.trc.entries.search.solr.SolrIndexConfig;
-import edu.tamu.tcat.trc.entries.search.solr.SolrIndexField;
-import edu.tamu.tcat.trc.entries.search.solr.impl.BasicFields;
 import edu.tamu.tcat.trc.notes.search.NotesSearchProxy;
+import edu.tamu.tcat.trc.search.solr.SolrIndexConfig;
+import edu.tamu.tcat.trc.search.solr.SolrIndexField;
+import edu.tamu.tcat.trc.search.solr.impl.BasicFields;
 
 public class NotesSolrConfig implements SolrIndexConfig
 {
