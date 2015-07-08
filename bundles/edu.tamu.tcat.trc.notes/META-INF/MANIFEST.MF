@@ -6,11 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: edu.tamu.tcat.trc.notes,
  edu.tamu.tcat.trc.notes.dto,
- edu.tamu.tcat.trc.notes.postgres,
  edu.tamu.tcat.trc.notes.repo,
- edu.tamu.tcat.trc.notes.rest.v1,
- edu.tamu.tcat.trc.notes.search,
- edu.tamu.tcat.trc.notes.search.solr
+ edu.tamu.tcat.trc.notes.search
 Import-Package: com.fasterxml.jackson.core;version="2.3.1",
  com.fasterxml.jackson.databind;version="2.3.1",
  edu.tamu.tcat.db.core;version="1.0.1",
@@ -34,3 +31,4 @@ Import-Package: com.fasterxml.jackson.core;version="2.3.1",
  org.apache.solr.update;version="4.9.0",
  org.junit;version="4.11.0",
  org.postgresql.util;version="9.3.1102"
+Bundle-Vendor: Texas A&M Engineering Experiment Station

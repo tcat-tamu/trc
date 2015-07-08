@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.repo.NoteChangeEvent;
@@ -44,7 +43,6 @@ public class NotesIndexManagerService
    private ConfigurationProperties config;
 
    private AutoCloseable register;
-   private EntryUpdateHelper<NoteChangeEvent> listener;
 
    public void setNotesRepo(NotesRepository repo)
    {
@@ -58,9 +56,8 @@ public class NotesIndexManagerService
 
    public void activate()
    {
-      listener = new EntryUpdateHelper<>();
-      listener.register(new NotesUpdateListener());
       register = repo.register(new NotesUpdateListener());
+
       // construct Solr core
       URI solrBaseUri = config.getPropertyValue(SOLR_API_ENDPOINT, URI.class);
       String solrCore = config.getPropertyValue(SOLR_CORE, String.class);
@@ -73,9 +70,26 @@ public class NotesIndexManagerService
 
    public void dispose()
    {
-      listener = null;
+      try
+      {
+         if (register != null)
+            register.close();
+      }
+      catch (Exception ex)
+      {
+         logger.log(Level.WARNING, "Failed to unregisters notes repository listener.", ex);
+      }
+
       register = null;
-      solr.shutdown();
+
+      try
+      {
+         solr.shutdown();
+      }
+      catch (Exception ex)
+      {
+         logger.log(Level.WARNING, "Failed to shutdown solr server client for notes index manager", ex);
+      }
    }
 
    private void onEvtChange(NoteChangeEvent evt)
