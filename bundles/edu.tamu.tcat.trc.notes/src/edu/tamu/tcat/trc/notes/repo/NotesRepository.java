@@ -13,16 +13,20 @@ public interface NotesRepository
 {
    /**
     * Retrieves a specific {@link Note}
-    * @param noteId The id of the specific Notes to be returned
-    * @return Notes
+    *
+    * @param noteId The id of the Note to retrieve
+    * @return The identified note.
+    * @throws NoSuchCatalogRecordException If the requested note does not exist.
     */
    Note get(UUID noteId) throws NoSuchCatalogRecordException;
 
    /**
-    * Retrieves a {@code List} of {@link Note} provided a valid URI.
+    * Retrieves a list of {@link Note} associated with a particular URI.
+    *
     * @param entityURI URI that may contain {@link Note}.
     * @return Collection of Notes
     */
+   // NOTE that this should, perhaps, be done through the search API.
    List<Note> getNotes(URI entityURI) throws NoSuchCatalogRecordException;
 
    /**
@@ -42,5 +46,12 @@ public interface NotesRepository
     */
    Future<Boolean> remove(UUID noteId);
 
+   /**
+    * Register a listener that will be notified when a note changes.
+    *
+    * @param ears The listener to be notified.
+    * @return A registration that allows the client to stop listening for changes. The returned
+    *       registration <em>must</em> be closed by the caller.
+    */
    AutoCloseable register(UpdateListener<NoteChangeEvent> ears);
 }
