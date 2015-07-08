@@ -35,25 +35,6 @@ public class PostgresEditNoteCmd implements EditNoteCommand
    }
 
    @Override
-   public void update(NoteDTO updateDTO)
-   {
-      if (updateDTO.id != null && !updateDTO.id.equals(note.id))
-         throw new IllegalArgumentException("The supplied note ");
-
-      if (updateDTO.associatedEntity == null)
-         note.associatedEntity = updateDTO.associatedEntity;
-
-      if (updateDTO.authorId == null)
-         note.authorId = updateDTO.authorId;
-
-      if (updateDTO.content == null)
-         note.content = updateDTO.content;
-
-      if (updateDTO.mimeType == null)
-         note.mimeType = updateDTO.mimeType;
-   }
-
-   @Override
    public void setAll(NoteDTO updateDTO)
    {
       if (updateDTO.id != null && !updateDTO.id.equals(note.id))
