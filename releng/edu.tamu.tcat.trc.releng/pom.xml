@@ -37,7 +37,6 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven-plugins-groupid>org.apache.maven.plugins</maven-plugins-groupid>
     <assembly-version>2.4</assembly-version>
-    <repo-base-url>https://build.citd.tamu.edu/hudson/job</repo-base-url>
     <keystore.path>keystore</keystore.path>
     <keystore.pwd></keystore.pwd>
 <!--     <keystore.tsa>http://timestamp.comodoca.com/rfc3161</keystore.tsa> -->
@@ -78,19 +77,16 @@
       <id>Eclipse Platform</id>
       <layout>p2</layout>
       <url>http://download.eclipse.org/releases/mars/</url>
-<!--       <url>${repo-base-url}/Eclipse.Repository.Mirror.Luna/lastSuccessfulBuild/artifact/target/repository/</url> -->
     </repository>
     <repository>
       <id>Eclipse Orbit</id>
       <layout>p2</layout>
       <url>http://download.eclipse.org/tools/orbit/downloads/drops/R20150519210750/repository/</url>
-<!--       <url>${repo-base-url}/Eclipse%20Orbit%20Repository%20Mirror/lastSuccessfulBuild/artifact/target/repository/</url> -->
     </repository>
     <repository>
-      <id>TCAT OSS</id>
+      <id>TCAT OSS Github</id>
       <layout>p2</layout>
       <url>http://tcat-tamu.github.io/releng/p2/</url>
-<!--       <url>https://sda-dev.citd.tamu.edu/sdk/</url> -->
     </repository>
     <repository>
       <id>JAX RS</id>
