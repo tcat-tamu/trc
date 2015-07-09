@@ -15,4 +15,3 @@ Import-Package: com.google.common.base;version="15.0.0",
  edu.tamu.tcat.trc.search,
  javax.ws.rs;version="2.0.0",
  javax.ws.rs.core;version="2.0.0"
-Require-Bundle: com.eclipsesource.jaxrs.jersey-all;bundle-version="2.10.1"
