@@ -170,7 +170,7 @@ public class PsqlNotesRepo implements NotesRepository
 
       PostgresEditNoteCmd cmd = new PostgresEditNoteCmd(note);
       cmd.setCommitHook((n) -> {
-         PeopleChangeNotifier notifier = new PeopleChangeNotifier(UpdateEvent.UpdateAction.CREATE);
+         NoteChangeNotifier notifier = new NoteChangeNotifier(UpdateEvent.UpdateAction.CREATE);
          return exec.submit(new ObservableTaskWrapper<UUID>(makeSaveTask(n, CREATE_SQL), notifier));
       });
 
@@ -184,7 +184,7 @@ public class PsqlNotesRepo implements NotesRepository
 
       PostgresEditNoteCmd cmd = new PostgresEditNoteCmd(note);
       cmd.setCommitHook((n) -> {
-         PeopleChangeNotifier notifier = new PeopleChangeNotifier(UpdateEvent.UpdateAction.UPDATE);
+         NoteChangeNotifier notifier = new NoteChangeNotifier(UpdateEvent.UpdateAction.UPDATE);
          return exec.submit(new ObservableTaskWrapper<UUID>(makeSaveTask(n, UPDATE_SQL), notifier));
       });
 
@@ -194,7 +194,7 @@ public class PsqlNotesRepo implements NotesRepository
    @Override
    public Future<Boolean> remove(UUID noteId)
    {
-      NoteChangeEvent evt = new NoteChangeEventImpl(noteId, UpdateEvent.UpdateAction.UPDATE);
+      NoteChangeEvent evt = new NoteChangeEventImpl(noteId, UpdateEvent.UpdateAction.DELETE);
       return exec.submit(new ObservableTaskWrapper<Boolean>(
             makeRemoveTask(noteId),
             new DataUpdateObserverAdapter<Boolean>()
@@ -336,11 +336,11 @@ public class PsqlNotesRepo implements NotesRepository
      }
   }
 
-   private final class PeopleChangeNotifier extends DataUpdateObserverAdapter<UUID>
+   private final class NoteChangeNotifier extends DataUpdateObserverAdapter<UUID>
    {
       private final UpdateEvent.UpdateAction type;
 
-      public PeopleChangeNotifier(UpdateEvent.UpdateAction type)
+      public NoteChangeNotifier(UpdateEvent.UpdateAction type)
       {
          this.type = type;
       }
@@ -354,7 +354,7 @@ public class PsqlNotesRepo implements NotesRepository
 
    private class NoteChangeEventImpl extends BaseUpdateEvent implements NoteChangeEvent
    {
-      private AtomicReference<Note> note = new AtomicReference<Note>();
+      private transient Note note;
       private final UUID noteId;
 
       public NoteChangeEventImpl(UUID id, UpdateEvent.UpdateAction type)
@@ -367,15 +367,13 @@ public class PsqlNotesRepo implements NotesRepository
       public synchronized Note getNotes() throws CatalogRepoException
       {
          // TODO better to use a future
-         Note n = note.get();
-         if (n != null)
-            return n;
+         if (note != null)
+            return note;
 
          try
          {
-            n = get(noteId);
-            note.set(n);
-            return n;
+            note = get(noteId);
+            return note;
          }
          catch (Exception e)
          {
