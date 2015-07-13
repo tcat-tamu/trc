@@ -18,7 +18,7 @@ public class ArticleSolrConfig implements SolrIndexConfig
    public static final SolrIndexField<String> ARTICLE_CONTENT = new BasicFields.BasicString("article_content");
    public static final SolrIndexField<String> ARTICLE_MIME_TYPE = new BasicFields.BasicString("mime_type");
 
-   public static final BasicFields.SearchProxyField<ArticleSearchProxy> SEARCH_PROXY =new BasicFields.SearchProxyField<ArticleSearchProxy>("note_dto", ArticleSearchProxy.class);
+   public static final BasicFields.SearchProxyField<ArticleSearchProxy> SEARCH_PROXY =new BasicFields.SearchProxyField<ArticleSearchProxy>("article_dto", ArticleSearchProxy.class);
 
    @Override
    public Class<ArticleSearchProxy> getSearchProxyType()

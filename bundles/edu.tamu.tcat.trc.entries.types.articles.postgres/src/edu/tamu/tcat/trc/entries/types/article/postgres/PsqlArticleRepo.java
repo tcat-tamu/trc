@@ -194,7 +194,7 @@ public class PsqlArticleRepo implements ArticleRepository
    @Override
    public Future<Boolean> remove(UUID articleId)
    {
-      ArticleChangeEvent evt = new ArticleChangeEventImpl(articleId, UpdateEvent.UpdateAction.UPDATE);
+      ArticleChangeEvent evt = new ArticleChangeEventImpl(articleId, UpdateEvent.UpdateAction.DELETE);
       return exec.submit(new ObservableTaskWrapper<Boolean>(
             makeRemoveTask(articleId),
             new DataUpdateObserverAdapter<Boolean>()
@@ -354,7 +354,7 @@ public class PsqlArticleRepo implements ArticleRepository
 
    private class ArticleChangeEventImpl extends BaseUpdateEvent implements ArticleChangeEvent
    {
-      private AtomicReference<Article> article = new AtomicReference<Article>();
+      private transient Article article;
       private final UUID articleId;
 
       public ArticleChangeEventImpl(UUID id, UpdateEvent.UpdateAction type)
@@ -367,15 +367,13 @@ public class PsqlArticleRepo implements ArticleRepository
       public synchronized Article getArticle() throws CatalogRepoException
       {
          // TODO better to use a future
-         Article a = article.get();
-         if (a != null)
-            return a;
+         if (article != null)
+            return article;
 
          try
          {
-            a = get(articleId);
-            article.set(a);
-            return a;
+            article = get(articleId);
+            return article;
          }
          catch (Exception e)
          {

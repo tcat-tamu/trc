@@ -25,15 +25,15 @@ public class ArticleDocument
       return indexDoc.getSolrDocument();
    }
 
-   public static ArticleDocument create(Article note) throws JsonProcessingException, SearchException
+   public static ArticleDocument create(Article article) throws JsonProcessingException, SearchException
    {
       ArticleDocument doc = new ArticleDocument();
 
-      ArticleDTO dto = ArticleDTO.create(note);
+      ArticleDTO dto = ArticleDTO.create(article);
 
       try
       {
-         doc.indexDoc.set(ArticleSolrConfig.SEARCH_PROXY, new ArticleSearchProxy(note));
+         doc.indexDoc.set(ArticleSolrConfig.SEARCH_PROXY, new ArticleSearchProxy(article));
       }
       catch (Exception e)
       {
@@ -50,14 +50,14 @@ public class ArticleDocument
       return doc;
    }
 
-   public static ArticleDocument update(Article note) throws SearchException
+   public static ArticleDocument update(Article article) throws SearchException
    {
       ArticleDocument doc = new ArticleDocument();
-      ArticleDTO dto = ArticleDTO.create(note);
+      ArticleDTO dto = ArticleDTO.create(article);
 
       try
       {
-         doc.indexDoc.update(ArticleSolrConfig.SEARCH_PROXY, new ArticleSearchProxy(note));
+         doc.indexDoc.update(ArticleSolrConfig.SEARCH_PROXY, new ArticleSearchProxy(article));
       }
       catch (Exception e)
       {
