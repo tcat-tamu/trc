@@ -354,7 +354,7 @@ public class PsqlNotesRepo implements NotesRepository
 
    private class NoteChangeEventImpl extends BaseUpdateEvent implements NoteChangeEvent
    {
-      private AtomicReference<Note> note;
+      private AtomicReference<Note> note = new AtomicReference<Note>();
       private final UUID noteId;
 
       public NoteChangeEventImpl(UUID id, UpdateEvent.UpdateAction type)
@@ -364,7 +364,7 @@ public class PsqlNotesRepo implements NotesRepository
       }
 
       @Override
-      public Note getNotes() throws CatalogRepoException
+      public synchronized Note getNotes() throws CatalogRepoException
       {
          // TODO better to use a future
          Note n = note.get();
