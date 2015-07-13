@@ -5,3 +5,5 @@ Bundle-SymbolicName: edu.tamu.tcat.trc.entries.types.article
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Texas A&M Engineering Experiment Station
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: edu.tamu.tcat.trc.entries.notification,
+ edu.tamu.tcat.trc.entries.repo
