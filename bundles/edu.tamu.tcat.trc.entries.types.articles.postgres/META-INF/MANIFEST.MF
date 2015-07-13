@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Postgres Implementation of Arcticle
+Bundle-SymbolicName: edu.tamu.tcat.trc.entries.types.article.postgres
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Texas A&M Engineering Experiment Station
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
