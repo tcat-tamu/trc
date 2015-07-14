@@ -8,7 +8,6 @@ import edu.tamu.tcat.trc.entries.types.biblio.copies.search.PageSearchResult;
 
 public class SolrPageResults implements PageSearchResult
 {
-
    private PageSolrSearchCommand cmd;
    private List<PageSearchProxy> page;
 

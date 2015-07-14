@@ -23,9 +23,10 @@ public class VolumeSolrSearchCommand implements VolumeSearchCommand
 
    public VolumeSolrSearchCommand(SolrServer solrVols, TrcQueryBuilder trcQueryBuilder)
    {
+      // TODO seems like trcQueryBuilder should be created here rather than passed in
       this.solr = solrVols;
       this.qb = trcQueryBuilder;
-      this.qb.max(DEFAULT_MAX_RESULTS);
+      this.qb.max(DEFAULT_MAX_RESULTS);      // would be nice if we could configure this externally
    }
 
    @Override
@@ -46,15 +47,18 @@ public class VolumeSolrSearchCommand implements VolumeSearchCommand
 
    private static VolumeSearchProxy proxyAdapter(SolrDocument doc)
    {
+      // TODO need to supply volume id. Notably, this is presumably indexing digital copies
+      //      rather than HT volumes. We need to store basic info about the volume
+      //      likely, the biblio search proxy
       VolumeSearchProxy proxy = new VolumeSearchProxy();
       proxy.id = doc.getFieldValue("volumeText").toString();
       return proxy;
    }
 
    @Override
-   public void query(String basicQueryString) throws SearchException
+   public void query(String q) throws SearchException
    {
-      qb.basic(basicQueryString);
+      qb.basic(q);
    }
 
    @Override

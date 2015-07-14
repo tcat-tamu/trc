@@ -11,7 +11,6 @@ import org.apache.solr.common.SolrDocumentList;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.search.PageSearchCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.search.PageSearchProxy;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.search.PageSearchResult;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.search.VolumeSearchProxy;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
@@ -32,6 +31,7 @@ public class PageSolrSearchCommand implements PageSearchCommand
    @Override
    public PageSearchResult execute() throws SearchException
    {
+      // TODO need to supply volume id and page number.
       try
       {
          QueryResponse response = solr.query(qb.get());

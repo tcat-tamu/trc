@@ -122,7 +122,8 @@ public class SolrCopyReferenceIndexManager implements FullTextSearchService
    @Override
    public VolumeSearchCommand getVolumeSearchCommand() throws SearchException
    {
-      return new VolumeSolrSearchCommand(solrVols, new TrcQueryBuilder(solrVols, new FullTextVolumeConfig()));
+      TrcQueryBuilder builder = new TrcQueryBuilder(solrVols, new FullTextVolumeConfig());
+      return new VolumeSolrSearchCommand(solrVols, builder);
    }
 
    @Override
