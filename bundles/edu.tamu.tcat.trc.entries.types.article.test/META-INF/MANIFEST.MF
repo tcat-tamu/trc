@@ -5,3 +5,16 @@ Bundle-SymbolicName: edu.tamu.tcat.trc.entries.types.article.test
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Texas A&M Engineering Experiment Station
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: edu.tamu.tcat.db.core;version="1.0.1",
+ edu.tamu.tcat.db.exec.sql;version="1.0.0",
+ edu.tamu.tcat.db.postgresql.exec;version="1.0.0",
+ edu.tamu.tcat.db.provider;version="1.0.1",
+ edu.tamu.tcat.osgi.config;version="1.0.3",
+ edu.tamu.tcat.osgi.config.file;version="1.0.3",
+ edu.tamu.tcat.sda.catalog.psql.provider,
+ edu.tamu.tcat.trc.entries.repo,
+ edu.tamu.tcat.trc.entries.types.article,
+ edu.tamu.tcat.trc.entries.types.article.dto,
+ edu.tamu.tcat.trc.entries.types.article.postgres,
+ edu.tamu.tcat.trc.entries.types.article.repo,
+ org.junit
