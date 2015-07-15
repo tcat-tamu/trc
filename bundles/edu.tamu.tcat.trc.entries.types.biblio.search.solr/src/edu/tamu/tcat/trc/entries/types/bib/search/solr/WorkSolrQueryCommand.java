@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -37,6 +40,7 @@ import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
 public class WorkSolrQueryCommand implements WorkQueryCommand
 {
+   private static final Logger logger = Logger.getLogger(WorkSolrQueryCommand.class.getName());
    private static final int DEFAULT_MAX_RESULTS = 25;
 
    private final SolrServer solr;
@@ -57,9 +61,20 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
    {
       try
       {
+
+
          if (authorIds != null)
          {
-            //TODO: specify in query builder
+            authorIds.stream().forEach(id -> {
+               try
+               {
+                  qb.query(BiblioSolrConfig.AUTHOR_IDS, id);
+               }
+               catch (SearchException se)
+               {
+                  logger.log(Level.SEVERE, "Failed to update work query", se);
+               }
+            });
          }
          if (dates != null)
          {
@@ -70,7 +85,14 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
                               LocalDate.of(dr.end.getValue(), Month.DECEMBER, 31));
          }
 
-         QueryResponse response = solr.query(qb.get());
+         // FIXME HACK: Avoid searching over editions and volumes, only for "basic" search
+         SolrQuery params = (SolrQuery)qb.get();
+         StringBuilder qBuilder = new StringBuilder(params.get("q"));
+         qBuilder.append(" -editionName:(*)")
+                 .append(" -volumeNumber:(*)");
+         params.set("q", qBuilder.toString());
+
+         QueryResponse response = solr.query(params);
          SolrDocumentList results = response.getResults();
 
          List<BiblioSearchProxy> works = qb.unpack(results, BiblioSolrConfig.SEARCH_PROXY);
