@@ -50,6 +50,16 @@
     
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.core</module>
     
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.notes</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.notes.rest</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.notes.postgres</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.notes.search.solr</module>
+    
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.article</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.article.rest</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.article.postgres</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.article.search.solr</module>
+    
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio.rest</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio.postgres</module>
