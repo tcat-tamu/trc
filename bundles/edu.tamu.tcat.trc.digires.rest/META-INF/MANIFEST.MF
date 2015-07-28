@@ -5,9 +5,9 @@ Bundle-SymbolicName: edu.tamu.tcat.trc.digires.rest
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Texas A&M Engineering Experiment Station
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: edu.tamu.tcat.trc.digires.books.discovery,
- edu.tamu.tcat.trc.digires.books.hathitrust,
- edu.tamu.tcat.trc.digires.books.resolve,
+Import-Package: edu.tamu.tcat.trc.digires.books.discovery;version="[1.0.0,2.0.0)",
+ edu.tamu.tcat.trc.digires.books.hathitrust;version="[1.0.0,2.0.0)",
+ edu.tamu.tcat.trc.digires.books.resolve;version="[1.0.0,2.0.0)",
  javax.ws.rs;version="2.0.0",
  javax.ws.rs.core;version="2.0.0"
-Export-Package: edu.tamu.tcat.trc.digires.rest.books.v1
+Export-Package: edu.tamu.tcat.trc.digires.rest.books.v1;version="1.0.0"

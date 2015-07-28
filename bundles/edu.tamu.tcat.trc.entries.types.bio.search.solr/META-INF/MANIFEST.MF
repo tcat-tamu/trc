@@ -4,17 +4,17 @@ Bundle-Name: Solr Search for Biographical Entries
 Bundle-SymbolicName: edu.tamu.tcat.trc.entries.types.bio.search.solr
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: edu.tamu.tcat.trc.entries.types.bio.search.solr
-Import-Package: edu.tamu.tcat.osgi.config;version="1.0.3",
- edu.tamu.tcat.trc.entries.common.dto,
- edu.tamu.tcat.trc.entries.notification,
- edu.tamu.tcat.trc.entries.types.bio,
- edu.tamu.tcat.trc.entries.types.bio.dto,
- edu.tamu.tcat.trc.entries.types.bio.repo,
- edu.tamu.tcat.trc.entries.types.bio.search,
- edu.tamu.tcat.trc.search,
- edu.tamu.tcat.trc.search.solr,
- edu.tamu.tcat.trc.search.solr.impl,
+Export-Package: edu.tamu.tcat.trc.entries.types.bio.search.solr;version="1.0.0"
+Import-Package: edu.tamu.tcat.osgi.config;version="[1.0.0,2.0.0)",
+ edu.tamu.tcat.trc.entries.common.dto;version="[1.0.0,2.0.0)",
+ edu.tamu.tcat.trc.entries.notification;version="[1.0.0,2.0.0)",
+ edu.tamu.tcat.trc.entries.types.bio;version="[1.0.0,2.0.0)",
+ edu.tamu.tcat.trc.entries.types.bio.dto;version="[1.0.0,2.0.0)",
+ edu.tamu.tcat.trc.entries.types.bio.repo;version="[1.0.0,2.0.0)",
+ edu.tamu.tcat.trc.entries.types.bio.search;version="[1.0.0,2.0.0)",
+ edu.tamu.tcat.trc.search;version="[1.0.0,2.0.0)",
+ edu.tamu.tcat.trc.search.solr;version="[1.0.0,2.0.0)",
+ edu.tamu.tcat.trc.search.solr.impl;version="[1.0.0,2.0.0)",
  org.apache.solr.client.solrj;version="4.9.0",
  org.apache.solr.client.solrj.impl;version="4.9.0",
  org.apache.solr.client.solrj.response;version="4.9.0",

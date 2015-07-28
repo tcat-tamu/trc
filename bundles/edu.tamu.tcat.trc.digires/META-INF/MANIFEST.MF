@@ -5,7 +5,7 @@ Bundle-SymbolicName: edu.tamu.tcat.trc.digires
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Texas A&M Engineering Experiment Station
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: edu.tamu.tcat.trc.digires.books.discovery,
- edu.tamu.tcat.trc.digires.books.resolve,
- edu.tamu.tcat.trc.digires.books.resolve.ext
-Require-Bundle: org.eclipse.core.runtime;bundle-version="3.10.0"
+Export-Package: edu.tamu.tcat.trc.digires.books.discovery;version="1.0.0",
+ edu.tamu.tcat.trc.digires.books.resolve;version="1.0.0",
+ edu.tamu.tcat.trc.digires.books.resolve.ext;version="1.0.0"
+Require-Bundle: org.eclipse.core.runtime;bundle-version="[3.10.0,4.0.0)"
