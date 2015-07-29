@@ -1,0 +1,9 @@
+
+
+For Release 1.0.0 (2015-07-29)
+------------------------------
+* Initial release of TRC framework
+* Provides basic framework utilities for search
+* Provides entry types for articles, bibliographic entries, biographical entries
+    and relationships
+* Provides basic services for notes and digital resources (currently books)
