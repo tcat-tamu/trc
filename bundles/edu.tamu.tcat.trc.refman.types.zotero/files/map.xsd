@@ -1,0 +1,115 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+          <!-- XML Schema Generated from XML Document on Thu Jul 30 2015 09:30:32 GMT-0500 (Central Daylight Time) -->
+          <!-- with XmlGrid.net Free Online Service http://xmlgrid.net -->
+       <xs:element name="zoteroMap">
+              <xs:complexType>
+                     <xs:sequence>
+                            <xs:element name="zoteroVersion">
+                                   <xs:complexType>
+                                          <xs:attribute name="value" type="xs:string"></xs:attribute>
+                                      </xs:complexType>
+                               </xs:element>
+                            <xs:element name="zoteroDate">
+                                   <xs:complexType>
+                                          <xs:attribute name="value" type="xs:string"></xs:attribute>
+                                      </xs:complexType>
+                               </xs:element>
+                            <xs:element name="zTypes">
+                                   <xs:complexType>
+                                          <xs:sequence>
+                                                 <xs:element name="typeMap" maxOccurs="unbounded">
+                                                        <xs:complexType>
+                                                               <xs:sequence>
+                                                                      <xs:element name="field" maxOccurs="unbounded">
+                                                                             <xs:complexType>
+                                                                                    <xs:sequence>
+                                                                                          <xs:element name="creatorType" maxOccurs="unbounded">
+                                                                                               <xs:complexType>
+                                                                                                    <xs:attribute name="label" type="xs:string"></xs:attribute>
+                                                                                                    <xs:attribute name="value" type="xs:string"></xs:attribute>
+                                                                                               </xs:complexType>
+                                                                                          </xs:element>
+                                                                                    </xs:sequence>
+                                                                                    <xs:attribute name="label" type="xs:string"></xs:attribute>
+                                                                                    <xs:attribute name="value" type="xs:string"></xs:attribute>
+                                                                             </xs:complexType>
+                                                                         </xs:element>
+                                                                  </xs:sequence>
+                                                               <xs:attribute name="zType" type="xs:string"></xs:attribute>
+                                                               <xs:attribute name="cslType" type="xs:string"></xs:attribute>
+                                                           </xs:complexType>
+                                                    </xs:element>
+                                             </xs:sequence>
+                                      </xs:complexType>
+                               </xs:element>
+                            <xs:element name="cslFieldMap">
+                                   <xs:complexType>
+                                          <xs:sequence>
+                                                 <xs:element name="map" maxOccurs="unbounded">
+                                                        <xs:complexType>
+                                                               <xs:attribute name="zField" type="xs:string"></xs:attribute>
+                                                               <xs:attribute name="cslField" type="xs:string"></xs:attribute>
+                                                           </xs:complexType>
+                                                    </xs:element>
+                                             </xs:sequence>
+                                      </xs:complexType>
+                               </xs:element>
+                            <xs:element name="cslCreatorMap">
+                                   <xs:complexType>
+                                          <xs:sequence>
+                                                 <xs:element name="map" maxOccurs="unbounded">
+                                                        <xs:complexType>
+                                                               <xs:attribute name="zField" type="xs:string"></xs:attribute>
+                                                               <xs:attribute name="cslField" type="xs:string"></xs:attribute>
+                                                           </xs:complexType>
+                                                    </xs:element>
+                                             </xs:sequence>
+                                      </xs:complexType>
+                               </xs:element>
+                            <xs:element name="citeprocJStoCSLmap">
+                                   <xs:complexType>
+                                          <xs:sequence>
+                                                 <xs:element name="remap" maxOccurs="unbounded">
+                                                        <xs:complexType>
+                                                               <xs:attribute name="citeprocField" type="xs:string"></xs:attribute>
+                                                               <xs:attribute name="cslUsage" type="xs:string"></xs:attribute>
+                                                               <xs:attribute name="descKey" type="xs:string"></xs:attribute>
+                                                           </xs:complexType>
+                                                    </xs:element>
+                                             </xs:sequence>
+                                      </xs:complexType>
+                               </xs:element>
+                            <xs:element name="cslVars">
+                                   <xs:complexType>
+                                          <xs:sequence>
+                                                 <xs:element name="itemTypes">
+                                                        <xs:complexType>
+                                                               <xs:sequence>
+                                                                      <xs:element name="type" maxOccurs="unbounded">
+                                                                             <xs:complexType>
+                                                                                    <xs:attribute name="name" type="xs:string"></xs:attribute>
+                                                                                </xs:complexType>
+                                                                         </xs:element>
+                                                                  </xs:sequence>
+                                                           </xs:complexType>
+                                                    </xs:element>
+                                                 <xs:element name="vars">
+                                                        <xs:complexType>
+                                                               <xs:sequence>
+                                                                      <xs:element name="var" maxOccurs="unbounded">
+                                                                             <xs:complexType>
+                                                                                    <xs:attribute name="name" type="xs:string"></xs:attribute>
+                                                                                    <xs:attribute name="type" type="xs:string"></xs:attribute>
+                                                                                    <xs:attribute name="description" type="xs:string"></xs:attribute>
+                                                                                </xs:complexType>
+                                                                         </xs:element>
+                                                                  </xs:sequence>
+                                                           </xs:complexType>
+                                                    </xs:element>
+                                             </xs:sequence>
+                                      </xs:complexType>
+                               </xs:element>
+                        </xs:sequence>
+                 </xs:complexType>
+          </xs:element>
+   </xs:schema>
