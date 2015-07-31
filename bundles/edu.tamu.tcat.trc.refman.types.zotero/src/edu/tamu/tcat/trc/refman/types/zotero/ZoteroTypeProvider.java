@@ -1,6 +1,5 @@
 package edu.tamu.tcat.trc.refman.types.zotero;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
@@ -20,7 +19,7 @@ public class ZoteroTypeProvider implements ItemTypeProvider
 
 	public static final String ZOTERO_MXL = "edu.tamu.tcat.trc.refman.types.zotero.xml";
 	private ConfigurationProperties config;
-	private ZoteroMap zotero;
+	private ZoteroTypeAdapter zoteroAdapter;
 
 	public void setConfiguration(ConfigurationProperties cp)
 	{
@@ -32,13 +31,16 @@ public class ZoteroTypeProvider implements ItemTypeProvider
 		try
 		{
 			Path xmlPath = Paths.get(config.getPropertyValue(ZOTERO_MXL, String.class));
+			if (!xmlPath.toFile().exists())
+				throw new IllegalStateException("Unable to find the file provided:" + xmlPath.toString());
+			
 			JAXBContext jaxbContext = JAXBContext.newInstance( ZoteroMap.class );
 			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-			zotero = (ZoteroMap)jaxbUnmarshaller.unmarshal(xmlPath.toFile());
+			zoteroAdapter = new ZoteroTypeAdapter((ZoteroMap)jaxbUnmarshaller.unmarshal(xmlPath.toFile()));
 		} 
-		catch (JAXBException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		catch (JAXBException e) 
+		{
+			throw new IllegalStateException("An error occurred while attempting to unmarshall the xml file to the ZoteroMap.class.\n" + e);
 		}
 	}
 	
@@ -47,21 +49,21 @@ public class ZoteroTypeProvider implements ItemTypeProvider
 	}
 
 	@Override
-	public Collection<ItemFieldType> listDefinedFields() {
-		// TODO Auto-generated method stub
-		return null;
+	public Collection<ItemFieldType> listDefinedFields() 
+	{
+		return zoteroAdapter.getDefinedFields();
 	}
 
 	@Override
-	public Collection<ItemType> listDefinedTypes() {
-		// TODO Auto-generated method stub
-		return null;
+	public Collection<ItemType> listDefinedTypes() 
+	{
+		return zoteroAdapter.getDefinedTypes();
 	}
 
 	@Override
-	public ItemType getItemType(String typeId) throws IllegalArgumentException {
-		// TODO Auto-generated method stub
-		return null;
+	public ItemType getItemType(String typeId) throws IllegalArgumentException 
+	{
+		return zoteroAdapter.getType(typeId);
 	}
 
 
