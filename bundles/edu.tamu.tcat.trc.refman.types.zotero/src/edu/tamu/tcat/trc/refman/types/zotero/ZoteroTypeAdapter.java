@@ -7,8 +7,6 @@ import java.util.List;
 
 import edu.tamu.tcat.trc.refman.types.ItemFieldType;
 import edu.tamu.tcat.trc.refman.types.ItemType;
-import edu.tamu.tcat.trc.refman.types.items.ItemFieldTypeImpl;
-import edu.tamu.tcat.trc.refman.types.items.ItemTypeImpl;
 import edu.tamu.tcat.trc.refman.types.zotero.jaxb.Field;
 import edu.tamu.tcat.trc.refman.types.zotero.jaxb.Map;
 import edu.tamu.tcat.trc.refman.types.zotero.jaxb.TypeMap;

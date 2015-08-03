@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.refman.types.items;
+package edu.tamu.tcat.trc.refman.types.zotero;
 
 import java.util.List;
 

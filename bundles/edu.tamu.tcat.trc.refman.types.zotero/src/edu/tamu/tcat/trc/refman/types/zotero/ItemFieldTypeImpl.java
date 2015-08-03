@@ -1,15 +1,15 @@
-package edu.tamu.tcat.trc.refman.types.items;
+package edu.tamu.tcat.trc.refman.types.zotero;
 
 import edu.tamu.tcat.trc.refman.types.ItemFieldType;
 
-public class ItemFieldTypeImpl implements ItemFieldType 
+public class ItemFieldTypeImpl implements ItemFieldType
 {
-	private String id;
-	private String label;
-	private String type;
-	private String fieldBase;
-	private String description;
-	
+	private final String id;
+	private final String label;
+	private final String type;
+	private final String fieldBase;
+	private final String description;
+
 	public ItemFieldTypeImpl(String id, String label, String type, String fieldBase, String description)
 	{
 		this.id = id;
@@ -17,11 +17,11 @@ public class ItemFieldTypeImpl implements ItemFieldType
 		this.type = type;
 		this.fieldBase = fieldBase;
 		this.description = description;
-		
+
 	}
-	
+
 	@Override
-	public String getId() 
+	public String getId()
 	{
 		return id;
 	}
@@ -33,19 +33,19 @@ public class ItemFieldTypeImpl implements ItemFieldType
 	}
 
 	@Override
-	public String getType() 
+	public String getType()
 	{
 		return type;
 	}
 
 	@Override
-	public String getLabel() 
+	public String getLabel()
 	{
 		return label;
 	}
 
 	@Override
-	public String getDescription() 
+	public String getDescription()
 	{
 		return description;
 	}
