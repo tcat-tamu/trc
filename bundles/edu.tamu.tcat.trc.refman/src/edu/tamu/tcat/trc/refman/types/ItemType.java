@@ -33,4 +33,11 @@ public interface ItemType
     *       display order.
     */
    List<ItemFieldType> getFields();
+
+   /**
+    * @return The list of creator roles that are defined for entries of this type. Note that
+    *       this is intended as a hint to support user interfaces and creators may be assigned
+    *       to bibliographic references with roles that are not in list of defined roles.
+    */
+   List<CreatorRole> getCreatorRoles();
 }
