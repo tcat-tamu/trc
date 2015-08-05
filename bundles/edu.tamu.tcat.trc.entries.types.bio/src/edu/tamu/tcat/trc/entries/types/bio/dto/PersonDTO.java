@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,27 +39,36 @@ public class PersonDTO
    public HistoricalEventDTO death;
    public String summary;
 
-   public static PersonDTO create(Person figure)
+   public PersonDTO()
    {
-      PersonDTO dto = new PersonDTO();
-      dto.id = figure.getId();
+
+   }
+
+   public PersonDTO(Person figure)
+   {
+      this.id = figure.getId();
 
       PersonName canonicalName = figure.getCanonicalName();
       if (canonicalName != null) {
-         dto.displayName = PersonNameDTO.create(canonicalName);
+         this.displayName = PersonNameDTO.create(canonicalName);
       }
 
-      dto.names = figure.getAlternativeNames().stream()
+      this.names = figure.getAlternativeNames().stream()
                      .map(PersonNameDTO::create)
                      .collect(Collectors.toSet());
 
-      dto.birth = new HistoricalEventDTO(figure.getBirth());
-      dto.death = new HistoricalEventDTO(figure.getDeath());
-      dto.summary = figure.getSummary();
-
-      return dto;
+      this.birth = new HistoricalEventDTO(figure.getBirth());
+      this.death = new HistoricalEventDTO(figure.getDeath());
+      this.summary = figure.getSummary();
    }
 
+   @Deprecated // use constructor instead
+   public static PersonDTO create(Person figure)
+   {
+      return new PersonDTO(figure);
+   }
+
+   @Deprecated
    public static Person instantiate(PersonDTO figure)
    {
       PersonImpl person = new PersonImpl();
@@ -157,6 +166,7 @@ public class PersonDTO
       return allNames;
    }
 
+   @Deprecated
    public static class PersonImpl implements Person
    {
       private String id;
