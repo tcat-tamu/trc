@@ -5,11 +5,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import edu.tamu.tcat.trc.refman.types.ItemFieldType;
 import edu.tamu.tcat.trc.refman.types.ItemType;
+import edu.tamu.tcat.trc.refman.types.zotero.jaxb.CslFieldtoZFieldMap;
 import edu.tamu.tcat.trc.refman.types.zotero.jaxb.Field;
-import edu.tamu.tcat.trc.refman.types.zotero.jaxb.Map;
+import edu.tamu.tcat.trc.refman.types.zotero.jaxb.Remap;
 import edu.tamu.tcat.trc.refman.types.zotero.jaxb.TypeMap;
 import edu.tamu.tcat.trc.refman.types.zotero.jaxb.Var;
 import edu.tamu.tcat.trc.refman.types.zotero.jaxb.ZoteroMap;
@@ -29,33 +31,100 @@ public class ZoteroTypeAdapter
 	   //       inconsistencies if the XML mapping file does not map all fields used in types
 	   //       to CSL values
 
-	   // FIXME: Missing fields such as dictionary title that map to CSL fields via 'base' attr
-	   // FIXME: need to get type
-
 		Collection<ItemFieldType> itemFieldTypes = new HashSet<>();
-		// FIXME -- not a java.util.map. This is an XML element that maps one Zotero field (or a family of fields)
-		//          to their coorresponding CSL field
-		Map[] mapArray = zMap.getCslFieldMap().getMap();
-		java.util.Map<String, Var> cslFields = getCSLFields(zMap);
+		CslFieldtoZFieldMap[] mapArray = zMap.getCslFieldMap().getMap();
+		Map<String, Var> cslFields = getCSLFields(zMap);
+		Map<String, Remap> cslRemaps = getRemaps(zMap);
 
-		Var[] varArray = zMap.getCslVars().getVars().getVar();
-		for (Map map : mapArray)
+		for (CslFieldtoZFieldMap map : mapArray)
 		{
 			String id = map.getZField();
-			String label = map.getZField();     // TODO not defined here. . . labels are provided by the type defns.
-
-			Var cslField = cslFields.get(map.getCslField());
+			Var cslField = null;
+			if(cslRemaps.containsKey(id))
+				cslField = cslFields.get(cslRemaps.get(id).getDescKey());
+			else
+				cslField = cslFields.get(map.getCslField());
 
 			// TODO may need to convert CSL defined field types into our own internal representations
-
-
-
 			// FIXME: there is a problem with the API here.
-			ItemFieldTypeImpl field = new ItemFieldTypeImpl(id, label, cslField.getType(), "", cslField.getDescription());
-         itemFieldTypes.add(field);
+			ItemFieldTypeImpl field = new ItemFieldTypeImpl(id, "", cslField.getType(), "", cslField.getDescription());
+            itemFieldTypes.add(field);
 		}
 
 		return itemFieldTypes;
+	}
+
+	public static Collection<ItemType> getDefinedTypes(ZoteroMap zMap)
+	{
+		Collection<ItemType> itemTypes = new HashSet<>();
+		Map<String, Var> cslFields = getCSLFields(zMap);
+		Map<String, Remap> cslRemaps = getRemaps(zMap);
+		Map<String, CslFieldtoZFieldMap> csltoZFieldMappings = getCsltoZFieldMappings(zMap);
+		
+		CslFieldtoZFieldMap[] cslFieldMaps = zMap.getCslFieldMap().getMap();
+		
+		TypeMap[] typeMaps = zMap.getZTypes().getTypeMap();
+
+		for(TypeMap typeMap : typeMaps)
+		{
+			String typeId = typeMap.getZType();
+			String typeLabel = typeMap.getCslType(); // Note:There is not a label attribute for this element
+
+			List<ItemFieldType> fieldTypes = new ArrayList<>();
+
+			if (typeMap.getField() == null)
+				continue;
+			Map<String, Field> typeMapFields = getTypeMapFields(typeMap);
+			
+			// This allows us to map the TypeMap to a CSLFieldMap
+			typeMapFields.forEach((typeMapKey, typeMapValue) ->
+			{
+				if (typeMapKey != null)
+				{
+					// This allows us to map the CSLFieldMap to a CSLVar
+					csltoZFieldMappings.forEach((fieldMapKey, fieldMapValue) ->
+					{
+						Var cslField = null;
+						String zField = fieldMapValue.getZField();
+						String cslFM = fieldMapValue.getCslField();
+						if(typeMapKey.equals(zField))
+						{
+							if(cslRemaps.containsValue(cslFM))
+								cslField = cslFields.get(cslRemaps.get(cslFM).getDescKey());
+							else
+								cslField = cslFields.get(cslFM);
+							
+							fieldTypes.add(new ItemFieldTypeImpl(typeMapValue.getValue(), typeMapValue.getLabel(), 
+									       cslField == null ? "" : cslField.getType(), 
+										   typeMapValue.getBaseField() == null ? "" : typeMapValue.getBaseField(),
+										   cslField == null ? "" : cslField.getDescription()));
+						}
+					});
+				}
+			});
+			
+			itemTypes.add(new ItemTypeImpl(typeId, typeLabel, "", fieldTypes));
+		}
+		return itemTypes;
+	}
+	
+	/**
+	 *
+	 * @param zMap
+	 * @return A map of defined CSL fields (a {@code cslFieldtoZfieldMap} element in the
+	 *      {@code typeMap.xml} data definition file), keyed by the CSL field name.
+	 */
+	private static Map<String, CslFieldtoZFieldMap> getCsltoZFieldMappings(ZoteroMap zMap)
+	{
+
+		   Map<String, CslFieldtoZFieldMap> maps = new HashMap<>();
+		   CslFieldtoZFieldMap[] cslFieldMaps = zMap.getCslFieldMap().getMap();
+		   
+		   for (CslFieldtoZFieldMap m : cslFieldMaps)
+		   {
+			   maps.put(m.getZField(), m);
+		   }
+		   return maps;
 	}
 
 	/**
@@ -64,9 +133,9 @@ public class ZoteroTypeAdapter
 	 * @return A map of defined CSL fields (a {@code var} element in the
 	 *      {@code typeMap.xml} data definition file), keyed by the CSL field name.
 	 */
-	public static java.util.Map<String, Var> getCSLFields(ZoteroMap zMap)
+	private static Map<String, Var> getCSLFields(ZoteroMap zMap)
 	{
-	   java.util.Map<String, Var> cslFieldMap = new HashMap<>();
+	   Map<String, Var> cslFieldMap = new HashMap<>();
 	   Var[] definedCslFields = zMap.getCslVars().getVars().getVar();
 	   for (Var v : definedCslFields)
 	   {
@@ -76,57 +145,46 @@ public class ZoteroTypeAdapter
 	   return cslFieldMap;
 
 	}
-
-   private static String getFieldDescription(Var[] varArray, Map map)
-   {
-      String description = "";
-      for (Var var : varArray)
-      {
-      	String name = var.getName();
-      	if (map.getCslField().equals(name))
-      		return var.getDescription();
-      }
-      return description;
-   }
-
-	public static Collection<ItemType> getDefinedTypes(ZoteroMap zMap)
+	
+	/**
+	 * 
+	 * @param typeMap
+	 * @return A map of defined CSL fields contained within a {@link TypeMap} such as a book, note, aritcle...etc.
+	 *         This is also a {@code field} element in the {@code typeMap.xml} data definition file, keyed by 
+	 *         the CSL field name.  
+	 */
+	private static Map<String, Field> getTypeMapFields(TypeMap typeMap)
 	{
-		Collection<ItemType> itemTypes = new HashSet<>();
-		Var[] varArray = zMap.getCslVars().getVars().getVar();
-		TypeMap[] typeMaps = zMap.getZTypes().getTypeMap();
+		   Map<String, Field> typeMapFields = new HashMap<>();
+		   Field[] fields = typeMap.getField();
+		   
+		   if (fields == null)
+			   return typeMapFields;
+		   
+		   for (Field field : fields)
+		   {
+			   typeMapFields.put(field.getValue(), field);
+		   }
 
-		for(TypeMap typeMap : typeMaps)
-		{
-			String typeId = typeMap.getZType();
-			String typeLabel = typeMap.getZType();
-
-			List<ItemFieldType> fieldTypes = new ArrayList<>();
-
-			Field[] fields = typeMap.getField();
-			if (fields == null)
-			   continue;      // some types have no defined fields.
-
-			for (Field field : fields)
-			{
-			   String id = field.getValue();
-			   String label = field.getLabel();
-			   String description = "";
-			   for(Var var : varArray)
-			   {
-			      String name = var.getName();
-			      if(field.getValue().equals(name))
-			      {
-			         description = var.getDescription();
-			         continue;
-			      }
-			   }
-			   fieldTypes.add(new ItemFieldTypeImpl(id, label, "", "", description));
-			}
-
-			itemTypes.add(new ItemTypeImpl(typeId, typeLabel, "", fieldTypes));
-		}
-
-		return itemTypes;
+		   return typeMapFields;
 	}
-
+	
+	/**
+	 * 
+	 * @param zMap
+	 * @return A map of defined CSL fields that required a remapping due to hyphen's in the name. These can be
+	 *         found in the {@code typeMap.xml} data definition file, defined as a {@code remap} field.
+	 */
+	private static Map<String, Remap> getRemaps(ZoteroMap zMap)
+	{
+		Map<String, Remap> cslRemaps = new HashMap<>();
+		Remap[] remaps = zMap.getCiteprocJStoCSLmap().getRemap();
+		
+		for(Remap remap : remaps)
+		{
+			cslRemaps.put(remap.getCiteprocField(), remap);
+		}
+		
+		return cslRemaps;
+	}
 }
