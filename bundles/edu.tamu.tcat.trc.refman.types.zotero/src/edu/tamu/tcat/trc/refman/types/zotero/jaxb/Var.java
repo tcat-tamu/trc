@@ -4,6 +4,9 @@ import javax.xml.bind.annotation.XmlAttribute;
 
 public class Var
 {
+   // TODO: rename to CslFieldDefinition
+   //       Make member variables public, remove accessor methods since this is used as a data vehicle
+   //
     private String description;
 
     private String name;

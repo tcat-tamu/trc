@@ -6,6 +6,10 @@ public class CslVars
 
     private ItemTypes itemTypes;
 
+    /**
+     *
+     * @return The CSL variables. Note that this is distinct from item types.
+     */
     public Vars getVars ()
     {
         return vars;
