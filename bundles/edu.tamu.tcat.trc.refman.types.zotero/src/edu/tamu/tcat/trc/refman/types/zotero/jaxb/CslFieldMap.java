@@ -2,14 +2,14 @@ package edu.tamu.tcat.trc.refman.types.zotero.jaxb;
 
 public class CslFieldMap
 {
-    private Map[] map;
+    private CslFieldtoZFieldMap[] map;
 
-    public Map[] getMap ()
+    public CslFieldtoZFieldMap[] getMap ()
     {
         return map;
     }
 
-    public void setMap (Map[] map)
+    public void setMap (CslFieldtoZFieldMap[] map)
     {
         this.map = map;
     }
