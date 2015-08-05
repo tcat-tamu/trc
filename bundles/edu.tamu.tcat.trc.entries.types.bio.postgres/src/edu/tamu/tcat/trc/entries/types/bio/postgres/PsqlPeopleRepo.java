@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -51,6 +51,7 @@ import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
+import edu.tamu.tcat.trc.entries.types.bio.postgres.model.PersonImpl;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonChangeEvent;
@@ -77,6 +78,7 @@ public class PsqlPeopleRepo implements PeopleRepository
    private IdFactory idFactory;
    private ObjectMapper mapper;
 
+   // TODO replace with notifications helper
    private ExecutorService notifications;
    private final CopyOnWriteArrayList<Consumer<PersonChangeEvent>> listeners = new CopyOnWriteArrayList<>();
 
@@ -149,7 +151,7 @@ public class PsqlPeopleRepo implements PeopleRepository
             while (rs.next())
             {
                PGobject pgo = (PGobject)rs.getObject("historical_figure");
-               people.add(parseJson(pgo.toString(), mapper));
+               people.add(parseJson(pgo.toString(), ""));
             }
          }
 
@@ -210,7 +212,7 @@ public class PsqlPeopleRepo implements PeopleRepository
                   throw new NoSuchCatalogRecordException("Could not find record for person [" + personId + "]");
 
                PGobject pgo = (PGobject)rs.getObject("historical_figure");
-               return parseJson(pgo.toString(), mapper);
+               return parseJson(pgo.toString(), "");
             }
          }
          catch (SQLException e)
@@ -376,20 +378,6 @@ public class PsqlPeopleRepo implements PeopleRepository
       return jsonObject;
    }
 
-   private static Person parseJson(String json, ObjectMapper mapper)
-   {
-      try
-      {
-         PersonDTO dv = mapper.readValue(json, PersonDTO.class);
-         return PersonDTO.instantiate(dv);
-      }
-      catch (IOException je)
-      {
-         // NOTE: possible data leak. If this exception is propagated to someone who isn't authorized to see this record...
-         throw new IllegalStateException("Cannot parse person from JSON:\n" + json, je);
-      }
-   }
-
    private void notifyPersonUpdate(UpdateEvent.UpdateAction type, String id)
    {
       PeopleChangeEventImpl evt = new PeopleChangeEventImpl(type, id);
@@ -447,6 +435,19 @@ public class PsqlPeopleRepo implements PeopleRepository
       public void onFinish(String id)
       {
          notifyPersonUpdate(type, id);
+      }
+   }
+
+   private Person parseJson(String json, String id)
+   {
+      try
+      {
+         PersonDTO dv = mapper.readValue(json, PersonDTO.class);
+         return new PersonImpl(dv);
+      }
+      catch (IOException je)
+      {
+         throw new IllegalStateException("Failed to parse JSON record for person [id = " + id + "]", je);
       }
    }
 }
