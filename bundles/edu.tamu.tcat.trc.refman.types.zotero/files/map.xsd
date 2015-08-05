@@ -32,6 +32,7 @@
                                                                                     </xs:sequence>
                                                                                     <xs:attribute name="label" type="xs:string"></xs:attribute>
                                                                                     <xs:attribute name="value" type="xs:string"></xs:attribute>
+                                                                                    <xs:attribute name="baseField" type="xs:string"></xs:attribute>
                                                                              </xs:complexType>
                                                                          </xs:element>
                                                                   </xs:sequence>

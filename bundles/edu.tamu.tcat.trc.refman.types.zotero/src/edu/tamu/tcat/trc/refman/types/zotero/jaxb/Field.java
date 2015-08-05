@@ -7,6 +7,8 @@ public class Field
     private String value;
 
     private String label;
+    
+    private String baseField;
 
     private CreatorType[] creatorType;
 
@@ -30,6 +32,17 @@ public class Field
     public void setLabel (String label)
     {
         this.label = label;
+    }
+
+    @XmlAttribute
+    public String getBaseField ()
+    {
+        return baseField;
+    }
+
+    public void setBaseField (String baseField)
+    {
+        this.baseField = baseField;
     }
 
     public CreatorType[] getCreatorType ()
