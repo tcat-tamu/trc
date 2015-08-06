@@ -8,10 +8,10 @@ import edu.tamu.tcat.trc.refman.types.ItemType;
 public class ItemTypeImpl implements ItemType 
 {
 
-	private String id;
-	private String label;
-	private String description;
-	private List<ItemFieldType> fieldTypes;
+	private final String id;
+	private final String label;
+	private final String description;
+	private final List<ItemFieldType> fieldTypes;
 	
 	public ItemTypeImpl(String id, String label, String description, List<ItemFieldType> fieldTypes)
 	{

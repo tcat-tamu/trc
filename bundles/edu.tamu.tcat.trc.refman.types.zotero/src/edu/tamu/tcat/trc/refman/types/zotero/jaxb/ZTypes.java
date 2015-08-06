@@ -2,14 +2,14 @@ package edu.tamu.tcat.trc.refman.types.zotero.jaxb;
 
 public class ZTypes
 {
-    private TypeMap[] typeMap;
+    private ZoteroTypeMap[] typeMap;
 
-    public TypeMap[] getTypeMap ()
+    public ZoteroTypeMap[] getTypeMap ()
     {
         return typeMap;
     }
 
-    public void setTypeMap (TypeMap[] typeMap)
+    public void setTypeMap (ZoteroTypeMap[] typeMap)
     {
         this.typeMap = typeMap;
     }

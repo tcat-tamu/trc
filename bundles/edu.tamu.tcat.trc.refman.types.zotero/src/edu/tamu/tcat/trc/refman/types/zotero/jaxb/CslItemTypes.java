@@ -1,15 +1,15 @@
 package edu.tamu.tcat.trc.refman.types.zotero.jaxb;
 
-public class ItemTypes
+public class CslItemTypes
 {
-    private Type[] type;
+    private ZoteroType[] type;
 
-    public Type[] getType ()
+    public ZoteroType[] getType ()
     {
         return type;
     }
 
-    public void setType (Type[] type)
+    public void setType (ZoteroType[] type)
     {
         this.type = type;
     }

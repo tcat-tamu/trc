@@ -2,7 +2,7 @@ package edu.tamu.tcat.trc.refman.types.zotero.jaxb;
 
 import javax.xml.bind.annotation.XmlAttribute;
 
-public class Type
+public class ZoteroType
 {
     private String name;
 

@@ -2,7 +2,7 @@ package edu.tamu.tcat.trc.refman.types.zotero.jaxb;
 
 import javax.xml.bind.annotation.XmlAttribute;
 
-public class Field
+public class ZoteroTypeField
 {
     private String value;
 
@@ -10,7 +10,7 @@ public class Field
     
     private String baseField;
 
-    private CreatorType[] creatorType;
+    private ZoteroCreatorType[] creatorType;
 
     @XmlAttribute
     public String getValue ()
@@ -45,12 +45,12 @@ public class Field
         this.baseField = baseField;
     }
 
-    public CreatorType[] getCreatorType ()
+    public ZoteroCreatorType[] getCreatorType ()
     {
         return creatorType;
     }
 
-    public void setCreatorType (CreatorType[] creatorType)
+    public void setCreatorType (ZoteroCreatorType[] creatorType)
     {
         this.creatorType = creatorType;
     }

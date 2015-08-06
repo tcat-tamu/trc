@@ -1,15 +1,15 @@
 package edu.tamu.tcat.trc.refman.types.zotero.jaxb;
 
-public class Vars
+public class CslVariable
 {
-    private Var[] var;
+    private CslVar[] var;
 
-    public Var[] getVar ()
+    public CslVar[] getVar ()
     {
         return var;
     }
 
-    public void setVar (Var[] var)
+    public void setVar (CslVar[] var)
     {
         this.var = var;
     }

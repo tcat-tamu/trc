@@ -9,11 +9,13 @@ import java.util.Map;
 
 import edu.tamu.tcat.trc.refman.types.ItemFieldType;
 import edu.tamu.tcat.trc.refman.types.ItemType;
+import edu.tamu.tcat.trc.refman.types.zotero.jaxb.ZoteroCreatorType;
+import edu.tamu.tcat.trc.refman.types.zotero.jaxb.CreatorTypeMap;
 import edu.tamu.tcat.trc.refman.types.zotero.jaxb.CslFieldtoZFieldMap;
-import edu.tamu.tcat.trc.refman.types.zotero.jaxb.Field;
+import edu.tamu.tcat.trc.refman.types.zotero.jaxb.ZoteroTypeField;
 import edu.tamu.tcat.trc.refman.types.zotero.jaxb.Remap;
-import edu.tamu.tcat.trc.refman.types.zotero.jaxb.TypeMap;
-import edu.tamu.tcat.trc.refman.types.zotero.jaxb.Var;
+import edu.tamu.tcat.trc.refman.types.zotero.jaxb.ZoteroTypeMap;
+import edu.tamu.tcat.trc.refman.types.zotero.jaxb.CslVar;
 import edu.tamu.tcat.trc.refman.types.zotero.jaxb.ZoteroMap;
 
 /**
@@ -33,13 +35,13 @@ public class ZoteroTypeAdapter
 
 		Collection<ItemFieldType> itemFieldTypes = new HashSet<>();
 		CslFieldtoZFieldMap[] mapArray = zMap.getCslFieldMap().getMap();
-		Map<String, Var> cslFields = getCSLFields(zMap);
+		Map<String, CslVar> cslFields = getCSLFields(zMap);
 		Map<String, Remap> cslRemaps = getRemaps(zMap);
 
 		for (CslFieldtoZFieldMap map : mapArray)
 		{
 			String id = map.getZField();
-			Var cslField = null;
+			CslVar cslField = null;
 			if(cslRemaps.containsKey(id))
 				cslField = cslFields.get(cslRemaps.get(id).getDescKey());
 			else
@@ -57,15 +59,16 @@ public class ZoteroTypeAdapter
 	public static Collection<ItemType> getDefinedTypes(ZoteroMap zMap)
 	{
 		Collection<ItemType> itemTypes = new HashSet<>();
-		Map<String, Var> cslFields = getCSLFields(zMap);
+		Map<String, CslVar> cslFields = getCSLFields(zMap);
 		Map<String, Remap> cslRemaps = getRemaps(zMap);
+		Map<String, CreatorTypeMap> creatorTypeMap = getCreatorType(zMap);
 		Map<String, CslFieldtoZFieldMap> csltoZFieldMappings = getCsltoZFieldMappings(zMap);
 		
 		CslFieldtoZFieldMap[] cslFieldMaps = zMap.getCslFieldMap().getMap();
 		
-		TypeMap[] typeMaps = zMap.getZTypes().getTypeMap();
+		ZoteroTypeMap[] typeMaps = zMap.getZTypes().getTypeMap();
 
-		for(TypeMap typeMap : typeMaps)
+		for(ZoteroTypeMap typeMap : typeMaps)
 		{
 			String typeId = typeMap.getZType();
 			String typeLabel = typeMap.getCslType(); // Note:There is not a label attribute for this element
@@ -74,7 +77,7 @@ public class ZoteroTypeAdapter
 
 			if (typeMap.getField() == null)
 				continue;
-			Map<String, Field> typeMapFields = getTypeMapFields(typeMap);
+			Map<String, ZoteroTypeField> typeMapFields = getTypeMapFields(typeMap);
 			
 			// This allows us to map the TypeMap to a CSLFieldMap
 			typeMapFields.forEach((typeMapKey, typeMapValue) ->
@@ -84,7 +87,7 @@ public class ZoteroTypeAdapter
 					// This allows us to map the CSLFieldMap to a CSLVar
 					csltoZFieldMappings.forEach((fieldMapKey, fieldMapValue) ->
 					{
-						Var cslField = null;
+						CslVar cslField = null;
 						String zField = fieldMapValue.getZField();
 						String cslFM = fieldMapValue.getCslField();
 						if(typeMapKey.equals(zField))
@@ -106,6 +109,18 @@ public class ZoteroTypeAdapter
 			itemTypes.add(new ItemTypeImpl(typeId, typeLabel, "", fieldTypes));
 		}
 		return itemTypes;
+	}
+	
+	private static Map<String, CreatorTypeMap> getCreatorType(ZoteroMap zMap)
+	{
+		Map<String, CreatorTypeMap> creatorTypes = new HashMap<>();
+		CreatorTypeMap[] map = zMap.getCslCreatorMap().getMap();
+		
+		for (CreatorTypeMap m : map)
+		{
+			creatorTypes.put(m.getZField(), m);
+		}
+		return creatorTypes;
 	}
 	
 	/**
@@ -133,11 +148,11 @@ public class ZoteroTypeAdapter
 	 * @return A map of defined CSL fields (a {@code var} element in the
 	 *      {@code typeMap.xml} data definition file), keyed by the CSL field name.
 	 */
-	private static Map<String, Var> getCSLFields(ZoteroMap zMap)
+	private static Map<String, CslVar> getCSLFields(ZoteroMap zMap)
 	{
-	   Map<String, Var> cslFieldMap = new HashMap<>();
-	   Var[] definedCslFields = zMap.getCslVars().getVars().getVar();
-	   for (Var v : definedCslFields)
+	   Map<String, CslVar> cslFieldMap = new HashMap<>();
+	   CslVar[] definedCslFields = zMap.getCslVars().getVars().getVar();
+	   for (CslVar v : definedCslFields)
 	   {
 	      cslFieldMap.put(v.getName(), v);
 	   }
@@ -149,19 +164,19 @@ public class ZoteroTypeAdapter
 	/**
 	 * 
 	 * @param typeMap
-	 * @return A map of defined CSL fields contained within a {@link TypeMap} such as a book, note, aritcle...etc.
+	 * @return A map of defined CSL fields contained within a {@link ZoteroTypeMap} such as a book, note, aritcle...etc.
 	 *         This is also a {@code field} element in the {@code typeMap.xml} data definition file, keyed by 
 	 *         the CSL field name.  
 	 */
-	private static Map<String, Field> getTypeMapFields(TypeMap typeMap)
+	private static Map<String, ZoteroTypeField> getTypeMapFields(ZoteroTypeMap typeMap)
 	{
-		   Map<String, Field> typeMapFields = new HashMap<>();
-		   Field[] fields = typeMap.getField();
+		   Map<String, ZoteroTypeField> typeMapFields = new HashMap<>();
+		   ZoteroTypeField[] fields = typeMap.getField();
 		   
 		   if (fields == null)
 			   return typeMapFields;
 		   
-		   for (Field field : fields)
+		   for (ZoteroTypeField field : fields)
 		   {
 			   typeMapFields.put(field.getValue(), field);
 		   }

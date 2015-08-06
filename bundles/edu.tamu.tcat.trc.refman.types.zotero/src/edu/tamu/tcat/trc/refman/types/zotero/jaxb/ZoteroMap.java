@@ -16,7 +16,7 @@ public class ZoteroMap
 
     private ZoteroVersion zoteroVersion;
 
-    private CslVars cslVars;
+    private CslVariables cslVars;
 
     private ZoteroDate date;
 
@@ -70,12 +70,12 @@ public class ZoteroMap
         this.zoteroVersion = zoteroVersion;
     }
 
-    public CslVars getCslVars ()
+    public CslVariables getCslVars ()
     {
         return cslVars;
     }
 
-    public void setCslVars (CslVars cslVars)
+    public void setCslVars (CslVariables cslVars)
     {
         this.cslVars = cslVars;
     }

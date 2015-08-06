@@ -2,20 +2,20 @@ package edu.tamu.tcat.trc.refman.types.zotero.jaxb;
 
 import javax.xml.bind.annotation.XmlAttribute;
 
-public class TypeMap
+public class ZoteroTypeMap
 {
-    private Field[] field;
+    private ZoteroTypeField[] field;
 
     private String zType;
 
     private String cslType;
 
-    public Field[] getField ()
+    public ZoteroTypeField[] getField ()
     {
         return field;
     }
 
-    public void setField (Field[] field)
+    public void setField (ZoteroTypeField[] field)
     {
         this.field = field;
     }
