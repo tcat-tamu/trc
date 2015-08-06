@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import edu.tamu.tcat.trc.refman.types.CreatorRole;
 import edu.tamu.tcat.trc.refman.types.ItemFieldType;
 import edu.tamu.tcat.trc.refman.types.ItemType;
 import edu.tamu.tcat.trc.refman.types.zotero.jaxb.ZoteroCreatorType;
@@ -72,9 +73,8 @@ public class ZoteroTypeAdapter
 		{
 			String typeId = typeMap.getZType();
 			String typeLabel = typeMap.getCslType(); // Note:There is not a label attribute for this element
-
 			List<ItemFieldType> fieldTypes = new ArrayList<>();
-
+			List<CreatorRole> creatorRoles = new ArrayList<>();
 			if (typeMap.getField() == null)
 				continue;
 			Map<String, ZoteroTypeField> typeMapFields = getTypeMapFields(typeMap);
@@ -102,13 +102,50 @@ public class ZoteroTypeAdapter
 										   typeMapValue.getBaseField() == null ? "" : typeMapValue.getBaseField(),
 										   cslField == null ? "" : cslField.getDescription()));
 						}
+
+					});
+				}
+				if (typeMapKey.equals("creator"))
+				{
+					Map<String, ZoteroCreatorType> zoteroCreatorTypes = getCreatorTypes(typeMapValue.getCreatorType());
+					zoteroCreatorTypes.forEach((creatorKey, creatorValue) -> 
+					{
+						CreatorTypeMap ctm;
+						String creatorBaseField = creatorValue.getBaseField();
+						if (creatorBaseField != null)
+						   ctm = creatorTypeMap.get(creatorBaseField);
+						else
+						   ctm = creatorTypeMap.get(creatorKey);
+					
+						if(cslFields.containsKey(creatorKey) || cslFields.containsKey(creatorBaseField))
+						{
+							CslVar ctmVar = cslFields.get(ctm.getCslField());
+							// TODO: Add info to CreatorRole
+							System.out.println(ctm.getZField());
+							System.out.println(ctm.getCslField());
+							System.out.println(ctmVar.getName());
+							System.out.println(ctmVar.getType());
+							System.out.println(ctmVar.getDescription());
+						}
 					});
 				}
 			});
 			
-			itemTypes.add(new ItemTypeImpl(typeId, typeLabel, "", fieldTypes));
+			itemTypes.add(new ItemTypeImpl(typeId, typeLabel, "", fieldTypes, creatorRoles));
 		}
 		return itemTypes;
+	}
+	
+	private static Map<String, ZoteroCreatorType> getCreatorTypes(ZoteroCreatorType[] types)
+	{
+		Map<String, ZoteroCreatorType> zct = new HashMap<>();
+		
+		for(ZoteroCreatorType t : types)
+		{
+			zct.put(t.getValue(), t);
+		}
+		
+		return zct;
 	}
 	
 	private static Map<String, CreatorTypeMap> getCreatorType(ZoteroMap zMap)
