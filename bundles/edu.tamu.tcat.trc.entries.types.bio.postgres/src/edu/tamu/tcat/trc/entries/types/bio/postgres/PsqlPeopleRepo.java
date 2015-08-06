@@ -16,35 +16,41 @@
 package edu.tamu.tcat.trc.entries.types.bio.postgres;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.logging.Level;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 import org.postgresql.util.PGobject;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.Futures;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.core.IdFactory;
 import edu.tamu.tcat.trc.entries.notification.BaseUpdateEvent;
-import edu.tamu.tcat.trc.entries.notification.DataUpdateObserverAdapter;
-import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
+import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
+import edu.tamu.tcat.trc.entries.notification.NotifyingTaskFactory;
+import edu.tamu.tcat.trc.entries.notification.NotifyingTaskFactory.ObservableTask;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
+import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.repo.ExecutionFailedException;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
@@ -79,8 +85,11 @@ public class PsqlPeopleRepo implements PeopleRepository
    private ObjectMapper mapper;
 
    // TODO replace with notifications helper
-   private ExecutorService notifications;
-   private final CopyOnWriteArrayList<Consumer<PersonChangeEvent>> listeners = new CopyOnWriteArrayList<>();
+   private EntryUpdateHelper<PersonChangeEvent> listeners;
+   private NotifyingTaskFactory sqlTaskFactory;
+
+
+   private LoadingCache<String, Person> cache;
 
    public PsqlPeopleRepo()
    {
@@ -107,7 +116,27 @@ public class PsqlPeopleRepo implements PeopleRepository
       mapper = new ObjectMapper();
       mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-      notifications = Executors.newCachedThreadPool();
+      sqlTaskFactory = new NotifyingTaskFactory();
+
+      initCache();
+   }
+
+   private void initCache()
+   {
+      cache = CacheBuilder.newBuilder()
+            .maximumSize(1000)
+            .expireAfterAccess(10, TimeUnit.MINUTES)
+            .build(new CacheLoader<String, Person>() {
+
+               @Override
+               public Person load(String key) throws Exception
+               {
+                  String json = loadJson(key);
+                  PersonDTO dto = parseJson(json, key);
+                  return new PersonImpl(dto);
+               }
+
+            });
    }
 
    // DS disposal
@@ -116,28 +145,10 @@ public class PsqlPeopleRepo implements PeopleRepository
       this.mapper = null;
       this.exec = null;
       this.idFactory = null;
-      shutdownNotificationsExec();
+      
+      this.cache.invalidateAll();
+      this.listeners.close();
    }
-
-   private void shutdownNotificationsExec()
-   {
-      try
-      {
-         notifications.shutdown();
-         notifications.awaitTermination(10, TimeUnit.SECONDS);    // HACK: make this configurable
-      }
-      catch (Exception ex)
-      {
-         logger.log(Level.WARNING, "Failed to shut down event notifications executor in a timely fashion.", ex);
-         try {
-            List<Runnable> pendingTasks = notifications.shutdownNow();
-            logger.info("Forcibly shutdown notifications executor. [" + pendingTasks.size() + "] pending tasks were aborted.");
-         } catch (Exception e) {
-            logger.log(Level.SEVERE, "An error occurred attempting to forcibly shutdown executor service", e);
-         }
-      }
-   }
-
 
    @Override
    public Iterable<Person> findPeople() throws CatalogRepoException
@@ -151,21 +162,15 @@ public class PsqlPeopleRepo implements PeopleRepository
             while (rs.next())
             {
                PGobject pgo = (PGobject)rs.getObject("historical_figure");
-               people.add(parseJson(pgo.toString(), ""));
+               PersonDTO dto = parseJson(pgo.toString(), "");
+               people.add(new PersonImpl(dto));
             }
          }
 
          return people;
       });
 
-      try
-      {
-         return future.get();
-      }
-      catch (Exception e)
-      {
-         throw new CatalogRepoException("Failed to retrieve people", e);
-      }
+      return Futures.get(future, CatalogRepoException.class);
    }
 
    @Override
@@ -199,7 +204,28 @@ public class PsqlPeopleRepo implements PeopleRepository
    @Override
    public Person get(String personId) throws NoSuchCatalogRecordException
    {
-      Future<Person> future = exec.submit((conn) -> {
+      try
+      {
+         return cache.get(personId);
+      }
+      catch (ExecutionException ex)
+      {
+         Throwable cause = ex.getCause();
+         if (cause instanceof NoSuchCatalogRecordException)
+            throw (NoSuchCatalogRecordException)cause;
+         if (cause instanceof RuntimeException)
+            throw (RuntimeException)cause;
+
+         throw new IllegalStateException("Failed to retrieve biographical record [" + personId + "]", cause);
+      }
+   }
+
+   /**
+    * @return the JSON representation associated with this id. 
+    */
+   private String loadJson(String personId) throws NoSuchCatalogRecordException
+   {
+      Future<String> future = exec.submit((conn) -> {
          if (Thread.interrupted())
             throw new InterruptedException();
 
@@ -212,7 +238,7 @@ public class PsqlPeopleRepo implements PeopleRepository
                   throw new NoSuchCatalogRecordException("Could not find record for person [" + personId + "]");
 
                PGobject pgo = (PGobject)rs.getObject("historical_figure");
-               return parseJson(pgo.toString(), "");
+               return pgo.toString();
             }
          }
          catch (SQLException e)
@@ -221,22 +247,118 @@ public class PsqlPeopleRepo implements PeopleRepository
          }
       });
 
-      try
-      {
-         return future.get();
-      }
-      catch (ExecutionException e)
-      {
-         Throwable cause = e.getCause();
-         if (cause instanceof NoSuchCatalogRecordException)
-            throw (NoSuchCatalogRecordException)cause;
-         if (cause instanceof RuntimeException)
-            throw (RuntimeException)cause;
+      return Futures.get(future, NoSuchCatalogRecordException.class);
+   }
 
-         throw new IllegalStateException("Unexpected problems while attempting to retrieve biographical record [" + personId + "]", e);
+   @Override
+   public Iterator<Person> listAll() throws CatalogRepoException
+   {
+      return new AllItemsIterator(this::parse, 100);
+   }
+
+   // TODO ideally, we'll make this a general purpose, paged-based query front end.
+   private class AllItemsIterator implements Iterator<Person>
+   {
+
+      private List<String> currentPage;
+      private int currentIndex = 0;
+
+      private int offset = 0;
+      private int pageSize = 100;
+      private volatile Future<List<String>> nextBlock = null;
+
+      private final Function<String, Person> parser;
+
+      public AllItemsIterator(Function<String, Person> parser, int pageSize)
+      {
+         this.parser = parser;
+         this.pageSize = pageSize;
+
+         // init to empty list and start next page load
+         currentPage = new ArrayList<>();
+         nextBlock = getPersonBlock(offset, pageSize);
       }
-      catch (InterruptedException e) {
-         throw new IllegalStateException("Failed to retrieve biographical record [" + personId + "]", e);
+
+      @Override
+      public boolean hasNext()
+      {
+         return (currentIndex < currentPage.size() - 1) ? true : loadNextPage();
+      }
+
+      @Override
+      public Person next()
+      {
+         String json = "";
+         synchronized (this)
+         {
+            currentIndex++;
+            json = currentPage.get(currentIndex);
+         }
+
+         return parser.apply(json);
+      }
+
+      private synchronized boolean loadNextPage()
+      {
+         currentIndex = -1;
+         currentPage = null;
+
+         if (nextBlock == null)
+            return false;
+
+         try
+         {
+            currentPage = nextBlock.get();
+         }
+         catch (Exception ex)
+         {
+            throw new IllegalStateException("Failed to load next page", ex);
+         }
+
+         if (currentPage.isEmpty())
+            return false;
+
+         // start next page loading
+         offset = offset + currentPage.size();
+         nextBlock = getPersonBlock(offset, pageSize);
+         return true;
+      }
+   }
+
+   private Future<List<String>> getPersonBlock(int offset, int limit)
+   {
+      String sqlGetBlock = "SELECT historical_figure "
+                              + "FROM people "
+                              + "ORDER BY id "
+                              + "LIMIT {0} OFFSET {1}";
+
+      return exec.submit((conn) -> getPageBlock(conn, sqlGetBlock, offset, limit));
+   }
+
+   private List<String> getPageBlock(Connection conn, String query, int offset, int limit) throws InterruptedException
+   {
+      if (Thread.interrupted())
+         throw new InterruptedException();
+
+      String SQL = MessageFormat.format(query, limit, offset);
+      List<String> jsonData = new ArrayList<>();
+      try (Statement stmt = conn.createStatement())
+      {
+         ResultSet rs = stmt.executeQuery(SQL);
+         while (rs.next())
+         {
+            if (Thread.interrupted())
+               throw new InterruptedException();
+
+            PGobject pgo = (PGobject)rs.getObject("historical_figure");
+            jsonData.add(pgo.toString());
+         }
+
+         return jsonData;
+      }
+      catch (SQLException e)
+      {
+         throw new IllegalStateException("Faield to retrieve person.", e);
       }
    }
 
@@ -254,51 +376,34 @@ public class PsqlPeopleRepo implements PeopleRepository
       dto.id = id;
 
       EditPeopleCommandImpl command = new EditPeopleCommandImpl(dto);
-      command.setCommitHook((p) -> {
-         PeopleChangeNotifier createdNotifier = new PeopleChangeNotifier(UpdateEvent.UpdateAction.CREATE);
-         ObservableTaskWrapper<String> wrappedTask = new ObservableTaskWrapper<String>(makeCreateTask(p), createdNotifier);
-
-         return exec.submit(wrappedTask);
-      });
-
+      command.setCommitHook(this::create);
       return command;
    }
 
    @Override
    public EditPersonCommand update(String personId) throws NoSuchCatalogRecordException
    {
-      PersonDTO dto = PersonDTO.create(get(personId));
+      PersonDTO dto = parseJson(loadJson(personId), personId);
       EditPeopleCommandImpl command = new EditPeopleCommandImpl(dto);
-      command.setCommitHook((p) -> {
-         PeopleChangeNotifier modifiedNotifier = new PeopleChangeNotifier(UpdateEvent.UpdateAction.UPDATE);
-         ObservableTaskWrapper<String> wrappedTask = new ObservableTaskWrapper<String>(makeUpdateTask(p), modifiedNotifier);
 
-         return exec.submit(wrappedTask);
-      });
-
-
+      command.setCommitHook(this::update);
       return command;
    }
 
    @Override
    public EditPersonCommand delete(final String personId) throws NoSuchCatalogRecordException
    {
-      PersonDTO dto = PersonDTO.create(get(personId));
-      EditPeopleCommandImpl command = new EditPeopleCommandImpl(dto);
-      command.setCommitHook((p) -> {
-         PeopleChangeNotifier deletedNotifier = new PeopleChangeNotifier(UpdateEvent.UpdateAction.DELETE);
-         ObservableTaskWrapper<String> wrappedTask = new ObservableTaskWrapper<String>(makeDeleteTask(personId), deletedNotifier);
+      ObservableTask<String> task = makeDeleteTask(personId);
+      task.afterExecution(id -> notifyPersonUpdate(UpdateEvent.UpdateAction.DELETE, id));
+      task.afterExecution(id -> cache.invalidate(id));
 
-         return exec.submit(wrappedTask);
-      });
-
-
-      return command;
+      exec.submit(task);
+      return null;
    }
 
-   private SqlExecutor.ExecutorTask<String> makeDeleteTask(final String personId)
+   private ObservableTask<String> makeDeleteTask(final String personId)
    {
-      return (conn) -> {
+      return sqlTaskFactory.wrap((conn) -> {
          try (PreparedStatement ps = conn.prepareStatement(DELETE_SQL))
          {
             ps.setString(1, personId);
@@ -313,45 +418,54 @@ public class PsqlPeopleRepo implements PeopleRepository
          }
 
          return personId;
-      };
+      });
    }
 
-   private SqlExecutor.ExecutorTask<String> makeCreateTask(final PersonDTO histFigure)
+   private Future<String> create(final PersonDTO histFigure)
    {
-      String id = histFigure.id;
-      return (conn) -> {
+      ObservableTask<String> task = sqlTaskFactory.wrap((conn) -> {
          try (PreparedStatement ps = conn.prepareStatement(INSERT_SQL))
          {
-            PGobject jsonObject = toPGobject(histFigure);
+            PGobject json = new PGobject();
+            json.setType("json");
+            json.setValue(mapper.writeValueAsString(histFigure));
 
-            ps.setObject(1, jsonObject);
-            ps.setString(2, id);
+            ps.setObject(1, json);
+            ps.setString(2, histFigure.id);
 
             int ct = ps.executeUpdate();
             if (ct != 1)
-               throw new ExecutionFailedException("Failed to create historical figure. Unexpected number of rows updates [" + ct + "]");
+               throw new ExecutionFailedException("Failed to create historical figure. Unexpected number of rows updates [" + histFigure.id + "]");
          }
          catch (IOException e)
          {
             // NOTE this is an internal configuration error. The JsonMapper should be configured to
             //      serialize HistoricalFigureDV instances correctly.
-            throw new ExecutionFailedException("Failed to serialize the supplied historical figure [" + id + "]", e);
+            throw new ExecutionFailedException("Failed to serialize the supplied historical figure [" + histFigure.id + "]", e);
          }
          catch (SQLException sqle)
          {
-            throw new ExecutionFailedException("Failed to save historical figure [" + id + "]", sqle);
+            throw new ExecutionFailedException("Failed to save historical figure [" + histFigure.id+ "]", sqle);
          }
 
          return histFigure.id;
-      };
+      });
+
+      task.afterExecution(id -> notifyPersonUpdate(UpdateEvent.UpdateAction.UPDATE, id));
+      task.afterExecution(id -> cache.invalidate(id));
+
+      return exec.submit(task);
    }
 
-   private SqlExecutor.ExecutorTask<String> makeUpdateTask(final PersonDTO histFigure)
+   private Future<String> update(final PersonDTO histFigure)
    {
-      return (conn) -> {
+      ObservableTask<String> task = sqlTaskFactory.wrap((conn) -> {
          try (PreparedStatement ps = conn.prepareStatement(UPDATE_SQL))
          {
-            PGobject json = toPGobject(histFigure);
+            PGobject json = new PGobject();
+            json.setType("json");
+            json.setValue(mapper.writeValueAsString(histFigure));
+
             ps.setObject(1, json);
             ps.setString(2, histFigure.id);
 
@@ -365,40 +479,24 @@ public class PsqlPeopleRepo implements PeopleRepository
          }
 
          return histFigure.id;
-      };
-   }
+      });
 
+      task.afterExecution(id -> notifyPersonUpdate(UpdateEvent.UpdateAction.UPDATE, id));
+      task.afterExecution(id -> cache.invalidate(id));
 
-   private PGobject toPGobject(PersonDTO dto) throws SQLException, IOException
-   {
-      PGobject jsonObject = new PGobject();
-      jsonObject.setType("json");
-      jsonObject.setValue(mapper.writeValueAsString(dto));
-
-      return jsonObject;
+      return exec.submit(task);
    }
 
    private void notifyPersonUpdate(UpdateEvent.UpdateAction type, String id)
    {
       PeopleChangeEventImpl evt = new PeopleChangeEventImpl(type, id);
-      listeners.forEach(ears -> {
-         notifications.submit(() -> {
-            try{
-               ears.accept(evt);
-            }
-            catch(Exception ex)
-            {
-               logger.log(Level.WARNING, "Call to update people listener failed.", ex);
-            }
-         });
-      });
+      listeners.after(evt);
    }
 
    @Override
-   public AutoCloseable addUpdateListener(Consumer<PersonChangeEvent> ears)
+   public AutoCloseable addUpdateListener(UpdateListener<PersonChangeEvent> ears)
    {
-      listeners.add(ears);
-      return () -> listeners.remove(ears);
+      return listeners.register(ears);
    }
 
    private class PeopleChangeEventImpl extends BaseUpdateEvent implements PersonChangeEvent
@@ -422,28 +520,23 @@ public class PsqlPeopleRepo implements PeopleRepository
       }
    }
 
-   private final class PeopleChangeNotifier extends DataUpdateObserverAdapter<String>
-   {
-      private final UpdateEvent.UpdateAction type;
-
-      public PeopleChangeNotifier(UpdateEvent.UpdateAction type)
-      {
-         this.type = type;
-      }
-
-      @Override
-      public void onFinish(String id)
-      {
-         notifyPersonUpdate(type, id);
-      }
-   }
-
-   private Person parseJson(String json, String id)
+   private Person parse(String json)
    {
       try
       {
-         PersonDTO dv = mapper.readValue(json, PersonDTO.class);
-         return new PersonImpl(dv);
+         PersonDTO dto = mapper.readValue(json, PersonDTO.class);
+         return new PersonImpl(dto);
+      }
+      catch (IOException je)
+      {
+         throw new IllegalStateException("Failed to parse JSON record for person", je);
+      }
+   }
+   private PersonDTO parseJson(String json, String id)
+   {
+      try
+      {
+         return mapper.readValue(json, PersonDTO.class);
       }
       catch (IOException je)
       {
