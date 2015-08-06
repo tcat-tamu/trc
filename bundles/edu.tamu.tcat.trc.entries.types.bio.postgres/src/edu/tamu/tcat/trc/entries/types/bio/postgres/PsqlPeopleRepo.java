@@ -145,7 +145,7 @@ public class PsqlPeopleRepo implements PeopleRepository
       this.mapper = null;
       this.exec = null;
       this.idFactory = null;
-      
+
       this.cache.invalidateAll();
       this.listeners.close();
    }
@@ -221,7 +221,7 @@ public class PsqlPeopleRepo implements PeopleRepository
    }
 
    /**
-    * @return the JSON representation associated with this id. 
+    * @return the JSON representation associated with this id.
     */
    private String loadJson(String personId) throws NoSuchCatalogRecordException
    {
@@ -380,48 +380,7 @@ public class PsqlPeopleRepo implements PeopleRepository
       return command;
    }
 
-   @Override
-   public EditPersonCommand update(String personId) throws NoSuchCatalogRecordException
-   {
-      PersonDTO dto = parseJson(loadJson(personId), personId);
-      EditPeopleCommandImpl command = new EditPeopleCommandImpl(dto);
-
-      command.setCommitHook(this::update);
-      return command;
-   }
-
-   @Override
-   public EditPersonCommand delete(final String personId) throws NoSuchCatalogRecordException
-   {
-      ObservableTask<String> task = makeDeleteTask(personId);
-      task.afterExecution(id -> notifyPersonUpdate(UpdateEvent.UpdateAction.DELETE, id));
-      task.afterExecution(id -> cache.invalidate(id));
-
-      exec.submit(task);
-      return null;
-   }
-
-   private ObservableTask<String> makeDeleteTask(final String personId)
-   {
-      return sqlTaskFactory.wrap((conn) -> {
-         try (PreparedStatement ps = conn.prepareStatement(DELETE_SQL))
-         {
-            ps.setString(1, personId);
-
-            int ct = ps.executeUpdate();
-            if (ct != 1)
-               throw new IllegalStateException("Failed to de-activate historical figure. Unexpected number of rows updates [" + ct + "]");
-         }
-         catch (SQLException e)
-         {
-            throw new IllegalStateException("Faield to de-activate personId:" + personId, e);
-         }
-
-         return personId;
-      });
-   }
-
-   private Future<String> create(final PersonDTO histFigure)
+   public Future<String> create(final PersonDTO histFigure)
    {
       ObservableTask<String> task = sqlTaskFactory.wrap((conn) -> {
          try (PreparedStatement ps = conn.prepareStatement(INSERT_SQL))
@@ -457,7 +416,17 @@ public class PsqlPeopleRepo implements PeopleRepository
       return exec.submit(task);
    }
 
-   private Future<String> update(final PersonDTO histFigure)
+   @Override
+   public EditPersonCommand update(String personId) throws NoSuchCatalogRecordException
+   {
+      PersonDTO dto = parseJson(loadJson(personId), personId);
+      EditPeopleCommandImpl command = new EditPeopleCommandImpl(dto);
+
+      command.setCommitHook(this::update);
+      return command;
+   }
+
+   public Future<String> update(final PersonDTO histFigure)
    {
       ObservableTask<String> task = sqlTaskFactory.wrap((conn) -> {
          try (PreparedStatement ps = conn.prepareStatement(UPDATE_SQL))
@@ -465,10 +434,10 @@ public class PsqlPeopleRepo implements PeopleRepository
             PGobject json = new PGobject();
             json.setType("json");
             json.setValue(mapper.writeValueAsString(histFigure));
-
+   
             ps.setObject(1, json);
             ps.setString(2, histFigure.id);
-
+   
             int ct = ps.executeUpdate();
             if (ct != 1)
                throw new IllegalStateException("Failed to create historical figure. Unexpected number of rows updates [" + ct + "]");
@@ -477,14 +446,41 @@ public class PsqlPeopleRepo implements PeopleRepository
          {
             throw new IllegalArgumentException("Failed to serialize the supplied historical figure [" + histFigure + "]", e);
          }
-
+   
          return histFigure.id;
       });
-
+   
       task.afterExecution(id -> notifyPersonUpdate(UpdateEvent.UpdateAction.UPDATE, id));
       task.afterExecution(id -> cache.invalidate(id));
-
+   
       return exec.submit(task);
+   }
+
+   @Override
+   public EditPersonCommand delete(final String personId) throws NoSuchCatalogRecordException
+   {
+      ObservableTask<String> task = sqlTaskFactory.wrap((conn) -> {
+         try (PreparedStatement ps = conn.prepareStatement(DELETE_SQL))
+         {
+            ps.setString(1, personId);
+
+            int ct = ps.executeUpdate();
+            if (ct != 1)
+               throw new IllegalStateException("Failed to de-activate historical figure. Unexpected number of rows updates [" + ct + "]");
+         }
+         catch (SQLException e)
+         {
+            throw new IllegalStateException("Faield to de-activate personId:" + personId, e);
+         }
+
+         return personId;
+      });
+
+      task.afterExecution(id -> notifyPersonUpdate(UpdateEvent.UpdateAction.DELETE, id));
+      task.afterExecution(id -> cache.invalidate(id));
+
+      exec.submit(task);
+      return null;
    }
 
    private void notifyPersonUpdate(UpdateEvent.UpdateAction type, String id)
