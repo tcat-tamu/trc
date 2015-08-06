@@ -5,8 +5,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 public class ZoteroCreatorType
 {
     private String value;
-
     private String label;
+    private String baseField;
 
     @XmlAttribute
     public String getValue ()
@@ -28,6 +28,17 @@ public class ZoteroCreatorType
     public void setLabel (String label)
     {
         this.label = label;
+    }
+
+    @XmlAttribute
+    public String getBaseField()
+    {
+        return baseField;
+    }
+
+    public void setBaseField(String baseField)
+    {
+        this.baseField = baseField;
     }
 
     @Override
