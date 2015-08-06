@@ -434,10 +434,10 @@ public class PsqlPeopleRepo implements PeopleRepository
             PGobject json = new PGobject();
             json.setType("json");
             json.setValue(mapper.writeValueAsString(histFigure));
-   
+
             ps.setObject(1, json);
             ps.setString(2, histFigure.id);
-   
+
             int ct = ps.executeUpdate();
             if (ct != 1)
                throw new IllegalStateException("Failed to create historical figure. Unexpected number of rows updates [" + ct + "]");
@@ -446,41 +446,36 @@ public class PsqlPeopleRepo implements PeopleRepository
          {
             throw new IllegalArgumentException("Failed to serialize the supplied historical figure [" + histFigure + "]", e);
          }
-   
+
          return histFigure.id;
       });
-   
+
       task.afterExecution(id -> notifyPersonUpdate(UpdateEvent.UpdateAction.UPDATE, id));
       task.afterExecution(id -> cache.invalidate(id));
-   
+
       return exec.submit(task);
    }
 
    @Override
-   public EditPersonCommand delete(final String personId) throws NoSuchCatalogRecordException
+   public Future<Boolean> delete(final String personId) throws NoSuchCatalogRecordException
    {
-      ObservableTask<String> task = sqlTaskFactory.wrap((conn) -> {
+      ObservableTask<Boolean> task = sqlTaskFactory.wrap((conn) -> {
          try (PreparedStatement ps = conn.prepareStatement(DELETE_SQL))
          {
             ps.setString(1, personId);
-
             int ct = ps.executeUpdate();
-            if (ct != 1)
-               throw new IllegalStateException("Failed to de-activate historical figure. Unexpected number of rows updates [" + ct + "]");
+            return Boolean.valueOf(ct == 1);
          }
          catch (SQLException e)
          {
             throw new IllegalStateException("Faield to de-activate personId:" + personId, e);
          }
-
-         return personId;
       });
 
-      task.afterExecution(id -> notifyPersonUpdate(UpdateEvent.UpdateAction.DELETE, id));
+      task.afterExecution(id -> notifyPersonUpdate(UpdateEvent.UpdateAction.DELETE, personId));
       task.afterExecution(id -> cache.invalidate(id));
 
-      exec.submit(task);
-      return null;
+      return exec.submit(task);
    }
 
    private void notifyPersonUpdate(UpdateEvent.UpdateAction type, String id)

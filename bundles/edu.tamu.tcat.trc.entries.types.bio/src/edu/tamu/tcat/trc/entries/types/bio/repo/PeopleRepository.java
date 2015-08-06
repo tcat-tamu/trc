@@ -16,6 +16,7 @@
 package edu.tamu.tcat.trc.entries.types.bio.repo;
 
 import java.util.Iterator;
+import java.util.concurrent.Future;
 
 import edu.tamu.tcat.trc.entries.notification.DataUpdateObserver;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
@@ -108,7 +109,7 @@ public interface PeopleRepository
     * @return
     * @throws NoSuchCatalogRecordException
     */
-   EditPersonCommand delete(String personId) throws NoSuchCatalogRecordException;
+   Future<Boolean> delete(String personId) throws NoSuchCatalogRecordException;
 
    /**
     * Add listener to be notified whenever a biography has been modified (created, updated or deleted).
