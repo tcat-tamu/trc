@@ -18,6 +18,7 @@ Import-Package: edu.tamu.tcat.db.core;version="[1.0.0,2.0.0)",
  edu.tamu.tcat.trc.entries.types.article.postgres;version="[1.0.0,2.0.0)",
  edu.tamu.tcat.trc.entries.types.article.repo;version="[1.0.0,2.0.0)",
  org.apache.commons.dbcp;version="[1.4.0,2.0.0)",
+ edu.tamu.tcat.trc.test,
  org.junit
 Export-Package: edu.tamu.tcat.trc.entries.types.article.test;version="1.0.0";x-internal:=true,
  edu.tamu.tcat.trc.entries.types.article.test.internal;version="1.0.0";x-internal:=true

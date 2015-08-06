@@ -17,8 +17,6 @@ package edu.tamu.tcat.trc.entries.types.article.test;
 
 import java.net.URI;
 import java.sql.PreparedStatement;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -30,20 +28,22 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.tamu.tcat.db.core.DataSourceException;
-import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
+import edu.tamu.tcat.db.exec.sql.SqlExecutor;
+import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleDTO;
 import edu.tamu.tcat.trc.entries.types.article.postgres.PsqlArticleRepo;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
+import edu.tamu.tcat.trc.test.TestUtils;
 import edu.tamu.tcat.trc.entries.types.article.test.internal.PsqlDataSourceProvider;
 
 public class ArticleRepoTest
 {
 
-   private PostgreSqlExecutor exec;
-   private SimpleFileConfigurationProperties config;
+   private SqlExecutor exec;
+   private ConfigurationProperties config;
    private PsqlDataSourceProvider dsp;
    private PsqlArticleRepo repo;
 
@@ -63,17 +63,8 @@ public class ArticleRepoTest
    @Before
    public void setupTest() throws DataSourceException
    {
-      Map<String, Object> params = new HashMap<>();
-      params.put(SimpleFileConfigurationProperties.PROP_FILE, "config.path");
-      config = new SimpleFileConfigurationProperties();
-      config.activate(params);
-
-      dsp = new PsqlDataSourceProvider();
-      dsp.bind(config);
-      dsp.activate();
-
-      exec = new PostgreSqlExecutor();
-      exec.init(dsp);
+      config = TestUtils.loadConfigFile();
+      exec = TestUtils.initPostgreSqlExecutor(config);
 
       repo = new PsqlArticleRepo();
       repo.setDatabaseExecutor(exec);
@@ -81,7 +72,7 @@ public class ArticleRepoTest
    }
 
    @After
-   public void tearDownTest() throws InterruptedException, ExecutionException
+   public void tearDownTest() throws Exception
    {
       String sql = "DELETE FROM articles WHERE article->>'associatedEntity' LIKE 'articles/%'";
       Future<Void> future = exec.submit((conn) -> {
@@ -93,9 +84,12 @@ public class ArticleRepoTest
 
       future.get();
       repo.dispose();
+
       exec.close();
       dsp.dispose();
-      config.dispose();
+
+      if (config instanceof SimpleFileConfigurationProperties)
+         ((SimpleFileConfigurationProperties)config).dispose();
    }
 
    @Test
