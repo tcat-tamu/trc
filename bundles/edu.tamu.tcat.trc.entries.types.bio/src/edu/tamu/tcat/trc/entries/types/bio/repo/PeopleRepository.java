@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,8 +15,10 @@
  */
 package edu.tamu.tcat.trc.entries.types.bio.repo;
 
-import java.util.function.Consumer;
+import java.util.Iterator;
 
+import edu.tamu.tcat.trc.entries.notification.DataUpdateObserver;
+import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
@@ -50,6 +52,8 @@ public interface PeopleRepository
     * @return
     */
    Person get(String personId) throws NoSuchCatalogRecordException;
+
+   Iterator<Person> listAll() throws CatalogRepoException;
 
    /**
     * Creates a new entry for the supplied historical figure. Note that no de-duplication will
@@ -114,5 +118,5 @@ public interface PeopleRepository
     * @param ears The listener to be added.
     * @return A registration handle that allows the listener to be removed.
     */
-   AutoCloseable addUpdateListener(Consumer<PersonChangeEvent> ears);
+   AutoCloseable addUpdateListener(UpdateListener<PersonChangeEvent> ears);
 }
