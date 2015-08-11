@@ -111,21 +111,16 @@ public class ZoteroTypeAdapter
 					zoteroCreatorTypes.forEach((creatorKey, creatorValue) -> 
 					{
 						CreatorTypeMap ctm;
-						String creatorBaseField = creatorValue.getBaseField();
-						if (creatorBaseField != null)
-						   ctm = creatorTypeMap.get(creatorBaseField);
+						String baseField = creatorValue.getBaseField();
+						if (baseField != null)
+						   ctm = creatorTypeMap.get(baseField);
 						else
 						   ctm = creatorTypeMap.get(creatorKey);
 					
-						if(cslFields.containsKey(creatorKey) || cslFields.containsKey(creatorBaseField))
+						if(ctm != null && cslFields.containsKey(ctm.getCslField()))
 						{
 							CslVar ctmVar = cslFields.get(ctm.getCslField());
-							// TODO: Add info to CreatorRole
-							System.out.println(ctm.getZField());
-							System.out.println(ctm.getCslField());
-							System.out.println(ctmVar.getName());
-							System.out.println(ctmVar.getType());
-							System.out.println(ctmVar.getDescription());
+							creatorRoles.add(new CreatorRoleImpl(ctmVar.getName(), creatorValue.getLabel(), ctmVar.getDescription()));
 						}
 					});
 				}
