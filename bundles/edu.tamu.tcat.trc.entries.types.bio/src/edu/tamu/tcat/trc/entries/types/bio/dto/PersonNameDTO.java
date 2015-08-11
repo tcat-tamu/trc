@@ -45,6 +45,16 @@ public class PersonNameDTO
       return dto;
    }
 
+   public PersonNameDTO()
+   {
+   }
+
+   public PersonNameDTO(String first, String middle, String last)
+   {
+      this.givenName = first;
+      this.middleName = middle;
+      this.familyName = last;
+   }
 
    @Deprecated
    public static PersonNameImpl instantiate(PersonNameDTO personDV)
