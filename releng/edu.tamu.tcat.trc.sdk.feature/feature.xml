@@ -264,7 +264,7 @@ limitations under the License.
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
-         
+
    <plugin
          id="edu.tamu.tcat.trc.entries.types.article.source"
          download-size="0"
@@ -306,14 +306,14 @@ limitations under the License.
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
-         
+
    <plugin
          id="edu.tamu.tcat.trc.entries.types.article.search.solr.source"
          download-size="0"
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
-         
+
    <plugin
          id="edu.tamu.tcat.trc.notes"
          download-size="0"
@@ -376,12 +376,26 @@ limitations under the License.
          install-size="0"
          version="1.0.0.qualifier"
          unpack="false"/>
-         
-  <plugin
+
+   <plugin
          id="edu.tamu.tcat.trc.search.solr.source"
          download-size="0"
          install-size="0"
          version="1.0.0.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.compress"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.compress.source"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
          unpack="false"/>
 
 </feature>
