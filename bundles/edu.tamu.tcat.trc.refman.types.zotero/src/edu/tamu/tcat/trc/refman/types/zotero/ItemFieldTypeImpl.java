@@ -17,7 +17,15 @@ public class ItemFieldTypeImpl implements ItemFieldType
 		this.type = type;
 		this.fieldBase = fieldBase;
 		this.description = description;
+	}
 
+	public ItemFieldTypeImpl(String id, String label)
+	{
+		this.id = id;
+		this.label = label;
+		this.type = "";
+		this.fieldBase = "";
+		this.description = "";
 	}
 
 	@Override
