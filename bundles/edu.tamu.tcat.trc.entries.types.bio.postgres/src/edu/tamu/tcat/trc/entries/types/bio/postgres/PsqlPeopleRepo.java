@@ -79,7 +79,7 @@ public class PsqlPeopleRepo implements PeopleRepository
    //HACK: doesn't really matter for now, but once authz is in place, this will be the user's id
    private static final UUID ACCOUNT_ID_REPO = UUID.randomUUID();
 
-   private static final String ID_CONTEXT = "people";
+   public static final String ID_CONTEXT = "people";
    private SqlExecutor exec;
    private IdFactory idFactory;
    private ObjectMapper mapper;
@@ -117,6 +117,7 @@ public class PsqlPeopleRepo implements PeopleRepository
       mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
       sqlTaskFactory = new NotifyingTaskFactory();
+      listeners = new EntryUpdateHelper<>();
 
       initCache();
    }
