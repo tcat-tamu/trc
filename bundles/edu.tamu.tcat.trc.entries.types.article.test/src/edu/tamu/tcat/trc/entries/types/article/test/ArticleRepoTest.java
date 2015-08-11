@@ -44,9 +44,7 @@ public class ArticleRepoTest
 
    private SqlExecutor exec;
    private ConfigurationProperties config;
-   private PsqlDataSourceProvider dsp;
    private PsqlArticleRepo repo;
-
 
    @BeforeClass
    public static void setUp()
@@ -86,7 +84,6 @@ public class ArticleRepoTest
       repo.dispose();
 
       exec.close();
-      dsp.dispose();
 
       if (config instanceof SimpleFileConfigurationProperties)
          ((SimpleFileConfigurationProperties)config).dispose();
