@@ -8,7 +8,7 @@ package edu.tamu.tcat.trc.refman.types;
 public interface CreatorRole
 {
    /**
-    * @return The system identifier for this role. '
+    * @return The system identifier for this role.
     */
    String getId();
 
@@ -16,5 +16,10 @@ public interface CreatorRole
     * @return A label for this role, suitable for display.
     */
    String getLabel();
+   
+   /**
+    * @return The description of this role.
+    */
+   String getDescription();
 
 }

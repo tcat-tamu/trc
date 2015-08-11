@@ -49,9 +49,9 @@ public class ItemTypeImpl implements ItemType
 	}
 
 	@Override
-	public List<CreatorRole> getCreatorRoles() {
-		// TODO Auto-generated method stub
-		return null;
+	public List<CreatorRole> getCreatorRoles() 
+	{
+		return creatorRoles;
 	}
 
 }
