@@ -55,6 +55,12 @@ public class ZoteroTypeAdapter
 		return itemFieldTypes;
 	}
 
+    static Collection<ItemType> getDefinedTypes(ZoteroMap zMap)
+    {
+	    ItemTypeParser extractor = new ItemTypeParser(zMap);
+	    return extractor.extractTypes();
+    }
+
 	/**
 	 * Walks the supplied Zotero map to construct item type instances.
 	 */
@@ -79,85 +85,96 @@ public class ZoteroTypeAdapter
 
          typeMaps = zMap.getZTypes().getTypeMap();
       }
-
+      
       public Collection<ItemType> extractTypes()
       {
          Collection<ItemType> itemTypes = new HashSet<>();
 
          for(ZoteroTypeMap typeMap : typeMaps)
          {
-            String typeId = typeMap.getZType();
-            String typeLabel = typeMap.getCslType(); // Note:There is not a label attribute for this element
-            List<ItemFieldType> fieldTypes = new ArrayList<>();
-            List<CreatorRole> creatorRoles = new ArrayList<>();
+
             if (typeMap.getField() == null)
                continue;
-            Map<String, ZoteroTypeField> typeMapFields = getTypeMapFields(typeMap);
-
-            // This allows us to map the TypeMap to a CSLFieldMap
-            typeMapFields.forEach((typeMapKey, typeMapValue) ->
-            {
-               if (typeMapKey != null)
-               {
-                  // This allows us to map the CSLFieldMap to a CSLVar
-                  csltoZFieldMappings.forEach((fieldMapKey, fieldMapValue) ->
-                  {
-                     CslVar cslField = null;
-                     String zField = fieldMapValue.getZField();
-                     String cslFM = fieldMapValue.getCslField();
-                     if (typeMapKey.equals(zField))
-                     {
-                        cslField = (cslRemaps.containsValue(cslFM))
-                              ? cslFields.get(cslRemaps.get(cslFM).getDescKey())
-                              : cslFields.get(cslFM);
-
-                        ItemFieldTypeImpl fieldTypeImpl = new ItemFieldTypeImpl(
-                              typeMapValue.getValue(),
-                              typeMapValue.getLabel(),
-                              cslField == null ? "" : cslField.getType(),
-                              typeMapValue.getBaseField() == null ? "" : typeMapValue.getBaseField(),
-                              cslField == null ? "" : cslField.getDescription());
-
-                        fieldTypes.add(fieldTypeImpl);
-                     }
-
-                  });
-               }
-               if (typeMapKey.equals("creator"))
-               {
-                  Map<String, ZoteroCreatorType> zoteroCreatorTypes = getCreatorTypes(typeMapValue.getCreatorType());
-                  zoteroCreatorTypes.forEach((creatorKey, creatorValue) ->
-                  {
-                     String baseField = creatorValue.getBaseField();
-                     CreatorTypeMap ctm = (baseField != null)
-                           ? creatorTypeMap.get(baseField)
-                           : creatorTypeMap.get(creatorKey);
-
-                     if(ctm != null && cslFields.containsKey(ctm.getCslField()))
-                     {
-                        // ctmVar - creator type map variables
-                        CslVar ctmVar = cslFields.get(ctm.getCslField());
-                        creatorRoles.add(new CreatorRoleImpl(ctmVar.getName(), creatorValue.getLabel(), ctmVar.getDescription()));
-                     }
-                  });
-               }
-            });
-
-            itemTypes.add(new ItemTypeImpl(typeId, typeLabel, "", fieldTypes, creatorRoles));
+            itemTypes.add(getItemTypeImpl(typeMap));
          }
 
          return itemTypes;
       }
+
+      private ItemTypeImpl getItemTypeImpl(ZoteroTypeMap typeMap)
+      {
+    	  String typeId = typeMap.getCslType();
+    	  String typeLabel = typeMap.getZType();
+
+    	  List<ItemFieldType> fieldTypes = getFieldTypes(getTypeMapFields(typeMap));
+    	  List<CreatorRole> creatorRoles = getCreatorRoles(getTypeMapFields(typeMap));
+          
+          return new ItemTypeImpl(typeId, typeLabel, "", fieldTypes, creatorRoles);
+      }
+      
+      private List<ItemFieldType> getFieldTypes(Map<String, ZoteroTypeField> typeMapFields)
+      {
+    	  List<ItemFieldType> fieldTypes = new ArrayList<>();
+          typeMapFields.forEach((typeMapKey, typeMapValue) ->
+          {
+        	 ItemFieldTypeImpl fieldTypeImpl = null;
+                // This allows us to map the CSLFieldMap to a CSLVar
+        	  if (csltoZFieldMappings.containsKey(typeMapKey))
+        	  {
+            	  CslFieldtoZFieldMap cslFieldtoZFieldMap = csltoZFieldMappings.get(typeMapKey);
+            	  String zField = cslFieldtoZFieldMap.getZField();
+            	  String cslFM = cslFieldtoZFieldMap.getCslField();
+
+        		  CslVar cslField = (cslRemaps.containsValue(cslFM))
+        				          ? cslFields.get(cslRemaps.get(cslFM).getDescKey())
+        						  : cslFields.get(cslFM);
+        				
+				  fieldTypeImpl = new ItemFieldTypeImpl(
+					        	typeMapValue.getValue(),
+						        typeMapValue.getLabel(),
+						        cslField == null ? "" : cslField.getType(),
+						        typeMapValue.getBaseField() == null ? "" : typeMapValue.getBaseField(),
+						        cslField == null ? "" : cslField.getDescription());
+        	}
+        	else
+        		fieldTypeImpl = new ItemFieldTypeImpl(typeMapValue.getValue(),typeMapValue.getLabel(), "", "", "");
+        	
+        	fieldTypes.add(fieldTypeImpl);
+          });
+          
+          return fieldTypes;
+      }
+      
+      private List<CreatorRole> getCreatorRoles(Map<String, ZoteroTypeField> typeMapFields)
+      {
+    	  List<CreatorRole> creatorRoles = new ArrayList<>();
+
+          typeMapFields.forEach((typeMapKey, typeMapValue) ->
+          {
+        	  if (typeMapKey.equals("creator"))
+              {
+                 Map<String, ZoteroCreatorType> zoteroCreatorTypes = getZoteroCreatorTypes(typeMapValue.getCreatorType());
+                 zoteroCreatorTypes.forEach((creatorKey, creatorValue) ->
+                 {
+                    String baseField = creatorValue.getBaseField();
+                    CreatorTypeMap ctm = (baseField != null)
+                          ? creatorTypeMap.get(baseField)
+                          : creatorTypeMap.get(creatorKey);
+
+                    if(ctm != null && cslFields.containsKey(ctm.getCslField()))
+                    {
+                       // ctmVar - creator type map variables
+                       CslVar ctmVar = cslFields.get(ctm.getCslField());
+                       creatorRoles.add(new CreatorRoleImpl(ctmVar.getName(), creatorValue.getLabel(), ctmVar.getDescription()));
+                    }
+                 });
+              }
+          });
+    	  return creatorRoles;
+      }
 	}
 
-
-	static Collection<ItemType> getDefinedTypes(ZoteroMap zMap)
-	{
-		ItemTypeParser extractor = new ItemTypeParser(zMap);
-		return extractor.extractTypes();
-	}
-
-	private static Map<String, ZoteroCreatorType> getCreatorTypes(ZoteroCreatorType[] types)
+	private static Map<String, ZoteroCreatorType> getZoteroCreatorTypes(ZoteroCreatorType[] types)
 	{
 		Map<String, ZoteroCreatorType> zct = new HashMap<>();
 
