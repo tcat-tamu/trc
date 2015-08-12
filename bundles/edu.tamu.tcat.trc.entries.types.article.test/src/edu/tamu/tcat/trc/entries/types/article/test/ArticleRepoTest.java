@@ -37,7 +37,6 @@ import edu.tamu.tcat.trc.entries.types.article.dto.ArticleDTO;
 import edu.tamu.tcat.trc.entries.types.article.postgres.PsqlArticleRepo;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.test.TestUtils;
-import edu.tamu.tcat.trc.entries.types.article.test.internal.PsqlDataSourceProvider;
 
 public class ArticleRepoTest
 {
