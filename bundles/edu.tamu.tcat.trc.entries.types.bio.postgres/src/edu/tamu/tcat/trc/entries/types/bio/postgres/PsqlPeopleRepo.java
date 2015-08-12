@@ -31,7 +31,6 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.logging.Logger;
 
 import org.postgresql.util.PGobject;
@@ -254,77 +253,9 @@ public class PsqlPeopleRepo implements PeopleRepository
    @Override
    public Iterator<Person> listAll() throws CatalogRepoException
    {
-      return new AllItemsIterator(this::parse, 100);
+      return new PagedItemIterator<Person>(this::getPersonBlock, this::parse, 100);
    }
 
-   // TODO ideally, we'll make this a general purpose, paged-based query front end.
-   private class AllItemsIterator implements Iterator<Person>
-   {
-
-      private List<String> currentPage;
-      private int currentIndex = 0;
-
-      private int offset = 0;
-      private int pageSize = 100;
-      private volatile Future<List<String>> nextBlock = null;
-
-      private final Function<String, Person> parser;
-
-      public AllItemsIterator(Function<String, Person> parser, int pageSize)
-      {
-         this.parser = parser;
-         this.pageSize = pageSize;
-
-         // init to empty list and start next page load
-         currentPage = new ArrayList<>();
-         nextBlock = getPersonBlock(offset, pageSize);
-      }
-
-      @Override
-      public boolean hasNext()
-      {
-         return (currentIndex < currentPage.size() - 1) ? true : loadNextPage();
-      }
-
-      @Override
-      public Person next()
-      {
-         String json = "";
-         synchronized (this)
-         {
-            currentIndex++;
-            json = currentPage.get(currentIndex);
-         }
-
-         return parser.apply(json);
-      }
-
-      private synchronized boolean loadNextPage()
-      {
-         currentIndex = -1;
-         currentPage = null;
-
-         if (nextBlock == null)
-            return false;
-
-         try
-         {
-            currentPage = nextBlock.get();
-         }
-         catch (Exception ex)
-         {
-            throw new IllegalStateException("Failed to load next page", ex);
-         }
-
-         if (currentPage.isEmpty())
-            return false;
-
-         // start next page loading
-         offset = offset + currentPage.size();
-         nextBlock = getPersonBlock(offset, pageSize);
-         return true;
-      }
-   }
 
    private Future<List<String>> getPersonBlock(int offset, int limit)
    {
