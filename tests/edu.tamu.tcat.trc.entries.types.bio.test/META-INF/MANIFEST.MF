@@ -1,0 +1,28 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Biograrphical Entries Unit Tests
+Bundle-SymbolicName: edu.tamu.tcat.trc.entries.types.bio.test
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: com.fasterxml.jackson.annotation;version="2.3.1",
+ com.fasterxml.jackson.core;version="2.3.1",
+ com.fasterxml.jackson.databind;version="2.3.1",
+ com.fasterxml.jackson.dataformat.csv;version="2.3.1",
+ edu.tamu.tcat.db.core,
+ edu.tamu.tcat.db.exec.sql;version="1.0.0",
+ edu.tamu.tcat.db.provider;version="1.0.1",
+ edu.tamu.tcat.osgi.config;version="1.1.0",
+ edu.tamu.tcat.osgi.config.file;version="1.1.0",
+ edu.tamu.tcat.trc.entries.common,
+ edu.tamu.tcat.trc.entries.common.dto,
+ edu.tamu.tcat.trc.entries.core,
+ edu.tamu.tcat.trc.entries.repo;version="1.0.0",
+ edu.tamu.tcat.trc.entries.types.bio,
+ edu.tamu.tcat.trc.entries.types.bio.dto,
+ edu.tamu.tcat.trc.entries.types.bio.postgres,
+ edu.tamu.tcat.trc.entries.types.bio.repo,
+ edu.tamu.tcat.trc.test,
+ org.apache.commons.lang;version="2.6.0",
+ org.apache.commons.math3.random;version="3.4.1",
+ org.junit;version="4.11.0"
+Bundle-Vendor: Texas A&M Engineering Experiment Station
