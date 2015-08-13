@@ -87,7 +87,6 @@ public class PsqlPeopleRepo implements PeopleRepository
    private EntryUpdateHelper<PersonChangeEvent> listeners;
    private NotifyingTaskFactory sqlTaskFactory;
 
-
    private LoadingCache<String, Person> cache;
 
    public PsqlPeopleRepo()
@@ -272,7 +271,7 @@ public class PsqlPeopleRepo implements PeopleRepository
       if (Thread.interrupted())
          throw new InterruptedException();
 
-      String SQL = MessageFormat.format(query, limit, offset);
+      String SQL = MessageFormat.format(query, Integer.toString(limit), Integer.toString(offset));
       List<String> jsonData = new ArrayList<>();
       try (Statement stmt = conn.createStatement())
       {
