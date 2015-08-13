@@ -30,24 +30,6 @@ import edu.tamu.tcat.trc.entries.types.bio.Person;
 public interface PeopleRepository
 {
    /**
-    * Retrieves all people in the collection.
-    * @return An iterable over all people in the repo.
-    * @throws CatalogRepoException
-    * @deprecated pending a rewrite to a more extensible filtering mechanism. In general, "select *"
-    *       APIs should be avoided.
-    */
-   @Deprecated
-   Iterable<Person> findPeople() throws CatalogRepoException;
-
-   /**
-    * @param prefix The first few letters of this person's last name.
-    * @return An iterable of all matching names.
-    * @deprecated Will be replaced by a more robust filtering mechanism ASAP.
-    */
-   @Deprecated
-   Iterable<Person> findByName(String prefix) throws CatalogRepoException;
-
-   /**
     * Retrieves a person instance by their string identifier.
     * @param personId
     * @return

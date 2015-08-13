@@ -54,7 +54,6 @@ import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.repo.ExecutionFailedException;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
-import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
 import edu.tamu.tcat.trc.entries.types.bio.postgres.model.PersonImpl;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
@@ -147,57 +146,6 @@ public class PsqlPeopleRepo implements PeopleRepository
 
       this.cache.invalidateAll();
       this.listeners.close();
-   }
-
-   @Override
-   public Iterable<Person> findPeople() throws CatalogRepoException
-   {
-      Future<List<Person>> future = exec.submit((conn) -> {
-         List<Person> people = new ArrayList<Person>();
-         try (PreparedStatement ps = conn.prepareStatement(GET_ALL_SQL);
-              ResultSet rs = ps.executeQuery())
-         {
-
-            while (rs.next())
-            {
-               PGobject pgo = (PGobject)rs.getObject("historical_figure");
-               PersonDTO dto = parseJson(pgo.toString(), "");
-               people.add(new PersonImpl(dto));
-            }
-         }
-
-         return people;
-      });
-
-      return Futures.get(future, CatalogRepoException.class);
-   }
-
-   @Override
-   public Iterable<Person> findByName(String prefix) throws CatalogRepoException
-   {
-      List<Person> results = new ArrayList<>();
-      prefix = prefix.toLowerCase();
-
-      Iterable<Person> people = findPeople();
-      for (Person p : people)
-      {
-         if (p.getCanonicalName().getFamilyName().toLowerCase().startsWith(prefix)) {
-            results.add(p);
-            continue;
-         }
-
-         for (PersonName name : p.getAlternativeNames())
-         {
-            String fname = name.getFamilyName();
-            if (fname != null && fname.toLowerCase().startsWith(prefix))
-            {
-               results.add(p);
-               break;
-            }
-         }
-      }
-
-      return results;
    }
 
    @Override

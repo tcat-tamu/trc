@@ -20,6 +20,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -119,9 +120,10 @@ public class PeopleReIndex
       Collection<SolrInputDocument> solrDocs = new ArrayList<>();
       try
       {
-         Iterable<Person> people = repo.findPeople();
-         for (Person person : people)
+         Iterator<Person> people = repo.listAll();
+         while (people.hasNext())
          {
+            Person person = people.next();
             BioDocument peopleProxy = BioDocument.create(person);
             solrDocs.add(peopleProxy.getDocument());
          }
