@@ -78,6 +78,9 @@
     <module>oss.trc/bundles/edu.tamu.tcat.trc.notes.rest</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.notes.postgres</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.notes.search.solr</module>
+    
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.refman</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.refman.types.zotero</module>
     <!-- Remove from the build until dependencies are resolved -->
 <!--     <module>oss.trc/tests/edu.tamu.tcat.trc.entries.types.biblio.test</module> -->
   </modules>
