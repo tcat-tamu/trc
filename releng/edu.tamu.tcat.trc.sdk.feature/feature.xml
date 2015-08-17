@@ -398,4 +398,32 @@ limitations under the License.
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="edu.tamu.tcat.trc.refman"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
+   <plugin
+         id="edu.tamu.tcat.trc.refman.source"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.tamu.tcat.trc.refman.types.zotero"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.tamu.tcat.trc.refman.types.zotero.source"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>
