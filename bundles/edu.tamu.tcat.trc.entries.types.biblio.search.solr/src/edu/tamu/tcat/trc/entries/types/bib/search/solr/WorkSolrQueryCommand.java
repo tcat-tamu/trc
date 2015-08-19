@@ -87,7 +87,8 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
 
          // FIXME HACK: Avoid searching over editions and volumes, only for "basic" search
          SolrQuery params = (SolrQuery)qb.get();
-         StringBuilder qBuilder = new StringBuilder(params.get("q"));
+         String queryStr = params.get("q");
+         StringBuilder qBuilder = new StringBuilder(queryStr != null ? queryStr : "");
          qBuilder.append(" -editionName:(*)")
                  .append(" -volumeNumber:(*)");
          params.set("q", qBuilder.toString());
