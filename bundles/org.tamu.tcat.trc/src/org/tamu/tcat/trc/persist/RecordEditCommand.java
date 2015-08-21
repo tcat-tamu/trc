@@ -7,7 +7,7 @@ import java.util.concurrent.Future;
  *
  * @param <T>
  */
-public interface RecordEditCommand<T>
+public interface RecordEditCommand
 {
 
    Future<String> execute();

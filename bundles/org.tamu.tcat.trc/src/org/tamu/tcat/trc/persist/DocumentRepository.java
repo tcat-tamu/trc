@@ -35,7 +35,7 @@ import java.util.concurrent.Future;
  *
  *
  */
-public interface DocumentRepository<T>
+public interface DocumentRepository<StorageType, RecordType>
 {
    // TODO may need to expose the storage data type -- presumably the EditCommands will need to
    //      interact with this data structure. We may be able to make that transparent though.
@@ -50,7 +50,7 @@ public interface DocumentRepository<T>
     * @return An {@link Iterator} over all items in this repository.
     * @throws RepositoryException For errors accessing the underlying data store.
     */
-   Iterator<T> listAll() throws RepositoryException;
+   Iterator<RecordType> listAll() throws RepositoryException;
 
    /**
     * Attempts to retrieve the identified record.
@@ -61,7 +61,7 @@ public interface DocumentRepository<T>
     *       includes deleted record even if the underlying storage layer continues to maintain
     *       a record of the deleted items.
     */
-   T get(String id) throws RepositoryException;
+   RecordType get(String id) throws RepositoryException;
 
    /**
     * Attempts to retrieve multiple records for a collection of record ids.
@@ -70,7 +70,7 @@ public interface DocumentRepository<T>
     * @return A collection of results corresponding to the supplied
     * @throws RepositoryException
     */
-   Collection<T> get(String... ids) throws RepositoryException;
+   Collection<RecordType> get(String... ids) throws RepositoryException;
 
    /**
     * Constructs a {@link RecordEditCommand} for use to create a new entry in this
@@ -79,7 +79,7 @@ public interface DocumentRepository<T>
     * @return A {@code DocumentEditorCommand} for use in editing the attributes of the object
     *       to be stored.
     */
-   RecordEditCommand<T> create();
+   RecordEditCommand create();
 
    /**
     * Optional method to constructs a {@link RecordEditCommand} for use to create a new
@@ -98,7 +98,7 @@ public interface DocumentRepository<T>
     *       to be stored.
     * @throws UnsupportedOperationException If client-supplied identifiers are not supported.
     */
-   RecordEditCommand<T> create(String id) throws UnsupportedOperationException;
+   RecordEditCommand create(String id) throws UnsupportedOperationException;
 
    /**
     * Constructs a {@link RecordEditCommand} for use in editing the identified record.
@@ -108,7 +108,7 @@ public interface DocumentRepository<T>
     * @throws RepositoryException If the identified record does not exist or if an edit command
     *       could not be constructed.
     */
-   RecordEditCommand<T> edit(String id) throws RepositoryException;
+   RecordEditCommand edit(String id) throws RepositoryException;
 
    /**
     * Removes the identified record from the repository. Often, repository implementations will
