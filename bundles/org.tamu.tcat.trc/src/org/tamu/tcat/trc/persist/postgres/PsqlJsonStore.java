@@ -176,7 +176,7 @@ public class PsqlJsonStore implements RepositoryDataStore<String>
       String modifiedField = schema.getModifiedField();
 
       if (removedField != null)
-         sb.append(MessageFormat.format(",  {0} BOOLEAN NOT NULL DEFAULT TRUE", removedField));
+         sb.append(MessageFormat.format(",  {0} TIMESTAMP DEFAULT NULL", removedField));
       if (createdField != null)
          sb.append(MessageFormat.format(",  {0} TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP", createdField));
       if (modifiedField != null)
@@ -237,13 +237,13 @@ public class PsqlJsonStore implements RepositoryDataStore<String>
 
    @Override
    @SuppressWarnings("unchecked") // type safety assumed by caller
-   public <X> DocumentRepository<X> get(String schemaId, Class<X> type) throws RepositoryException
+   public <X> DocumentRepository<String, X> get(String schemaId, Class<X> type) throws RepositoryException
    {
       PsqlJsonRepo<?> repo = repos.get(schemaId);
       if (repo == null)
          throw new RepositoryException(MessageFormat.format(ERR_NOT_REGISTERED, schemaId));
 
-      return (DocumentRepository<X>)repo;
+      return (DocumentRepository<String, X>)repo;
    }
 
    private static class ColumnDef
