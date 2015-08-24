@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 import org.postgresql.util.PGobject;
@@ -65,10 +66,13 @@ public class PsqlJsonRepo<DTO, EditorType> implements DocumentRepository<DTO, DT
 
    private LoadingCache<String, DTO> cache;
 
-   private final static String GET_RECORD_SQL = "SELECT {0} FROM {1} WHERE {2} = ? {3}";
+
 
 
    private String getRecordSql;
+   private String createRecordSql;
+   private String updateRecordSql;
+   private String removeRecordSql;
 
    private EditCommandFactory<DTO, DTO, EditorType> editorFactory;
 
@@ -92,6 +96,9 @@ public class PsqlJsonRepo<DTO, EditorType> implements DocumentRepository<DTO, DT
       // TODO initialize event notification tools
 
       this.getRecordSql = prepareGetSql(schema);
+      this.createRecordSql = prepareInsertSql(schema);
+      this.updateRecordSql = prepareUpdateSql(schema);
+      this.removeRecordSql = prepareRemoveSql(schema);
 
       this.initCache();
    }
@@ -121,8 +128,10 @@ public class PsqlJsonRepo<DTO, EditorType> implements DocumentRepository<DTO, DT
       this.cache.invalidateAll();
       // TODO shut down notifications this.listeners.close();
    }
-
-   private String prepareGetSql(RepositorySchema defn)
+   
+   // TODO: Need to check to see if each field contains information or not.
+   private final static String GET_RECORD_SQL = "SELECT {0} FROM {1} WHERE {2} = ? {3}";
+   private static String prepareGetSql(RepositorySchema defn)
    {
       String removedField = defn.getRemovedField();
       String isNotRemoved = (removedField != null)
@@ -131,7 +140,24 @@ public class PsqlJsonRepo<DTO, EditorType> implements DocumentRepository<DTO, DT
 
       return MessageFormat.format(GET_RECORD_SQL, defn.getDataField(), defn.getName(), isNotRemoved);
    }
+   
+   private final static String INSERT_SQL = "INSERT INTO {0} ({1}, {2}) VALUES(?, ?)";
+   private static String prepareInsertSql(RepositorySchema defn)
+   {
+      return MessageFormat.format(INSERT_SQL, defn.getName(), defn.getDataField(), defn.getIdField());
+   }
+   
+   private final static String UPDATE_SQL = "UPDATE {0} SET {1} = ?, {2} = now() WHERE {3} = ?";
+   private static String prepareUpdateSql(RepositorySchema defn)
+   {
+      return MessageFormat.format(UPDATE_SQL, defn.getName(), defn.getDataField(), defn.getModifiedField(), defn.getIdField());
+   }
 
+   private final static String REMOVE_SQL =  "UPDATE {0} SET {1} = false, {2} = now() WHERE {3} = ?";
+   private static String prepareRemoveSql(RepositorySchema defn)
+   {
+      return MessageFormat.format(REMOVE_SQL, defn.getName(), defn.getRemovedField(), defn.getModifiedField(), defn.getIdField());
+   }
 
    public String getId()
    {
@@ -218,13 +244,13 @@ public class PsqlJsonRepo<DTO, EditorType> implements DocumentRepository<DTO, DT
             if (!rs.next())
                throw new RepositoryException("Could not find record for id = '" + id + "'");
 
-            PGobject pgo = (PGobject)rs.getObject("historical_figure");
+            PGobject pgo = (PGobject)rs.getObject(schema.getName());
             return pgo.toString();
          }
       }
       catch (SQLException e)
       {
-         throw new IllegalStateException("Faield to retrieve person.", e);
+         throw new IllegalStateException("Faield to retrieve the record.", e);
       }
    }
 
@@ -243,10 +269,19 @@ public class PsqlJsonRepo<DTO, EditorType> implements DocumentRepository<DTO, DT
    }
 
    @Override
-   public <EditorType> EditorType edit(String id) throws RepositoryException
+   public EditorType edit(String id) throws RepositoryException
    {
-      // TODO Auto-generated method stub
-      throw new UnsupportedOperationException();
+      Supplier<DTO> s = () -> {
+        try
+        {
+           return this.get(id);
+        }
+        catch (Exception e)
+        {
+           throw new IllegalStateException("Failed to retrieve reference state.");
+        }
+      };
+      return this.editorFactory.edit(id, s , new CreateCommitHook());
    }
 
    @Override
