@@ -24,7 +24,7 @@ import com.google.common.util.concurrent.Futures;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 
-public class PsqlJsonStore implements RepositoryDataStore<String>
+public class PsqlJsonStore<StorageType> implements RepositoryDataStore<StorageType>
 {
    private static final Logger logger = Logger.getLogger(PsqlJsonStore.class.getName());
 
@@ -33,7 +33,7 @@ public class PsqlJsonStore implements RepositoryDataStore<String>
    private static final String ERR_ALREADY_REGISTERED = "A repository has already been registered for the id '{0}'";
 
    private SqlExecutor exec;
-   private final ConcurrentHashMap<String, PsqlJsonRepo<?>> repos = new ConcurrentHashMap<>();
+   private final ConcurrentHashMap<String, PsqlJsonRepo<?, ?>> repos = new ConcurrentHashMap<>();
 
    public PsqlJsonStore()
    {
@@ -217,7 +217,7 @@ public class PsqlJsonStore implements RepositoryDataStore<String>
    }
 
    @Override
-   public <X> String registerRepository(RepositoryConfiguration<String, X> config) throws RepositoryException
+   public <X, EdType> String registerRepository(RepositoryConfiguration<StorageType, X, EdType> config) throws RepositoryException
    {
       String repoId = config.getId();
       RepositorySchema schema = config.getSchema();
@@ -227,7 +227,8 @@ public class PsqlJsonStore implements RepositoryDataStore<String>
                MessageFormat.format(ERR_NO_SUCH_SCHEMA, repoId, schema.getName()));
       }
 
-      PsqlJsonRepo<X> repo = new PsqlJsonRepo<>(config, exec);
+      // HACK: throw away our type info. X must be the same as StorageType
+      PsqlJsonRepo<X, EdType> repo = new PsqlJsonRepo<>((RepositoryConfiguration)config, exec);
       if (repo != repos.putIfAbsent(repoId, repo))
          throw new RepositoryException(
                MessageFormat.format(ERR_ALREADY_REGISTERED, repoId));
@@ -237,13 +238,13 @@ public class PsqlJsonStore implements RepositoryDataStore<String>
 
    @Override
    @SuppressWarnings("unchecked") // type safety assumed by caller
-   public <X> DocumentRepository<String, X> get(String schemaId, Class<X> type) throws RepositoryException
+   public <X> DocumentRepository<StorageType, X> get(String schemaId, Class<X> type) throws RepositoryException
    {
-      PsqlJsonRepo<?> repo = repos.get(schemaId);
+      PsqlJsonRepo<?, ?> repo = repos.get(schemaId);
       if (repo == null)
          throw new RepositoryException(MessageFormat.format(ERR_NOT_REGISTERED, schemaId));
 
-      return (DocumentRepository<String, X>)repo;
+      return (DocumentRepository<StorageType, X>)repo;
    }
 
    private static class ColumnDef

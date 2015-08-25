@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -33,13 +34,14 @@ import java.util.logging.Logger;
 
 import org.postgresql.util.PGobject;
 import org.tamu.tcat.trc.persist.DocumentRepository;
-import org.tamu.tcat.trc.persist.RecordEditCommand;
+import org.tamu.tcat.trc.persist.RepositoryDataStore.CommitHook;
 import org.tamu.tcat.trc.persist.RepositoryDataStore.EditCommandFactory;
 import org.tamu.tcat.trc.persist.RepositoryDataStore.RepositoryConfiguration;
 import org.tamu.tcat.trc.persist.RepositoryException;
 import org.tamu.tcat.trc.persist.RepositorySchema;
 import org.tamu.tcat.trc.persist.postgres.id.DbBackedObfuscatingIdFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -50,7 +52,7 @@ import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 /**
  * A repository implementation intended to be registered as a service.
  */
-public class PsqlJsonRepo<T> implements DocumentRepository<T, T>
+public class PsqlJsonRepo<DTO, EditorType> implements DocumentRepository<DTO, DTO>
 {
    private static final Logger logger = Logger.getLogger(PsqlJsonRepo.class.getName());
 
@@ -58,18 +60,21 @@ public class PsqlJsonRepo<T> implements DocumentRepository<T, T>
    private final RepositorySchema schema;
    private final SqlExecutor exec;
    private final DbBackedObfuscatingIdFactory idFactory;
-   private final Function<String, T> adapter;
+   private final Function<DTO, DTO> adapter;
+   private final Class<DTO> recordType;
 
-   private LoadingCache<String, T> cache;
+   private LoadingCache<String, DTO> cache;
 
    private final static String GET_RECORD_SQL = "SELECT {0} FROM {1} WHERE {2} = ? {3}";
 
+
    private String getRecordSql;
 
-   private EditCommandFactory<String, T> editorFactory;
+   private EditCommandFactory<DTO, DTO, EditorType> editorFactory;
 
 
-   public PsqlJsonRepo(RepositoryConfiguration<String, T> config, SqlExecutor exec)
+
+   public PsqlJsonRepo(RepositoryConfiguration<DTO, DTO, EditorType> config, SqlExecutor exec)
    {
       Objects.requireNonNull(exec, "SqlExecutor is null.");
 
@@ -77,6 +82,7 @@ public class PsqlJsonRepo<T> implements DocumentRepository<T, T>
       this.adapter = config.getDataAdapter();
       this.schema = config.getSchema();
       this.editorFactory = config.getEditCommandFactory();
+      this.recordType = config.getRecordType();
       this.exec = exec;
 
       idFactory = new DbBackedObfuscatingIdFactory();
@@ -92,16 +98,18 @@ public class PsqlJsonRepo<T> implements DocumentRepository<T, T>
 
    private void initCache()
    {
+      ObjectMapper mapper = new ObjectMapper();
+      // TODO set config props; move to constructor
       cache = CacheBuilder.newBuilder()
             .maximumSize(1000)
             .expireAfterAccess(10, TimeUnit.MINUTES)
-            .build(new CacheLoader<String, T>() {
+            .build(new CacheLoader<String, DTO>() {
 
                @Override
-               public T load(String key) throws Exception
+               public DTO load(String key) throws Exception
                {
                   String json = loadJson(key);
-                  T model = adapter.apply(json);
+                  DTO model = mapper.readValue(json, recordType);
                   return model;
                }
 
@@ -131,14 +139,14 @@ public class PsqlJsonRepo<T> implements DocumentRepository<T, T>
    }
 
    @Override
-   public Iterator<T> listAll() throws RepositoryException
+   public Iterator<DTO> listAll() throws RepositoryException
    {
       throw new UnsupportedOperationException();
       // TODO Auto-generated method stub
    }
 
    @Override
-   public T get(String id) throws RepositoryException
+   public DTO get(String id) throws RepositoryException
    {
       try
       {
@@ -157,13 +165,13 @@ public class PsqlJsonRepo<T> implements DocumentRepository<T, T>
    }
 
    @Override
-   public Collection<T> get(String... ids) throws RepositoryException
+   public Collection<DTO> get(String... ids) throws RepositoryException
    {
       // HACK: this is potentially very inefficient. Should load records that are already in the
       //       cache and then execute a query that will load all remaining records from the DB
       //       in a single task (depending on the number of ids, possibly via multiple queries).
 
-      HashMap<String, T> results = new HashMap<>();
+      HashMap<String, DTO> results = new HashMap<>();
       for (String id: ids)
       {
          if (results.containsKey(id))
@@ -221,21 +229,21 @@ public class PsqlJsonRepo<T> implements DocumentRepository<T, T>
    }
 
    @Override
-   public RecordEditCommand create()
+   public EditorType create()
    {
-      // TODO Auto-generated method stub
-      throw new UnsupportedOperationException();
+      return this.create(UUID.randomUUID().toString());
    }
 
    @Override
-   public RecordEditCommand create(String id) throws UnsupportedOperationException
+   public EditorType create(String id) throws UnsupportedOperationException
    {
-      // TODO Auto-generated method stub
-      return null;
+
+      return this.editorFactory.create(id,  new CreateCommitHook());
+
    }
 
    @Override
-   public RecordEditCommand edit(String id) throws RepositoryException
+   public <EditorType> EditorType edit(String id) throws RepositoryException
    {
       // TODO Auto-generated method stub
       throw new UnsupportedOperationException();
@@ -246,5 +254,24 @@ public class PsqlJsonRepo<T> implements DocumentRepository<T, T>
    {
       // TODO Auto-generated method stub
       throw new UnsupportedOperationException();
+   }
+
+   private class CreateCommitHook implements CommitHook<DTO>
+   {
+
+      @Override
+      public void close() throws Exception
+      {
+         // TODO Auto-generated method stub
+
+      }
+
+      @Override
+      public Future<String> submit(DTO data, Object changeSet)
+      {
+         // TODO Auto-generated method stub
+         return null;
+      }
+
    }
 }
