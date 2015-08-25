@@ -1,9 +1,6 @@
 package org.tamu.tcat.trc.persist;
 
 import java.util.Set;
-import java.util.concurrent.Future;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  *  Responsible for managing access to the underlying data storage systems (for example,
@@ -13,7 +10,9 @@ import java.util.function.Supplier;
  *  This is the primary service for obtaining instances of a {@link DocumentRepository}.
  *
  *  @see DocumentRepository
+ *  @deprecated Should use storage layer-specific builders instead
  */
+@Deprecated
 public interface RepositoryDataStore<StorageType>
 {
    /**
@@ -58,12 +57,12 @@ public interface RepositoryDataStore<StorageType>
    boolean create(RepositorySchema schema) throws RepositoryException;
 
    /**
-    * Indicates whether a repository is registered for the supplied schema id.
+    * Indicates whether a repository is registered for the supplied id.
     *
     * @param repoId The unique identifier for the repository to check
     * @return {@code true} if a repository has been registered for this schema.
     */
-   boolean isRegistered(String repo);
+   boolean isRegistered(String repoId);
 
    /**
     * @return The id's of all registered repositories.
@@ -86,7 +85,7 @@ public interface RepositoryDataStore<StorageType>
     *       data store or if a repository has already been registered for the supplied repo id.
     */
    // TODO can more than one repository use the same schema?
-   <RecordType> String registerRepository(RepositoryConfiguration<StorageType, RecordType> config) throws RepositoryException;
+   <RecordType, EditorType> String registerRepository(RepositoryConfiguration<StorageType, RecordType, EditorType> config) throws RepositoryException;
 
    /**
     * Returns an instance of the requested repository
@@ -99,145 +98,4 @@ public interface RepositoryDataStore<StorageType>
     *       data type does not match the registered repository.
     */
    <RecordType> DocumentRepository<StorageType, RecordType> get(String repoId, Class<RecordType> type) throws RepositoryException;
-
-   /**
-    * Defines the configuration information required to register a {@link DocumentRepository}
-    * with a {@link RepositoryDataStore}.
-    *
-    * @param <StorageType> The data type used by the data store to represent the data objects
-    *       internally.
-    * @param <RecordType> The type of the Java object that is stored and produced by a repository.
-    */
-   interface RepositoryConfiguration<StorageType, RecordType>
-   {
-      /**
-       * @return A unique identifier for a repository.
-       */
-      String getId();
-
-      /**
-       * @return The schema to use for the underlying data storage definition.
-       */
-      RepositorySchema getSchema();
-
-      /**
-       * @return A {@link Function} that will convert instances of the internal data storage
-       *    type into instances of the public data model to be produced by the repository.
-       */
-      Function<StorageType, RecordType> getDataAdapter();
-
-      /**
-       * @return The java type of records managed by the repository.
-       */
-      Class<RecordType> getRecordType();
-
-      /**
-       * @return A factory for use in generating edit commands.
-       */
-      EditCommandFactory<StorageType, RecordType> getEditCommandFactory();
-   }
-
-   /**
-    * Supplied to the repository during the initial configuration in order to be used to create
-    * new {@link RecordEditCommand}s. This allows the client application to provide an API for
-    * updating records that can connect into the underlying data storage layer managed by
-    * the repository.
-    *
-    * @param <S> The repository's internal data storage type
-    * @param <R> The record type produced by the repository
-    */
-   interface EditCommandFactory<S, R>
-   {
-      // TODO ideally, I'd remove the API for RecordEditCommand and let this be a POJO.
-
-      /**
-       * Constructs a {@link RecordEditCommand} to be used to create a new record.
-       *
-       * @param commitHook A function that accepts data in the internal storage format of the
-       *       repository (e.g., stringified JSON, InputStream, data transfer object, etc).
-       *       When the command is executed, it must invoke one of the {@link CommitHook#submit}
-       *       methods with the data to be stored in the repository's underlying data storage system.
-       *
-       * @return A command object to be used to edit the newly created record.
-       */
-      RecordEditCommand create(CommitHook<S> commitHook);
-
-      /**
-       * Constructs a {@link RecordEditCommand} to be used to create a new record.
-       *
-       * @param id A client supplied identifier for the record to create.
-       * @param commitHook A function that accepts data in the internal storage format of the
-       *       repository (e.g., stringified JSON, InputStream, data transfer object, etc).
-       *       When the command is executed, it must invoke one of the {@link CommitHook#submit}
-       *       methods with the data to be stored in the repository's underlying data storage system.
-       *
-       * @return A command object to be used to edit the newly created record.
-       */
-      RecordEditCommand create(String id, CommitHook<S> commitHook);
-
-      /**
-       * Constructs a {@link RecordEditCommand} to be used to edit an existing record. In
-       * addition to a commit hook used to submit the updated record to the repository for
-       * persistence, this method will be provided with a {@link Supplier} that can be used
-       * to obtain the current state of the object being edited from the data storage layer.
-       *
-       * <p>
-       * It is recommended that implementations store updates to the record that is being
-       * edited and obtain a
-       *
-       * @param id
-       * @param commitHook
-       * @param currentState A {@link Supplier} that will always return the internal
-       *       representation of the object currently being edited.
-       * @return
-       */
-      RecordEditCommand edit(String id, CommitHook<S> commitHook, Supplier<S> currentState);
-
-      // TODO how can we support write locking. I'd like to provide a lock(id) method on the
-      //      commit hook that will cause the currentState supplier to block until the commit
-      //      has completed (or a timeout is reached).
-   }
-
-   /**
-    * Supplied to {@link EditCommandFactory} methods by the {@link DocumentRepository}
-    * implementation for use in persisting records in the underlying data storage mechanism.
-    *
-    * <p>
-    * The {@code CommitHook} is intended to be a single use construct. Once {@code #submit}
-    * has been called, any future calls will throw an {@link IllegalStateException}.
-    *
-    * @param <StorageType> The internal data type used by the persistence layer.
-    */
-   interface CommitHook<StorageType>
-   {
-      /**
-       * Submits the record data in the repository's internal storage format for persistence
-       * to the data store.
-       *
-       * @param data the record data to be saved.
-       * @param changeSet A client defined change set that documents the specific changes made
-       *       to the updated record.
-       * @return A {@link Future} that will return the unique identifier for the record. Errors
-       *       in attempting to save the data to the underlying storage layer will be propagated
-       *       as a {@link RepositoryException} when {@link Future#get()} is called.
-       */
-      Future<String> submit(StorageType data, Object changeSet);
-
-      /**
-       * Submits the record data in the repository's internal storage format for persistence
-       * to the data store.
-       *
-       * @implNote This invokes {@link #submit(Object, Object)} with the supplied storage type
-       *       as both the data and the change set.
-       *
-       * @param data the record data to be saved.
-       * @return A {@link Future} that will return the unique identifier for the record. Errors
-       *       in attempting to save the data to the underlying storage layer will be propagated
-       *       as a {@link RepositoryException} when {@link Future#get()} is called.
-       */
-      default Future<String> submit(StorageType data)
-      {
-         return submit(data, data);
-      };
-   }
 }
