@@ -34,10 +34,10 @@ import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 import org.postgresql.util.PGobject;
+import org.tamu.tcat.trc.persist.CommitHook;
 import org.tamu.tcat.trc.persist.DocumentRepository;
-import org.tamu.tcat.trc.persist.RepositoryDataStore.CommitHook;
-import org.tamu.tcat.trc.persist.RepositoryDataStore.EditCommandFactory;
-import org.tamu.tcat.trc.persist.RepositoryDataStore.RepositoryConfiguration;
+import org.tamu.tcat.trc.persist.EditCommandFactory;
+import org.tamu.tcat.trc.persist.RepositoryConfiguration;
 import org.tamu.tcat.trc.persist.RepositoryException;
 import org.tamu.tcat.trc.persist.RepositorySchema;
 import org.tamu.tcat.trc.persist.postgres.id.DbBackedObfuscatingIdFactory;
@@ -123,12 +123,13 @@ public class PsqlJsonRepo<DTO, EditorType> implements DocumentRepository<DTO, DT
             });
    }
 
+   @Override
    public void close()
    {
       this.cache.invalidateAll();
       // TODO shut down notifications this.listeners.close();
    }
-   
+
    // TODO: Need to check to see if each field contains information or not.
    private final static String GET_RECORD_SQL = "SELECT {0} FROM {1} WHERE {2} = ? {3}";
    private static String prepareGetSql(RepositorySchema defn)
@@ -140,13 +141,13 @@ public class PsqlJsonRepo<DTO, EditorType> implements DocumentRepository<DTO, DT
 
       return MessageFormat.format(GET_RECORD_SQL, defn.getDataField(), defn.getName(), isNotRemoved);
    }
-   
+
    private final static String INSERT_SQL = "INSERT INTO {0} ({1}, {2}) VALUES(?, ?)";
    private static String prepareInsertSql(RepositorySchema defn)
    {
       return MessageFormat.format(INSERT_SQL, defn.getName(), defn.getDataField(), defn.getIdField());
    }
-   
+
    private final static String UPDATE_SQL = "UPDATE {0} SET {1} = ?, {2} = now() WHERE {3} = ?";
    private static String prepareUpdateSql(RepositorySchema defn)
    {
@@ -284,6 +285,7 @@ public class PsqlJsonRepo<DTO, EditorType> implements DocumentRepository<DTO, DT
       return this.editorFactory.edit(id, s , new CreateCommitHook());
    }
 
+
    @Override
    public Future<Boolean> delete(String personId)
    {
@@ -293,13 +295,6 @@ public class PsqlJsonRepo<DTO, EditorType> implements DocumentRepository<DTO, DT
 
    private class CreateCommitHook implements CommitHook<DTO>
    {
-
-      @Override
-      public void close() throws Exception
-      {
-         // TODO Auto-generated method stub
-
-      }
 
       @Override
       public Future<String> submit(DTO data, Object changeSet)

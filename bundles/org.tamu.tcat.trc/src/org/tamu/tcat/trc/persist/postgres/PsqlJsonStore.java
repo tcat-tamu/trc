@@ -16,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.tamu.tcat.trc.persist.DocumentRepository;
+import org.tamu.tcat.trc.persist.RepositoryConfiguration;
 import org.tamu.tcat.trc.persist.RepositoryDataStore;
 import org.tamu.tcat.trc.persist.RepositoryException;
 import org.tamu.tcat.trc.persist.RepositorySchema;
