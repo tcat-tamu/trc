@@ -13,8 +13,6 @@ import java.util.function.Supplier;
  */
 public interface EditCommandFactory<S, R, EditorType>
 {
-   // TODO ideally, I'd remove the API for RecordEditCommand and let this be a POJO.
-
    /**
     * Constructs a {@link RecordEditCommand} to be used to create a new record.
     *

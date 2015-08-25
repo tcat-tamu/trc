@@ -37,9 +37,6 @@ import java.util.concurrent.Future;
  */
 public interface DocumentRepository<RecordType, EditCommandType> extends AutoCloseable
 {
-   // TODO may need to expose the storage data type -- presumably the EditCommands will need to
-   //      interact with this data structure. We may be able to make that transparent though.
-
    // TODO provide access to a more richly structured PagedResult API.
 
    // TODO support notifications

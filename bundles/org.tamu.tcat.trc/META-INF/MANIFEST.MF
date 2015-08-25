@@ -10,9 +10,7 @@ Import-Package: com.fasterxml.jackson.core;version="2.3.1",
  com.google.common.cache;version="12.0.0",
  com.google.common.util.concurrent;version="10.0.1",
  edu.tamu.tcat.db.exec.sql,
- edu.tamu.tcat.trc.refman.dto,
  org.postgresql.util;version="9.3.1102"
 Export-Package: org.tamu.tcat.trc.persist,
  org.tamu.tcat.trc.persist.postgres,
- org.tamu.tcat.trc.persist.postgres.id,
- org.tamu.tcat.trc.persist.properties
+ org.tamu.tcat.trc.persist.postgres.id
