@@ -208,7 +208,7 @@ public interface RepositoryDataStore<StorageType>
     *
     * @param <StorageType> The internal data type used by the persistence layer.
     */
-   interface CommitHook<StorageType> extends AutoCloseable
+   interface CommitHook<StorageType>
    {
       /**
        * Submits the record data in the repository's internal storage format for persistence

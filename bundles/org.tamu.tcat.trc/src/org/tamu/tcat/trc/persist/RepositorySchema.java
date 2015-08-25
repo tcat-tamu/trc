@@ -19,6 +19,7 @@ public interface RepositorySchema
    /**
     * @return The name used to identify this schema in the underlying data store records.
     */
+   @Deprecated // A schema should be generic and used across multiple "tables".
    String getName();
 
    /**
