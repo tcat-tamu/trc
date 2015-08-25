@@ -35,7 +35,7 @@ import java.util.concurrent.Future;
  *
  *
  */
-public interface DocumentRepository<StorageType, RecordType>
+public interface DocumentRepository<RecordType, EditCommandType> extends AutoCloseable
 {
    // TODO may need to expose the storage data type -- presumably the EditCommands will need to
    //      interact with this data structure. We may be able to make that transparent though.
@@ -79,7 +79,7 @@ public interface DocumentRepository<StorageType, RecordType>
     * @return A {@code DocumentEditorCommand} for use in editing the attributes of the object
     *       to be stored.
     */
-   RecordEditCommand create();
+   EditCommandType create();
 
    /**
     * Optional method to constructs a {@link RecordEditCommand} for use to create a new
@@ -98,7 +98,7 @@ public interface DocumentRepository<StorageType, RecordType>
     *       to be stored.
     * @throws UnsupportedOperationException If client-supplied identifiers are not supported.
     */
-   RecordEditCommand create(String id) throws UnsupportedOperationException;
+   EditCommandType create(String id) throws UnsupportedOperationException;
 
    /**
     * Constructs a {@link RecordEditCommand} for use in editing the identified record.
@@ -108,7 +108,7 @@ public interface DocumentRepository<StorageType, RecordType>
     * @throws RepositoryException If the identified record does not exist or if an edit command
     *       could not be constructed.
     */
-   RecordEditCommand edit(String id) throws RepositoryException;
+   EditCommandType edit(String id) throws RepositoryException;
 
    /**
     * Removes the identified record from the repository. Often, repository implementations will
