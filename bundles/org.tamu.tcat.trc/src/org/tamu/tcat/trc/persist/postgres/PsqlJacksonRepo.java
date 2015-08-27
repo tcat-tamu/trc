@@ -58,7 +58,6 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    private String removeRecordSql;
 
    private NotifyingTaskFactory sqlTaskFactory;
-   private ObjectMapper mapper;
    private LoadingCache<String, RecordType> cache;
 
 
@@ -140,15 +139,10 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
       this.sqlTaskFactory.close();
       this.sqlTaskFactory = null;
-
-      this.mapper = null;
    }
 
    private void initCache()
    {
-      mapper = new ObjectMapper();
-      mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
       cache = CacheBuilder.newBuilder()
                      .maximumSize(1000)
                      .expireAfterAccess(10, TimeUnit.MINUTES)
@@ -233,6 +227,8 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    {
       try
       {
+         ObjectMapper mapper = getObjectMapper();
+
          DTO dto = mapper.readValue(json, storageType);
          return adapter.apply(dto);
       }
@@ -323,6 +319,8 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
     */
    private DTO loadStoredRecord(String id) throws RepositoryException
    {
+      ObjectMapper mapper = getObjectMapper();
+
       Future<DTO> future = exec.submit((conn) -> {
          if (Thread.interrupted())
             throw new InterruptedException();
@@ -431,6 +429,8 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       ObservableTask<String> task = sqlTaskFactory.wrap((conn) -> {
          try (PreparedStatement ps = conn.prepareStatement(createRecordSql))
          {
+            ObjectMapper mapper = getObjectMapper();
+
             PGobject json = new PGobject();
             json.setType("json");
             json.setValue(mapper.writeValueAsString(record));
@@ -475,6 +475,8 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       ObservableTask<String> task = sqlTaskFactory.wrap((conn) -> {
          try (PreparedStatement ps = conn.prepareStatement(updateRecordSql))
          {
+            ObjectMapper mapper = getObjectMapper();
+
             PGobject json = new PGobject();
             json.setType("json");
             json.setValue(mapper.writeValueAsString(record));
@@ -499,5 +501,12 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 //      task.afterExecution(recordId -> notifyPersonUpdate(UpdateEvent.UpdateAction.UPDATE, id));
 
       return exec.submit(task);
+   }
+
+   private ObjectMapper getObjectMapper()
+   {
+      ObjectMapper mapper = new ObjectMapper();
+      mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      return mapper;
    }
 }
