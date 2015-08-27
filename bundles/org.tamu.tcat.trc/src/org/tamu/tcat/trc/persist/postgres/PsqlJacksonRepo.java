@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -42,7 +43,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 {
    private static final Logger logger = Logger.getLogger(PsqlJacksonRepo.class.getName());
 
-   private final SqlExecutor exec;
+   private SqlExecutor exec;
    private Supplier<String> idFactory;
 
    private String tablename;
@@ -61,7 +62,11 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    private LoadingCache<String, RecordType> cache;
 
 
-   public PsqlJacksonRepo(SqlExecutor exec)
+   public PsqlJacksonRepo()
+   {
+   }
+
+   public void setSqlExecutor(SqlExecutor exec)
    {
       this.exec = exec;
    }
@@ -103,7 +108,19 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       // TODO initialize event notification tools
       // default to UUID-based ids
       if (idFactory == null)
+      {
          idFactory = () -> UUID.randomUUID().toString();
+      }
+
+      Objects.requireNonNull(exec, "The SQL executor has not bee supplied");
+      Objects.requireNonNull(tablename, "The tablename has not bee supplied");
+      if (tablename.trim().isEmpty())
+         throw new IllegalStateException("The tablename must not be an empty string");
+
+      Objects.requireNonNull(cmdFactory, "The edit command factory has not bee supplied");
+      Objects.requireNonNull(schema, "The data schema has not bee supplied");
+      Objects.requireNonNull(adapter, "The data adapter has not bee supplied");
+      Objects.requireNonNull(storageType, "The storage type has not bee supplied");
 
       this.getRecordSql = prepareGetSql();
       this.createRecordSql = prepareInsertSql();

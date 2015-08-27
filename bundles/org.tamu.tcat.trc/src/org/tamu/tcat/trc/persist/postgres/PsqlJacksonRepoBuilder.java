@@ -135,7 +135,8 @@ public class PsqlJacksonRepoBuilder<RecordType, EditCmdType, StorageType>
       if (!this.exists() && enableCreation)
          this.create();
 
-      PsqlJacksonRepo<RecordType, StorageType, EditCmdType> repo = new PsqlJacksonRepo<>(exec);
+      PsqlJacksonRepo<RecordType, StorageType, EditCmdType> repo = new PsqlJacksonRepo<>();
+      repo.setSqlExecutor(exec);
       repo.setTableName(tablename);
       repo.setSchema(schema);
       repo.setCommandFactory(cmdFactory);
