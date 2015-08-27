@@ -35,13 +35,20 @@ import java.util.concurrent.Future;
  *
  *
  */
-public interface DocumentRepository<RecordType, EditCommandType> extends AutoCloseable
+public interface DocumentRepository<RecordType, EditCommandType>
 {
    // TODO provide access to a more richly structured PagedResult API.
 
    // TODO support notifications
 
    // TODO use MD5 or SHA256 hashes to ensure data integrity, add crytography, etc. Use Jackson's SMILE format.
+
+   /**
+    * Releases all resources associated with this repository. This method must be called once
+    * the repository is no longer needed in order to allow it to clean up any resources that
+    * it may have allocated such as executors or cached data.
+    */
+   void dispose();
 
    /**
     * @return An {@link Iterator} over all items in this repository.

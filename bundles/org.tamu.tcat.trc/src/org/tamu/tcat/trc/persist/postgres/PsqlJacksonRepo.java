@@ -116,7 +116,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    }
 
    @Override
-   public void close() throws Exception
+   public void dispose()
    {
       this.cache.invalidateAll();
       this.cache = null;
