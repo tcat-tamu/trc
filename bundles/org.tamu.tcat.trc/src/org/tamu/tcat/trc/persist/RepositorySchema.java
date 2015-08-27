@@ -12,15 +12,17 @@ package org.tamu.tcat.trc.persist;
  *  Consequently the schema should be understood as a tool that hints at the intended structure
  *  of the underlying data storage mechanisms and, where supported, to allow access with
  *  existing data structures that may have been created (and may be used) externally to the
- *  data store API. Implementations of
+ *  data store API. I
  */
 public interface RepositorySchema
 {
    /**
-    * @return The name used to identify this schema in the underlying data store records.
+    * @return A unigue identifier for this schema. Allows client applications to identify,
+    *       register and discover various data storage schemas. Note that, in general, this will
+    *       not correspond to a property in the data storage layer (for example, this typically
+    *       should not be interpreted as a table name in a database).
     */
-   @Deprecated // A schema should be generic and used across multiple "tables".
-   String getName();
+   String getId();
 
    /**
     * @return The name of the database column (or other persistence layer field) used to store

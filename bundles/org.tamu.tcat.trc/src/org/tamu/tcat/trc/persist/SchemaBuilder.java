@@ -10,10 +10,10 @@ public interface SchemaBuilder
 
    /**
     *
-    * @param name the name of the schema.
-    * @return this {@code SchemaBuilder} instance to support fluid programming
+    * @param name the id of the schema.
+    * @return this {@code SchemaBuilder} instance to support method chaining
     */
-   SchemaBuilder setName(String name);
+   SchemaBuilder setId(String id);
 
    /**
     *
@@ -25,7 +25,7 @@ public interface SchemaBuilder
    /**
     *
     * @param fieldName the field name to be used to store the data associated with a record.
-    * @return this {@code SchemaBuilder} instance to support fluid programming
+    * @return this {@code SchemaBuilder} instance to support method chaining
     */
    SchemaBuilder setDataField(String fieldName);
 
@@ -33,7 +33,7 @@ public interface SchemaBuilder
     * @param fieldName A hint for the field name used to store the date a record was created.
     *       If {@code null}, creation dates may not be stored (depending on the underlying data
     *       storage layer, creation dates may be stored automatically.
-    * @return this {@code SchemaBuilder} instance to support fluid programming
+    * @return this {@code SchemaBuilder} instance to support method chaining
     */
    SchemaBuilder setCreatedField(String fieldName);
 
@@ -41,7 +41,7 @@ public interface SchemaBuilder
     * @param fieldName A hint for the field name used to store the date a record was last
     *       modified. If {@code null}, modification dates may not be stored (depending on the
     *       underlying data storage layer, creation dates may be stored automatically.
-    * @return this {@code SchemaBuilder} instance to support fluid programming
+    * @return this {@code SchemaBuilder} instance to support method chaining
     */
    SchemaBuilder setModifiedField(String fieldName);
 
@@ -52,7 +52,7 @@ public interface SchemaBuilder
     *       {@code null}, deletion of records will be performed using a repository default
     *       methodology. Repositories should document how they implement deletion in an
     *       implementation note on the {@link DocumentRepository#delete(String)} method.
-    * @return this {@code SchemaBuilder} instance to support fluid programming
+    * @return this {@code SchemaBuilder} instance to support method chaining
     */
    SchemaBuilder setRemovedField(String fieldName);
 
@@ -69,4 +69,5 @@ public interface SchemaBuilder
     *       parameterization does not match the constraints for a valid schema definition.
     */
    RepositorySchema build();
+
 }

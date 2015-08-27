@@ -18,7 +18,7 @@ public class BasicSchemaBuilder implements SchemaBuilder
 
    private static class SchemaImpl implements RepositorySchema
    {
-      String tableName;
+      String id;
       String idField = "id";
       String dataField = "record_value";
       String removedField = "removed";
@@ -26,9 +26,9 @@ public class BasicSchemaBuilder implements SchemaBuilder
       String modifiedField = "last_modified";
 
       @Override
-      public String getName()
+      public String getId()
       {
-         return tableName;
+         return id;
       }
 
       @Override
@@ -90,9 +90,9 @@ public class BasicSchemaBuilder implements SchemaBuilder
    }
 
    @Override
-   public SchemaBuilder setName(String name)
+   public SchemaBuilder setId(String id)
    {
-      schema.tableName = checkValue(name, "schema name", true);
+      schema.id = checkValue(id, "schema id", true);
       return this;
    }
 
@@ -136,7 +136,7 @@ public class BasicSchemaBuilder implements SchemaBuilder
    {
       built = true;
 
-      Objects.requireNonNull(schema.tableName, "Invalid schema configuration. No table name defined.");
+      Objects.requireNonNull(schema.id, "Invalid schema configuration. No table name defined.");
       Objects.requireNonNull(schema.idField, "Invalid schema configuration. No id field defined.");
       Objects.requireNonNull(schema.dataField, "Invalid schema configuration. No data field defined.");
 
