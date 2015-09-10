@@ -15,7 +15,9 @@
  */
 package edu.tamu.tcat.trc.notes.rest.v1;
 
+import java.net.URI;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -40,6 +42,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
+import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.dto.NoteDTO;
 import edu.tamu.tcat.trc.notes.repo.EditNoteCommand;
 import edu.tamu.tcat.trc.notes.repo.NotesRepository;
@@ -56,7 +59,6 @@ public class NotesResource
    public void setRepository(NotesRepository repo)
    {
       this.repo = repo;
-
    }
 
    public void activate()
@@ -74,9 +76,20 @@ public class NotesResource
 
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public List<RestApiV1.NotesSearchResult> search(@QueryParam(value="q") String q)
+   public List<NoteDTO> search(@QueryParam(value="q") String q)
    {
-      return null;
+      List<NoteDTO> results = new ArrayList<>();
+      try
+      {
+         List<Note> notes = repo.getNotes(URI.create(q));
+         notes.forEach(n -> results.add(NoteDTO.create(n)));
+         return results;
+      }
+      catch (NoSuchCatalogRecordException e)
+      {
+         logger.log(Level.SEVERE, MessageFormat.format("Failed to retrieve notes for {0}.", q), e);
+         throw new InternalServerErrorException(MessageFormat.format("Failed to retrieve notes for {0}.", q));
+      }
    }
 
    @POST
