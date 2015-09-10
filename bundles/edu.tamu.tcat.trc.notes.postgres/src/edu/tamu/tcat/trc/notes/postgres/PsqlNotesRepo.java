@@ -59,8 +59,8 @@ public class PsqlNotesRepo implements NotesRepository
    private static final String SQL_GET_ALL =
          "SELECT note "
         +  "FROM notes "
-        + "WHERE reference->>'associatedEntry' LIKE ? AND active = true "
-        + "ORDER BY reference->>'associatedEntry'";
+        + "WHERE note->>'associatedEntity' LIKE ? AND active = true "
+        + "ORDER BY note->>'associatedEntity'";
 
    private static final String SQL_GET =
          "SELECT note "
