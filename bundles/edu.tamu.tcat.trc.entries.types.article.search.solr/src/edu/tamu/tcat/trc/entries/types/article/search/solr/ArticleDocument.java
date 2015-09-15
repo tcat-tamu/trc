@@ -56,7 +56,7 @@ public class ArticleDocument
       }
 
       doc.indexDoc.set(ArticleSolrConfig.ID, dto.id.toString());
-      doc.indexDoc.set(ArticleSolrConfig.TITLE, dto.id.toString());
+      doc.indexDoc.set(ArticleSolrConfig.TITLE, guardNull(dto.title));
       doc.indexDoc.set(ArticleSolrConfig.AUTHOR_ID, guardNull(dto.authorId));
       doc.indexDoc.set(ArticleSolrConfig.ASSOCIATED_ENTRY, guardNull(dto.associatedEntity.toString()));
       doc.indexDoc.set(ArticleSolrConfig.ARTICLE_MIME_TYPE, guardNull(dto.mimeType));
@@ -80,7 +80,7 @@ public class ArticleDocument
       }
 
       doc.indexDoc.set(ArticleSolrConfig.ID, dto.id.toString());
-      doc.indexDoc.update(ArticleSolrConfig.TITLE, dto.id.toString());
+      doc.indexDoc.update(ArticleSolrConfig.TITLE, guardNull(dto.title));
       doc.indexDoc.update(ArticleSolrConfig.AUTHOR_ID, guardNull(dto.authorId));
       doc.indexDoc.update(ArticleSolrConfig.ASSOCIATED_ENTRY, guardNull(dto.associatedEntity.toString()));
       doc.indexDoc.update(ArticleSolrConfig.ARTICLE_MIME_TYPE, guardNull(dto.mimeType));
