@@ -35,9 +35,14 @@ import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleChangeEvent;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
+import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchService;
+import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
+import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
+import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
 
-public class ArticleIndexManagerService
+public class ArticleIndexManagerService implements ArticleSearchService
 {
    private final static Logger logger = Logger.getLogger(ArticleIndexManagerService.class.getName());
 
@@ -106,6 +111,12 @@ public class ArticleIndexManagerService
       {
          logger.log(Level.WARNING, "Failed to shutdown solr server client for article index manager", ex);
       }
+   }
+
+   @Override
+   public ArticleQueryCommand createQueryCmd() throws SearchException
+   {
+      return new ArticleSolrQueryCmd(solr, new TrcQueryBuilder(solr, new ArticleSolrConfig()));
    }
 
    private void onEvtChange(ArticleChangeEvent evt)

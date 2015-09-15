@@ -15,6 +15,8 @@
  */
 package edu.tamu.tcat.trc.entries.types.article.rest.v1;
 
+import java.util.List;
+
 public class RestApiV1
 {
 
@@ -23,8 +25,21 @@ public class RestApiV1
       public String id;
    }
 
-   public class ArticleSearchResult
+   public static class ArticleSearchResult
    {
-
+      public String id;
+      public String title;
+      public String associatedEntity;
+      public String authorId;
+      public String mimeType;
+      public String content;
+   }
+   
+   public static class ArticleSearchResultSet
+   {
+      public List<ArticleSearchResult> items;
+      public String qs;
+      public String qsNext;
+      public String qsPrev;
    }
 }

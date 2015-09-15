@@ -15,6 +15,8 @@
  */
 package edu.tamu.tcat.trc.entries.types.article.rest.v1;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
@@ -25,6 +27,7 @@ import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
@@ -43,6 +46,10 @@ import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleDTO;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
+import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
+import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
+import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchService;
+import edu.tamu.tcat.trc.search.SearchException;
 
 
 @Path("/articles")
@@ -53,10 +60,16 @@ public class ArticleResource
    private ArticleRepository repo;
    private ObjectMapper mapper;
 
+   private ArticleSearchService articleSearchService;
+
    public void setRepository(ArticleRepository repo)
    {
       this.repo = repo;
-
+   }
+   
+   public void setArticleService(ArticleSearchService service)
+   {
+      this.articleSearchService = service;
    }
 
    public void activate()
@@ -74,9 +87,67 @@ public class ArticleResource
 
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public List<RestApiV1.ArticleSearchResult> search(@QueryParam(value="q") String q)
+   public List<RestApiV1.ArticleSearchResult>
+   search(@QueryParam(value="q") String q,
+          @QueryParam(value = "off") @DefaultValue("0")   int offset,
+          @QueryParam(value = "max") @DefaultValue("100") int numResults)
+   throws SearchException
    {
-      return null;
+      
+      try
+      {
+         ArticleQueryCommand articleQryCmd = articleSearchService.createQueryCmd();
+         articleQryCmd.query(q != null ? q : "");
+         articleQryCmd.setOffset(offset);
+         articleQryCmd.setMaxResults(numResults);
+         ArticleSearchResult results = articleQryCmd.execute();
+         
+         RestApiV1.ArticleSearchResultSet rs = new RestApiV1.ArticleSearchResultSet();
+         rs.items = ArticleSearchAdapter.toDTO(results.get());
+
+         StringBuilder sb = new StringBuilder();
+         try
+         {
+            app(sb, "q", q);
+         }
+         catch (Exception e)
+         {
+            throw new SearchException("Failed building querystring", e);
+         }
+
+         rs.qs = "off="+offset+"&max="+numResults+"&"+sb.toString();
+         //TODO: does this depend on the number of results returned (i.e. whether < numResults), or do we assume there are infinite results?
+         rs.qsNext = "off="+(offset + numResults)+"&max="+numResults+"&"+sb.toString();
+         if (offset >= numResults)
+            rs.qsPrev = "off="+(offset - numResults)+"&max="+numResults+"&"+sb.toString();
+         // first page got off; reset to zero offset
+         else if (offset > 0 && offset < numResults)
+            rs.qsPrev = "off="+(0)+"&max="+numResults+"&"+sb.toString();
+
+         //HACK: until the JS is ready to accept this data vehicle, just send the list of results
+//         return rs;
+         return rs.items;
+         
+      }
+      catch (SearchException e)
+      {
+         logger.log(Level.SEVERE, "Error", e);
+         throw new SearchException(e);
+      }
+   }
+
+   private static void app(StringBuilder sb, String p, String v)
+   {
+      if (v == null)
+         return;
+      if (sb.length() > 0)
+         sb.append("&");
+      try {
+         sb.append(p).append("=").append(URLEncoder.encode(v, "UTF-8"));
+         // suppress exception so this method can be used in lambdas
+      } catch (UnsupportedEncodingException e) {
+         throw new IllegalArgumentException("Failed encoding ["+v+"]", e);
+      }
    }
 
    @POST
