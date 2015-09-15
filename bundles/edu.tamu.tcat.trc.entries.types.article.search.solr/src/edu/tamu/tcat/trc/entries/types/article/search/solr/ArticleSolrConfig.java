@@ -18,7 +18,10 @@ package edu.tamu.tcat.trc.entries.types.article.search.solr;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.apache.solr.client.solrj.SolrQuery;
+
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy;
+import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.SolrIndexConfig;
 import edu.tamu.tcat.trc.search.solr.SolrIndexField;
 import edu.tamu.tcat.trc.search.solr.impl.BasicFields;
@@ -34,6 +37,25 @@ public class ArticleSolrConfig implements SolrIndexConfig
    public static final SolrIndexField<String> ARTICLE_MIME_TYPE = new BasicFields.BasicString("mime_type");
 
    public static final BasicFields.SearchProxyField<ArticleSearchProxy> SEARCH_PROXY =new BasicFields.SearchProxyField<ArticleSearchProxy>("article_dto", ArticleSearchProxy.class);
+   
+   @Override
+   public void initialConfiguration(SolrQuery params) throws SearchException
+   {
+      /*
+       * Using eDisMax seemed like a more adventagous way of doing the query. This will allow
+       * additional solr Paramaters to be set in order to 'fine tune' the query.
+       */
+      params.set("defType", "edismax");
+      params.set("qf", ARTICLE_CONTENT.getName(), TITLE.getName());
+   }
+   
+   @Override
+   public void configureBasic(String q, SolrQuery params) throws SearchException
+   {
+      StringBuilder qBuilder = new StringBuilder(q);
+
+      params.set("q", qBuilder.toString());
+   }
 
    @Override
    public Class<ArticleSearchProxy> getSearchProxyType()
