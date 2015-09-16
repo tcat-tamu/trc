@@ -35,7 +35,9 @@ public class NoteDTO
 
       dto.id = notes.getId();
       dto.associatedEntity = notes.getEntity();
-      dto.authorId = notes.getAuthorId().toString();
+
+      UUID authorId = notes.getAuthorId();
+      dto.authorId = authorId == null ? null : authorId.toString();
       dto.mimeType = notes.getMimeType();
       dto.content = notes.getContent();
 

@@ -15,6 +15,8 @@
  */
 package edu.tamu.tcat.trc.notes.search;
 
+import java.util.UUID;
+
 import edu.tamu.tcat.trc.notes.Note;
 
 public class NotesSearchProxy
@@ -34,7 +36,9 @@ public class NotesSearchProxy
    public NotesSearchProxy(Note note)
    {
       this.id = note.getId().toString();
-      this.authorId = note.getAuthorId().toString();
+
+      UUID authorId = note.getAuthorId();
+      this.authorId = authorId == null ? null : authorId.toString();
       this.associatedEntity = note.getEntity().toString();
       this.content = note.getContent();
       this.mimeType = note.getMimeType();

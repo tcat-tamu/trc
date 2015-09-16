@@ -28,7 +28,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -435,7 +434,7 @@ public class PsqlNotesRepo implements NotesRepository
       @Override
       public UUID getAuthorId()
       {
-         return UUID.fromString(authorId);
+         return authorId == null ? null : UUID.fromString(authorId);
       }
 
       @Override
