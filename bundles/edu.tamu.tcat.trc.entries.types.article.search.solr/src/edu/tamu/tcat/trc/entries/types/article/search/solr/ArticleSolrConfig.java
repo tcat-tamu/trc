@@ -46,7 +46,7 @@ public class ArticleSolrConfig implements SolrIndexConfig
        * additional solr Paramaters to be set in order to 'fine tune' the query.
        */
       params.set("defType", "edismax");
-      params.set("qf", ARTICLE_CONTENT.getName(), TITLE.getName());
+      params.set("qf", ARTICLE_CONTENT.getName(), TITLE.getName(), ASSOCIATED_ENTRY.getName());
    }
    
    @Override
