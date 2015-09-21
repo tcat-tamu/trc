@@ -37,7 +37,7 @@ public class ArticleDTO
       dto.id = article.getId();
       dto.title = article.getTitle();
       dto.associatedEntity = article.getEntity();
-      dto.authorId = article.getAuthorId().toString();
+      dto.authorId = article.getAuthorId() != null ? article.getAuthorId().toString() : "";
       dto.mimeType = article.getMimeType();
       dto.content = article.getContent();
 

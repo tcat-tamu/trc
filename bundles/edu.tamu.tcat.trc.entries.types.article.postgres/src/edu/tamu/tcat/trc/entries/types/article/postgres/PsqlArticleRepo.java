@@ -443,7 +443,7 @@ public class PsqlArticleRepo implements ArticleRepository
       @Override
       public UUID getAuthorId()
       {
-         return UUID.fromString(authorId);
+         return authorId.isEmpty() ? null : UUID.fromString(authorId);
       }
 
       @Override

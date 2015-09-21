@@ -55,41 +55,41 @@ public class PostgresEditArticleCmd implements EditArticleCommand
       if (updateArticle.id != null && !updateArticle.id.equals(article.id))
          throw new IllegalArgumentException("The supplied article ");
 
-      article.title = updateArticle.title;
-      article.authorId = updateArticle.authorId;
-      article.associatedEntity = updateArticle.associatedEntity;
-      article.mimeType = updateArticle.mimeType;
-      article.content = updateArticle.content;
+      setTitle(updateArticle.title);
+      setAuthorId(updateArticle.authorId);
+      setEntity(updateArticle.associatedEntity);
+      setMimeType(updateArticle.mimeType);
+      setContent(updateArticle.content);
    }
 
    @Override
    public void setTitle(String title)
    {
-      article.title = title;
+      article.title = guardNull(title);
    }
 
    @Override
    public void setEntity(URI entityURI)
    {
-      article.associatedEntity = entityURI;
+      article.associatedEntity = entityURI != null ? entityURI : URI.create("");
    }
 
    @Override
    public void setAuthorId(String authorId)
    {
-      article.authorId = authorId;
+      article.authorId = guardNull(authorId);
    }
 
    @Override
    public void setMimeType(String mimeType)
    {
-      article.mimeType = mimeType;
+      article.mimeType = guardNull(mimeType);
    }
 
    @Override
    public void setContent(String content)
    {
-      article.content = content;
+      article.content = guardNull(content);
    }
 
    @Override
@@ -100,6 +100,11 @@ public class PostgresEditArticleCmd implements EditArticleCommand
          throw new IllegalStateException("This edit copy command has already been invoked.");
 
       return commitHook.apply(article);
+   }
+   
+   private String guardNull(String value)
+   {
+      return value != null ? value : "";
    }
 
 }
