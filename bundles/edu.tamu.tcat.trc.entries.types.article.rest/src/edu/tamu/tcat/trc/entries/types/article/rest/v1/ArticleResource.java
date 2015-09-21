@@ -97,7 +97,12 @@ public class ArticleResource
       try
       {
          ArticleQueryCommand articleQryCmd = articleSearchService.createQueryCmd();
-         articleQryCmd.query(q != null ? q : "");
+         
+         if(!q.isEmpty())
+            articleQryCmd.query(q);
+         else
+            articleQryCmd.queryAll();
+         
          articleQryCmd.setOffset(offset);
          articleQryCmd.setMaxResults(numResults);
          ArticleSearchResult results = articleQryCmd.execute();

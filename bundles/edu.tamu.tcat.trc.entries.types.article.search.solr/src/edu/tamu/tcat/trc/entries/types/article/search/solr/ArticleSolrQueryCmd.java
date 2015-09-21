@@ -50,6 +50,12 @@ public class ArticleSolrQueryCmd implements ArticleQueryCommand
    }
 
    @Override
+   public void queryAll() throws SearchException
+   {
+      qb.basic("*:*");
+   }
+
+   @Override
    public void setOffset(int start)
    {
       if (start < 0)

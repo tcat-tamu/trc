@@ -8,6 +8,8 @@ public interface ArticleQueryCommand
    
    void query(String q) throws SearchException;
    
+   void queryAll() throws SearchException;
+   
    void setOffset(int start);
    
    void setMaxResults(int max);
