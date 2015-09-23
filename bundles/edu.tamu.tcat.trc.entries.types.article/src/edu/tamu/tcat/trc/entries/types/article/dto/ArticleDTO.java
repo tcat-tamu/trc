@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,15 +29,15 @@ public class ArticleDTO
    public String mimeType;
    public String content;
 
-
    public static ArticleDTO create(Article article)
    {
       ArticleDTO dto = new ArticleDTO();
+      UUID author = article.getAuthorId();
 
       dto.id = article.getId();
       dto.title = article.getTitle();
       dto.associatedEntity = article.getEntity();
-      dto.authorId = article.getAuthorId() != null ? article.getAuthorId().toString() : "";
+      dto.authorId = author != null ? author.toString() : "";
       dto.mimeType = article.getMimeType();
       dto.content = article.getContent();
 
