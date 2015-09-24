@@ -1,33 +1,42 @@
 package edu.tamu.tcat.trc.entries.types.article.search.solr;
 
+import java.util.Collections;
 import java.util.List;
 
-import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
+import edu.tamu.tcat.trc.entries.types.article.search.ArticleQuery;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
 
 public class SolrArticleResults implements ArticleSearchResult
 {
-   private ArticleQueryCommand cmd;
    private List<ArticleSearchProxy> articles;
-   
-   SolrArticleResults(ArticleQueryCommand cmd, List<ArticleSearchProxy> articles)
+   private ArticleQuery query;
+   private long numMatched;
+
+   public SolrArticleResults(ArticleQuery query, List<ArticleSearchProxy> articles, long numMatched)
    {
-      this.cmd = cmd;
+      this.query = new ArticleQuery(query);
       this.articles = articles;
-      
+      this.numMatched = numMatched;
+
    }
 
    @Override
-   public ArticleQueryCommand getCommand()
+   public ArticleQuery getQuery()
    {
-      return cmd;
+      return query;
    }
 
    @Override
-   public List<ArticleSearchProxy> get()
+   public long getNumberMatched()
    {
-      return articles;
+      return numMatched;
+   }
+
+   @Override
+   public List<ArticleSearchProxy> getResults()
+   {
+      return Collections.unmodifiableList(articles);
    }
 
 }

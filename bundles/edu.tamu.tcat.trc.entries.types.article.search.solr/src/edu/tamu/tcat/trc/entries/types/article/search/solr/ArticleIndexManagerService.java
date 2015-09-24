@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,13 +31,13 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleChangeEvent;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
-import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchService;
+import edu.tamu.tcat.trc.entries.types.article.search.ArticleQuery;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
+import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchService;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
@@ -63,7 +63,7 @@ public class ArticleIndexManagerService implements ArticleSearchService
    private SolrServer solr;
    private ConfigurationProperties config;
 
-   private AutoCloseable register;
+   private AutoCloseable listenerReg;
 
    public void setArticleRepo(ArticleRepository repo)
    {
@@ -77,7 +77,7 @@ public class ArticleIndexManagerService implements ArticleSearchService
 
    public void activate()
    {
-      register = repo.register(new ArticleUpdateListener());
+      listenerReg = repo.register(this::onArticleChange);
 
       // construct Solr core
       URI solrBaseUri = config.getPropertyValue(SOLR_API_ENDPOINT, URI.class);
@@ -93,15 +93,15 @@ public class ArticleIndexManagerService implements ArticleSearchService
    {
       try
       {
-         if (register != null)
-            register.close();
+         if (listenerReg != null)
+            listenerReg.close();
       }
       catch (Exception ex)
       {
          logger.log(Level.WARNING, "Failed to unregisters article repository listener.", ex);
       }
 
-      register = null;
+      listenerReg = null;
 
       try
       {
@@ -113,26 +113,25 @@ public class ArticleIndexManagerService implements ArticleSearchService
       }
    }
 
-   @Override
-   public ArticleQueryCommand createQueryCmd() throws SearchException
+   private void onArticleChange(ArticleChangeEvent evt)
    {
-      return new ArticleSolrQueryCmd(solr, new TrcQueryBuilder(solr, new ArticleSolrConfig()));
-   }
-
-   private void onEvtChange(ArticleChangeEvent evt)
-   {
+      String articleId = evt.getEntityId();
       try
       {
+         Article article;
          switch (evt.getUpdateAction())
          {
             case CREATE:
-               onCreate(evt.getArticle());
+               article = evt.getArticle();
+               postDocument(ArticleDocument.create(article));
                break;
             case UPDATE:
-               onUpdate(evt.getArticle());
+               article = evt.getArticle();
+               postDocument(ArticleDocument.update(article));
                break;
             case DELETE:
-               onDelete(evt.getEntityId());
+               solr.deleteById(articleId);
+               solr.commit();
                break;
             default:
                logger.log(Level.INFO, "Unexpected article change event " + evt);
@@ -140,45 +139,7 @@ public class ArticleIndexManagerService implements ArticleSearchService
       }
       catch (Exception ex)
       {
-         logger.log(Level.WARNING, "Failed to update search indices following a change to article: " + evt, ex);
-      }
-   }
-
-   private void onCreate(Article article)
-   {
-      try
-      {
-         ArticleDocument proxy = ArticleDocument.create(article);
-         postDocument(proxy);
-      }
-      catch (SolrServerException | IOException e)
-      {
-         logger.log(Level.SEVERE, "Failed to adapt Article to indexable data transfer objects for article id: [" + article.getId() + "]", e);
-         return;
-      }
-      catch (Exception e)
-      {
-         logger.log(Level.SEVERE, "Failed to adapt Article to indexable data transfer objects for article id: [" + article.getId() + "]", e);
-         return;
-      }
-   }
-
-   private void onUpdate(Article article)
-   {
-      try
-      {
-         ArticleDocument proxy = ArticleDocument.update(article);
-         postDocument(proxy);
-      }
-      catch (SolrServerException | IOException e)
-      {
-         logger.log(Level.SEVERE, "Failed to adapt Article to indexable data transfer objects for article id: [" + article.getId() + "]", e);
-         return;
-      }
-      catch (Exception e)
-      {
-         logger.log(Level.SEVERE, "Failed to adapt Article to indexable data transfer objects for article id: [" + article.getId() + "]", e);
-         return;
+         logger.log(Level.SEVERE, "Failed to update search indices following a change to article: " + articleId, ex);
       }
    }
 
@@ -190,25 +151,56 @@ public class ArticleIndexManagerService implements ArticleSearchService
       solr.commit();
    }
 
-   private void onDelete(String id)
+   @Override
+   public ArticleSearchResult findAll() throws SearchException
    {
-      try
-      {
-         solr.deleteById(id);
-         solr.commit();
-      }
-      catch (SolrServerException | IOException e)
-      {
-         logger.log(Level.SEVERE, "Failed to commit the article id: [" + id + "] to the SOLR server. " + e);
-      }
+      ArticleQueryCommand query = createQuery();
+      return query.execute();
    }
 
-   private class ArticleUpdateListener implements UpdateListener<ArticleChangeEvent>
+   @Override
+   public ArticleSearchResult search(String query) throws SearchException
    {
-      @Override
-      public void handle(ArticleChangeEvent evt)
-      {
-         onEvtChange(evt);
-      }
+      ArticleQueryCommand qCmd = createQuery();
+      qCmd.setQuery(query);
+      return qCmd.execute();
+   }
+
+   @Override
+   public ArticleQueryCommand createQuery() throws SearchException
+   {
+      return new ArticleSolrQueryCmd(solr, new TrcQueryBuilder(solr, new ArticleSolrConfig()));
+   }
+
+   @Override
+   public ArticleQueryCommand createQuery(ArticleQuery query) throws SearchException
+   {
+
+      return new ArticleSolrQueryCmd(solr, query, new TrcQueryBuilder(solr, new ArticleSolrConfig()));
+   }
+
+   @Override
+   public ArticleSearchResult next(ArticleQuery query) throws SearchException
+   {
+      ArticleQueryCommand cmd = createQuery(query);
+      cmd.setOffset(query.offset + query.max);
+      return cmd.execute();
+   }
+
+   @Override
+   public ArticleSearchResult previous(ArticleQuery query) throws SearchException
+   {
+      ArticleQueryCommand cmd = createQuery(query);
+      int offset = Math.min(0,  query.offset - query.max);
+      cmd.setOffset(offset);
+      return cmd.execute();
+   }
+
+   @Override
+   public ArticleSearchResult page(ArticleQuery query, int pg) throws SearchException
+   {
+      ArticleQueryCommand cmd = createQuery(query);
+      cmd.setOffset(query.max * pg);
+      return cmd.execute();
    }
 }
