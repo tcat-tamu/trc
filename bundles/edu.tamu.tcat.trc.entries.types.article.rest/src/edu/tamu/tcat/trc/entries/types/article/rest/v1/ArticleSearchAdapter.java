@@ -84,7 +84,7 @@ public class ArticleSearchAdapter
       params.put("offset", Integer.toString(0));
       detail.first = makeLink(pathBuilder.buildFromEncodedMap(params), "first", "First results");
 
-      params.put("offset", Integer.toString(detail.pg * detail.max));
+      params.put("offset", Integer.toString((detail.numPages - 1) * detail.max));
       detail.last = makeLink(pathBuilder.buildFromEncodedMap(params), "last", "Last results");
 
       return detail;
