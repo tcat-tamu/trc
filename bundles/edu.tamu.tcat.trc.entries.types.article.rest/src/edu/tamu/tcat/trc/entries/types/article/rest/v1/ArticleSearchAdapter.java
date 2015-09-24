@@ -61,7 +61,7 @@ public class ArticleSearchAdapter
 
       Map<String, String> params = new HashMap<>();
       params.put("q", detail.q);
-      params.put("hi", Boolean.toString(detail.highlight));
+      params.put("highlight", Boolean.toString(detail.highlight));
       params.put("max", Integer.toString(detail.max));
 
       params.put("offset", Integer.toString(detail.offset));
