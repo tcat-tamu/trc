@@ -24,6 +24,20 @@ public abstract class RestApiV1
    public static class ArticleId
    {
       public String id;
+      public String uri;
+   }
+
+   public static class Article
+   {
+      public Link self;
+      public String id;
+      public String title;
+      public String content;
+      public String mimeType;
+
+      // TODO remove these and replace with full-featured versions
+      public URI associatedEntity;
+      public String authorId;
    }
 
    public static class ArticleSearchResult
@@ -39,7 +53,7 @@ public abstract class RestApiV1
    public static class ArticleSearchResultSet
    {
       public QueryDetail query;
-      public List<ArticleSearchResult> items;
+      public List<ArticleSearchResult> articles;
       // TODO add facets
    }
 

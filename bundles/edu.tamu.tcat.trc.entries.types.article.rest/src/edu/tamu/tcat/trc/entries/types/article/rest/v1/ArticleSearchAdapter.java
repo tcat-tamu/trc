@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.core.UriBuilder;
 
+import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Link;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQuery;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy;
@@ -96,5 +98,20 @@ public class ArticleSearchAdapter
       link.title = title;
 
       return link;
+   }
+
+   public static RestApiV1.Article toDTO(Article article)
+   {
+      RestApiV1.Article dto = new RestApiV1.Article();
+      dto.id = article.getId().toString();
+      dto.title = article.getTitle();
+      dto.content = article.getContent();
+
+
+      dto.associatedEntity = article.getEntity();
+      UUID authorId = article.getAuthorId();
+      dto.authorId = authorId == null ? null : authorId.toString();
+
+      return dto;
    }
 }

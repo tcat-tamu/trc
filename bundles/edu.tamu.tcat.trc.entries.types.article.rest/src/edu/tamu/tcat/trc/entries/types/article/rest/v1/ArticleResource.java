@@ -15,6 +15,7 @@
  */
 package edu.tamu.tcat.trc.entries.types.article.rest.v1;
 
+import java.net.URI;
 import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.UUID;
@@ -22,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -35,14 +37,15 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
-import edu.tamu.tcat.trc.entries.types.article.dto.ArticleDTO;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
@@ -106,36 +109,76 @@ public class ArticleResource
          ArticleSearchResult results = articleQryCmd.execute();
 
          RestApiV1.ArticleSearchResultSet rs = new RestApiV1.ArticleSearchResultSet();
-         rs.items = ArticleSearchAdapter.toDTO(results);
+         rs.articles = ArticleSearchAdapter.toDTO(results);
          rs.query = ArticleSearchAdapter.toQueryDetail(uriInfo.getAbsolutePath(), results);
 
          return rs;
-
       }
       catch (SearchException e)
       {
-         logger.log(Level.SEVERE, "Error", e);
-         // TODO throw REST API exception, not internal.
-         throw new SearchException(e);
+         String msg = MessageFormat.format("That's embrassing. Something went wrong while trying "
+               + "to search for articles.\n\tQuery: {0}.", q);
+
+         logger.log(Level.SEVERE, msg, e);
+         throw new InternalServerErrorException(msg);
+      }
+   }
+
+   @GET
+   @Path("{articleid}")
+   @Produces(MediaType.APPLICATION_JSON)
+   public RestApiV1.Article get(@PathParam(value="articleid") String articleId)
+   {
+      UUID id = null;
+      try
+      {
+         id = UUID.fromString(articleId);
+      }
+      catch (Exception ex)
+      {
+         throw new BadRequestException(MessageFormat.format("Invalid article id {0}. Expected valid UUID.", articleId));
+      }
+
+      try
+      {
+         return ArticleSearchAdapter.toDTO(repo.get(id));
+      }
+      catch (NoSuchCatalogRecordException e)
+      {
+         throw new NotFoundException(MessageFormat.format("Could not find an article with the supplied id {0}", articleId));
+      }
+      catch (Exception ex)
+      {
+         String msg = MessageFormat.format("That's embrassing. Something went wrong while trying to retrieve {0}.", articleId);
+         logger.log(Level.SEVERE, msg, ex);
+         throw new InternalServerErrorException(msg);
       }
    }
 
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.ArticleId create(ArticleDTO articleDTO)
+   public RestApiV1.ArticleId create(@Context UriInfo uriInfo, RestApiV1.Article article)
    {
       // TODO need to asses and fix error handling.
       try
       {
-         EditArticleCommand articleCommand = repo.create();
-         articleCommand.setAll(articleDTO);
+         EditArticleCommand editCmd = repo.create();
+         apply(editCmd, article);
 
-         UUID id = articleCommand.execute().get();
+         UUID id = editCmd.execute().get();
 
          // TODO supply link
          RestApiV1.ArticleId articleId = new RestApiV1.ArticleId();
          articleId.id = id.toString();
+         URI uri = uriInfo.getAbsolutePathBuilder().path(article.id).build();
+         articleId.id = uri.toString();
+
+         Link.Builder linkBuilder = Link.fromUri(uri);
+         linkBuilder.rel("self");
+         linkBuilder.title(article.title);
+         Response.ok(article).links(linkBuilder.build());
+
          return articleId;
       }
       catch (ExecutionException ex)
@@ -155,14 +198,14 @@ public class ArticleResource
    @Path("{articleid}")
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.ArticleId update(@PathParam(value="articleid") String articleId, ArticleDTO articleDTO) throws InterruptedException, ExecutionException, NoSuchCatalogRecordException
+   public RestApiV1.ArticleId update(@PathParam(value="articleid") String articleId, RestApiV1.Article article) throws InterruptedException, ExecutionException, NoSuchCatalogRecordException
    {
       try
       {
-         EditArticleCommand articleCmd = repo.edit(UUID.fromString(articleId));
-         articleCmd.setAll(articleDTO);
+         EditArticleCommand editCmd = repo.edit(UUID.fromString(articleId));
+         apply(editCmd, article);
 
-         UUID id = articleCmd.execute().get();
+         UUID id = editCmd.execute().get();
 
          RestApiV1.ArticleId result = new RestApiV1.ArticleId();
          result.id = id.toString();
@@ -179,6 +222,16 @@ public class ArticleResource
          logger.log(Level.SEVERE, "Failed to update the supplied article.", ie);
          throw new InternalServerErrorException("Failed to update the supplied article.");
       }
+   }
+
+   private void apply(EditArticleCommand editCmd, RestApiV1.Article article)
+   {
+      editCmd.setTitle(article.title);
+      editCmd.setContent(article.content);
+      editCmd.setMimeType(article.mimeType);
+
+      editCmd.setAuthorId(article.authorId);
+      editCmd.setEntity(article.associatedEntity);
    }
 
    @DELETE

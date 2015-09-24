@@ -46,12 +46,16 @@ public interface EditArticleCommand
 
    /**
     * @param entityURI The URI of the entity this article is associated with.
+    * @deprecated Need to develop a better strategy for associating with a related entry
     */
+   @Deprecated
    void setEntity(URI entityURI);
 
    /**
     * @param authorId The id of the author responsible for creating this article.
+    * @deprecated Need to develop a better model for handling authors.
     */
+   @Deprecated
    void setAuthorId(String authorId);
 
    /**
