@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,10 +15,7 @@
  */
 package edu.tamu.tcat.trc.entries.types.article.rest.v1;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.text.MessageFormat;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -37,7 +34,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -66,7 +65,7 @@ public class ArticleResource
    {
       this.repo = repo;
    }
-   
+
    public void setArticleService(ArticleSearchService service)
    {
       this.articleSearchService = service;
@@ -87,71 +86,37 @@ public class ArticleResource
 
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public List<RestApiV1.ArticleSearchResult>
-   search(@QueryParam(value="q") String q,
-          @QueryParam(value = "off") @DefaultValue("0")   int offset,
+   public RestApiV1.ArticleSearchResultSet
+   search(@Context UriInfo uriInfo,
+          @QueryParam(value="q") String q,
+          @QueryParam(value = "offset") @DefaultValue("0")   int offset,
           @QueryParam(value = "max") @DefaultValue("100") int numResults)
    throws SearchException
    {
-      
+
       try
       {
-         ArticleQueryCommand articleQryCmd = articleSearchService.createQueryCmd();
-         
-         if(!q.isEmpty())
-            articleQryCmd.query(q);
-         else
-            articleQryCmd.queryAll();
-         
+         ArticleQueryCommand articleQryCmd = articleSearchService.createQuery();
+
+         if (q != null && !q.trim().isEmpty())
+            articleQryCmd.setQuery(q);
+
          articleQryCmd.setOffset(offset);
          articleQryCmd.setMaxResults(numResults);
          ArticleSearchResult results = articleQryCmd.execute();
-         
+
          RestApiV1.ArticleSearchResultSet rs = new RestApiV1.ArticleSearchResultSet();
-         rs.items = ArticleSearchAdapter.toDTO(results.get());
+         rs.items = ArticleSearchAdapter.toDTO(results);
+         rs.query = ArticleSearchAdapter.toQueryDetail(uriInfo.getAbsolutePath(), results);
 
-         StringBuilder sb = new StringBuilder();
-         try
-         {
-            app(sb, "q", q);
-         }
-         catch (Exception e)
-         {
-            throw new SearchException("Failed building querystring", e);
-         }
+         return rs;
 
-         rs.qs = "off="+offset+"&max="+numResults+"&"+sb.toString();
-         //TODO: does this depend on the number of results returned (i.e. whether < numResults), or do we assume there are infinite results?
-         rs.qsNext = "off="+(offset + numResults)+"&max="+numResults+"&"+sb.toString();
-         if (offset >= numResults)
-            rs.qsPrev = "off="+(offset - numResults)+"&max="+numResults+"&"+sb.toString();
-         // first page got off; reset to zero offset
-         else if (offset > 0 && offset < numResults)
-            rs.qsPrev = "off="+(0)+"&max="+numResults+"&"+sb.toString();
-
-         //HACK: until the JS is ready to accept this data vehicle, just send the list of results
-//         return rs;
-         return rs.items;
-         
       }
       catch (SearchException e)
       {
          logger.log(Level.SEVERE, "Error", e);
+         // TODO throw REST API exception, not internal.
          throw new SearchException(e);
-      }
-   }
-
-   private static void app(StringBuilder sb, String p, String v)
-   {
-      if (v == null)
-         return;
-      if (sb.length() > 0)
-         sb.append("&");
-      try {
-         sb.append(p).append("=").append(URLEncoder.encode(v, "UTF-8"));
-         // suppress exception so this method can be used in lambdas
-      } catch (UnsupportedEncodingException e) {
-         throw new IllegalArgumentException("Failed encoding ["+v+"]", e);
       }
    }
 
@@ -168,12 +133,14 @@ public class ArticleResource
 
          UUID id = articleCommand.execute().get();
 
+         // TODO supply link
          RestApiV1.ArticleId articleId = new RestApiV1.ArticleId();
          articleId.id = id.toString();
          return articleId;
       }
       catch (ExecutionException ex)
       {
+         // TODO what about client supplied errors? Surely these aren't all internal (e.g., no title supplied).
          logger.log(Level.SEVERE, "Failed to update the supplied article.", ex);
          throw new InternalServerErrorException("Failed to update the supplied article.");
       }
