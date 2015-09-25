@@ -171,7 +171,7 @@ public class ArticleResource
          // TODO supply link
          RestApiV1.ArticleId articleId = new RestApiV1.ArticleId();
          articleId.id = id.toString();
-         URI uri = uriInfo.getAbsolutePathBuilder().path(article.id).build();
+         URI uri = uriInfo.getAbsolutePathBuilder().path(articleId.id).build();
          articleId.id = uri.toString();
 
          Link.Builder linkBuilder = Link.fromUri(uri);
