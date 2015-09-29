@@ -167,12 +167,11 @@ public class ArticleResource
          apply(editCmd, article);
 
          UUID id = editCmd.execute().get();
+         URI uri = uriInfo.getAbsolutePathBuilder().path(id.toString()).build();
 
-         // TODO supply link
          RestApiV1.ArticleId articleId = new RestApiV1.ArticleId();
          articleId.id = id.toString();
-         URI uri = uriInfo.getAbsolutePathBuilder().path(articleId.id).build();
-         articleId.id = uri.toString();
+         articleId.uri = uri.toString();
 
          Link.Builder linkBuilder = Link.fromUri(uri);
          linkBuilder.rel("self");
