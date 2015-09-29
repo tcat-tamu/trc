@@ -43,6 +43,7 @@ import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
+import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.dto.NoteDTO;
@@ -372,6 +373,13 @@ public class PsqlNotesRepo implements NotesRepository
       {
          return "Note Change " + super.toString();
       }
+
+      @Override
+      public Note getNotes() throws CatalogRepoException
+      {
+         return null;
+      }
+
    }
 
    private static class PsqlNote implements Note

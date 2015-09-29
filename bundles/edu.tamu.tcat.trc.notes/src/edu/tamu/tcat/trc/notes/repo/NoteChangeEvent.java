@@ -16,11 +16,24 @@
 package edu.tamu.tcat.trc.notes.repo;
 
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
+import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
+import edu.tamu.tcat.trc.notes.Note;
 
 /**
  * An event notification sent from a {@link NotesRepository} due to a data change.
  */
 public interface NoteChangeEvent extends UpdateEvent
 {
-
+   /**
+    * Retrieves the notes that changed.
+    *
+    * @return the notes that changed.
+    * @throws CatalogRepoException If the notes cannot be retrieved (for example,
+    *       if the record was deleted).
+    * @deprecated In general, this API is not safe. Implementations should return null. Clients
+    *       should obtain a reference to the {@link NotesRepository} and call the appropriate
+    *       method on that class.
+    */
+   @Deprecated
+   Note getNotes() throws CatalogRepoException;
 }
