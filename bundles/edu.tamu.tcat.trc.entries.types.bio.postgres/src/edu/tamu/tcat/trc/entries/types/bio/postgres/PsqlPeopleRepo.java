@@ -48,7 +48,6 @@ import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
-import edu.tamu.tcat.trc.entries.repo.ExecutionFailedException;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
@@ -273,17 +272,17 @@ public class PsqlPeopleRepo implements PeopleRepository
 
             int ct = ps.executeUpdate();
             if (ct != 1)
-               throw new ExecutionFailedException("Failed to create historical figure. Unexpected number of rows updates [" + histFigure.id + "]");
+               throw new IllegalStateException("Failed to create historical figure. Unexpected number of rows updates [" + histFigure.id + "]");
          }
          catch (IOException e)
          {
             // NOTE this is an internal configuration error. The JsonMapper should be configured to
             //      serialize HistoricalFigureDV instances correctly.
-            throw new ExecutionFailedException("Failed to serialize the supplied historical figure [" + histFigure.id + "]", e);
+            throw new IllegalStateException("Failed to serialize the supplied historical figure [" + histFigure.id + "]", e);
          }
          catch (SQLException sqle)
          {
-            throw new ExecutionFailedException("Failed to save historical figure [" + histFigure.id+ "]", sqle);
+            throw new IllegalStateException("Failed to save historical figure [" + histFigure.id+ "]", sqle);
          }
 
          return histFigure.id;
