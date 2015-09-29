@@ -1,4 +1,4 @@
-package org.tamu.tcat.trc.persist;
+package edu.tamu.tcat.trc.persist;
 
 public class RepositoryException extends Exception
 {

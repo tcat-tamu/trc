@@ -33,7 +33,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.tamu.tcat.trc.persist.postgres.PsqlDataSourceProvider;
 
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
@@ -43,6 +42,7 @@ import edu.tamu.tcat.trc.entries.types.bib.search.solr.BiblioDocument;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
+import edu.tamu.tcat.trc.persist.postgres.PsqlDataSourceProvider;
 
 public class WorkReIndex
 {

@@ -29,7 +29,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tamu.tcat.trc.persist.postgres.PsqlDataSourceProvider;
 
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
@@ -39,6 +38,7 @@ import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.dto.NoteDTO;
 import edu.tamu.tcat.trc.notes.postgres.PsqlNotesRepo;
 import edu.tamu.tcat.trc.notes.repo.EditNoteCommand;
+import edu.tamu.tcat.trc.persist.postgres.PsqlDataSourceProvider;
 
 public class NotesRepoTest
 {

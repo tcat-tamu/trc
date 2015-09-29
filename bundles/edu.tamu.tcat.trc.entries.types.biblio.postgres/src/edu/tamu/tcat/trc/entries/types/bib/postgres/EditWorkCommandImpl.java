@@ -25,8 +25,6 @@ import java.util.concurrent.Future;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.tamu.tcat.trc.persist.IdFactory;
-
 import edu.tamu.tcat.trc.entries.core.InvalidDataException;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorRefDV;
@@ -36,6 +34,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDV;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDV;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
+import edu.tamu.tcat.trc.persist.IdFactory;
 
 public class EditWorkCommandImpl implements EditWorkCommand
 {

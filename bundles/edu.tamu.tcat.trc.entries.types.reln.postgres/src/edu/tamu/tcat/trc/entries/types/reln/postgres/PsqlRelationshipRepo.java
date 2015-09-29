@@ -29,8 +29,6 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.tamu.tcat.trc.persist.IdFactory;
-
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -47,6 +45,7 @@ import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipChangeEvent;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipPersistenceException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
+import edu.tamu.tcat.trc.persist.IdFactory;
 
 public class PsqlRelationshipRepo implements RelationshipRepository
 {

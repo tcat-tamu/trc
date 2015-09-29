@@ -22,8 +22,6 @@ import java.util.concurrent.Future;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.tamu.tcat.trc.persist.IdFactory;
-
 import edu.tamu.tcat.trc.entries.types.reln.Anchor;
 import edu.tamu.tcat.trc.entries.types.reln.AnchorSet;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
@@ -32,6 +30,7 @@ import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDTO;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.internal.dto.BasicAnchorSet;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
+import edu.tamu.tcat.trc.persist.IdFactory;
 
 
 public class EditRelationshipCommandImpl implements EditRelationshipCommand

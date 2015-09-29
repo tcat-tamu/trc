@@ -1,4 +1,4 @@
-package org.tamu.tcat.trc.persist.postgres;
+package edu.tamu.tcat.trc.persist.postgres;
 
 import java.util.ArrayList;
 import java.util.Iterator;

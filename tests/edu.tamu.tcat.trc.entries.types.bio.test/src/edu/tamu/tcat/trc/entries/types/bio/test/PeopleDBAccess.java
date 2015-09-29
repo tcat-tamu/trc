@@ -12,7 +12,6 @@ import java.util.concurrent.Future;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.tamu.tcat.trc.persist.IdFactory;
 
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
@@ -27,6 +26,7 @@ import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
 import edu.tamu.tcat.trc.entries.types.bio.postgres.PsqlPeopleRepo;
+import edu.tamu.tcat.trc.persist.IdFactory;
 import edu.tamu.tcat.trc.test.TestUtils;
 
 public class PeopleDBAccess

@@ -5,11 +5,11 @@ import static org.junit.Assert.assertEquals;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.tamu.tcat.trc.persist.BasicSchemaBuilder;
-import org.tamu.tcat.trc.persist.RepositorySchema;
 
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
+import edu.tamu.tcat.trc.persist.BasicSchemaBuilder;
+import edu.tamu.tcat.trc.persist.RepositorySchema;
 
 public class TestJsonDataStore
 {

@@ -1,4 +1,4 @@
-package org.tamu.tcat.trc.persist;
+package edu.tamu.tcat.trc.persist;
 
 import java.text.MessageFormat;
 import java.util.Objects;

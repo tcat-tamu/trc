@@ -1,4 +1,4 @@
-package org.tamu.tcat.trc.persist.postgres.id;
+package edu.tamu.tcat.trc.persist.postgres.id;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,9 +8,8 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
-import org.tamu.tcat.trc.persist.IdFactory;
-
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
+import edu.tamu.tcat.trc.persist.IdFactory;
 
 public class DbBackedObfuscatingIdFactory implements IdFactory
 {

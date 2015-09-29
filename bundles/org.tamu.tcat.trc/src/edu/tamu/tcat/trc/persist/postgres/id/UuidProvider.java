@@ -1,8 +1,8 @@
-package org.tamu.tcat.trc.persist.postgres.id;
+package edu.tamu.tcat.trc.persist.postgres.id;
 
 import java.util.UUID;
 
-import org.tamu.tcat.trc.persist.IdFactory;
+import edu.tamu.tcat.trc.persist.IdFactory;
 
 public class UuidProvider implements IdFactory
 {

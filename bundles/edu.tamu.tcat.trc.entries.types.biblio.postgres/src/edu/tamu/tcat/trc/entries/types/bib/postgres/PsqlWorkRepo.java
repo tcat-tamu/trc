@@ -35,7 +35,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.postgresql.util.PGobject;
-import org.tamu.tcat.trc.persist.IdFactory;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -60,6 +59,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkChangeEvent;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
+import edu.tamu.tcat.trc.persist.IdFactory;
 
 public class PsqlWorkRepo implements WorkRepository
 {

@@ -25,8 +25,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
-import org.tamu.tcat.trc.persist.IdFactory;
-
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorRefDV;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDV;
@@ -34,6 +32,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDV;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDV;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
+import edu.tamu.tcat.trc.persist.IdFactory;
 
 public class MockEditWorkCommand implements EditWorkCommand
 {

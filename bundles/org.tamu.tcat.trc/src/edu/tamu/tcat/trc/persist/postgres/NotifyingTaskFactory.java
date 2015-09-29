@@ -1,4 +1,4 @@
-package org.tamu.tcat.trc.persist.postgres;
+package edu.tamu.tcat.trc.persist.postgres;
 
 import java.sql.Connection;
 import java.util.List;

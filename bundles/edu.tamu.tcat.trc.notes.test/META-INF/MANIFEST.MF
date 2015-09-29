@@ -16,5 +16,5 @@ Import-Package: edu.tamu.tcat.db.core;version="1.0.1",
  edu.tamu.tcat.trc.notes.dto,
  edu.tamu.tcat.trc.notes.postgres,
  edu.tamu.tcat.trc.notes.repo,
- org.junit;version="4.11.0",
- org.tamu.tcat.trc.persist.postgres
+ edu.tamu.tcat.trc.persist.postgres,
+ org.junit;version="4.11.0"

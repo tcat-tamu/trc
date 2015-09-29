@@ -34,9 +34,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import org.postgresql.util.PGobject;
-import org.tamu.tcat.trc.persist.IdFactory;
-import org.tamu.tcat.trc.persist.postgres.NotifyingTaskFactory;
-import org.tamu.tcat.trc.persist.postgres.NotifyingTaskFactory.ObservableTask;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -60,6 +57,9 @@ import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonChangeEvent;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNotAvailableException;
+import edu.tamu.tcat.trc.persist.IdFactory;
+import edu.tamu.tcat.trc.persist.postgres.NotifyingTaskFactory;
+import edu.tamu.tcat.trc.persist.postgres.NotifyingTaskFactory.ObservableTask;
 
 /**
  * A repository implementation intended to be registered as a service.
