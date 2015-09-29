@@ -9,6 +9,7 @@ Export-Package: edu.tamu.tcat.trc.entries.types.reln.search.solr;version="1.0.0"
 Import-Package: com.google.common.base;version="15.0.0",
  edu.tamu.tcat.osgi.config;version="[1.0.0,2.0.0)",
  edu.tamu.tcat.trc.entries.notification;version="[1.0.0,2.0.0)",
+ edu.tamu.tcat.trc.entries.repo;version="1.0.0",
  edu.tamu.tcat.trc.entries.types.reln;version="[1.0.0,2.0.0)",
  edu.tamu.tcat.trc.entries.types.reln.dto;version="[1.0.0,2.0.0)",
  edu.tamu.tcat.trc.entries.types.reln.repo;version="[1.0.0,2.0.0)",

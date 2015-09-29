@@ -49,18 +49,25 @@ public class RelnDocument
       return indexDocument.getSolrDocument();
    }
 
-   public static RelnDocument create(Relationship reln) throws SearchException
+   public static RelnDocument create(Relationship reln)
    {
       RelnDocument doc = new RelnDocument();
-      RelationshipDTO relnDV = RelationshipDTO.create(reln);
+      try
+      {
+         RelationshipDTO relnDV = RelationshipDTO.create(reln);
 
-      doc.indexDocument.set(RelnSolrConfig.ID, relnDV.id);
-      doc.indexDocument.set(RelnSolrConfig.DESCRIPTION, relnDV.description);
-      doc.indexDocument.set(RelnSolrConfig.DESCRIPTION_MIME_TYPE, relnDV.descriptionMimeType);
-      doc.indexDocument.set(RelnSolrConfig.REL_TYPE, relnDV.typeId);
-      doc.addEntities(RelnSolrConfig.RELATED_ENTITIES, relnDV.relatedEntities);
-      doc.addEntities(RelnSolrConfig.TARGET_ENTITIES, relnDV.targetEntities);
-      doc.addProvenance(relnDV.provenance);
+         doc.indexDocument.set(RelnSolrConfig.ID, relnDV.id);
+         doc.indexDocument.set(RelnSolrConfig.DESCRIPTION, relnDV.description);
+         doc.indexDocument.set(RelnSolrConfig.DESCRIPTION_MIME_TYPE, relnDV.descriptionMimeType);
+         doc.indexDocument.set(RelnSolrConfig.REL_TYPE, relnDV.typeId);
+         doc.addEntities(RelnSolrConfig.RELATED_ENTITIES, relnDV.relatedEntities);
+         doc.addEntities(RelnSolrConfig.TARGET_ENTITIES, relnDV.targetEntities);
+         doc.addProvenance(relnDV.provenance);
+      }
+      catch (SearchException ex)
+      {
+         throw new IllegalStateException("Failed to construct document to index for relationship" + reln);
+      }
 
       try
       {
@@ -74,19 +81,25 @@ public class RelnDocument
       return doc;
    }
 
-   public static RelnDocument update(Relationship reln) throws SearchException
+   public static RelnDocument update(Relationship reln)
    {
       RelnDocument doc = new RelnDocument();
       RelationshipDTO relnDV = RelationshipDTO.create(reln);
+      try
+      {
+         doc.indexDocument.set(RelnSolrConfig.ID, relnDV.id);
 
-      doc.indexDocument.set(RelnSolrConfig.ID, relnDV.id);
-
-      doc.indexDocument.update(RelnSolrConfig.DESCRIPTION, relnDV.description);
-      doc.indexDocument.update(RelnSolrConfig.DESCRIPTION_MIME_TYPE, relnDV.descriptionMimeType);
-      doc.indexDocument.update(RelnSolrConfig.REL_TYPE, relnDV.typeId);
-      doc.updateEntities(RelnSolrConfig.RELATED_ENTITIES, relnDV.relatedEntities);
-      doc.updateEntities(RelnSolrConfig.TARGET_ENTITIES, relnDV.targetEntities);
-      doc.updateProvenance(relnDV.provenance);
+         doc.indexDocument.update(RelnSolrConfig.DESCRIPTION, relnDV.description);
+         doc.indexDocument.update(RelnSolrConfig.DESCRIPTION_MIME_TYPE, relnDV.descriptionMimeType);
+         doc.indexDocument.update(RelnSolrConfig.REL_TYPE, relnDV.typeId);
+         doc.updateEntities(RelnSolrConfig.RELATED_ENTITIES, relnDV.relatedEntities);
+         doc.updateEntities(RelnSolrConfig.TARGET_ENTITIES, relnDV.targetEntities);
+         doc.updateProvenance(relnDV.provenance);
+      }
+      catch (SearchException ex)
+      {
+         throw new IllegalStateException("Failed to construct document to index for relationship" + reln);
+      }
 
       try
       {

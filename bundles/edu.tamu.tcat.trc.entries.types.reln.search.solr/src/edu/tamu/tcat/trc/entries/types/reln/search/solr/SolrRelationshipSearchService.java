@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,15 +15,20 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln.search.solr;
 
+import java.io.IOException;
 import java.net.URI;
+import java.text.MessageFormat;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
+import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipChangeEvent;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
@@ -137,20 +142,23 @@ public class SolrRelationshipSearchService implements RelationshipSearchIndexMan
       // NOTE: since this is an event listener, it serves as a fault barrier
       try
       {
+         String id = evt.getEntityId();
          switch (evt.getUpdateAction())
          {
             case CREATE:
-               onCreate(evt.getRelationship());
+               index(id, RelnDocument::create);
                break;
             case UPDATE:
-               onUpdate(evt.getRelationship());
+               index(id, RelnDocument::update);
                break;
             case DELETE:
-               onDelete(evt.getEntityId());
+               solr.deleteById(id);
                break;
             default:
                logger.log(Level.INFO, "Unexpected relationship change event " + evt);
          }
+
+         solr.commit();
       }
       catch (Exception ex)
       {
@@ -158,44 +166,14 @@ public class SolrRelationshipSearchService implements RelationshipSearchIndexMan
       }
    }
 
-   private void onCreate(Relationship reln)
+   private void index(String id, Function<Relationship, RelnDocument> adapter)
+         throws CatalogRepoException, SolrServerException, IOException
    {
-      try
-      {
-         RelnDocument proxy = RelnDocument.create(reln);
-         solr.add(proxy.getDocument());
-         solr.commit();
-      }
-      catch (Exception e)
-      {
-         logger.log(Level.SEVERE, "Failed to commit new relationship id: [" + reln.getId() + "] to the SOLR server.", e);
-      }
-   }
+      Relationship relationship = repo.get(id);
+      Objects.requireNonNull(relationship,
+            MessageFormat.format("Failed to retrieve relationship with id {0}", id));
 
-   private void onUpdate(Relationship reln)
-   {
-      try
-      {
-         RelnDocument proxy = RelnDocument.update(reln);
-         solr.add(proxy.getDocument());
-         solr.commit();
-      }
-      catch (Exception e)
-      {
-         logger.log(Level.SEVERE, "Failed to commit the updated relationship id: [" + reln.getId() + "] to the SOLR server.", e);
-      }
-   }
-
-   private void onDelete(String id)
-   {
-      try
-      {
-         solr.deleteById(id);
-         solr.commit();
-      }
-      catch (Exception e)
-      {
-         logger.log(Level.SEVERE, "Failed to delete relationship id: [" + id + "] to the SOLR server.", e);
-      }
+      RelnDocument proxy = adapter.apply(relationship);
+      solr.add(proxy.getDocument());
    }
 }
