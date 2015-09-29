@@ -6,13 +6,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.tamu.tcat.trc.persist.IdFactory;
+import org.tamu.tcat.trc.persist.postgres.PsqlDataSourceProvider;
+
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
-import edu.tamu.tcat.sda.catalog.psql.provider.PsqlDataSourceProvider;
-import edu.tamu.tcat.trc.entries.core.IdFactory;
 
 public class TestUtils
 {

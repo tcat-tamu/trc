@@ -34,12 +34,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.tamu.tcat.trc.persist.postgres.PsqlDataSourceProvider;
+import org.tamu.tcat.trc.persist.postgres.id.DbBackedObfuscatingIdFactory;
 
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
-import edu.tamu.tcat.sda.catalog.idfactory.impl.db.DbBackedObfuscatingIdFactory;
-import edu.tamu.tcat.sda.catalog.psql.provider.PsqlDataSourceProvider;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.postgres.PsqlPeopleRepo;
 import edu.tamu.tcat.trc.entries.types.bio.search.solr.BioDocument;

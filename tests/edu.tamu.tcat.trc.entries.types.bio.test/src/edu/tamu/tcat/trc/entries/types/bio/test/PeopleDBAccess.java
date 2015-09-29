@@ -12,6 +12,7 @@ import java.util.concurrent.Future;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.tamu.tcat.trc.persist.IdFactory;
 
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
@@ -20,7 +21,6 @@ import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
 import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
 import edu.tamu.tcat.trc.entries.common.dto.HistoricalEventDTO;
-import edu.tamu.tcat.trc.entries.core.IdFactory;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;

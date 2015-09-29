@@ -24,5 +24,6 @@ Import-Package: com.fasterxml.jackson.annotation;version="2.3.1",
  edu.tamu.tcat.trc.test,
  org.apache.commons.lang;version="2.6.0",
  org.apache.commons.math3.random;version="3.4.1",
- org.junit;version="4.11.0"
+ org.junit;version="4.11.0",
+ org.tamu.tcat.trc.persist
 Bundle-Vendor: Texas A&M Engineering Experiment Station
