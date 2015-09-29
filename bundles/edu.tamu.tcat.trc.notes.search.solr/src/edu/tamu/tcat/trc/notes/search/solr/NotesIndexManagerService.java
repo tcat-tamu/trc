@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,21 +17,23 @@ package edu.tamu.tcat.trc.notes.search.solr;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.text.MessageFormat;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.common.SolrInputDocument;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
+import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.repo.NoteChangeEvent;
 import edu.tamu.tcat.trc.notes.repo.NotesRepository;
@@ -111,20 +113,23 @@ public class NotesIndexManagerService
    {
       try
       {
+         String id = evt.getEntityId();
          switch (evt.getUpdateAction())
          {
             case CREATE:
-               onCreate(evt.getNotes());
+               index(id, NoteDocument::create);
                break;
             case UPDATE:
-               onUpdate(evt.getNotes());
+               index(id, NoteDocument::update);
                break;
             case DELETE:
-               onDelete(evt.getEntityId());
+               solr.deleteById(id);
                break;
             default:
                logger.log(Level.INFO, "Unexpected notes change event " + evt);
          }
+
+         solr.commit();
       }
       catch (Exception ex)
       {
@@ -132,63 +137,16 @@ public class NotesIndexManagerService
       }
    }
 
-   private void onCreate(Note note)
+   private void index(String id, Function<Note, NoteDocument> adapter)
+         throws SolrServerException, IOException, NoSuchCatalogRecordException
    {
-      try
-      {
-         NoteDocument proxy = NoteDocument.create(note);
-         postDocument(proxy);
-      }
-      catch (SolrServerException | IOException e)
-      {
-         logger.log(Level.SEVERE, "Failed to adapt Notes to indexable data transfer objects for note id: [" + note.getId() + "]", e);
-         return;
-      }
-      catch (Exception e)
-      {
-         logger.log(Level.SEVERE, "Failed to adapt Notes to indexable data transfer objects for note id: [" + note.getId() + "]", e);
-         return;
-      }
-   }
+      UUID uuid = (id != null && !id.trim().isEmpty()) ? UUID.fromString(id) : null;
+      Note note = repo.get(uuid);
+      Objects.requireNonNull(note,
+            MessageFormat.format("Failed to retrieve note with id {0}", id));
 
-   private void onUpdate(Note note)
-   {
-      try
-      {
-         NoteDocument proxy = NoteDocument.update(note);
-         postDocument(proxy);
-      }
-      catch (SolrServerException | IOException e)
-      {
-         logger.log(Level.SEVERE, "Failed to adapt Notes to indexable data transfer objects for note id: [" + note.getId() + "]", e);
-         return;
-      }
-      catch (Exception e)
-      {
-         logger.log(Level.SEVERE, "Failed to adapt Notes to indexable data transfer objects for note id: [" + note.getId() + "]", e);
-         return;
-      }
-   }
-
-   private void postDocument(NoteDocument doc) throws SolrServerException, IOException
-   {
-      Collection<SolrInputDocument> solrDocs = new ArrayList<>();
-      solrDocs.add(doc.getDocument());
-      solr.add(solrDocs);
-      solr.commit();
-   }
-
-   private void onDelete(String id)
-   {
-      try
-      {
-         solr.deleteById(id);
-         solr.commit();
-      }
-      catch (SolrServerException | IOException e)
-      {
-         logger.log(Level.SEVERE, "Failed to commit the note id: [" + id + "] to the SOLR server. " + e);
-      }
+      NoteDocument proxy = adapter.apply(note);
+      solr.add(proxy.getDocument());
    }
 
    private class NotesUpdateListener implements UpdateListener<NoteChangeEvent>

@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,7 +43,6 @@ import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
-import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.dto.NoteDTO;
@@ -65,11 +64,6 @@ public class PsqlNotesRepo implements NotesRepository
          "SELECT note "
                +  "FROM notes "
                + "WHERE note_id = ? AND active = true";
-
-   private static final String SQL_GET_ALL_BY_ID =
-         "SELECT note "
-        +  "FROM notes "
-        + "WHERE note_id = ?";
 
    private static String CREATE_SQL =
          "INSERT INTO notes (note, note_id) VALUES(?, ?)";
@@ -368,37 +362,15 @@ public class PsqlNotesRepo implements NotesRepository
 
    private class NoteChangeEventImpl extends BaseUpdateEvent implements NoteChangeEvent
    {
-      private transient Note note;
-      private final UUID noteId;
-
       public NoteChangeEventImpl(UUID id, UpdateEvent.UpdateAction type)
       {
          super(id.toString(), type, ACCOUNT_ID_REPO, Instant.now());
-         this.noteId = id;
-      }
-
-      @Override
-      public synchronized Note getNotes() throws CatalogRepoException
-      {
-         // TODO better to use a future
-         if (note != null)
-            return note;
-
-         try
-         {
-            note = get(noteId);
-            return note;
-         }
-         catch (Exception e)
-         {
-            throw new CatalogRepoException("Failed to retrieve relationship [" + id + "].", e);
-         }
       }
 
       @Override
       public String toString()
       {
-         return "Relationship Change " + super.toString();
+         return "Note Change " + super.toString();
       }
    }
 

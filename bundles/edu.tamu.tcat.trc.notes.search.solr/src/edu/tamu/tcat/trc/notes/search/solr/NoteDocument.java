@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,8 +16,6 @@
 package edu.tamu.tcat.trc.notes.search.solr;
 
 import org.apache.solr.common.SolrInputDocument;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.dto.NoteDTO;
@@ -39,51 +37,50 @@ public class NoteDocument
       return indexDoc.getSolrDocument();
    }
 
-   public static NoteDocument create(Note note) throws JsonProcessingException, SearchException
+   public static NoteDocument create(Note note)
    {
-      NoteDocument doc = new NoteDocument();
-
-      NoteDTO dto = NoteDTO.create(note);
-
       try
       {
+         NoteDocument doc = new NoteDocument();
+         NoteDTO dto = NoteDTO.create(note);
+
          doc.indexDoc.set(NotesSolrConfig.SEARCH_PROXY, new NotesSearchProxy(note));
+         doc.indexDoc.set(NotesSolrConfig.ID, dto.id.toString());
+         doc.indexDoc.set(NotesSolrConfig.AUTHOR_ID, guardNull(dto.authorId));
+         doc.indexDoc.set(NotesSolrConfig.ASSOCIATED_ENTRY, guardNull(dto.associatedEntity.toString()));
+         doc.indexDoc.set(NotesSolrConfig.NOTE_MIME_TYPE, guardNull(dto.mimeType));
+         doc.indexDoc.set(NotesSolrConfig.NOTE_CONTENT, guardNull(dto.content));
+
+         return doc;
       }
-      catch (Exception e)
+      catch (SearchException ex)
       {
-         throw new IllegalStateException("Failed to serialize NotesSearchProxy data", e);
+         throw new IllegalStateException("Failed to serialize NotesSearchProxy data", ex);
       }
-
-      doc.indexDoc.set(NotesSolrConfig.ID, dto.id.toString());
-      doc.indexDoc.set(NotesSolrConfig.AUTHOR_ID, guardNull(dto.authorId));
-      doc.indexDoc.set(NotesSolrConfig.ASSOCIATED_ENTRY, guardNull(dto.associatedEntity.toString()));
-      doc.indexDoc.set(NotesSolrConfig.NOTE_MIME_TYPE, guardNull(dto.mimeType));
-      doc.indexDoc.set(NotesSolrConfig.NOTE_CONTENT, guardNull(dto.content));
-
-      return doc;
    }
 
-   public static NoteDocument update(Note note) throws SearchException
+   public static NoteDocument update(Note note)
    {
-      NoteDocument doc = new NoteDocument();
-      NoteDTO dto = NoteDTO.create(note);
 
       try
       {
+         NoteDocument doc = new NoteDocument();
+         NoteDTO dto = NoteDTO.create(note);
+
+         doc.indexDoc.set(NotesSolrConfig.ID, dto.id.toString());
+
          doc.indexDoc.update(NotesSolrConfig.SEARCH_PROXY, new NotesSearchProxy(note));
+         doc.indexDoc.update(NotesSolrConfig.AUTHOR_ID, guardNull(dto.authorId));
+         doc.indexDoc.update(NotesSolrConfig.ASSOCIATED_ENTRY, guardNull(dto.associatedEntity.toString()));
+         doc.indexDoc.update(NotesSolrConfig.NOTE_MIME_TYPE, guardNull(dto.mimeType));
+         doc.indexDoc.update(NotesSolrConfig.NOTE_CONTENT, guardNull(dto.content));
+
+         return doc;
       }
       catch (Exception e)
       {
          throw new IllegalStateException("Failed to serialize NotesSearchProxy data", e);
       }
-
-      doc.indexDoc.set(NotesSolrConfig.ID, dto.id.toString());
-      doc.indexDoc.update(NotesSolrConfig.AUTHOR_ID, guardNull(dto.authorId));
-      doc.indexDoc.update(NotesSolrConfig.ASSOCIATED_ENTRY, guardNull(dto.associatedEntity.toString()));
-      doc.indexDoc.update(NotesSolrConfig.NOTE_MIME_TYPE, guardNull(dto.mimeType));
-      doc.indexDoc.update(NotesSolrConfig.NOTE_CONTENT, guardNull(dto.content));
-
-      return doc;
    }
 
    private static String guardNull(String value)
