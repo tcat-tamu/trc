@@ -8,8 +8,8 @@ import org.junit.Test;
 
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
-import edu.tamu.tcat.trc.persist.BasicSchemaBuilder;
-import edu.tamu.tcat.trc.persist.RepositorySchema;
+import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
+import edu.tamu.tcat.trc.repo.RepositorySchema;
 
 public class TestJsonDataStore
 {

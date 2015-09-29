@@ -45,7 +45,7 @@ import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipChangeEvent;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipPersistenceException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
-import edu.tamu.tcat.trc.persist.IdFactory;
+import edu.tamu.tcat.trc.repo.IdFactory;
 
 public class PsqlRelationshipRepo implements RelationshipRepository
 {

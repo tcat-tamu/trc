@@ -41,8 +41,8 @@ import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.postgres.PsqlPeopleRepo;
 import edu.tamu.tcat.trc.entries.types.bio.search.solr.BioDocument;
-import edu.tamu.tcat.trc.persist.postgres.PsqlDataSourceProvider;
-import edu.tamu.tcat.trc.persist.postgres.id.DbBackedObfuscatingIdFactory;
+import edu.tamu.tcat.trc.repo.postgres.PsqlDataSourceProvider;
+import edu.tamu.tcat.trc.repo.postgres.id.DbBackedObfuscatingIdFactory;
 
 public class PeopleReIndex
 {

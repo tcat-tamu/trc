@@ -56,9 +56,9 @@ import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonChangeEvent;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNotAvailableException;
-import edu.tamu.tcat.trc.persist.IdFactory;
-import edu.tamu.tcat.trc.persist.postgres.NotifyingTaskFactory;
-import edu.tamu.tcat.trc.persist.postgres.NotifyingTaskFactory.ObservableTask;
+import edu.tamu.tcat.trc.repo.IdFactory;
+import edu.tamu.tcat.trc.repo.postgres.NotifyingTaskFactory;
+import edu.tamu.tcat.trc.repo.postgres.NotifyingTaskFactory.ObservableTask;
 
 /**
  * A repository implementation intended to be registered as a service.

@@ -42,7 +42,7 @@ import edu.tamu.tcat.trc.entries.types.bib.search.solr.BiblioDocument;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
-import edu.tamu.tcat.trc.persist.postgres.PsqlDataSourceProvider;
+import edu.tamu.tcat.trc.repo.postgres.PsqlDataSourceProvider;
 
 public class WorkReIndex
 {

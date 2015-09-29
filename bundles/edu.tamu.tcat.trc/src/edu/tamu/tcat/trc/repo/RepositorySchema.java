@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.persist;
+package edu.tamu.tcat.trc.repo;
 
 /**
  *  Provides a general-purpose definition of a repository that can be used interchangeably

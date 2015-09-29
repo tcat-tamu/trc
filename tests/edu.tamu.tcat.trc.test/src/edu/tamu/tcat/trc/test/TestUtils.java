@@ -11,8 +11,8 @@ import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
-import edu.tamu.tcat.trc.persist.IdFactory;
-import edu.tamu.tcat.trc.persist.postgres.PsqlDataSourceProvider;
+import edu.tamu.tcat.trc.repo.IdFactory;
+import edu.tamu.tcat.trc.repo.postgres.PsqlDataSourceProvider;
 
 public class TestUtils
 {

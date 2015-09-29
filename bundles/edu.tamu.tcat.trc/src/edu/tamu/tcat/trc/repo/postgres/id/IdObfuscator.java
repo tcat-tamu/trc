@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.persist.postgres.id;
+package edu.tamu.tcat.trc.repo.postgres.id;
 
 /**
  * Java implementation for generating Tiny URL- and bit.ly-like URLs. This is

@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.persist;
+package edu.tamu.tcat.trc.repo;
 
 /**
  *  Used to construct {@link RepositorySchema} instances. Note that implementations are not

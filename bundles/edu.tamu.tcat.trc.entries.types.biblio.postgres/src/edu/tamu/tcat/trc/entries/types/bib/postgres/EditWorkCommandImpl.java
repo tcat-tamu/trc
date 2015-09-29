@@ -34,7 +34,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDV;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDV;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
-import edu.tamu.tcat.trc.persist.IdFactory;
+import edu.tamu.tcat.trc.repo.IdFactory;
 
 public class EditWorkCommandImpl implements EditWorkCommand
 {

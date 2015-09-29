@@ -26,7 +26,7 @@ import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
 import edu.tamu.tcat.trc.entries.types.bio.postgres.PsqlPeopleRepo;
-import edu.tamu.tcat.trc.persist.IdFactory;
+import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.test.TestUtils;
 
 public class PeopleDBAccess

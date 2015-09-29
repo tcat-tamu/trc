@@ -30,7 +30,7 @@ import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDTO;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.internal.dto.BasicAnchorSet;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
-import edu.tamu.tcat.trc.persist.IdFactory;
+import edu.tamu.tcat.trc.repo.IdFactory;
 
 
 public class EditRelationshipCommandImpl implements EditRelationshipCommand

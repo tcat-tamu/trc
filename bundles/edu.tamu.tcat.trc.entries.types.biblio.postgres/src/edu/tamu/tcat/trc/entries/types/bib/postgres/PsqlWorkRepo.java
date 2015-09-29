@@ -59,7 +59,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkChangeEvent;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
-import edu.tamu.tcat.trc.persist.IdFactory;
+import edu.tamu.tcat.trc.repo.IdFactory;
 
 public class PsqlWorkRepo implements WorkRepository
 {

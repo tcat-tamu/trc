@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.persist.postgres;
+package edu.tamu.tcat.trc.repo.postgres;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -33,11 +33,11 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.Futures;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
-import edu.tamu.tcat.trc.persist.DocumentRepository;
-import edu.tamu.tcat.trc.persist.EditCommandFactory;
-import edu.tamu.tcat.trc.persist.RepositoryException;
-import edu.tamu.tcat.trc.persist.RepositorySchema;
-import edu.tamu.tcat.trc.persist.postgres.NotifyingTaskFactory.ObservableTask;
+import edu.tamu.tcat.trc.repo.DocumentRepository;
+import edu.tamu.tcat.trc.repo.EditCommandFactory;
+import edu.tamu.tcat.trc.repo.RepositoryException;
+import edu.tamu.tcat.trc.repo.RepositorySchema;
+import edu.tamu.tcat.trc.repo.postgres.NotifyingTaskFactory.ObservableTask;
 
 public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements DocumentRepository<RecordType, EditCommandType>
 {
