@@ -34,6 +34,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import org.postgresql.util.PGobject;
+import org.tamu.tcat.trc.persist.IdFactory;
+import org.tamu.tcat.trc.persist.postgres.NotifyingTaskFactory;
+import org.tamu.tcat.trc.persist.postgres.NotifyingTaskFactory.ObservableTask;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,11 +46,8 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.Futures;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
-import edu.tamu.tcat.trc.entries.core.IdFactory;
 import edu.tamu.tcat.trc.entries.notification.BaseUpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
-import edu.tamu.tcat.trc.entries.notification.NotifyingTaskFactory;
-import edu.tamu.tcat.trc.entries.notification.NotifyingTaskFactory.ObservableTask;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
