@@ -17,6 +17,7 @@ package edu.tamu.tcat.trc.entries.repo;
 
 /**
  * Indicates problems accessing resources within a catalog repository.
+ * @deprecated use trc.repo.RepositoryException instead
  */
 @Deprecated  // to be renamed/moved
 public class CatalogRepoException extends Exception

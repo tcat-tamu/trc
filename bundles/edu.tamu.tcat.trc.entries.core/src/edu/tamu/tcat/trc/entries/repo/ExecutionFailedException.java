@@ -23,7 +23,7 @@ import java.sql.SQLException;
  * are one example of this as the corresponding checked exception typically results from a
  * programming or system configuration error (malformed SQL statement or mismatch with the DB).
  */
-@Deprecated
+@Deprecated // use illegal state exception instead
 public class ExecutionFailedException extends RuntimeException
 {
 
