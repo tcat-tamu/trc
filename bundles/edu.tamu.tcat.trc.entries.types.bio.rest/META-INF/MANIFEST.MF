@@ -2,17 +2,17 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: REST API for Biographical Entries
 Bundle-SymbolicName: edu.tamu.tcat.trc.entries.types.bio.rest
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: edu.tamu.tcat.osgi.config;version="[1.0.0,2.0.0)",
  edu.tamu.tcat.trc.entries.common;version="[1.0.0,2.0.0)",
  edu.tamu.tcat.trc.entries.common.dto;version="[1.0.0,2.0.0)",
  edu.tamu.tcat.trc.entries.repo;version="[1.0.0,2.0.0)",
- edu.tamu.tcat.trc.entries.types.bio;version="[1.0.0,2.0.0)",
- edu.tamu.tcat.trc.entries.types.bio.dto;version="[1.0.0,2.0.0)",
- edu.tamu.tcat.trc.entries.types.bio.repo;version="[1.0.0,2.0.0)",
- edu.tamu.tcat.trc.entries.types.bio.search;version="[1.0.0,2.0.0)",
+ edu.tamu.tcat.trc.entries.types.bio;version="[1.1.0,2.0.0)",
+ edu.tamu.tcat.trc.entries.types.bio.dto;version="[1.1.0,2.0.0)",
+ edu.tamu.tcat.trc.entries.types.bio.repo;version="[1.1.0,2.0.0)",
+ edu.tamu.tcat.trc.entries.types.bio.search;version="[1.1.0,2.0.0)",
  edu.tamu.tcat.trc.search;version="[1.0.0,2.0.0)",
  javax.ws.rs;version="2.0.0",
  javax.ws.rs.core;version="2.0.0"
-Export-Package: edu.tamu.tcat.trc.entries.types.bio.rest.v1;version="1.0.0"
+Export-Package: edu.tamu.tcat.trc.entries.types.bio.rest.v1;version="1.1.0"
