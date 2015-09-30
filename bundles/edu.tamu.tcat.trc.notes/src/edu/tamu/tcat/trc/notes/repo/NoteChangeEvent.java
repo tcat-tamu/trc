@@ -35,5 +35,5 @@ public interface NoteChangeEvent extends UpdateEvent
     *       method on that class.
     */
    @Deprecated
-   Note getNotes() throws CatalogRepoException;
+   default Note getNotes() throws CatalogRepoException { return null; };
 }
