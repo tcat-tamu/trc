@@ -54,12 +54,16 @@ public interface Article
     *
     * @return URI of an entity to which this article is associated. For example, if this article
     *    is a book review, this would be the URI of the corresponding bibliographic entry.
+    * @deprecated This needs to be extended to support association with multiple entities.
+    *       This may be implemented using the relationships API.
     */
    @Deprecated
    URI getEntity();
 
    /**
     * @return An application defined unique identifier for the author.
+    * @deprecated Needs to be extended to support a more full-featured authorship attribution
+    *       model.
     */
    @Deprecated
    UUID getAuthorId();
