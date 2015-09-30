@@ -43,7 +43,6 @@ import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
-import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleDTO;
@@ -363,31 +362,9 @@ public class PsqlArticleRepo implements ArticleRepository
 
    private class ArticleChangeEventImpl extends BaseUpdateEvent implements ArticleChangeEvent
    {
-      private transient Article article;
-      private final UUID articleId;
-
       public ArticleChangeEventImpl(UUID id, UpdateEvent.UpdateAction type)
       {
          super(id.toString(), type, ACCOUNT_ID_REPO, Instant.now());
-         this.articleId = id;
-      }
-
-      @Override
-      public synchronized Article getArticle() throws CatalogRepoException
-      {
-         // TODO better to use a future
-         if (article != null)
-            return article;
-
-         try
-         {
-            article = get(articleId);
-            return article;
-         }
-         catch (Exception e)
-         {
-            throw new CatalogRepoException("Failed to retrieve article: [" + id + "].", e);
-         }
       }
 
       @Override

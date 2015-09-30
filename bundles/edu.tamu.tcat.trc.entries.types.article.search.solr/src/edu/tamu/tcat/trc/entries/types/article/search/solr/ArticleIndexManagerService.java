@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -116,17 +117,18 @@ public class ArticleIndexManagerService implements ArticleSearchService
    private void onArticleChange(ArticleChangeEvent evt)
    {
       String articleId = evt.getEntityId();
+
       try
       {
          Article article;
          switch (evt.getUpdateAction())
          {
             case CREATE:
-               article = evt.getArticle();
+               article = repo.get(UUID.fromString(articleId));
                postDocument(ArticleDocument.create(article));
                break;
             case UPDATE:
-               article = evt.getArticle();
+               article = repo.get(UUID.fromString(articleId));
                postDocument(ArticleDocument.update(article));
                break;
             case DELETE:
