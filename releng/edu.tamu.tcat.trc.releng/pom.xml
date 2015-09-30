@@ -46,8 +46,8 @@
     <module>oss.trc/releng/edu.tamu.tcat.trc.releng/repo.product</module>
     <module>oss.trc/releng/edu.tamu.tcat.trc.sdk.feature</module>
     
+    <module>oss.trc/bundles/edu.tamu.tcat.trc</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.search.solr</module>
-    
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.core</module>
     
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio</module>
@@ -79,10 +79,8 @@
     <module>oss.trc/bundles/edu.tamu.tcat.trc.notes.postgres</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.notes.search.solr</module>
     
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.refman</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.refman.types.zotero</module>
-    <!-- Remove from the build until dependencies are resolved -->
-<!--     <module>oss.trc/tests/edu.tamu.tcat.trc.entries.types.biblio.test</module> -->
+<!--     <module>oss.trc/bundles/edu.tamu.tcat.trc.refman</module> -->
+<!--     <module>oss.trc/bundles/edu.tamu.tcat.trc.refman.types.zotero</module> -->
   </modules>
 
   <repositories>
