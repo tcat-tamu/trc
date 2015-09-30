@@ -2,7 +2,7 @@
 <feature
       id="edu.tamu.tcat.trc.sdk.feature"
       label="TRC SDK Feature"
-      version="1.0.0.qualifier"
+      version="1.1.0.qualifier"
       provider-name="Texas A&amp;M Engineering Experiment Station">
 
    <description>
@@ -94,84 +94,84 @@ limitations under the License.
          id="edu.tamu.tcat.trc.entries.types.biblio.rest"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.0.1.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.biblio.rest.source"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.0.1.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.biblio.postgres"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.0.1.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.biblio.postgres.source"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.0.1.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.biblio.search.solr"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.0.1.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.biblio.search.solr.source"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.0.1.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.bio"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.bio.source"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.bio.rest"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.bio.rest.source"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.bio.postgres"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.bio.postgres.source"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
@@ -192,14 +192,14 @@ limitations under the License.
          id="edu.tamu.tcat.trc.entries.types.reln"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.reln.source"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
@@ -220,154 +220,154 @@ limitations under the License.
          id="edu.tamu.tcat.trc.entries.types.reln.postgres"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.reln.postgres.source"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.reln.search.solr"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.reln.search.solr.source"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.core"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.0.1.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.core.source"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.0.1.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.article"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.article.source"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.article.postgres"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.article.postgres.source"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.article.rest"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.article.rest.source"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.article.search.solr"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.article.search.solr.source"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.notes"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.notes.source"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.notes.postgres"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.notes.postgres.source"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.notes.rest"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.notes.rest.source"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.notes.search.solr"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.notes.search.solr.source"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
    <plugin
@@ -393,34 +393,6 @@ limitations under the License.
 
    <plugin
          id="org.apache.commons.compress.source"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.tamu.tcat.trc.refman"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-         
-   <plugin
-         id="edu.tamu.tcat.trc.refman.source"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.tamu.tcat.trc.refman.types.zotero"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.tamu.tcat.trc.refman.types.zotero.source"
          download-size="0"
          install-size="0"
          version="0.0.0"
