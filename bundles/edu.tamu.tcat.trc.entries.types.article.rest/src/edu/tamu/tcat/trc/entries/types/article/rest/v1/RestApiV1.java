@@ -18,7 +18,7 @@ package edu.tamu.tcat.trc.entries.types.article.rest.v1;
 import java.net.URI;
 import java.util.List;
 
-public abstract class RestApiV1
+public class RestApiV1
 {
 
    public static class ArticleId
