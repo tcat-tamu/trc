@@ -3,8 +3,9 @@ package edu.tamu.tcat.trc.entries.types.article.search;
 import edu.tamu.tcat.trc.search.SearchException;
 
 /**
- *  Supports search based discovery of articles.
+ * Supports search based discovery of articles.
  *
+ * @since 1.1
  */
 public interface ArticleSearchService
 {

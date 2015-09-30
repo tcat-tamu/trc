@@ -12,6 +12,9 @@ import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
+/**
+ * @since 1.1
+ */
 public class ArticleSolrQueryCmd implements ArticleQueryCommand
 {
 

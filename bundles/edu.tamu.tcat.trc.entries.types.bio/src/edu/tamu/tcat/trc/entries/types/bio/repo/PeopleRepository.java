@@ -29,6 +29,7 @@ import edu.tamu.tcat.trc.entries.types.bio.Person;
  */
 public interface PeopleRepository
 {
+
    /**
     * Retrieves a person instance by their string identifier.
     * @param personId
@@ -36,6 +37,9 @@ public interface PeopleRepository
     */
    Person get(String personId) throws NoSuchCatalogRecordException;
 
+   /**
+    * @since 1.1
+    */
    Iterator<Person> listAll() throws CatalogRepoException;
 
    /**
@@ -90,6 +94,7 @@ public interface PeopleRepository
     *       {@link DataUpdateObserver#finish(Object)} with a {@code null} result object.
     * @return
     * @throws NoSuchCatalogRecordException
+    * @since 1.1
     */
    Future<Boolean> delete(String personId) throws NoSuchCatalogRecordException;
 
@@ -100,6 +105,7 @@ public interface PeopleRepository
     *
     * @param ears The listener to be added.
     * @return A registration handle that allows the listener to be removed.
+    * @since 1.1
     */
    AutoCloseable addUpdateListener(UpdateListener<PersonChangeEvent> ears);
 }

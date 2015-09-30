@@ -4,6 +4,7 @@ import edu.tamu.tcat.trc.search.SearchException;
 
 /**
  * A command-based API for parameterizing and executing a search for articles.
+ * @since 1.1
  */
 public interface ArticleQueryCommand
 {

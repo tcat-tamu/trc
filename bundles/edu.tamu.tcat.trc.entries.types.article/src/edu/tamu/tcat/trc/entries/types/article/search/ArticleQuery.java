@@ -2,6 +2,7 @@ package edu.tamu.tcat.trc.entries.types.article.search;
 
 /**
  * A simple data vehicle to be used to represent an article query.
+ * @since 1.1
  */
 public class ArticleQuery
 {

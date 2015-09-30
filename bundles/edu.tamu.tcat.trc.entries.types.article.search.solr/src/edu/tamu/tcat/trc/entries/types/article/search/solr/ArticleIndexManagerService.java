@@ -153,6 +153,9 @@ public class ArticleIndexManagerService implements ArticleSearchService
       solr.commit();
    }
 
+   /**
+    * @since 1.1
+    */
    @Override
    public ArticleSearchResult findAll() throws SearchException
    {
@@ -160,6 +163,9 @@ public class ArticleIndexManagerService implements ArticleSearchService
       return query.execute();
    }
 
+   /**
+    * @since 1.1
+    */
    @Override
    public ArticleSearchResult search(String query) throws SearchException
    {
@@ -168,12 +174,18 @@ public class ArticleIndexManagerService implements ArticleSearchService
       return qCmd.execute();
    }
 
+   /**
+    * @since 1.1
+    */
    @Override
    public ArticleQueryCommand createQuery() throws SearchException
    {
       return new ArticleSolrQueryCmd(solr, new TrcQueryBuilder(solr, new ArticleSolrConfig()));
    }
 
+   /**
+    * @since 1.1
+    */
    @Override
    public ArticleQueryCommand createQuery(ArticleQuery query) throws SearchException
    {
@@ -181,6 +193,9 @@ public class ArticleIndexManagerService implements ArticleSearchService
       return new ArticleSolrQueryCmd(solr, query, new TrcQueryBuilder(solr, new ArticleSolrConfig()));
    }
 
+   /**
+    * @since 1.1
+    */
    @Override
    public ArticleSearchResult next(ArticleQuery query) throws SearchException
    {
@@ -189,6 +204,9 @@ public class ArticleIndexManagerService implements ArticleSearchService
       return cmd.execute();
    }
 
+   /**
+    * @since 1.1
+    */
    @Override
    public ArticleSearchResult previous(ArticleQuery query) throws SearchException
    {
@@ -198,6 +216,9 @@ public class ArticleIndexManagerService implements ArticleSearchService
       return cmd.execute();
    }
 
+   /**
+    * @since 1.1
+    */
    @Override
    public ArticleSearchResult page(ArticleQuery query, int pg) throws SearchException
    {

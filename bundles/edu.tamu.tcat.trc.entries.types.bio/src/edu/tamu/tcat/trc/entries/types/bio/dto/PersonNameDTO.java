@@ -49,6 +49,9 @@ public class PersonNameDTO
    {
    }
 
+   /**
+    * @since 1.1
+    */
    public PersonNameDTO(String first, String middle, String last)
    {
       this.givenName = first;

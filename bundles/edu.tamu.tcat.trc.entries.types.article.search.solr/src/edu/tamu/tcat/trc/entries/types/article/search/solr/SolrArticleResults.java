@@ -7,6 +7,9 @@ import edu.tamu.tcat.trc.entries.types.article.search.ArticleQuery;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
 
+/**
+ * @since 1.1
+ */
 public class SolrArticleResults implements ArticleSearchResult
 {
    private List<ArticleSearchProxy> articles;

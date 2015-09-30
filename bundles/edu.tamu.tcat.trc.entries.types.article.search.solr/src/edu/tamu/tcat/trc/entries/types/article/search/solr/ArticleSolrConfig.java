@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,7 +37,10 @@ public class ArticleSolrConfig implements SolrIndexConfig
    public static final SolrIndexField<String> ARTICLE_MIME_TYPE = new BasicFields.BasicString("mime_type");
 
    public static final BasicFields.SearchProxyField<ArticleSearchProxy> SEARCH_PROXY =new BasicFields.SearchProxyField<ArticleSearchProxy>("article_dto", ArticleSearchProxy.class);
-   
+
+   /**
+    * @since 1.1
+    */
    @Override
    public void initialConfiguration(SolrQuery params) throws SearchException
    {
@@ -48,7 +51,10 @@ public class ArticleSolrConfig implements SolrIndexConfig
       params.set("defType", "edismax");
       params.set("qf", ARTICLE_CONTENT.getName(), TITLE.getName(), ASSOCIATED_ENTRY.getName());
    }
-   
+
+   /**
+    * @since 1.1
+    */
    @Override
    public void configureBasic(String q, SolrQuery params) throws SearchException
    {

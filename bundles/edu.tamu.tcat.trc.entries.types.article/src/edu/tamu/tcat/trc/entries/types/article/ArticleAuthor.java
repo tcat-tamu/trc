@@ -2,6 +2,7 @@ package edu.tamu.tcat.trc.entries.types.article;
 
 /**
  *  An identifier for an author of the article.
+ * @since 1.1
  */
 public interface ArticleAuthor
 {

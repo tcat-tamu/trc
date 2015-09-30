@@ -44,6 +44,9 @@ public class PersonDTO
 
    }
 
+   /**
+    * @since 1.1
+    */
    public PersonDTO(Person figure)
    {
       this.id = figure.getId();

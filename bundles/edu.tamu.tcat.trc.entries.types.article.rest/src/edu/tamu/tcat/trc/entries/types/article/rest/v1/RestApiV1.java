@@ -24,9 +24,15 @@ public abstract class RestApiV1
    public static class ArticleId
    {
       public String id;
+      /**
+       * @since 1.1
+       */
       public String uri;
    }
 
+   /**
+    * @since 1.1
+    */
    public static class Article
    {
       public Link self;
@@ -40,6 +46,9 @@ public abstract class RestApiV1
       public String authorId;
    }
 
+   /**
+    * @since 1.1
+    */
    public static class ArticleSearchResult
    {
       public String id;
@@ -50,6 +59,9 @@ public abstract class RestApiV1
       public String content;
    }
 
+   /**
+    * @since 1.1
+    */
    public static class ArticleSearchResultSet
    {
       public QueryDetail query;
@@ -57,6 +69,9 @@ public abstract class RestApiV1
       // TODO add facets
    }
 
+   /**
+    * @since 1.1
+    */
    public static class QueryDetail
    {
       /**
@@ -137,6 +152,9 @@ public abstract class RestApiV1
       public Link last;
    }
 
+   /**
+    * @since 1.1
+    */
    public static class Link
    {
       /**
