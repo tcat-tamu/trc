@@ -2,7 +2,7 @@
 <feature
       id="edu.tamu.tcat.trc.sdk.feature"
       label="TRC SDK Feature"
-      version="1.1.0.qualifier"
+      version="1.1.1.qualifier"
       provider-name="Texas A&amp;M Engineering Experiment Station">
 
    <description>
@@ -393,6 +393,20 @@ limitations under the License.
 
    <plugin
          id="org.apache.commons.compress.source"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.tamu.tcat.trc"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
+   <plugin
+         id="edu.tamu.tcat.trc.source"
          download-size="0"
          install-size="0"
          version="0.0.0"

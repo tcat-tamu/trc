@@ -11,3 +11,4 @@ Import-Package: edu.tamu.tcat.trc.digires.books.discovery;version="[1.0.0,2.0.0)
  javax.ws.rs;version="2.0.0",
  javax.ws.rs.core;version="2.0.0"
 Export-Package: edu.tamu.tcat.trc.digires.rest.books.v1;version="1.0.0"
+Require-Bundle: com.eclipsesource.jaxrs.jersey-all;bundle-version="2.18.0"
