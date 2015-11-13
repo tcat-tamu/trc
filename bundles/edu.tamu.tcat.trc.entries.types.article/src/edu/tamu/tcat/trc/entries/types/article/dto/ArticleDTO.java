@@ -44,7 +44,7 @@ public class ArticleDTO
 
       dto.id = article.getId();
       dto.title = article.getTitle();
-      dto.authors = article.getAuthors();
+      dto.authors = convertAuthors(article.getAuthors());
       dto.articleAbstract = article.getAbstract();
       dto.publication = article.getPublishedDate();
       dto.lastModified = article.getLastModified();
@@ -71,5 +71,20 @@ public class ArticleDTO
       dto.content = orig.content;
 
       return dto;
+   }
+   
+   private static List<ArticleAuthorDTO> convertAuthors(List<ArticleAuthor> authors)
+   {
+      List<ArticleAuthorDTO> auths = new ArrayList<>();
+      
+      authors.forEach((a) ->
+      {
+         ArticleAuthorDTO authDto = ArticleAuthorDTO.create(a);
+         authDto.id = a.getId();
+         authDto.label = a.getLabel();
+         auths.add(authDto);
+      });
+      
+      return auths;
    }
 }

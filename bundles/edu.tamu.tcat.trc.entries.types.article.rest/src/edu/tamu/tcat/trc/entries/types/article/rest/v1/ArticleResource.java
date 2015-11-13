@@ -226,9 +226,12 @@ public class ArticleResource
    private void apply(EditArticleCommand editCmd, RestApiV1.Article article)
    {
       editCmd.setTitle(article.title);
+//      editCmd.setAuthors(article.authors);
+      editCmd.setAbstract(article.articleAbstract);
+      editCmd.setPublication(article.publication);
+      editCmd.setLastModified(article.lastModified);
       editCmd.setContent(article.content);
       editCmd.setMimeType(article.mimeType);
-
       editCmd.setAuthorId(article.authorId);
       editCmd.setEntity(article.associatedEntity);
    }

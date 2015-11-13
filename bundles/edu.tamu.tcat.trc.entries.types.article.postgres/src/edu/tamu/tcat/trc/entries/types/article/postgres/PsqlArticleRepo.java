@@ -378,12 +378,12 @@ public class PsqlArticleRepo implements ArticleRepository
          return "Article Change " + super.toString();
       }
    }
-
+   
    private static class PsqlArticle implements Article
    {
       private final UUID id;
       private final String title;
-      private final List<ArticleAuthorDTO> authors;
+      private final List<ArticleAuthor> authors;
       private final String articleAbstract;
       private final Date publication;
       private final Date lastModified;
@@ -398,7 +398,7 @@ public class PsqlArticleRepo implements ArticleRepository
       {
          this.id = id;
          this.title = title;
-         this.authors = new ArrayList<>(authors);
+         this.authors = getAuthors(authors);
          this.articleAbstract = articleAbstract;
          this.publication = publication2;
          this.lastModified = lastModified2;
@@ -406,6 +406,21 @@ public class PsqlArticleRepo implements ArticleRepository
          this.authorId = authorId;
          this.mimeType = mimeType;
          this.content = content;
+      }
+      
+      private List<ArticleAuthor> getAuthors(List<ArticleAuthorDTO> authors)
+      {
+         List<ArticleAuthor> auths = new ArrayList<>();
+         
+         if(authors == null)
+            return auths;
+         
+         authors.forEach((a) ->
+         {
+            auths.add(new PsqlArticleAuthor(a.id, a.label));
+         });
+         
+         return auths;
       }
 
       @Override
@@ -445,7 +460,7 @@ public class PsqlArticleRepo implements ArticleRepository
       }
 
       @Override
-      public List<ArticleAuthorDTO> getAuthors()
+      public List<ArticleAuthor> getAuthors()
       {
          return authors;
       }
@@ -453,7 +468,7 @@ public class PsqlArticleRepo implements ArticleRepository
       @Override
       public String getAbstract()
       {
-         return articleAbstract;
+         return articleAbstract == null ? "" : this.articleAbstract;
       }
 
       @Override
@@ -466,6 +481,30 @@ public class PsqlArticleRepo implements ArticleRepository
       public Date getLastModified()
       {
          return lastModified;
+      }
+   }
+   
+   private static class PsqlArticleAuthor implements ArticleAuthor
+   {
+      private final String id;
+      private final String label;
+      
+      public PsqlArticleAuthor(String id, String label)
+      {
+         this.id = id;
+         this.label = label;
+      }
+      
+      @Override
+      public String getId()
+      {
+         return id;
+      }
+
+      @Override
+      public String getLabel()
+      {
+         return label;
       }
    }
 }

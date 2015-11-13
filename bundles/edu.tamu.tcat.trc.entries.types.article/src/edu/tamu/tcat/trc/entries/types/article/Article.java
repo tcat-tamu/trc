@@ -56,7 +56,7 @@ public interface Article
     * 
     * @return List of Authors that have contributed to the article.
     */
-   List<ArticleAuthorDTO> getAuthors();
+   List<ArticleAuthor> getAuthors();
    
    /**
     * 

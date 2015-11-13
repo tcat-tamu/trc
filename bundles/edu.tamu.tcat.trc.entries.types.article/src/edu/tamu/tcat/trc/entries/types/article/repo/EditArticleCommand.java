@@ -16,9 +16,12 @@
 package edu.tamu.tcat.trc.entries.types.article.repo;
 
 import java.net.URI;
+import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Future;
 
+import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleDTO;
 
 /**
@@ -44,6 +47,30 @@ public interface EditArticleCommand
     */
    void setTitle(String title);
 
+   /**
+    * 
+    * @param authors The author(s) of the article.
+    */
+   void setAuthors(List<ArticleAuthorDTO> authors);
+   
+   /**
+    * 
+    * @param abs The abstract of the article.
+    */
+   void setAbstract(String abs);
+   
+   /**
+    * 
+    * @param publication The publication date of the article.
+    */
+   void setPublication(Date publication);
+   
+   /**
+    * 
+    * @param modified The last modified date of the article.
+    */
+   void setLastModified(Date modified);
+   
    /**
     * @param entityURI The URI of the entity this article is associated with.
     * @deprecated Need to develop a better strategy for associating with a related entry

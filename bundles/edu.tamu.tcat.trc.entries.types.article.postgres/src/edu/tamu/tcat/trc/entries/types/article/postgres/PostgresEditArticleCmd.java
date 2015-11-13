@@ -16,12 +16,16 @@
 package edu.tamu.tcat.trc.entries.types.article.postgres;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
+import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleDTO;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 
@@ -55,8 +59,13 @@ public class PostgresEditArticleCmd implements EditArticleCommand
       if (updateArticle.id != null && !updateArticle.id.equals(article.id))
          throw new IllegalArgumentException("The supplied article ");
 
+      
       setTitle(updateArticle.title);
       setAuthorId(updateArticle.authorId);
+      setAuthors(updateArticle.authors);
+      setAbstract(updateArticle.articleAbstract);
+      setPublication(updateArticle.publication);
+      setLastModified(updateArticle.lastModified);
       setEntity(updateArticle.associatedEntity);
       setMimeType(updateArticle.mimeType);
       setContent(updateArticle.content);
@@ -105,6 +114,33 @@ public class PostgresEditArticleCmd implements EditArticleCommand
    private String guardNull(String value)
    {
       return value != null ? value : "";
+   }
+
+   @Override
+   public void setAuthors(List<ArticleAuthorDTO> authors)
+   {
+      if (authors == null)
+         article.authors = new ArrayList<>();
+      else
+         article.authors = new ArrayList<>(authors);
+   }
+
+   @Override
+   public void setAbstract(String abs)
+   {
+      article.articleAbstract = guardNull(abs);
+   }
+
+   @Override
+   public void setPublication(Date publication)
+   {
+      article.publication = publication;
+   }
+
+   @Override
+   public void setLastModified(Date modified)
+   {
+      article.lastModified = modified;
    }
 
 }

@@ -16,7 +16,9 @@
 package edu.tamu.tcat.trc.entries.types.article.rest.v1;
 
 import java.net.URI;
+import java.util.Date;
 import java.util.List;
+
 
 public class RestApiV1
 {
@@ -40,10 +42,20 @@ public class RestApiV1
       public String title;
       public String content;
       public String mimeType;
+      public List<ArticleAuthor> authors;
+      public String articleAbstract;
+      public Date publication;
+      public Date lastModified;
 
       // TODO remove these and replace with full-featured versions
       public URI associatedEntity;
       public String authorId;
+   }
+   
+   public static class ArticleAuthor
+   {
+      public String id;
+      public String label;
    }
 
    /**

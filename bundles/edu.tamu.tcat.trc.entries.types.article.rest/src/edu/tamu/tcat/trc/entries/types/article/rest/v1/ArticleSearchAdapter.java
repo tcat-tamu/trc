@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.ws.rs.core.UriBuilder;
 
 import edu.tamu.tcat.trc.entries.types.article.Article;
+import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
 import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Link;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQuery;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy;
@@ -109,12 +110,30 @@ public class ArticleSearchAdapter
       dto.id = article.getId().toString();
       dto.title = article.getTitle();
       dto.content = article.getContent();
-
+      dto.authors = convertAuthors(article.getAuthors());
+      dto.articleAbstract = article.getAbstract();
+      dto.publication = article.getPublishedDate();
+      dto.lastModified = article.getLastModified();
 
       dto.associatedEntity = article.getEntity();
       UUID authorId = article.getAuthorId();
       dto.authorId = authorId == null ? null : authorId.toString();
 
       return dto;
+   }
+   
+   private static List<RestApiV1.ArticleAuthor> convertAuthors(List<ArticleAuthor> authors)
+   {
+      List<RestApiV1.ArticleAuthor> auths = new ArrayList<>();
+      
+      authors.forEach((a) ->
+      {
+         RestApiV1.ArticleAuthor authDto = new RestApiV1.ArticleAuthor();
+         authDto.id = a.getId();
+         authDto.label = a.getLabel();
+         auths.add(authDto);
+      });
+      
+      return auths;
    }
 }

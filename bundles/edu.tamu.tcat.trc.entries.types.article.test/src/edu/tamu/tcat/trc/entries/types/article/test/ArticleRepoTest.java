@@ -172,12 +172,12 @@ public class ArticleRepoTest
       
       ArticleAuthorDTO author1 = new ArticleAuthorDTO();
       author1.id = "n_audenaert";
-      author1.lablel = "Neal Audenaert";
+      author1.label = "Neal Audenaert";
       authors.add(author1);
       
       ArticleAuthorDTO author2 = new ArticleAuthorDTO();
       author1.id = "j_mitchell";
-      author1.lablel = "Jesse Mitchell";
+      author1.label = "Jesse Mitchell";
       authors.add(author2);
       
       
