@@ -16,7 +16,11 @@
 package edu.tamu.tcat.trc.entries.types.article;
 
 import java.net.URI;
+import java.util.Date;
+import java.util.List;
 import java.util.UUID;
+
+import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
 
 /**
  *  A long-form article that provides discursive treatment of a topic within a thematic
@@ -47,7 +51,31 @@ public interface Article
     * @return String representation of the title of the article.
     */
    String getTitle();
-
+   
+   /**
+    * 
+    * @return List of Authors that have contributed to the article.
+    */
+   List<ArticleAuthorDTO> getAuthors();
+   
+   /**
+    * 
+    * @return String representation of the summary of the article.
+    */
+   String getAbstract();
+   
+   /**
+    * 
+    * @return Original publication date of the article.
+    */
+   Date getPublishedDate();
+   
+   /**
+    * 
+    * @return Last modification date of the article. May return null if the article has not been updated.
+    */
+   Date getLastModified();
+   
    /**
     * This is API is provisional. It is under review to determine if this use case would be
     * better met through a different mechanism.

@@ -17,6 +17,9 @@ package edu.tamu.tcat.trc.entries.types.article.test;
 
 import java.net.URI;
 import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -33,6 +36,8 @@ import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
+import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
+import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleDTO;
 import edu.tamu.tcat.trc.entries.types.article.postgres.PsqlArticleRepo;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
@@ -115,7 +120,7 @@ public class ArticleRepoTest
       EditArticleCommand command = repo.create();
       command.setAll(article);
       article.id = command.execute().get();
-
+      article.lastModified = new Date();
       article.title = "The New & Everlasting Title";
       article.content = "<H1>The New and Everlasting Title<H1> <p>As time passes so do many articles. In this" +
                   "particular case, this article will not be passed on. It will forever be made available" +
@@ -163,8 +168,24 @@ public class ArticleRepoTest
    private ArticleDTO createArticleDTO()
    {
       ArticleDTO article = new ArticleDTO();
+      List<ArticleAuthorDTO> authors = new ArrayList<ArticleAuthorDTO>();
+      
+      ArticleAuthorDTO author1 = new ArticleAuthorDTO();
+      author1.id = "n_audenaert";
+      author1.lablel = "Neal Audenaert";
+      authors.add(author1);
+      
+      ArticleAuthorDTO author2 = new ArticleAuthorDTO();
+      author1.id = "j_mitchell";
+      author1.lablel = "Jesse Mitchell";
+      authors.add(author2);
+      
+      
       article.title = "The New and Everlasting Title";
       article.associatedEntity = URI.create("articles/1");
+      article.authors = authors;
+      article.articleAbstract = "The abstract of this article.";
+      article.publication = new Date();
       article.authorId = "d25d7b89-6634-4895-89c1-7024fc3d5396";
       article.mimeType = "HTML";
       article.content = "<H1>The New and Everlasting Title<H1> <p>As time passes so do many articles. In this" +

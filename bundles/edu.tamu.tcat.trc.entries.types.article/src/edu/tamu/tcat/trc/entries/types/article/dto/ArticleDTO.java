@@ -16,14 +16,22 @@
 package edu.tamu.tcat.trc.entries.types.article.dto;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import edu.tamu.tcat.trc.entries.types.article.Article;
+import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
 
 public class ArticleDTO
 {
    public UUID id;
    public String title;
+   public List<ArticleAuthorDTO> authors;
+   public String articleAbstract;
+   public Date publication;
+   public Date lastModified;
    public URI associatedEntity;
    public String authorId;
    public String mimeType;
@@ -36,6 +44,10 @@ public class ArticleDTO
 
       dto.id = article.getId();
       dto.title = article.getTitle();
+      dto.authors = article.getAuthors();
+      dto.articleAbstract = article.getAbstract();
+      dto.publication = article.getPublishedDate();
+      dto.lastModified = article.getLastModified();
       dto.associatedEntity = article.getEntity();
       dto.authorId = author != null ? author.toString() : "";
       dto.mimeType = article.getMimeType();
@@ -50,6 +62,9 @@ public class ArticleDTO
 
       dto.id = orig.id;
       dto.title = orig.title;
+      dto.authors = new ArrayList<ArticleAuthorDTO>(orig.authors);
+      dto.publication = orig.publication;
+      dto.lastModified = orig.lastModified;
       dto.associatedEntity = orig.associatedEntity;
       dto.authorId = orig.authorId;
       dto.mimeType = orig.mimeType;

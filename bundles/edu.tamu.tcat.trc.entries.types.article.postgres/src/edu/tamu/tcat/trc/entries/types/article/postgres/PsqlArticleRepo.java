@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -45,6 +46,8 @@ import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
+import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
+import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleDTO;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleChangeEvent;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
@@ -167,7 +170,9 @@ public class PsqlArticleRepo implements ArticleRepository
 
    private static Article adapt(ArticleDTO article)
    {
-      return new PsqlArticle(article.id, article.title, article.associatedEntity, article.authorId, article.mimeType, article.content);
+      return new PsqlArticle(article.id, article.title, article.authors, article.articleAbstract,
+                             article.publication, article.lastModified, article.associatedEntity,
+                             article.authorId, article.mimeType, article.content);
    }
 
    @Override
@@ -378,15 +383,25 @@ public class PsqlArticleRepo implements ArticleRepository
    {
       private final UUID id;
       private final String title;
+      private final List<ArticleAuthorDTO> authors;
+      private final String articleAbstract;
+      private final Date publication;
+      private final Date lastModified;
       private final URI associatedEntity;
       private final String authorId;
       private final String mimeType;
       private final String content;
 
-      public PsqlArticle(UUID id, String title, URI associatedEntity, String authorId, String mimeType, String content)
+      public PsqlArticle(UUID id, String title, List<ArticleAuthorDTO> authors,
+                         String articleAbstract, Date publication2, Date lastModified2,
+                         URI associatedEntity, String authorId, String mimeType, String content)
       {
          this.id = id;
          this.title = title;
+         this.authors = new ArrayList<>(authors);
+         this.articleAbstract = articleAbstract;
+         this.publication = publication2;
+         this.lastModified = lastModified2;
          this.associatedEntity = associatedEntity;
          this.authorId = authorId;
          this.mimeType = mimeType;
@@ -427,6 +442,30 @@ public class PsqlArticleRepo implements ArticleRepository
       public String getContent()
       {
          return content;
+      }
+
+      @Override
+      public List<ArticleAuthorDTO> getAuthors()
+      {
+         return authors;
+      }
+
+      @Override
+      public String getAbstract()
+      {
+         return articleAbstract;
+      }
+
+      @Override
+      public Date getPublishedDate()
+      {
+         return publication;
+      }
+
+      @Override
+      public Date getLastModified()
+      {
+         return lastModified;
       }
    }
 }
