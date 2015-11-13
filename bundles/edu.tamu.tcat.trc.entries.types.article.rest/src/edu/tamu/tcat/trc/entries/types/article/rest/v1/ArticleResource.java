@@ -17,6 +17,8 @@ package edu.tamu.tcat.trc.entries.types.article.rest.v1;
 
 import java.net.URI;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -46,8 +48,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
+import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
+import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.ArticleAuthor;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchService;
@@ -225,8 +229,20 @@ public class ArticleResource
 
    private void apply(EditArticleCommand editCmd, RestApiV1.Article article)
    {
+      List<ArticleAuthorDTO> authorDTO = new ArrayList<>();
+      if (article.authors != null)
+      {
+         article.authors.forEach((a) ->
+         {
+            ArticleAuthorDTO authDto = new ArticleAuthorDTO();
+            authDto.id = a.id;
+            authDto.label = a.label;
+            authorDTO.add(authDto);
+         });
+      }
+      
       editCmd.setTitle(article.title);
-//      editCmd.setAuthors(article.authors);
+      editCmd.setAuthors(authorDTO);
       editCmd.setAbstract(article.articleAbstract);
       editCmd.setPublication(article.publication);
       editCmd.setLastModified(article.lastModified);
