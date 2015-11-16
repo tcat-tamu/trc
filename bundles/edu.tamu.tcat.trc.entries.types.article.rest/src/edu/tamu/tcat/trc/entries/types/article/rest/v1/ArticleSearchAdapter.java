@@ -114,7 +114,7 @@ public class ArticleSearchAdapter
       dto.articleAbstract = article.getAbstract();
       dto.publication = article.getPublishedDate();
       dto.lastModified = article.getLastModified();
-
+      dto.mimeType = article.getMimeType();
       dto.associatedEntity = article.getEntity();
       UUID authorId = article.getAuthorId();
       dto.authorId = authorId == null ? null : authorId.toString();
