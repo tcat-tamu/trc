@@ -15,8 +15,10 @@
  */
 package edu.tamu.tcat.trc.entries.types.article.search.solr;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 
 import org.apache.solr.client.solrj.SolrQuery;
 
@@ -35,6 +37,9 @@ public class ArticleSolrConfig implements SolrIndexConfig
    public static final SolrIndexField<String> ASSOCIATED_ENTRY = new BasicFields.BasicString("associated_entry");
    public static final SolrIndexField<String> ARTICLE_CONTENT = new BasicFields.BasicString("article_content");
    public static final SolrIndexField<String> ARTICLE_MIME_TYPE = new BasicFields.BasicString("mime_type");
+   public static final SolrIndexField<String> AUTHOR_NAMES = new BasicFields.BasicString("author_names");
+   public static final SolrIndexField<String> ARTICLE_ABSTRACT = new BasicFields.BasicString("article_abstract");
+   public static final SolrIndexField<LocalDate>   PUBLISHED = new BasicFields.BasicDate("published");
 
    public static final BasicFields.SearchProxyField<ArticleSearchProxy> SEARCH_PROXY =new BasicFields.SearchProxyField<ArticleSearchProxy>("article_dto", ArticleSearchProxy.class);
 
@@ -76,13 +81,13 @@ public class ArticleSolrConfig implements SolrIndexConfig
    @Override
    public Collection<? extends SolrIndexField<?>> getIndexedFields()
    {
-      return Arrays.asList(ID, AUTHOR_ID, ASSOCIATED_ENTRY, ARTICLE_CONTENT, ARTICLE_MIME_TYPE);
+      return Arrays.asList(ID, AUTHOR_ID, AUTHOR_NAMES, ARTICLE_ABSTRACT, PUBLISHED, ASSOCIATED_ENTRY, ARTICLE_CONTENT, ARTICLE_MIME_TYPE);
    }
 
    @Override
    public Collection<? extends SolrIndexField<?>> getStoredFields()
    {
-      return Arrays.asList(ID, AUTHOR_ID, ASSOCIATED_ENTRY, ARTICLE_CONTENT, ARTICLE_MIME_TYPE, SEARCH_PROXY);
+      return Arrays.asList(ID, AUTHOR_ID, AUTHOR_NAMES, ARTICLE_ABSTRACT, PUBLISHED, ASSOCIATED_ENTRY, ARTICLE_CONTENT, ARTICLE_MIME_TYPE, SEARCH_PROXY);
    }
 
    @Override
