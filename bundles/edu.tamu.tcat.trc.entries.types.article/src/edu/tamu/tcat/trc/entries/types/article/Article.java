@@ -58,6 +58,8 @@ public interface Article
     */
    List<ArticleAuthor> getAuthors();
    
+   String getSlug();
+   
    /**
     * 
     * @return String representation of the summary of the article.

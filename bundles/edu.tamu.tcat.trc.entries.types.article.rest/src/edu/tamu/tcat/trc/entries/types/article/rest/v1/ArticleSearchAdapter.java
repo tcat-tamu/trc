@@ -130,7 +130,10 @@ public class ArticleSearchAdapter
       {
          RestApiV1.ArticleAuthor authDto = new RestApiV1.ArticleAuthor();
          authDto.id = a.getId();
-         authDto.label = a.getLabel();
+         authDto.name = a.getName();
+         authDto.affiliation = a.getAffiliation();
+         authDto.email = a.getEmail();
+         authDto.contactOther = a.getOther();
          auths.add(authDto);
       });
       

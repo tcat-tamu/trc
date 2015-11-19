@@ -36,6 +36,7 @@ public class ArticleDTO
    public String authorId;
    public String mimeType;
    public String content;
+   public String slug;
 
    public static ArticleDTO create(Article article)
    {
@@ -45,6 +46,7 @@ public class ArticleDTO
       dto.id = article.getId();
       dto.title = article.getTitle();
       dto.authors = convertAuthors(article.getAuthors());
+      dto.slug = article.getSlug();
       dto.articleAbstract = article.getAbstract();
       dto.publication = article.getPublishedDate();
       dto.lastModified = article.getLastModified();
@@ -63,6 +65,7 @@ public class ArticleDTO
       dto.id = orig.id;
       dto.title = orig.title;
       dto.authors = new ArrayList<ArticleAuthorDTO>(orig.authors);
+      dto.slug = orig.slug;
       dto.publication = orig.publication;
       dto.lastModified = orig.lastModified;
       dto.associatedEntity = orig.associatedEntity;
@@ -81,7 +84,11 @@ public class ArticleDTO
       {
          ArticleAuthorDTO authDto = ArticleAuthorDTO.create(a);
          authDto.id = a.getId();
-         authDto.label = a.getLabel();
+         authDto.name = a.getName();
+         authDto.affiliation = a.getAffiliation();
+         authDto.email = a.getEmail();
+         authDto.contactOther = a.getOther();
+         
          auths.add(authDto);
       });
       

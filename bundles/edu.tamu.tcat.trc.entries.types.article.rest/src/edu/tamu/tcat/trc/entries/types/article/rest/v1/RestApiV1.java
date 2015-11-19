@@ -55,7 +55,10 @@ public class RestApiV1
    public static class ArticleAuthor
    {
       public String id;
-      public String label;
+      public String name;
+      public String affiliation;
+      public String email;
+      public String contactOther;
    }
 
    /**

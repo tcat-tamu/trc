@@ -170,7 +170,7 @@ public class PsqlArticleRepo implements ArticleRepository
 
    private static Article adapt(ArticleDTO article)
    {
-      return new PsqlArticle(article.id, article.title, article.authors, article.articleAbstract,
+      return new PsqlArticle(article.id, article.title, article.authors, article.slug, article.articleAbstract,
                              article.publication, article.lastModified, article.associatedEntity,
                              article.authorId, article.mimeType, article.content);
    }
@@ -384,6 +384,7 @@ public class PsqlArticleRepo implements ArticleRepository
       private final UUID id;
       private final String title;
       private final List<ArticleAuthor> authors;
+      private final String slug;
       private final String articleAbstract;
       private final Date publication;
       private final Date lastModified;
@@ -392,13 +393,14 @@ public class PsqlArticleRepo implements ArticleRepository
       private final String mimeType;
       private final String content;
 
-      public PsqlArticle(UUID id, String title, List<ArticleAuthorDTO> authors,
+      public PsqlArticle(UUID id, String title, List<ArticleAuthorDTO> authors, String slug,
                          String articleAbstract, Date publication2, Date lastModified2,
                          URI associatedEntity, String authorId, String mimeType, String content)
       {
          this.id = id;
          this.title = title;
          this.authors = getAuthors(authors);
+         this.slug = slug;
          this.articleAbstract = articleAbstract;
          this.publication = publication2;
          this.lastModified = lastModified2;
@@ -417,7 +419,7 @@ public class PsqlArticleRepo implements ArticleRepository
          
          authors.forEach((a) ->
          {
-            auths.add(new PsqlArticleAuthor(a.id, a.label));
+            auths.add(new PsqlArticleAuthor(a.id, a.name, a.affiliation, a.email, a.contactOther));
          });
          
          return auths;
@@ -482,17 +484,29 @@ public class PsqlArticleRepo implements ArticleRepository
       {
          return lastModified;
       }
+
+      @Override
+      public String getSlug()
+      {
+         return slug;
+      }
    }
    
    private static class PsqlArticleAuthor implements ArticleAuthor
    {
       private final String id;
-      private final String label;
+      private final String name;
+      private final  String affiliation;
+      private final  String email;
+      private final  String contactOther;
       
-      public PsqlArticleAuthor(String id, String label)
+      public PsqlArticleAuthor(String id, String name, String affiliation, String email, String contactOther)
       {
          this.id = id;
-         this.label = label;
+         this.name = name;
+         this.affiliation = affiliation;
+         this.email = email;
+         this.contactOther = contactOther;
       }
       
       @Override
@@ -502,9 +516,27 @@ public class PsqlArticleRepo implements ArticleRepository
       }
 
       @Override
-      public String getLabel()
+      public String getName()
       {
-         return label;
+         return name;
+      }
+
+      @Override
+      public String getAffiliation()
+      {
+         return affiliation;
+      }
+
+      @Override
+      public String getEmail()
+      {
+         return email;
+      }
+
+      @Override
+      public String getOther()
+      {
+         return contactOther;
       }
    }
 }

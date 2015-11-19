@@ -5,13 +5,19 @@ import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
 public class ArticleAuthorDTO
 {
    public String id;
-   public String label;
+   public String name;
+   public String affiliation;
+   public String email;
+   public String contactOther;
    
    public static ArticleAuthorDTO create(ArticleAuthor author)
    {
       ArticleAuthorDTO a = new ArticleAuthorDTO();
       a.id = author.getId();
-      a.label = author.getLabel();
+      a.name = author.getName();
+      a.affiliation = author.getAffiliation();
+      a.email = author.getEmail();
+      a.contactOther = author.getOther();
       return a;
    }
    
@@ -19,7 +25,10 @@ public class ArticleAuthorDTO
    {
       ArticleAuthorDTO dto = new ArticleAuthorDTO();
       dto.id = orig.id;
-      dto.label = orig.label;
+      dto.name = orig.name;
+      dto.affiliation = orig.affiliation;
+      dto.email = orig.email;
+      dto.contactOther = orig.contactOther;
       return dto;
    }
 }

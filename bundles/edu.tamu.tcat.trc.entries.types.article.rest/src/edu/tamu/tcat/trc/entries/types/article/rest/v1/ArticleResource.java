@@ -236,7 +236,10 @@ public class ArticleResource
          {
             ArticleAuthorDTO authDto = new ArticleAuthorDTO();
             authDto.id = a.id;
-            authDto.label = a.label;
+            authDto.name = a.name;
+            authDto.affiliation = a.affiliation;
+            authDto.email = a.email;
+            authDto.contactOther = a.contactOther;
             authorDTO.add(authDto);
          });
       }

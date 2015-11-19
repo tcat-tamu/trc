@@ -14,7 +14,25 @@ public interface ArticleAuthor
    String getId();
 
    /**
-    * @return A display label, typically the person's name.
+    * @return The author's name.
     */
-   String getLabel();
+   String getName();
+
+   /**
+    * 
+    * @return The affiliation of the author
+    */
+   String getAffiliation();
+   
+   /**
+    * 
+    * @return The email address of the author
+    */
+   String getEmail();
+   
+   /**
+    * 
+    * @return Other contact information about the author.
+    */
+   String getOther();
 }

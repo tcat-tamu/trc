@@ -112,7 +112,7 @@ public class ArticleDocument
       {
          try
          {
-            doc.indexDoc.set(ArticleSolrConfig.AUTHOR_NAMES, a.label);
+            doc.indexDoc.set(ArticleSolrConfig.AUTHOR_NAMES, a.name);
          }
          catch (Exception e)
          {
@@ -127,7 +127,7 @@ public class ArticleDocument
       {
          try
          {
-            doc.indexDoc.set(ArticleSolrConfig.AUTHOR_NAMES, a.label);
+            doc.indexDoc.set(ArticleSolrConfig.AUTHOR_NAMES, a.name);
          }
          catch (Exception e)
          {
