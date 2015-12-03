@@ -7,7 +7,6 @@ import java.util.List;
  * bibliographic item.
  *
  * @see ItemTypeProvider for additional detail.
- *
  */
 public interface ItemType
 {
@@ -35,9 +34,17 @@ public interface ItemType
    List<ItemFieldType> getFields();
 
    /**
+    * @param fieldId - The id of the field to be retrieved.
+    * @return The field associated with the supplied field id.
+    * @throws IllegalArgumentException if the no field is defined for this id.
+    */
+   ItemFieldType getField(String fieldId) throws IllegalArgumentException;
+
+   /**
     * @return The list of creator roles that are defined for entries of this type. Note that
-    *       this is intended as a hint to support user interfaces and creators may be assigned
+    *       this is intended as a hint to support user interfaces. Creators may be assigned
     *       to bibliographic references with roles that are not in list of defined roles.
     */
    List<CreatorRole> getCreatorRoles();
+
 }

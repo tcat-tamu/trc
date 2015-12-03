@@ -10,9 +10,17 @@ import java.util.Collection;
  *  example, a Film might have information about it's running time while a journal article may
  *  supply the name of journal it was published in.
  *
+ *  The {@code ItemTypeProvider} is intended to define the bibliographic schema used by a
+ *  particular reference management database (e.g., EndNote, Mendely, etc).
  */
 public interface ItemTypeProvider
 {
+   // TODO need to figure out where this comes from (e.g. an ItemTypeProviderRegistry)
+
+   /**
+    * @return A persistent identifier that can be used to lookup instances of this provider.
+    */
+   String getId();
 
    /**
     * @return A set of unique fields defined by this {@code ItemTypeProvider}. Field types
@@ -27,10 +35,17 @@ public interface ItemTypeProvider
    Collection<ItemType> listDefinedTypes();
 
    /**
+    * @param typeId The id of the type to check.
+    * @return {@code true} if the identified type is defined for this provider.
+    */
+   boolean hasType(String typeId);
+
+   /**
     * @param typeId The id of the type to return.
     * @return The identified bibliographic item type.
     * @throws IllegalArgumentException If the requested item type is not defined by this
     *       provider.
     */
    ItemType getItemType(String typeId) throws IllegalArgumentException;
+
 }
