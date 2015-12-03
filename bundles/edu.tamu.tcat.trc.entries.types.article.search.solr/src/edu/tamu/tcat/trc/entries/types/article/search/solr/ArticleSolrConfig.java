@@ -58,9 +58,7 @@ public class ArticleSolrConfig implements SolrIndexConfig
    @Override
    public void configureBasic(String q, SolrQuery params) throws SearchException
    {
-      StringBuilder qBuilder = new StringBuilder(q);
-
-      params.set("q", qBuilder.toString());
+      params.set("q", q);
    }
 
    @Override

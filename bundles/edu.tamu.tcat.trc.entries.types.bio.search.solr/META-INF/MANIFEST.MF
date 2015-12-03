@@ -20,3 +20,4 @@ Import-Package: edu.tamu.tcat.osgi.config;version="[1.0.0,2.0.0)",
  org.apache.solr.client.solrj.response;version="4.9.0",
  org.apache.solr.common;version="4.9.0",
  org.apache.solr.common.params;version="4.9.0"
+Bundle-Vendor: Texas A&M Engineering Experiment Station
