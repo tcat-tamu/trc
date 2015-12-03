@@ -29,10 +29,4 @@ public interface ArticleAuthor
     * @return The email address of the author
     */
    String getEmail();
-   
-   /**
-    * 
-    * @return Other contact information about the author.
-    */
-   String getOther();
 }

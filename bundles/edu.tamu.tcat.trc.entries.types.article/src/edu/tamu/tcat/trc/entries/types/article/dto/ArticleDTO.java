@@ -87,7 +87,6 @@ public class ArticleDTO
          authDto.name = a.getName();
          authDto.affiliation = a.getAffiliation();
          authDto.email = a.getEmail();
-         authDto.contactOther = a.getOther();
          
          auths.add(authDto);
       });

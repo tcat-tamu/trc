@@ -8,7 +8,6 @@ public class ArticleAuthorDTO
    public String name;
    public String affiliation;
    public String email;
-   public String contactOther;
    
    public static ArticleAuthorDTO create(ArticleAuthor author)
    {
@@ -17,7 +16,6 @@ public class ArticleAuthorDTO
       a.name = author.getName();
       a.affiliation = author.getAffiliation();
       a.email = author.getEmail();
-      a.contactOther = author.getOther();
       return a;
    }
    
@@ -28,7 +26,6 @@ public class ArticleAuthorDTO
       dto.name = orig.name;
       dto.affiliation = orig.affiliation;
       dto.email = orig.email;
-      dto.contactOther = orig.contactOther;
       return dto;
    }
 }

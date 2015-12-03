@@ -419,7 +419,7 @@ public class PsqlArticleRepo implements ArticleRepository
          
          authors.forEach((a) ->
          {
-            auths.add(new PsqlArticleAuthor(a.id, a.name, a.affiliation, a.email, a.contactOther));
+            auths.add(new PsqlArticleAuthor(a.id, a.name, a.affiliation, a.email));
          });
          
          return auths;
@@ -498,15 +498,13 @@ public class PsqlArticleRepo implements ArticleRepository
       private final String name;
       private final  String affiliation;
       private final  String email;
-      private final  String contactOther;
       
-      public PsqlArticleAuthor(String id, String name, String affiliation, String email, String contactOther)
+      public PsqlArticleAuthor(String id, String name, String affiliation, String email)
       {
          this.id = id;
          this.name = name;
          this.affiliation = affiliation;
          this.email = email;
-         this.contactOther = contactOther;
       }
       
       @Override
@@ -533,10 +531,5 @@ public class PsqlArticleRepo implements ArticleRepository
          return email;
       }
 
-      @Override
-      public String getOther()
-      {
-         return contactOther;
-      }
    }
 }
