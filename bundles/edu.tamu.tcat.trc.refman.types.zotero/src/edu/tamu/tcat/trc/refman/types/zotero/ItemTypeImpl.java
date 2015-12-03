@@ -6,7 +6,7 @@ import edu.tamu.tcat.trc.refman.types.CreatorRole;
 import edu.tamu.tcat.trc.refman.types.ItemFieldType;
 import edu.tamu.tcat.trc.refman.types.ItemType;
 
-public class ItemTypeImpl implements ItemType 
+public class ItemTypeImpl implements ItemType
 {
 
 	private final String id;
@@ -25,33 +25,47 @@ public class ItemTypeImpl implements ItemType
 	}
 	
 	@Override
-	public String getId() 
+	public String getId()
 	{
 		return id;
 	}
 
 	@Override
-	public String getLabel() 
+	public String getLabel()
 	{
 		return label;
 	}
 
 	@Override
-	public String getDescription() 
+	public String getDescription()
 	{
 		return description;
 	}
 
 	@Override
-	public List<ItemFieldType> getFields() 
+	public List<ItemFieldType> getFields()
 	{
 		return fieldTypes;
 	}
 
 	@Override
-	public List<CreatorRole> getCreatorRoles() 
+	public List<CreatorRole> getCreatorRoles()
 	{
 		return creatorRoles;
 	}
+
+   @Override
+   public ItemFieldType getField(String fieldId) throws IllegalArgumentException
+   {
+      for(ItemFieldType ft : fieldTypes)
+      {
+         if (ft.getId().equals(fieldId))
+         {
+            int indexOf = fieldTypes.indexOf(ft);
+            return fieldTypes.get(indexOf);
+         }
+      }
+         throw new IllegalArgumentException("The field:" + fieldId + " is not contained within this Item Type:" + id);
+   }
 
 }

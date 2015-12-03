@@ -103,13 +103,13 @@ public class ZoteroTypeAdapter
 
       private ItemTypeImpl getItemTypeImpl(ZoteroTypeMap typeMap)
       {
-    	  String typeId = typeMap.getCslType();
-    	  String typeLabel = typeMap.getZType();
+    	  String cslLabel = typeMap.getCslType();
+    	  String zTypeLabel = typeMap.getZType();
 
-    	  List<ItemFieldType> fieldTypes = getFieldTypes(getTypeMapFields(typeMap));
     	  List<CreatorRole> creatorRoles = getCreatorRoles(getTypeMapFields(typeMap));
+    	  List<ItemFieldType> fieldTypes = getFieldTypes(getTypeMapFields(typeMap));
           
-          return new ItemTypeImpl(typeId, typeLabel, "", fieldTypes, creatorRoles);
+          return new ItemTypeImpl( zTypeLabel, cslLabel, "", fieldTypes, creatorRoles);
       }
       
       private List<ItemFieldType> getFieldTypes(Map<String, ZoteroTypeField> typeMapFields)
@@ -139,7 +139,8 @@ public class ZoteroTypeAdapter
         	else
         		fieldTypeImpl = new ItemFieldTypeImpl(typeMapValue.getValue(),typeMapValue.getLabel(), "", "", "");
         	
-        	fieldTypes.add(fieldTypeImpl);
+        	if(!typeMapKey.equals("creator"))
+        	   fieldTypes.add(fieldTypeImpl);
           });
           
           return fieldTypes;
@@ -166,6 +167,10 @@ public class ZoteroTypeAdapter
                        // ctmVar - creator type map variables
                        CslVar ctmVar = cslFields.get(ctm.getCslField());
                        creatorRoles.add(new CreatorRoleImpl(ctmVar.getName(), creatorValue.getLabel(), ctmVar.getDescription()));
+                    }
+                    else
+                    {
+                       creatorRoles.add(new CreatorRoleImpl(creatorValue.getValue(), creatorValue.getLabel(), "No Description."));
                     }
                  });
               }
@@ -253,7 +258,10 @@ public class ZoteroTypeAdapter
 
 		   for (ZoteroTypeField field : fields)
 		   {
-			   typeMapFields.put(field.getValue(), field);
+		      if (field.getBaseField() != null)
+		         typeMapFields.put(field.getBaseField(), field);
+		      else
+		         typeMapFields.put(field.getValue(), field);
 		   }
 
 		   return typeMapFields;
