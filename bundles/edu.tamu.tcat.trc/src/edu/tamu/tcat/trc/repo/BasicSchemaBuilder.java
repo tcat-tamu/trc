@@ -136,7 +136,7 @@ public class BasicSchemaBuilder implements SchemaBuilder
    {
       built = true;
 
-      Objects.requireNonNull(schema.id, "Invalid schema configuration. No table name defined.");
+      Objects.requireNonNull(schema.id, "Invalid schema configuration. No schema id provided.");
       Objects.requireNonNull(schema.idField, "Invalid schema configuration. No id field defined.");
       Objects.requireNonNull(schema.dataField, "Invalid schema configuration. No data field defined.");
 

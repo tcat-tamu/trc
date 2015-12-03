@@ -50,7 +50,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    private RepositorySchema schema;
    private Function<DTO, RecordType> adapter;
    private Class<DTO> storageType;
-   private EditCommandFactory<DTO, RecordType, EditCommandType> cmdFactory;
+   private EditCommandFactory<DTO, EditCommandType> cmdFactory;
 
    private String getRecordSql;
    private String createRecordSql;
@@ -86,7 +86,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       this.schema = schema;
    }
 
-   public void setCommandFactory(EditCommandFactory<DTO, RecordType, EditCommandType> cmdFactory)
+   public void setCommandFactory(EditCommandFactory<DTO, EditCommandType> cmdFactory)
    {
       this.cmdFactory = cmdFactory;
    }
@@ -170,7 +170,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
                   ? MessageFormat.format("AND {0} IS NULL", removedField)
                   : "";
 
-      return MessageFormat.format(GET_RECORD_SQL, schema.getDataField(), tablename, isNotRemoved);
+      return MessageFormat.format(GET_RECORD_SQL, schema.getDataField(), tablename, schema.getIdField(), isNotRemoved);
    }
 
    private String prepareInsertSql()
@@ -352,7 +352,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
             if (!rs.next())
                throw new RepositoryException("Could not find record for id = '" + id + "'");
 
-            PGobject pgo = (PGobject)rs.getObject(tablename);
+            PGobject pgo = (PGobject)rs.getObject(schema.getDataField());
             return pgo.toString();
          }
       }

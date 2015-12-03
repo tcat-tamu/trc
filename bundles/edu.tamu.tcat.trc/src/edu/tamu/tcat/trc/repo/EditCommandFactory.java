@@ -8,10 +8,10 @@ import java.util.function.Supplier;
  * updating records that can connect into the underlying data storage layer managed by
  * the repository.
  *
- * @param <S> The repository's internal data storage type
- * @param <R> The record type produced by the repository
+ * @param <StorageType> The repository's internal data storage type
+ * @param <EditCmdType> The type of the edit command object produced by this factory
  */
-public interface EditCommandFactory<S, R, EditorType>
+public interface EditCommandFactory<StorageType, EditCmdType>
 {
    /**
     * Constructs a {@link RecordEditCommand} to be used to create a new record.
@@ -25,7 +25,7 @@ public interface EditCommandFactory<S, R, EditorType>
     *
     * @return A command object to be used to edit the newly created record.
     */
-   EditorType create(String id, CommitHook<S> commitHook);
+   EditCmdType create(String id, CommitHook<StorageType> commitHook);
 
    /**
     * Constructs a {@link RecordEditCommand} to be used to edit an existing record. In
@@ -46,7 +46,7 @@ public interface EditCommandFactory<S, R, EditorType>
     *       methods with the data to be stored in the repository's underlying data storage system.
     * @return A command object to be used to edit the identified record.
     */
-   EditorType edit(String id, Supplier<S> currentState, CommitHook<S> commitHook);
+   EditCmdType edit(String id, Supplier<StorageType> currentState, CommitHook<StorageType> commitHook);
 
    // TODO how can we support write locking. I'd like to provide a lock(id) method on the
    //      commit hook that will cause the currentState supplier to block until the commit

@@ -57,7 +57,7 @@ public class PsqlJacksonRepoBuilder<RecordType, EditCmdType, StorageType>
    private String tablename;
    private RepositorySchema schema;
    private Function<StorageType, RecordType> adapter;
-   private EditCommandFactory<StorageType, RecordType, EditCmdType> cmdFactory;
+   private EditCommandFactory<StorageType, EditCmdType> cmdFactory;
    private Class<StorageType> storageType;
 
 
@@ -120,7 +120,7 @@ public class PsqlJacksonRepoBuilder<RecordType, EditCmdType, StorageType>
    /**
     * @param cmdFactory A factory for use in generating edit commands.
     */
-   public void setEditCommandFactory(EditCommandFactory<StorageType, RecordType, EditCmdType> cmdFactory)
+   public void setEditCommandFactory(EditCommandFactory<StorageType, EditCmdType> cmdFactory)
    {
       this.cmdFactory = cmdFactory;
    }
