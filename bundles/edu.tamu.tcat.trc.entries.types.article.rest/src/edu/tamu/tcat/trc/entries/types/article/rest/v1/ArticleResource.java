@@ -48,13 +48,15 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
+import edu.tamu.tcat.trc.entries.types.article.AuthorManager;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
-import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.ArticleAuthor;
+import edu.tamu.tcat.trc.entries.types.article.repo.EditAuthorCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchService;
+import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.search.SearchException;
 
 
@@ -68,11 +70,18 @@ public class ArticleResource
 
    private ArticleSearchService articleSearchService;
 
+   private DocumentRepository<edu.tamu.tcat.trc.entries.types.article.ArticleAuthor, EditAuthorCommand>  authorRepo;
+
    public void setRepository(ArticleRepository repo)
    {
       this.repo = repo;
    }
 
+   public void setAuthorRepository(AuthorManager authorManager)
+   {
+       this.authorRepo = authorManager.getAuthorRepo();
+   }
+   
    public void setArticleService(ArticleSearchService service)
    {
       this.articleSearchService = service;
@@ -168,6 +177,22 @@ public class ArticleResource
       try
       {
          EditArticleCommand editCmd = repo.create();
+         EditAuthorCommand authorCmd = authorRepo.create();
+         article.authors.forEach((auth) ->
+         {
+            authorCmd.setName(auth.name);
+            authorCmd.setAffiliation(auth.affiliation);
+            authorCmd.setEmail(auth.email);
+            try
+            {
+               auth.id = authorCmd.execute().get();
+            }
+            catch (Exception e)
+            {
+               logger.log(Level.SEVERE, "Failed to update the supplied author.", e);
+               throw new InternalServerErrorException("Failed to update the supplied author.");
+            }
+         });
          apply(editCmd, article);
 
          UUID id = editCmd.execute().get();
@@ -239,7 +264,6 @@ public class ArticleResource
             authDto.name = a.name;
             authDto.affiliation = a.affiliation;
             authDto.email = a.email;
-            authDto.contactOther = a.contactOther;
             authorDTO.add(authDto);
          });
       }

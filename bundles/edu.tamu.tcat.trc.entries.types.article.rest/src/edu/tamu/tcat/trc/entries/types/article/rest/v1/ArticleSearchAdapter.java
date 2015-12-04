@@ -133,7 +133,6 @@ public class ArticleSearchAdapter
          authDto.name = a.getName();
          authDto.affiliation = a.getAffiliation();
          authDto.email = a.getEmail();
-         authDto.contactOther = a.getOther();
          auths.add(authDto);
       });
       
