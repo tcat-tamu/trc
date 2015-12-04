@@ -3,22 +3,21 @@ package edu.tamu.tcat.trc.entries.types.article.postgres;
 import java.util.concurrent.Future;
 import java.util.function.Supplier;
 
-import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditAuthorCommand;
 import edu.tamu.tcat.trc.repo.CommitHook;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 
-public class EditAuthorCmdFactoryImpl implements EditCommandFactory<ArticleAuthorDTO, ArticleAuthor, EditAuthorCommand>
+public class EditAuthorCmdFactoryImpl implements EditCommandFactory<ArticleAuthorDTO, EditAuthorCommand>
 {
    public EditAuthorCmdFactoryImpl()
    {
    }
-   
+
    @Override
    public EditAuthorCmd create(String id, CommitHook<ArticleAuthorDTO> commitHook)
    {
-      
+
       return new EditAuthorCmd(id, null, commitHook);
    }
 
@@ -33,7 +32,7 @@ public class EditAuthorCmdFactoryImpl implements EditCommandFactory<ArticleAutho
       private final Supplier<ArticleAuthorDTO> currentState;
       private final CommitHook<ArticleAuthorDTO> hook;
       private final AuthorChangeSet changes;
-      
+
       EditAuthorCmd(String id, Supplier<ArticleAuthorDTO> currentState, CommitHook<ArticleAuthorDTO> hook)
       {
          this.currentState = currentState;

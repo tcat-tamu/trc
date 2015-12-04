@@ -15,27 +15,27 @@ import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
 
 public class ArticleAuthorManager implements AuthorManager
 {
-   
+
    private SqlExecutor exec;
    private ConfigurationProperties config;
-   
+
    DocumentRepository<ArticleAuthor, EditAuthorCommand> docRepos;
-   
+
    public void setSqlExecutor(SqlExecutor exec)
    {
       this.exec = exec;
    }
-   
+
    public void setConfig(ConfigurationProperties config)
    {
       this.config = config;
    }
-   
+
    public void activate()
    {
       this.docRepos = buildAuthorRepo();
    }
-   
+
    private DocumentRepository<ArticleAuthor, EditAuthorCommand> buildAuthorRepo()
    {
       try
@@ -65,12 +65,12 @@ public class ArticleAuthorManager implements AuthorManager
       schemaBuilder.setDataField("author");
       return schemaBuilder.build();
    }
-   
+
    private ArticleAuthor adapt(ArticleAuthorDTO dto)
    {
       return new BasicAuthor(dto.id, dto.name, dto.affiliation, dto.email);
    }
-   
+
    @Override
    public DocumentRepository<ArticleAuthor, EditAuthorCommand> getAuthorRepo()
    {
