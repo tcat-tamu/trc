@@ -177,9 +177,9 @@ public class ArticleResource
       try
       {
          EditArticleCommand editCmd = repo.create();
-         EditAuthorCommand authorCmd = authorRepo.create();
          article.authors.forEach((auth) ->
          {
+            EditAuthorCommand authorCmd = authorRepo.create();
             authorCmd.setName(auth.name);
             authorCmd.setAffiliation(auth.affiliation);
             authorCmd.setEmail(auth.email);

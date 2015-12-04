@@ -19,7 +19,11 @@ public class ArticleAuthorManager implements AuthorManager
    private SqlExecutor exec;
    private ConfigurationProperties config;
 
-   DocumentRepository<ArticleAuthor, EditAuthorCommand> docRepos;
+   private DocumentRepository<ArticleAuthor, EditAuthorCommand> docRepos;
+   
+   public ArticleAuthorManager()
+   {
+   }
 
    public void setSqlExecutor(SqlExecutor exec)
    {
