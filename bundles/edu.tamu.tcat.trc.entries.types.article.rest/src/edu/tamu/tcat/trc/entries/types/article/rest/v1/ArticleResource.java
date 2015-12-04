@@ -231,6 +231,22 @@ public class ArticleResource
       try
       {
          EditArticleCommand editCmd = repo.edit(UUID.fromString(articleId));
+         article.authors.forEach((auth) ->
+         {
+            try
+            {
+               EditAuthorCommand authorCmd = authorRepo.edit(auth.id);
+               authorCmd.setName(auth.name);
+               authorCmd.setAffiliation(auth.affiliation);
+               authorCmd.setEmail(auth.email);
+               authorCmd.execute().get();
+            }
+            catch (Exception e)
+            {
+               logger.log(Level.SEVERE, "Failed to update the supplied author.", e);
+               throw new InternalServerErrorException("Failed to update the supplied author.");
+            }
+         });
          apply(editCmd, article);
 
          UUID id = editCmd.execute().get();
