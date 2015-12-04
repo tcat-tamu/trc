@@ -1,9 +1,9 @@
 package edu.tamu.tcat.trc.refman;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Set;
 
-import edu.tamu.tcat.trc.refman.types.CreatorRole;
 import edu.tamu.tcat.trc.refman.types.ItemFieldType;
 import edu.tamu.tcat.trc.refman.types.ItemType;
 
@@ -19,15 +19,12 @@ import edu.tamu.tcat.trc.refman.types.ItemType;
  *  <em>Hamlet</em> rather than a unique reference to the work <em>Hamlet</em>). Notably,
  *  the information recorded by a bibliographic reference may be duplicated within a single
  *  collection or across multiple collections.
- *
- *  <p>
  */
 public interface BibliographicReference
 {
    /**
-    * @return A unique, persistent identifier for this bibliographic reference. Note that this
-    *    identifies this descriptive bibliographic record, not the underlying item being
-    *    referenced.
+    * @return A unique, persistent identifier for this bibliographic reference. Note that the
+    *    id references this descriptive bibliographic record, not the referenced item.
     */
    URI getId();
 
@@ -37,9 +34,10 @@ public interface BibliographicReference
    ItemType getType();
 
    /**
-    * @return Bibliographic description
+    * @return A list of people or entities who contributed to or are otherwise responsible for
+    *    the creation of this item (for example, authors).
     */
-   Set<CreatorValue> getCreators();
+   List<CreatorValue> getCreators();
 
    /**
     *
@@ -55,29 +53,68 @@ public interface BibliographicReference
     */
    Set<FieldValue> getValues();
 
-
-
    /**
-    * Represents
-    *
+    * A key-value pair for a particular field of the bibliographic record. Note that this does
+    * not include the creators.
     */
    public interface FieldValue
    {
+      /**
+       * @return The field type key.
+       */
       ItemFieldType getFieldType();
 
+      /**
+       * @return The value associated with this field. May be an empty string.
+       */
       String getValue();
    }
 
+   /**
+    * A structured representation of a person or entity who contributed to the creation of this
+    * item. Creators require a structured representation that is not adequately supported by
+    * the general key-value pair structure of other bibliographic fields.
+    *
+    * <p>
+    * Creators are typically defined using a family and given name and will be sorted
+    * lexigraphically by the family name and then the given name. Alternatively, for some types
+    * of creators such as institutions, there is not adequate structured representation of the
+    * name. In these cases a single name value may be supplied.
+    */
    public interface CreatorValue
    {
-      CreatorRole getRole();
+      // TODO do we need to separate family name from the 'name' field or can we collapse
+      //      these two representations
+      /**
+       * @return The role this individual played in the creation of the work, for example,
+       *    author, editor, translator, contributor, etc. Additional information about this
+       *    role should be obtained from the item type definition.
+       */
+      String getRoleId();
 
-      boolean isStructured();
-
+      /**
+       * @return An unstructured representation of the creator's name.
+       */
       String getName();
 
+      /**
+       * @return The creator's family or last name. This will be used as the primary value
+       *    for sorting.
+       */
       String getFamilyName();
 
+      /**
+       * @return The creator's given or first name. This will be used as a secondary value for
+       *    sorting.
+       */
       String getGivenName();
+
+      /**
+       * @return A unique identifier for this person as defined by some canonical name authority.
+       *       The specific choice of a name authority is determined by the client application.
+       *       May be {@code null}.
+       */
+      String getAuthId();
+
    }
 }
