@@ -10,7 +10,6 @@ Export-Package: edu.tamu.tcat.trc.refman,
  edu.tamu.tcat.trc.refman.search,
  edu.tamu.tcat.trc.refman.types
 Import-Package: edu.tamu.tcat.account;version="1.0.0",
- edu.tamu.tcat.db.exec.sql;version="1.0.1",
  edu.tamu.tcat.osgi.config;version="1.1.0",
  edu.tamu.tcat.trc.entries.types.biblio.repo,
  edu.tamu.tcat.trc.repo;version="1.0.0",
