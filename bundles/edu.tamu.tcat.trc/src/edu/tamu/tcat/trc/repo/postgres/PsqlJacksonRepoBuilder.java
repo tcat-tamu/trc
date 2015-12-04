@@ -193,11 +193,11 @@ public class PsqlJacksonRepoBuilder<RecordType, EditCmdType, StorageType>
          }
       }
 
-      return matchColumType(definedColumns, schema.getIdField(), "^character")
-          && matchColumType(definedColumns, schema.getDataField(), "^json")
-          && matchColumType(definedColumns, schema.getCreatedField(), "^timestamp")
-          && matchColumType(definedColumns, schema.getModifiedField(), "^timestamp")
-          && matchColumType(definedColumns, schema.getRemovedField(), "boolean");
+      return  matchColumType(definedColumns, schema.getIdField(), "^char.+")
+              && matchColumType(definedColumns, schema.getDataField(), "^json")
+              && matchColumType(definedColumns, schema.getCreatedField(), "^time.+")
+              && matchColumType(definedColumns, schema.getModifiedField(), "^time.+")
+              &&  matchColumType(definedColumns, schema.getRemovedField(), "^time.+");
 
    }
 
