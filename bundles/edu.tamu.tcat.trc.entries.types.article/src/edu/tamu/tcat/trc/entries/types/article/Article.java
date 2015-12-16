@@ -46,19 +46,27 @@ public interface Article
     * @return A unique identifier for this article.
     */
    UUID getId();
+   
+   /**
+    * @return The type of content for the article. Currently we anticipate only
+    *    text or HTML articles but applications may provide support for other data types
+    *    (e.g. Markdown, XML, SVG, etc) provided that they can be represented as contents
+    *    of a JSON document.
+    */
+   String getType();
 
    /**
     * @return String representation of the title of the article.
     */
    String getTitle();
    
+   ArticlePublication getPublicationInfo();
+     
    /**
     * 
     * @return List of Authors that have contributed to the article.
     */
    List<ArticleAuthor> getAuthors();
-   
-   String getSlug();
    
    /**
     * 
@@ -68,26 +76,43 @@ public interface Article
    
    /**
     * 
-    * @return Original publication date of the article.
+    * @return The main ideas and thoughts that represent the article.
     */
-   Date getPublishedDate();
+   String getBody();
    
    /**
     * 
-    * @return Last modification date of the article. May return null if the article has not been updated.
+    * @return A list of footnotes from the article.
     */
-   Date getLastModified();
+   List<Footnote> getFootnotes();
+   
+   /**
+    * 
+    * @return A list of citations used to format the bibliographies
+    */
+   List<Citation> getCitations();
+   
+   /**
+    * 
+    * @return A list of bibliographies referenced throughout the article.
+    */
+   List<Bibliography> getBibliographies();
+   
+   /**
+    * 
+    * @return Links that are related to the article.
+    */
+   List<ArticleLink> getLinks();
+   
+   /**
+    * 
+    * @return The theme that has been designated for this article.
+    */
+   Theme getTheme();
 
    /**
-    * @return The type of content for the article. Currently we anticipate only
-    *    text or HTML articles but applications may provide support for other data types
-    *    (e.g. Markdown, XML, SVG, etc) provided that they can be represented as contents
-    *    of a JSON document.
+    *  Has not been implemented.
+    * @return The representation of the title
     */
-   String getMimeType();
-
-   /**
-    * @return The content of the article.
-    */
-   String getContent();
+   String getSlug();
 }

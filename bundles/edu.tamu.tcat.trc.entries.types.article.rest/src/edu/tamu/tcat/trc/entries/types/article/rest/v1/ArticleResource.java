@@ -50,9 +50,30 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.article.AuthorManager;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO.BibAuthorDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO.BibTranslatorDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO.IssuedBiblioDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.CitationDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.CitationDTO.CitationPropertiesDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.FootnoteDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.LinkDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.PublicationDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.ThemeDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.ThemeDTO.TreatmentDTO;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditAuthorCommand;
+import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.ArticleAuthor;
+import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.ArticleLink;
+import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Author;
+import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Bibliography;
+import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Citation;
+import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.FootNote;
+import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Issued;
+import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Publication;
+import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Theme;
+import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Translator;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchService;
@@ -268,32 +289,197 @@ public class ArticleResource
       }
    }
 
-   private void apply(EditArticleCommand editCmd, RestApiV1.Article article)
-   {
-      List<ArticleAuthorDTO> authorDTO = new ArrayList<>();
-      if (article.authors != null)
-      {
-         article.authors.forEach((a) ->
-         {
-            ArticleAuthorDTO authDto = new ArticleAuthorDTO();
-            authDto.id = a.id;
-            authDto.name = a.name;
-            authDto.affiliation = a.affiliation;
-//            authDto.email = a.email;
-            authorDTO.add(authDto);
-         });
-      }
-      
-      editCmd.setTitle(article.title);
-      editCmd.setAuthors(authorDTO);
-      editCmd.setAbstract(article.articleAbstract);
-   }
-
    @DELETE
    @Path("{articleid}")
    public void delete(@PathParam(value="articleid") String articleId)
    {
       // TODO send appropriate response.
       repo.remove(UUID.fromString(articleId));
+   }
+
+   private void apply(EditArticleCommand editCmd, RestApiV1.Article article)
+   {
+      editCmd.setType(article.type);
+      editCmd.setTitle(article.title);
+      editCmd.setPublicationInfo(getPublication(article.pubInfo));
+      editCmd.setAuthors(getAuthors(article.authors));
+      editCmd.setAbstract(article.articleAbstract);
+      editCmd.setBody(article.body);
+      editCmd.setFootnotes(getFootnotes(article.footnotes));
+      editCmd.setCitations(getCitations(article.citations));
+      editCmd.setBibliography(getBibliographies(article.bibliography));
+      editCmd.setLinks(getLinks(article.links));
+      editCmd.setTheme(getTheme(article.theme));
+   }
+
+   private PublicationDTO getPublication(Publication pubInfo)
+   {
+      PublicationDTO pubDTO = new PublicationDTO();
+      pubDTO.dateCreated = pubInfo.dateCreated;
+      pubDTO.dateModified = pubInfo.dateModified;
+      return pubDTO;
+   }
+
+   private List<ArticleAuthorDTO> getAuthors(List<ArticleAuthor> authors)
+   {
+      List<ArticleAuthorDTO> authorDTO = new ArrayList<>();
+      if (authors != null)
+      {
+         authors.forEach((a) ->
+         {
+            ArticleAuthorDTO authDto = new ArticleAuthorDTO();
+            authDto.id = a.id;
+            authDto.name = a.name;
+            authDto.affiliation = a.affiliation;
+            authDto.contact = ArticleAuthorDTO.ContactInfoDTO.create(a.contact.email, a.contact.phone);
+            authorDTO.add(authDto);
+         });
+      }
+      
+      return authorDTO;
+   }
+
+   private ThemeDTO getTheme(Theme theme)
+   {
+      ThemeDTO dto = new ThemeDTO();
+      List<TreatmentDTO> trtDTO = new ArrayList<>();
+      if (theme == null)
+      {
+         dto.treatments = new ArrayList<>(trtDTO);
+         return dto;
+      }
+      dto.themeAbstract = theme.themeAbstract;
+      dto.title = theme.title;
+      
+      theme.treatments.forEach((treatment) ->
+      {
+         TreatmentDTO treatDTO = new TreatmentDTO();
+         treatDTO.type = treatment.type;
+         treatDTO.uri = treatment.uri;
+         trtDTO.add(treatDTO);
+      });
+      
+      return dto;
+   }
+
+   private List<LinkDTO> getLinks(List<ArticleLink> links)
+   {
+      List<LinkDTO> dto = new ArrayList<>();
+      if(links != null)
+      {
+         links.forEach((link)->
+         {
+            LinkDTO linkDTO = new LinkDTO();
+            linkDTO.id = link.id;
+            linkDTO.title = link.title;
+            linkDTO.uri = link.uri;
+            linkDTO.rel = link.rel;
+            dto.add(linkDTO);
+         });
+      }
+      return dto;
+   }
+
+   private List<BibliographyDTO> getBibliographies(List<Bibliography> bibliography)
+   {
+      List<BibliographyDTO> bibDTOs = new ArrayList<>();
+      if (bibliography != null)
+      {
+         bibliography.forEach((bib) ->
+         {
+            BibliographyDTO dto = new BibliographyDTO();
+            dto.id = bib.id;
+            dto.type = bib.type;
+            dto.title = bib.title;
+            dto.author = getAuthor(bib.author);
+            dto.translator = getTranslator(bib.translator);
+            dto.publisher = bib.publisher;
+            dto.publisherPlace = bib.publisherPlace;
+            dto.url = bib.URL;
+            dto.issued = getIssued(bib.issued);
+         });
+      }
+      
+      return bibDTOs;
+   }
+
+   private IssuedBiblioDTO getIssued(Issued issued)
+   {
+      IssuedBiblioDTO dto = new IssuedBiblioDTO();
+      if (issued == null)
+         dto.dateParts = new ArrayList<List<String>>();
+      else
+         dto.dateParts = new ArrayList<List<String>>(issued.dateParts);
+      return dto;
+   }
+
+   private List<BibTranslatorDTO> getTranslator(List<Translator> translator)
+   {
+      List<BibTranslatorDTO> transDTOs = new ArrayList<>();
+      if (translator != null)
+      {
+         translator.forEach((t)->
+         {
+            BibTranslatorDTO dto = new BibTranslatorDTO();
+            dto.family = t.family;
+            dto.given = t.given;
+            dto.literal = t.literal;
+            transDTOs.add(dto);
+         });
+      }
+      
+      return transDTOs;
+   }
+
+   private List<BibAuthorDTO> getAuthor(List<Author> authors)
+   {
+      List<BibAuthorDTO> authDTOs = new ArrayList<>();
+      if (authors != null)
+      {
+         authors.forEach((auth)->
+         {
+            BibAuthorDTO dto = new BibAuthorDTO();
+            dto.family = auth.family;
+            dto.given = auth.given;
+            authDTOs.add(dto);
+         });
+      }
+      return authDTOs;
+   }
+
+   private List<CitationDTO> getCitations(List<Citation> citations)
+   {
+      List<CitationDTO> citeDTOs = new ArrayList<>();
+      if (citations != null)
+      {
+         citations.forEach((cite) ->
+         {
+            CitationDTO dto = new CitationDTO();
+            CitationPropertiesDTO props = CitationPropertiesDTO.create();
+            dto.id = cite.id;
+            dto.properties = props;
+            dto.suppressAuthor = cite.supressAuthor;
+            
+            citeDTOs.add(dto);
+         });
+      }
+      return null;
+   }
+
+   private List<FootnoteDTO> getFootnotes(List<FootNote> footnotes)
+   {
+      List<FootnoteDTO> footnoteDTOs = new ArrayList<>();
+      if (footnotes != null)
+      {
+         footnotes.forEach((ftn) ->
+         {
+            FootnoteDTO dto = new FootnoteDTO();
+            dto.id = ftn.id;
+            dto.text = ftn.text;
+            
+            footnoteDTOs.add(dto);
+         });
+      }
+      return footnoteDTOs;
    }
 }

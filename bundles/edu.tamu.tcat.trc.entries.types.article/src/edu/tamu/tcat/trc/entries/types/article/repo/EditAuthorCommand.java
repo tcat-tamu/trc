@@ -2,6 +2,8 @@ package edu.tamu.tcat.trc.entries.types.article.repo;
 
 import java.util.concurrent.Future;
 
+import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO.ContactInfoDTO;
+
 public interface EditAuthorCommand
 {
    /**
@@ -20,7 +22,7 @@ public interface EditAuthorCommand
     * The email of the author. This could be null.
     * @param email
     */
-   void setEmail(String email);
+   void setContact(ContactInfoDTO info);
    
    Future<String> execute();
 }

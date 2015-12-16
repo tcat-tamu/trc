@@ -28,5 +28,13 @@ public interface ArticleAuthor
     * 
     * @return The email address of the author
     */
-   String getEmail();
+   
+   ContactInfo getContactInfo();
+   
+   public interface ContactInfo
+   {
+      String getEmail();
+      
+      String getPhone();
+   }
 }

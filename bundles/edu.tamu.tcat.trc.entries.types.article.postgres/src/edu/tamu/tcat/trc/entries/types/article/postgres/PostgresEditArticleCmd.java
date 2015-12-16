@@ -15,9 +15,7 @@
  */
 package edu.tamu.tcat.trc.entries.types.article.postgres;
 
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -32,8 +30,8 @@ import edu.tamu.tcat.trc.entries.types.article.dto.CitationDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.FootnoteDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.LinkDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.PublicationDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.ThemeDTO;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
-import edu.tamu.tcat.trc.entries.types.article.repo.ThemeDTO;
 
 public class PostgresEditArticleCmd implements EditArticleCommand
 {
@@ -66,9 +64,17 @@ public class PostgresEditArticleCmd implements EditArticleCommand
          throw new IllegalArgumentException("The supplied article ");
 
       
+      setType(updateArticle.type);
       setTitle(updateArticle.title);
+      setPublicationInfo(updateArticle.info);
       setAuthors(updateArticle.authors);
       setAbstract(updateArticle.articleAbstract);
+      setBody(updateArticle.body);
+      setFootnotes(updateArticle.footnotes);
+      setCitations(updateArticle.citation);
+      setBibliography(updateArticle.bibliographies);
+      setLinks(updateArticle.links);
+      setTheme(updateArticle.theme);
 
    }
 
@@ -109,59 +115,63 @@ public class PostgresEditArticleCmd implements EditArticleCommand
    }
 
    @Override
-   public void setType(String Type)
+   public void setType(String type)
    {
-      // TODO Auto-generated method stub
-      
+      article.type = guardNull(type);
    }
 
    @Override
    public void setPublicationInfo(PublicationDTO pubData)
    {
-      // TODO Auto-generated method stub
-      
+      article.info = pubData;
    }
 
    @Override
    public void setBody(String body)
    {
-      // TODO Auto-generated method stub
-      
+      article.body = guardNull(body);
    }
 
    @Override
-   public void setFootnotes(List<FootnoteDTO> ftNotes)
+   public void setFootnotes(List<FootnoteDTO> footNotes)
    {
-      // TODO Auto-generated method stub
-      
+      if (footNotes == null)
+         article.footnotes = new ArrayList<>();
+      else
+         article.footnotes = new ArrayList<>(footNotes);
    }
 
    @Override
    public void setCitations(List<CitationDTO> citations)
    {
-      // TODO Auto-generated method stub
-      
+      if (citations == null)
+         article.citation = new ArrayList<>();
+      else
+         article.citation = new ArrayList<>(citations);
    }
 
    @Override
    public void setBibliography(List<BibliographyDTO> bibliographies)
    {
-      // TODO Auto-generated method stub
-      
+      if (bibliographies == null)
+         article.bibliographies = new ArrayList<>();
+      else
+         article.bibliographies = new ArrayList<>(bibliographies);
    }
 
    @Override
    public void setLinks(List<LinkDTO> links)
    {
-      // TODO Auto-generated method stub
-      
+      if (links == null)
+         article.links = new ArrayList<>();
+      else
+         article.links = new ArrayList<>(links);
    }
 
    @Override
    public void setTheme(ThemeDTO theme)
    {
-      // TODO Auto-generated method stub
-      
+      article.theme = theme;
    }
 
 

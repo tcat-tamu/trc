@@ -8,22 +8,22 @@ public class BasicAuthor implements ArticleAuthor
    private final String id;
    private final String name;
    private final String affiliation;
-   private final String email;
+   private final BasicContact info;
    
    public BasicAuthor()
    {
       this.id = null;
       this.name = null;
       this.affiliation = null;
-      this.email = null;
+      this.info = null;
    }
    
-   public BasicAuthor(String id, String name, String affiliation, String email)
+   public BasicAuthor(String id, String name, String affiliation, BasicContact info)
    {
       this.id = id;
       this.name = name;
       this.affiliation = affiliation;
-      this.email = email;
+      this.info = info;
    }
    
    @Override
@@ -45,9 +45,40 @@ public class BasicAuthor implements ArticleAuthor
    }
 
    @Override
-   public String getEmail()
+   public ContactInfo getContactInfo()
    {
-      return this.email;
+      return info;
+   }
+   
+   public class BasicContact implements ContactInfo
+   {
+      private final String email;
+      private final String phone;
+      
+      public BasicContact()
+      {
+         this.email = null;
+         this.phone = null;
+      }
+      
+      public BasicContact(String email, String phone)
+      {
+         this.email = email;
+         this.phone = phone;
+      }
+
+      @Override
+      public String getEmail()
+      {
+         return email;
+      }
+
+      @Override
+      public String getPhone()
+      {
+         return phone;
+      }
+      
    }
 
 }

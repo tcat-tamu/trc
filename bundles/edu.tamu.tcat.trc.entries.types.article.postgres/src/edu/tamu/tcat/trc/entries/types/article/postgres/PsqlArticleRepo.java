@@ -47,8 +47,20 @@ import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
+import edu.tamu.tcat.trc.entries.types.article.ArticleLink;
+import edu.tamu.tcat.trc.entries.types.article.ArticlePublication;
+import edu.tamu.tcat.trc.entries.types.article.Bibliography;
+import edu.tamu.tcat.trc.entries.types.article.Citation;
+import edu.tamu.tcat.trc.entries.types.article.Footnote;
+import edu.tamu.tcat.trc.entries.types.article.Theme;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.CitationDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.FootnoteDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.LinkDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.PublicationDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.ThemeDTO;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleChangeEvent;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
@@ -170,9 +182,10 @@ public class PsqlArticleRepo implements ArticleRepository
 
    private static Article adapt(ArticleDTO article)
    {
-      return new PsqlArticle(article.id, article.title, article.authors, article.slug, article.articleAbstract,
-                             article.publication, article.lastModified, article.associatedEntity,
-                             article.authorId, article.mimeType, article.content);
+      return new PsqlArticle(article.id, article.title, article.type,
+                             article.authors, article.info, article.articleAbstract,
+                             article.body, article.citation, article.footnotes,
+                             article.bibliographies, article.links, article.theme );
    }
 
    @Override
@@ -273,7 +286,7 @@ public class PsqlArticleRepo implements ArticleRepository
          catch(SQLException e)
          {
             throw new IllegalStateException("Failed to update note reference [" + dto.id + "]. "
-                  + "\n\tEntry [" + dto.associatedEntity + "]"
+                  + "\n\tEntry [" + dto.title + "]"
                   + "\n\tCopy  [" + dto.id + "]", e);
          }
       };
@@ -384,32 +397,40 @@ public class PsqlArticleRepo implements ArticleRepository
       private final UUID id;
       private final String title;
       private final List<ArticleAuthor> authors;
-      private final String slug;
       private final String articleAbstract;
-      private final Date publication;
-      private final Date lastModified;
-      private final URI associatedEntity;
-      private final String authorId;
-      private final String mimeType;
-      private final String content;
+      private final String type;
+      private final ArticlePublication info;
+      private final String body;
+      private final List<Citation> citation;
+      private final List<Footnote> footnotes;
+      private final List<Bibliography> bibliographies;
+      private final List<ArticleLink> links;
+      private final Theme theme;
 
-      public PsqlArticle(UUID id, String title, List<ArticleAuthorDTO> authors, String slug,
-                         String articleAbstract, Date publication2, Date lastModified2,
-                         URI associatedEntity, String authorId, String mimeType, String content)
+      public PsqlArticle(UUID id, String title, String type, List<ArticleAuthorDTO> authors,
+                         PublicationDTO info, String articleAbstract, String body,
+                         List<CitationDTO> citation, List<FootnoteDTO> footnotes,
+                         List<BibliographyDTO> bibliographies, List<LinkDTO> links, ThemeDTO theme)
       {
          this.id = id;
          this.title = title;
+         this.type = type;
          this.authors = getAuthors(authors);
-         this.slug = slug;
+         this.info = getPublication(info);
          this.articleAbstract = articleAbstract;
-         this.publication = publication2;
-         this.lastModified = lastModified2;
-         this.associatedEntity = associatedEntity;
-         this.authorId = authorId;
-         this.mimeType = mimeType;
-         this.content = content;
+         this.body = body;
+         this.citation = null; //citation;
+         this.footnotes = null; //footnotes;
+         this.bibliographies = null; //bibliographies;
+         this.links = null; //links;
+         this.theme = getTheme(theme);
       }
-      
+
+      private Theme getTheme(ThemeDTO theme)
+      {
+         return new PsqlTheme(theme.title, theme.themeAbstract, theme.treatments);
+      }
+
       private List<ArticleAuthor> getAuthors(List<ArticleAuthorDTO> authors)
       {
          List<ArticleAuthor> auths = new ArrayList<>();
@@ -419,10 +440,15 @@ public class PsqlArticleRepo implements ArticleRepository
          
          authors.forEach((a) ->
          {
-            auths.add(new PsqlArticleAuthor(a.id, a.name, a.affiliation, a.email));
+            auths.add(new PsqlArticleAuthor(a.id, a.name, a.affiliation, a.contact));
          });
          
          return auths;
+      }
+      
+      private ArticlePublication getPublication(PublicationDTO pub)
+      {
+         return new BasicPublication(pub.dateCreated, pub.dateModified);
       }
 
       @Override
@@ -435,30 +461,6 @@ public class PsqlArticleRepo implements ArticleRepository
       public String getTitle()
       {
          return title;
-      }
-//
-//      @Override
-//      public URI getEntity()
-//      {
-//         return associatedEntity;
-//      }
-//
-//      @Override
-//      public UUID getAuthorId()
-//      {
-//         return authorId.isEmpty() ? null : UUID.fromString(authorId);
-//      }
-
-      @Override
-      public String getMimeType()
-      {
-         return mimeType;
-      }
-
-      @Override
-      public String getContent()
-      {
-         return content;
       }
 
       @Override
@@ -474,21 +476,57 @@ public class PsqlArticleRepo implements ArticleRepository
       }
 
       @Override
-      public Date getPublishedDate()
-      {
-         return publication;
-      }
-
-      @Override
-      public Date getLastModified()
-      {
-         return lastModified;
-      }
-
-      @Override
       public String getSlug()
       {
-         return slug;
+         return null;
+      }
+
+      @Override
+      public String getType()
+      {
+         return type;
+      }
+
+      @Override
+      public ArticlePublication getPublicationInfo()
+      {
+         return info;
+      }
+
+      @Override
+      public String getBody()
+      {
+         return body;
+      }
+
+      @Override
+      public List<Footnote> getFootnotes()
+      {
+         return null;
+      }
+
+      @Override
+      public List<Citation> getCitations()
+      {
+         return null;
+      }
+
+      @Override
+      public List<Bibliography> getBibliographies()
+      {
+         return null;
+      }
+
+      @Override
+      public List<ArticleLink> getLinks()
+      {
+         return null;
+      }
+
+      @Override
+      public Theme getTheme()
+      {
+         return theme;
       }
    }
    
@@ -497,14 +535,14 @@ public class PsqlArticleRepo implements ArticleRepository
       private final String id;
       private final String name;
       private final  String affiliation;
-      private final  String email;
+      private final PsqlContactInfo contactInfo;
       
-      public PsqlArticleAuthor(String id, String name, String affiliation, String email)
+      public PsqlArticleAuthor(String id, String name, String affiliation, ArticleAuthorDTO.ContactInfoDTO info)
       {
          this.id = id;
          this.name = name;
          this.affiliation = affiliation;
-         this.email = email;
+         this.contactInfo = new PsqlContactInfo(info.email, info.phone);
       }
       
       @Override
@@ -526,9 +564,36 @@ public class PsqlArticleRepo implements ArticleRepository
       }
 
       @Override
-      public String getEmail()
+      public ContactInfo getContactInfo()
       {
-         return email;
+         // TODO Auto-generated method stub
+         return null;
+      }
+      
+      private static class PsqlContactInfo implements ContactInfo
+      {
+         private String email;
+         private String phone;
+
+         private PsqlContactInfo(String email, String phone)
+         {
+            this.email = email;
+            this.phone = phone;
+            
+         }
+
+         @Override
+         public String getEmail()
+         {
+            return email;
+         }
+
+         @Override
+         public String getPhone()
+         {
+            return phone;
+         }
+         
       }
 
    }

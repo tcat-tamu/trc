@@ -88,6 +88,7 @@ public class RestApiV1
    {
       public String id;
       public List<CitationItem> citationItems;
+      public String supressAuthor;
       public ArticleProperties properties;
    }
    

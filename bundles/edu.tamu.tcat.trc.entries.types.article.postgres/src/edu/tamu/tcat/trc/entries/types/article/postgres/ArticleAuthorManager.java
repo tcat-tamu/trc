@@ -5,6 +5,7 @@ import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
 import edu.tamu.tcat.trc.entries.types.article.AuthorManager;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
+import edu.tamu.tcat.trc.entries.types.article.postgres.BasicAuthor.BasicContact;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditAuthorCommand;
 import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
@@ -72,7 +73,9 @@ public class ArticleAuthorManager implements AuthorManager
 
    private ArticleAuthor adapt(ArticleAuthorDTO dto)
    {
-      return new BasicAuthor(dto.id, dto.name, dto.affiliation, dto.email);
+      BasicAuthor author = new BasicAuthor();
+      BasicContact info = author.new BasicContact(dto.contact.email, dto.contact.phone);
+      return new BasicAuthor(dto.id, dto.name, dto.affiliation, info);
    }
 
    @Override

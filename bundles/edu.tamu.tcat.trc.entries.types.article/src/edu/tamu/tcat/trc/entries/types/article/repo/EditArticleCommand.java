@@ -26,6 +26,7 @@ import edu.tamu.tcat.trc.entries.types.article.dto.CitationDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.FootnoteDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.LinkDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.PublicationDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.ThemeDTO;
 
 /**
  *  Used to update properties of an article.

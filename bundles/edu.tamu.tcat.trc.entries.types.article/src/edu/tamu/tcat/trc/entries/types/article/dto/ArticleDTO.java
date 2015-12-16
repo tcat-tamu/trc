@@ -23,20 +23,23 @@ import java.util.UUID;
 
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
+import edu.tamu.tcat.trc.entries.types.article.ArticlePublication;
+import edu.tamu.tcat.trc.entries.types.article.Theme;
 
 public class ArticleDTO
 {
    public UUID id;
    public String title;
+   public String type;
    public List<ArticleAuthorDTO> authors;
+   public PublicationDTO info;
    public String articleAbstract;
-   public Date publication;
-   public Date lastModified;
-   public URI associatedEntity;
-   public String authorId;
-   public String mimeType;
-   public String content;
-   public String slug;
+   public String body;
+   public List<CitationDTO> citation;
+   public List<FootnoteDTO> footnotes;
+   public List<BibliographyDTO> bibliographies;
+   public List<LinkDTO> links;
+   public ThemeDTO theme;
 
    public static ArticleDTO create(Article article)
    {
@@ -45,16 +48,43 @@ public class ArticleDTO
 
       dto.id = article.getId();
       dto.title = article.getTitle();
-      dto.authors = convertAuthors(article.getAuthors());
-      dto.slug = article.getSlug();
+      dto.type = article.getType();
       dto.articleAbstract = article.getAbstract();
-      dto.publication = article.getPublishedDate();
-      dto.lastModified = article.getLastModified();
-//      dto.associatedEntity = article.getEntity();
-//      dto.authorId = author != null ? author.toString() : "";
-      dto.mimeType = article.getMimeType();
-      dto.content = article.getContent();
-
+      dto.body = article.getBody();
+      
+      dto.info = PublicationDTO.create(article.getPublicationInfo());
+      dto.theme = ThemeDTO.create(article.getTheme());
+      
+      List<ArticleAuthorDTO> authDTO = new ArrayList<>();
+      article.getAuthors().forEach((a) ->{
+         authDTO.add(ArticleAuthorDTO.create(a));
+      });
+      dto.authors = authDTO;
+      
+      List<CitationDTO> citations = new ArrayList<>();
+      article.getCitations().forEach((c) ->{
+         citations.add(CitationDTO.create(c));
+      });
+      dto.citation = citations;
+      
+      List<FootnoteDTO> ftnotes = new ArrayList<>();
+      article.getFootnotes().forEach((f) -> {
+         ftnotes.add(FootnoteDTO.create(f));
+      });
+      dto.footnotes = ftnotes;
+      
+      List<BibliographyDTO> biblios = new ArrayList<>();
+      article.getBibliographies().forEach((b)->{
+        biblios.add(BibliographyDTO.create(b));
+      });
+      dto.bibliographies = biblios;
+      
+      List<LinkDTO> links = new ArrayList<>();
+      article.getLinks().forEach((l) -> {
+         links.add(LinkDTO.create(l));
+      });
+      dto.links = links;
+      
       return dto;
    }
 
@@ -64,33 +94,17 @@ public class ArticleDTO
 
       dto.id = orig.id;
       dto.title = orig.title;
-      dto.authors = new ArrayList<ArticleAuthorDTO>(orig.authors);
-      dto.slug = orig.slug;
-      dto.publication = orig.publication;
-      dto.lastModified = orig.lastModified;
-      dto.associatedEntity = orig.associatedEntity;
-      dto.authorId = orig.authorId;
-      dto.mimeType = orig.mimeType;
-      dto.content = orig.content;
+      dto.type = orig.type;
+      dto.articleAbstract = orig.articleAbstract;
+      dto.body = orig.body;
+      dto.info = orig.info;
+      dto.theme = orig.theme;
+      dto.authors = new ArrayList<>(orig.authors);
+      dto.citation = new ArrayList<>(orig.citation);
+      dto.footnotes = new ArrayList<>(orig.footnotes);
+      dto.bibliographies = new ArrayList<>(orig.bibliographies);
+      dto.links = new ArrayList<>(orig.links);
 
       return dto;
-   }
-   
-   private static List<ArticleAuthorDTO> convertAuthors(List<ArticleAuthor> authors)
-   {
-      List<ArticleAuthorDTO> auths = new ArrayList<>();
-      
-      authors.forEach((a) ->
-      {
-         ArticleAuthorDTO authDto = ArticleAuthorDTO.create(a);
-         authDto.id = a.getId();
-         authDto.name = a.getName();
-         authDto.affiliation = a.getAffiliation();
-         authDto.email = a.getEmail();
-         
-         auths.add(authDto);
-      });
-      
-      return auths;
    }
 }
