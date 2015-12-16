@@ -41,7 +41,7 @@ public class ArticleDTO
    public static ArticleDTO create(Article article)
    {
       ArticleDTO dto = new ArticleDTO();
-      UUID author = article.getAuthorId();
+//      UUID author = article.getAuthorId();
 
       dto.id = article.getId();
       dto.title = article.getTitle();
@@ -50,8 +50,8 @@ public class ArticleDTO
       dto.articleAbstract = article.getAbstract();
       dto.publication = article.getPublishedDate();
       dto.lastModified = article.getLastModified();
-      dto.associatedEntity = article.getEntity();
-      dto.authorId = author != null ? author.toString() : "";
+//      dto.associatedEntity = article.getEntity();
+//      dto.authorId = author != null ? author.toString() : "";
       dto.mimeType = article.getMimeType();
       dto.content = article.getContent();
 

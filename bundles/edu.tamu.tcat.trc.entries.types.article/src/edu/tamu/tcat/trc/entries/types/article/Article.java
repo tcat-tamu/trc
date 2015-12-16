@@ -77,26 +77,6 @@ public interface Article
     * @return Last modification date of the article. May return null if the article has not been updated.
     */
    Date getLastModified();
-   
-   /**
-    * This is API is provisional. It is under review to determine if this use case would be
-    * better met through a different mechanism.
-    *
-    * @return URI of an entity to which this article is associated. For example, if this article
-    *    is a book review, this would be the URI of the corresponding bibliographic entry.
-    * @deprecated This needs to be extended to support association with multiple entities.
-    *       This may be implemented using the relationships API.
-    */
-   @Deprecated
-   URI getEntity();
-
-   /**
-    * @return An application defined unique identifier for the author.
-    * @deprecated Needs to be extended to support a more full-featured authorship attribution
-    *       model.
-    */
-   @Deprecated
-   UUID getAuthorId();
 
    /**
     * @return The type of content for the article. Currently we anticipate only

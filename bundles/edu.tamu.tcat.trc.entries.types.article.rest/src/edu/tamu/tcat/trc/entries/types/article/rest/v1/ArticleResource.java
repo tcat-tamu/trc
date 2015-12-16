@@ -182,7 +182,7 @@ public class ArticleResource
             EditAuthorCommand authorCmd = authorRepo.create();
             authorCmd.setName(auth.name);
             authorCmd.setAffiliation(auth.affiliation);
-            authorCmd.setEmail(auth.email);
+//            authorCmd.setEmail(auth.email);
             try
             {
                auth.id = authorCmd.execute().get();
@@ -238,7 +238,7 @@ public class ArticleResource
                EditAuthorCommand authorCmd = authorRepo.edit(auth.id);
                authorCmd.setName(auth.name);
                authorCmd.setAffiliation(auth.affiliation);
-               authorCmd.setEmail(auth.email);
+//               authorCmd.setEmail(auth.email);
                authorCmd.execute().get();
             }
             catch (Exception e)
@@ -279,7 +279,7 @@ public class ArticleResource
             authDto.id = a.id;
             authDto.name = a.name;
             authDto.affiliation = a.affiliation;
-            authDto.email = a.email;
+//            authDto.email = a.email;
             authorDTO.add(authDto);
          });
       }
@@ -287,12 +287,6 @@ public class ArticleResource
       editCmd.setTitle(article.title);
       editCmd.setAuthors(authorDTO);
       editCmd.setAbstract(article.articleAbstract);
-      editCmd.setPublication(article.publication);
-      editCmd.setLastModified(article.lastModified);
-      editCmd.setContent(article.content);
-      editCmd.setMimeType(article.mimeType);
-      editCmd.setAuthorId(article.authorId);
-      editCmd.setEntity(article.associatedEntity);
    }
 
    @DELETE

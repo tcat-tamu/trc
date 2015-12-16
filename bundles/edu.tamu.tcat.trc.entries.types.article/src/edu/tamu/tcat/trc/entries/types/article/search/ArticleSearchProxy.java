@@ -37,8 +37,8 @@ public class ArticleSearchProxy
    {
       this.id = article.getId().toString();
       this.title = article.getTitle();
-      this.authorId = article.getAuthorId() != null ? article.getAuthorId().toString() : "";
-      this.associatedEntity = article.getEntity() != null ? article.getEntity().toString() : "";
+//      this.authorId = article.getAuthorId() != null ? article.getAuthorId().toString() : "";
+//      this.associatedEntity = article.getEntity() != null ? article.getEntity().toString() : "";
       this.content = article.getContent();
       this.mimeType = article.getMimeType();
    }

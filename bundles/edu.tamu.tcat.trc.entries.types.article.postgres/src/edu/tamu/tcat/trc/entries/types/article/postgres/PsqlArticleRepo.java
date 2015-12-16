@@ -436,18 +436,18 @@ public class PsqlArticleRepo implements ArticleRepository
       {
          return title;
       }
-
-      @Override
-      public URI getEntity()
-      {
-         return associatedEntity;
-      }
-
-      @Override
-      public UUID getAuthorId()
-      {
-         return authorId.isEmpty() ? null : UUID.fromString(authorId);
-      }
+//
+//      @Override
+//      public URI getEntity()
+//      {
+//         return associatedEntity;
+//      }
+//
+//      @Override
+//      public UUID getAuthorId()
+//      {
+//         return authorId.isEmpty() ? null : UUID.fromString(authorId);
+//      }
 
       @Override
       public String getMimeType()

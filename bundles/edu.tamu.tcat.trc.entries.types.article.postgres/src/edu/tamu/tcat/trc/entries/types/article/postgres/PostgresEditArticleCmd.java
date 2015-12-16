@@ -27,7 +27,13 @@ import java.util.function.Function;
 
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.CitationDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.FootnoteDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.LinkDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.PublicationDTO;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
+import edu.tamu.tcat.trc.entries.types.article.repo.ThemeDTO;
 
 public class PostgresEditArticleCmd implements EditArticleCommand
 {
@@ -61,44 +67,15 @@ public class PostgresEditArticleCmd implements EditArticleCommand
 
       
       setTitle(updateArticle.title);
-      setAuthorId(updateArticle.authorId);
       setAuthors(updateArticle.authors);
       setAbstract(updateArticle.articleAbstract);
-      setPublication(updateArticle.publication);
-      setLastModified(updateArticle.lastModified);
-      setEntity(updateArticle.associatedEntity);
-      setMimeType(updateArticle.mimeType);
-      setContent(updateArticle.content);
+
    }
 
    @Override
    public void setTitle(String title)
    {
       article.title = guardNull(title);
-   }
-
-   @Override
-   public void setEntity(URI entityURI)
-   {
-      article.associatedEntity = entityURI != null ? entityURI : URI.create("");
-   }
-
-   @Override
-   public void setAuthorId(String authorId)
-   {
-      article.authorId = guardNull(authorId);
-   }
-
-   @Override
-   public void setMimeType(String mimeType)
-   {
-      article.mimeType = guardNull(mimeType);
-   }
-
-   @Override
-   public void setContent(String content)
-   {
-      article.content = guardNull(content);
    }
 
    @Override
@@ -132,15 +109,60 @@ public class PostgresEditArticleCmd implements EditArticleCommand
    }
 
    @Override
-   public void setPublication(Date publication)
+   public void setType(String Type)
    {
-      article.publication = publication;
+      // TODO Auto-generated method stub
+      
    }
 
    @Override
-   public void setLastModified(Date modified)
+   public void setPublicationInfo(PublicationDTO pubData)
    {
-      article.lastModified = modified;
+      // TODO Auto-generated method stub
+      
    }
+
+   @Override
+   public void setBody(String body)
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   public void setFootnotes(List<FootnoteDTO> ftNotes)
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   public void setCitations(List<CitationDTO> citations)
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   public void setBibliography(List<BibliographyDTO> bibliographies)
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   public void setLinks(List<LinkDTO> links)
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   public void setTheme(ThemeDTO theme)
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
 
 }

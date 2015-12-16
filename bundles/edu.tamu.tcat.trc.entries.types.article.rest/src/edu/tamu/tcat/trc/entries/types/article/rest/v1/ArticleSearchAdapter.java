@@ -109,15 +109,8 @@ public class ArticleSearchAdapter
       RestApiV1.Article dto = new RestApiV1.Article();
       dto.id = article.getId().toString();
       dto.title = article.getTitle();
-      dto.content = article.getContent();
       dto.authors = convertAuthors(article.getAuthors());
       dto.articleAbstract = article.getAbstract();
-      dto.publication = article.getPublishedDate();
-      dto.lastModified = article.getLastModified();
-      dto.mimeType = article.getMimeType();
-      dto.associatedEntity = article.getEntity();
-      UUID authorId = article.getAuthorId();
-      dto.authorId = authorId == null ? null : authorId.toString();
 
       return dto;
    }
@@ -132,7 +125,7 @@ public class ArticleSearchAdapter
          authDto.id = a.getId();
          authDto.name = a.getName();
          authDto.affiliation = a.getAffiliation();
-         authDto.email = a.getEmail();
+//         authDto.email = a.getEmail();
          auths.add(authDto);
       });
       

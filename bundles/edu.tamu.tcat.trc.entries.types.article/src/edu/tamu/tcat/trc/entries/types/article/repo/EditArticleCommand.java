@@ -15,14 +15,17 @@
  */
 package edu.tamu.tcat.trc.entries.types.article.repo;
 
-import java.net.URI;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Future;
 
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.CitationDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.FootnoteDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.LinkDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.PublicationDTO;
 
 /**
  *  Used to update properties of an article.
@@ -43,9 +46,20 @@ public interface EditArticleCommand
    void setAll(ArticleDTO article);
 
    /**
+    * @param mimeType The mime type of the content supplied for this article.
+    */
+   void setType(String Type);
+   
+   /**
     * @param title The title of the article.
     */
    void setTitle(String title);
+   
+   /**
+    * 
+    * @param pubData The publication and modification dates of the article
+    */
+   void setPublicationInfo(PublicationDTO pubData );
 
    /**
     * 
@@ -61,39 +75,29 @@ public interface EditArticleCommand
    
    /**
     * 
-    * @param publication The publication date of the article.
+    * @param body The main text of the article.
     */
-   void setPublication(Date publication);
+   void setBody(String body);
    
    /**
     * 
-    * @param modified The last modified date of the article.
+    * @param ftNotes Footnotes added to the article
     */
-   void setLastModified(Date modified);
+   void setFootnotes(List<FootnoteDTO> ftNotes);
+   
+   void setCitations(List<CitationDTO> citations);
    
    /**
-    * @param entityURI The URI of the entity this article is associated with.
-    * @deprecated Need to develop a better strategy for associating with a related entry
+    * 
+    * @param bibliographies Articles or books referenced in the article
     */
-   @Deprecated
-   void setEntity(URI entityURI);
+   void setBibliography(List<BibliographyDTO> bibliographies);
+   
+   
+   void setLinks(List<LinkDTO> links);
+   
+   void setTheme(ThemeDTO theme);
 
-   /**
-    * @param authorId The id of the author responsible for creating this article.
-    * @deprecated Need to develop a better model for handling authors.
-    */
-   @Deprecated
-   void setAuthorId(String authorId);
-
-   /**
-    * @param mimeType The mime type of the content supplied for this article.
-    */
-   void setMimeType(String mimeType);
-
-   /**
-    * @param content The article's content.
-    */
-   void setContent(String content);
 
    /**
     * Executes these updates within the repository.
