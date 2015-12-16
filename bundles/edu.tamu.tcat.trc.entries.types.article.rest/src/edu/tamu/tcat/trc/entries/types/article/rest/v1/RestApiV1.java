@@ -19,6 +19,12 @@ import java.net.URI;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO.BibAuthorDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO.BibTranslatorDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO.IssuedBiblioDTO;
+
 
 public class RestApiV1
 {
@@ -39,17 +45,23 @@ public class RestApiV1
    {
       public Link self;
       public String id;
+      public String type;
       public String title;
-      public String content;
-      public String mimeType;
+      public Publication pubInfo;
       public List<ArticleAuthor> authors;
       public String articleAbstract;
-      public Date publication;
-      public Date lastModified;
-
-      // TODO remove these and replace with full-featured versions
-      public URI associatedEntity;
-      public String authorId;
+      public String body;
+      public List<FootNote> footnotes;
+      public List<Citation> citations;
+      public List<Bibliography> bibliography;
+      public List<ArticleLink> links;
+      public Theme theme;
+   }
+   
+   public static class Publication
+   {
+      public Date dateCreated;
+      public Date dateModified;
    }
    
    public static class ArticleAuthor
@@ -57,10 +69,97 @@ public class RestApiV1
       public String id;
       public String name;
       public String affiliation;
-      public String email;
-      public String contactOther;
+      public Contact contact;
    }
-
+   
+   public static class Contact
+   {
+      public String email;
+      public String phone;
+   }
+   
+   public static class FootNote
+   {
+      public String id;
+      public String text;
+   }
+   
+   public static class Citation
+   {
+      public String id;
+      public List<CitationItem> citationItems;
+      public ArticleProperties properties;
+   }
+   
+   public static class CitationItem
+   {
+      public String id;
+      public String locator;
+      public String label;
+      @JsonProperty("suppress-author") public String suppressAuthor;
+   }
+   
+   public static class ArticleProperties
+   {
+      
+   }
+   
+   public static class Bibliography
+   {
+      public String id;
+      public String type;
+      public String title;
+      public String edition;
+      public List<Author> author;
+      public List<Translator> translator;
+      public String publisher;
+      @JsonProperty("container-title") public String containerTitle;
+      @JsonProperty("publisher-place") public String publisherPlace;
+      public String URL;
+      public Issued issued;
+   }
+   
+   
+   public static class Author
+   {
+      public String family;
+      public String given;
+   }
+   
+   public static class Translator
+   {
+      public String family;
+      public String given;
+      public String literal;
+   }
+   
+   public static class Issued
+   {
+      @JsonProperty("date-parts") public List<List<String>> dateParts;
+   }
+   
+   public static class ArticleLink
+   {
+      public String id;
+      public String type;
+      public String title;
+      public String uri;
+      public String rel;
+   }
+   
+   public static class Theme
+   {
+      public String title;
+      public String themeAbstract;
+      public List<Treatment> treatments;
+      
+   }
+   
+   public static class Treatment
+   {
+      public String type;
+      public String uri;
+   }
    /**
     * @since 1.1
     */
