@@ -419,11 +419,59 @@ public class PsqlArticleRepo implements ArticleRepository
          this.info = getPublication(info);
          this.articleAbstract = articleAbstract;
          this.body = body;
-         this.citation = null; //citation;
-         this.footnotes = null; //footnotes;
-         this.bibliographies = null; //bibliographies;
-         this.links = null; //links;
+         this.citation = getCitations(citation); //citation;
+         this.footnotes = getFootnotes(footnotes); //footnotes;
+         this.bibliographies = getBiblios(bibliographies); //bibliographies;
+         this.links = getLinks(links);
          this.theme = getTheme(theme);
+      }
+
+      private List<Bibliography> getBiblios(List<BibliographyDTO> bibliographies)
+      {
+         List<Bibliography> biblios = new ArrayList<>();
+         
+         bibliographies.forEach((bib) ->
+         {
+            biblios.add(new PsqlBibliography(bib.id, bib.type, bib.title, bib.author, bib.issued, bib.publisher, bib.publisherPlace, bib.translator, bib.url));
+         });
+         
+         return biblios;
+      }
+
+      private List<Footnote> getFootnotes(List<FootnoteDTO> footnotes)
+      {
+         List<Footnote> ftnotes = new ArrayList<>();
+         
+         footnotes.forEach((fn) ->
+         {
+            ftnotes.add(new PsqlFootnote(fn.id, fn.text));
+         });
+         
+         return ftnotes;
+      }
+
+      private List<Citation> getCitations(List<CitationDTO> citations)
+      {
+         List<Citation> cites = new ArrayList<>();
+         
+         citations.forEach((c) ->
+         {
+            cites.add(new PsqlCitation(c.id, c.properties, c.suppressAuthor, c.citationItems));
+         });
+         
+         return cites;
+      }
+
+      private List<ArticleLink> getLinks(List<LinkDTO> links)
+      {
+         List<ArticleLink> articleLinks = new ArrayList<>();
+         
+         links.forEach((l) ->
+         {
+            articleLinks.add(new PsqlArticleLink(l.id, l.title, l.type, l.uri, l.rel));
+         });
+         
+         return articleLinks;
       }
 
       private Theme getTheme(ThemeDTO theme)
@@ -454,25 +502,25 @@ public class PsqlArticleRepo implements ArticleRepository
       @Override
       public UUID getId()
       {
-         return id;
+         return this.id;
       }
 
       @Override
       public String getTitle()
       {
-         return title;
+         return this.title;
       }
 
       @Override
       public List<ArticleAuthor> getAuthors()
       {
-         return authors;
+         return this.authors;
       }
 
       @Override
       public String getAbstract()
       {
-         return articleAbstract == null ? "" : this.articleAbstract;
+         return this.articleAbstract == null ? "" : this.articleAbstract;
       }
 
       @Override
@@ -484,49 +532,49 @@ public class PsqlArticleRepo implements ArticleRepository
       @Override
       public String getType()
       {
-         return type;
+         return this.type;
       }
 
       @Override
       public ArticlePublication getPublicationInfo()
       {
-         return info;
+         return this.info;
       }
 
       @Override
       public String getBody()
       {
-         return body;
+         return this.body;
       }
 
       @Override
       public List<Footnote> getFootnotes()
       {
-         return null;
+         return this.footnotes;
       }
 
       @Override
       public List<Citation> getCitations()
       {
-         return null;
+         return this.citation;
       }
 
       @Override
       public List<Bibliography> getBibliographies()
       {
-         return null;
+         return this.bibliographies;
       }
 
       @Override
       public List<ArticleLink> getLinks()
       {
-         return null;
+         return this.links;
       }
 
       @Override
       public Theme getTheme()
       {
-         return theme;
+         return this.theme;
       }
    }
    
@@ -534,8 +582,8 @@ public class PsqlArticleRepo implements ArticleRepository
    {
       private final String id;
       private final String name;
-      private final  String affiliation;
-      private final PsqlContactInfo contactInfo;
+      private final String affiliation;
+      private final ContactInfo contactInfo;
       
       public PsqlArticleAuthor(String id, String name, String affiliation, ArticleAuthorDTO.ContactInfoDTO info)
       {
@@ -548,26 +596,26 @@ public class PsqlArticleRepo implements ArticleRepository
       @Override
       public String getId()
       {
-         return id;
+         return this.id;
       }
 
       @Override
       public String getName()
       {
-         return name;
+         return this.name;
       }
 
       @Override
       public String getAffiliation()
       {
-         return affiliation;
+         return this.affiliation;
       }
 
       @Override
       public ContactInfo getContactInfo()
       {
          // TODO Auto-generated method stub
-         return null;
+         return this.contactInfo;
       }
       
       private static class PsqlContactInfo implements ContactInfo

@@ -4,7 +4,7 @@ public interface Citation
 {
    String getId();
    CitationItem getItems();
-   String getProperties();
+   CitationProperties getProperties();
    String getSupressAuthor();
    
    public interface CitationItem
@@ -12,5 +12,9 @@ public interface Citation
       String getId();
       String getLocator();
       String getLabel();
+   }
+   
+   public interface CitationProperties
+   {
    }
 }
