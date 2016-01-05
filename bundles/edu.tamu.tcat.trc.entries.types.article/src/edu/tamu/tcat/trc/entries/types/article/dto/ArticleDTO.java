@@ -15,16 +15,11 @@
  */
 package edu.tamu.tcat.trc.entries.types.article.dto;
 
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import edu.tamu.tcat.trc.entries.types.article.Article;
-import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
-import edu.tamu.tcat.trc.entries.types.article.ArticlePublication;
-import edu.tamu.tcat.trc.entries.types.article.Theme;
 
 public class ArticleDTO
 {
@@ -44,7 +39,6 @@ public class ArticleDTO
    public static ArticleDTO create(Article article)
    {
       ArticleDTO dto = new ArticleDTO();
-//      UUID author = article.getAuthorId();
 
       dto.id = article.getId();
       dto.title = article.getTitle();

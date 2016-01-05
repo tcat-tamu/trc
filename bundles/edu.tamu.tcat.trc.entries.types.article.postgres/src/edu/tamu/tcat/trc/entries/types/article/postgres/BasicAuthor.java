@@ -70,13 +70,18 @@ public class BasicAuthor implements ArticleAuthor
       @Override
       public String getEmail()
       {
-         return email;
+         if(email != null)
+            return email;
+         
+         return "";
       }
 
       @Override
       public String getPhone()
       {
-         return phone;
+         if(phone != null)
+            return phone;
+         return "";
       }
       
    }

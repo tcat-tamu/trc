@@ -6,11 +6,12 @@ public interface Theme
 {
    String getTitle();
    String getAbstract();
-   List<Treatment> getTreatments();
+   List<ArticleRefs> getArticleRefs();
    
-   public interface Treatment
+   public interface ArticleRefs
    {
       String getType();
       String getURI();
+      String getId();
    }
 }

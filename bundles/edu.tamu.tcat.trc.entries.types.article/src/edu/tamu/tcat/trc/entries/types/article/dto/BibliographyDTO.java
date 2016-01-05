@@ -13,10 +13,12 @@ public class BibliographyDTO
    public String id;
    public String type;
    public String title;
+   public String edition;
    public List<BibAuthorDTO> author;
    public List<BibTranslatorDTO> translator;
    public String publisher;
    public String publisherPlace;
+   public String containerTitle;
    public String url;
    public IssuedBiblioDTO issued;
    
@@ -27,6 +29,7 @@ public class BibliographyDTO
       dto.id = b.getId();
       dto.type = b.getType();
       dto.title = b.getTitle();
+      dto.edition =
       dto.publisher = b.getPublisher();
       dto.publisherPlace = b.getPublishLocation();
       dto.url = b.getUrl();

@@ -17,26 +17,30 @@ public class PsqlBibliography implements Bibliography
    private String id;
    private String type;
    private String title;
+   private String edition;
    private List<BiblioAuthor> author;
-   private IssuedDate issued;
+   private List<BiblioTranslator> translator;
    private String publisher;
    private String publisherPlace;
-   private List<BiblioTranslator> translator;
+   private String containerTitle;
    private String url;
+   private IssuedDate issued;
 
-   public PsqlBibliography(String id, String type, String title, List<BibAuthorDTO> authors,
-                           IssuedBiblioDTO issued, String publisher, String publisherPlace,
-                           List<BibTranslatorDTO> translator, String url)
+   public PsqlBibliography(String id, String type, String title, String edition, List<BibAuthorDTO> authors,
+                           List<BibTranslatorDTO> translator, String publisher, String publisherPlace,
+                           String containerTitle, String url ,IssuedBiblioDTO issued)
    {
       this.id = id;
       this.type = type;
       this.title = title;
+      this.edition = edition;
       this.author = getAuthors(authors);
-      this.issued = new PsqlIssuedDate(issued.dateParts);
+      this.translator = getTranslators(translator);
       this.publisher = publisher;
       this.publisherPlace = publisherPlace;
-      this.translator = getTranslators(translator);
+      this.containerTitle = containerTitle;
       this.url = url;
+      this.issued = new PsqlIssuedDate(issued.dateParts);
    }
 
    @Override
@@ -55,6 +59,12 @@ public class PsqlBibliography implements Bibliography
    public String getTitle()
    {
       return this.title;
+   }
+   
+   @Override
+   public String getEdition()
+   {
+      return this.edition;
    }
 
    @Override
@@ -79,6 +89,12 @@ public class PsqlBibliography implements Bibliography
    public String getPublishLocation()
    {
       return this.publisherPlace;
+   }
+   
+   @Override
+   public String getContainerTitle()
+   {
+      return this.containerTitle;
    }
 
    @Override

@@ -1,23 +1,25 @@
 package edu.tamu.tcat.trc.entries.types.article.postgres;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.tamu.tcat.trc.entries.types.article.Citation;
-import edu.tamu.tcat.trc.entries.types.article.dto.CitationDTO.CitationPropertiesDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.CitationItemDTO;
 
 public class PsqlCitation implements Citation
 {
 
    private String id;
-   private CitationProperties properties;
-   private String suppressAuthor;
-   private CitationItem citationItems;
+   private List<CitationItem> citationItems;
 
-   public PsqlCitation(String id, CitationPropertiesDTO properties, String suppressAuthor, CitationItemDTO citationItems)
+   public PsqlCitation(String id, List<CitationItemDTO> citationItems)
    {
       this.id = id;
-      this.properties = new PsqlCitationProperties();
-      this.suppressAuthor = suppressAuthor;
-      this.citationItems = new PsqlCitationItem(citationItems.id, citationItems.label, citationItems.locator);
+      this.citationItems = new ArrayList<>();
+      
+      citationItems.forEach((ci) -> {
+         this.citationItems.add(new PsqlCitationItem(ci.id, ci.label, ci.locator, ci.suppressAuthor));
+      });
    }
 
    @Override
@@ -27,21 +29,9 @@ public class PsqlCitation implements Citation
    }
 
    @Override
-   public CitationItem getItems()
+   public List<CitationItem> getItems()
    {
       return this.citationItems;
-   }
-
-   @Override
-   public CitationProperties getProperties()
-   {
-      return this.properties;
-   }
-
-   @Override
-   public String getSupressAuthor()
-   {
-      return this.suppressAuthor;
    }
    
    public static class PsqlCitationItem implements CitationItem
@@ -50,12 +40,14 @@ public class PsqlCitation implements Citation
       private String id;
       private String label;
       private String locator;
+      private String suppressAuthor;
 
-      public PsqlCitationItem(String id, String label, String locator)
+      public PsqlCitationItem(String id, String label, String locator, String suppressAuthor)
       {
          this.id = id;
          this.label = label;
          this.locator = locator;
+         this.suppressAuthor = suppressAuthor;
       }
 
       @Override
@@ -67,19 +59,19 @@ public class PsqlCitation implements Citation
       @Override
       public String getLocator()
       {
-         return this.label;
+         return this.locator;
       }
 
       @Override
       public String getLabel()
       {
-         return this.locator;
+         return this.label;
+      }
+
+      @Override
+      public String getSuppressAuthor()
+      {
+         return suppressAuthor;
       }
    }
-   
-   public static class PsqlCitationProperties implements CitationProperties
-   {
-      
-   }
-
 }

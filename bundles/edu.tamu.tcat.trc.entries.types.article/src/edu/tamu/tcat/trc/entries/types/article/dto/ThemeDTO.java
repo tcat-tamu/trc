@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.tamu.tcat.trc.entries.types.article.Theme;
-import edu.tamu.tcat.trc.entries.types.article.Theme.Treatment;
+import edu.tamu.tcat.trc.entries.types.article.Theme.ArticleRefs;;
 
 public class ThemeDTO
 {
    public String title;
    public String themeAbstract;
-   public List<TreatmentDTO> treatments;
+   public List<ArticleRefDTO> articleRefsDTO;
 
    public static ThemeDTO create(Theme theme)
    {
@@ -18,24 +18,26 @@ public class ThemeDTO
       dto.title = theme.getTitle();
       dto.themeAbstract = theme.getAbstract();
       
-      List<TreatmentDTO> treatmentDTO = new ArrayList<>();
-      theme.getTreatments().forEach((t) -> {
-         treatmentDTO.add(TreatmentDTO.create(t));
+      List<ArticleRefDTO> articleRefsDTO = new ArrayList<>();
+      theme.getArticleRefs().forEach((t) -> {
+         articleRefsDTO.add(ArticleRefDTO.create(t));
       });
-      dto.treatments = treatmentDTO;
+      dto.articleRefsDTO = articleRefsDTO;
       return dto;
    }
    
-   public static class TreatmentDTO
+   public static class ArticleRefDTO
    {
+      public String id;
       public String type;
       public String uri;
       
-      public static TreatmentDTO create(Treatment t)
+      public static ArticleRefDTO create(ArticleRefs ar)
       {
-         TreatmentDTO dto = new TreatmentDTO();
-         dto.type = t.getType();
-         dto.uri = t.getURI();
+         ArticleRefDTO dto = new ArticleRefDTO();
+         dto.id = ar.getId();
+         dto.type = ar.getType();
+         dto.uri = ar.getURI();
          return dto;
       }
    }

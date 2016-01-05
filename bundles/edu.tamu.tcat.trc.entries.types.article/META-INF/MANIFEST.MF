@@ -7,6 +7,7 @@ Bundle-Vendor: Texas A&M Engineering Experiment Station
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: edu.tamu.tcat.trc.entries.notification;version="[1.0.0,2.0.0)",
  edu.tamu.tcat.trc.entries.repo;version="[1.0.0,2.0.0)",
+ edu.tamu.tcat.trc.entries.types.article.dto;version="1.1.0",
  edu.tamu.tcat.trc.repo;version="1.0.0",
  edu.tamu.tcat.trc.search;version="1.0.0"
 Export-Package: edu.tamu.tcat.trc.entries.types.article;version="1.1.0",

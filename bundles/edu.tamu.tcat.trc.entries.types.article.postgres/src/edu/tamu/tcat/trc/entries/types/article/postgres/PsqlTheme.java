@@ -4,33 +4,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.tamu.tcat.trc.entries.types.article.Theme;
-import edu.tamu.tcat.trc.entries.types.article.dto.ThemeDTO.TreatmentDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.ThemeDTO.ArticleRefDTO;
 
 public class PsqlTheme implements Theme
 {
    private String title;
    private String themeAbs;
-   private List<Treatment> treatment;
+   private List<ArticleRefs> articleRefs;
 
-   public PsqlTheme(String title, String themeAbs, List<TreatmentDTO> treatments)
+   public PsqlTheme(String title, String themeAbs, List<ArticleRefDTO> articleRefs)
    {
       this.title = title;
       this.themeAbs = themeAbs;
-      if (treatments == null)
-         this.treatment = new ArrayList<>();
+      if (articleRefs == null)
+         this.articleRefs = new ArrayList<>();
       else
-         this.treatment = new ArrayList<>(getTreatments(treatments));
+         this.articleRefs = new ArrayList<>(getTreatments(articleRefs));
       
    }
    
-   private List<Treatment> getTreatments(List<TreatmentDTO> treatments)
+   private List<ArticleRefs> getTreatments(List<ArticleRefDTO> articleRefsDTO)
    {
-      List<Treatment> t = new ArrayList<>();
-      treatments.forEach((treat)->
+      List<ArticleRefs> ar = new ArrayList<>();
+      articleRefsDTO.forEach((articleDTO)->
       {
-         t.add(new PsqlTreatment(treat.type, treat.uri));
+         ar.add(new PsqlTreatment(articleDTO.id, articleDTO.type, articleDTO.uri));
       });
-      return t;
+      return ar;
    }
 
    @Override
@@ -46,21 +46,28 @@ public class PsqlTheme implements Theme
    }
 
    @Override
-   public List<Treatment> getTreatments()
+   public List<ArticleRefs> getArticleRefs()
    {
-      return treatment;
+      return articleRefs;
    }
    
-   public class PsqlTreatment implements Treatment
+   public class PsqlTreatment implements ArticleRefs
    {
-      
+      private String id;
       private String type;
       private String uri;
 
-      public PsqlTreatment(String type, String uri)
+      public PsqlTreatment(String id, String type, String uri)
       {
+         this.id = id;
          this.type = type;
          this.uri = uri;
+      }
+      
+      @Override
+      public String getId()
+      {
+         return id;
       }
 
       @Override

@@ -55,12 +55,13 @@ import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO.BibAuthorDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO.BibTranslatorDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO.IssuedBiblioDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.CitationDTO;
-import edu.tamu.tcat.trc.entries.types.article.dto.CitationDTO.CitationPropertiesDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.CitationItemDTO;
+//import edu.tamu.tcat.trc.entries.types.article.dto.CitationDTO.CitationPropertiesDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.FootnoteDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.LinkDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.PublicationDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.ThemeDTO;
-import edu.tamu.tcat.trc.entries.types.article.dto.ThemeDTO.TreatmentDTO;
+import edu.tamu.tcat.trc.entries.types.article.dto.ThemeDTO.ArticleRefDTO;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditAuthorCommand;
@@ -203,7 +204,6 @@ public class ArticleResource
             EditAuthorCommand authorCmd = authorRepo.create();
             authorCmd.setName(auth.name);
             authorCmd.setAffiliation(auth.affiliation);
-//            authorCmd.setEmail(auth.email);
             try
             {
                auth.id = authorCmd.execute().get();
@@ -259,7 +259,6 @@ public class ArticleResource
                EditAuthorCommand authorCmd = authorRepo.edit(auth.id);
                authorCmd.setName(auth.name);
                authorCmd.setAffiliation(auth.affiliation);
-//               authorCmd.setEmail(auth.email);
                authorCmd.execute().get();
             }
             catch (Exception e)
@@ -342,23 +341,24 @@ public class ArticleResource
    private ThemeDTO getTheme(Theme theme)
    {
       ThemeDTO dto = new ThemeDTO();
-      List<TreatmentDTO> trtDTO = new ArrayList<>();
+      List<ArticleRefDTO> trtDTO = new ArrayList<>();
       if (theme == null)
       {
-         dto.treatments = new ArrayList<>(trtDTO);
+         dto.articleRefsDTO = new ArrayList<>(trtDTO);
          return dto;
       }
       dto.themeAbstract = theme.themeAbstract;
       dto.title = theme.title;
       
-      theme.treatments.forEach((treatment) ->
+      theme.articles.forEach((a) ->
       {
-         TreatmentDTO treatDTO = new TreatmentDTO();
-         treatDTO.type = treatment.type;
-         treatDTO.uri = treatment.uri;
-         trtDTO.add(treatDTO);
+         ArticleRefDTO articleRefDTO = new ArticleRefDTO();
+         articleRefDTO.id = a.id;
+         articleRefDTO.type = a.type;
+         articleRefDTO.uri = a.uri;
+         trtDTO.add(articleRefDTO);
       });
-      
+      dto.articleRefsDTO = new ArrayList<>(trtDTO);
       return dto;
    }
 
@@ -371,6 +371,7 @@ public class ArticleResource
          {
             LinkDTO linkDTO = new LinkDTO();
             linkDTO.id = link.id;
+            linkDTO.type = link.type;
             linkDTO.title = link.title;
             linkDTO.uri = link.uri;
             linkDTO.rel = link.rel;
@@ -391,12 +392,17 @@ public class ArticleResource
             dto.id = bib.id;
             dto.type = bib.type;
             dto.title = bib.title;
-            dto.author = getAuthor(bib.author);
-            dto.translator = getTranslator(bib.translator);
+            dto.edition = bib.edition;
             dto.publisher = bib.publisher;
             dto.publisherPlace = bib.publisherPlace;
+            dto.containerTitle = bib.containerTitle;
             dto.url = bib.URL;
+            
+            dto.author = getAuthor(bib.author);
+            dto.translator = getTranslator(bib.translator);
             dto.issued = getIssued(bib.issued);
+            
+            bibDTOs.add(dto);
          });
       }
       
@@ -455,15 +461,21 @@ public class ArticleResource
          citations.forEach((cite) ->
          {
             CitationDTO dto = new CitationDTO();
-            CitationPropertiesDTO props = CitationPropertiesDTO.create();
-            dto.id = cite.id;
-            dto.properties = props;
-            dto.suppressAuthor = cite.supressAuthor;
-            
+            dto.id = cite.citationID;
+            dto.citationItems = new ArrayList<>();
+            cite.citationItems.forEach((item)->
+            {
+               CitationItemDTO itemDTO = new CitationItemDTO();
+               itemDTO.id = item.id;
+               itemDTO.label = item.label;
+               itemDTO.locator = item.locator;
+               itemDTO.suppressAuthor = item.suppressAuthor;
+               dto.citationItems.add(itemDTO);
+            });
             citeDTOs.add(dto);
          });
       }
-      return null;
+      return citeDTOs;
    }
 
    private List<FootnoteDTO> getFootnotes(List<FootNote> footnotes)

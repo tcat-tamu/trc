@@ -1,20 +1,17 @@
 package edu.tamu.tcat.trc.entries.types.article;
 
+import java.util.List;
+
 public interface Citation
 {
    String getId();
-   CitationItem getItems();
-   CitationProperties getProperties();
-   String getSupressAuthor();
+   List<CitationItem> getItems();
    
    public interface CitationItem
    {
       String getId();
       String getLocator();
       String getLabel();
-   }
-   
-   public interface CitationProperties
-   {
+      String getSuppressAuthor();
    }
 }

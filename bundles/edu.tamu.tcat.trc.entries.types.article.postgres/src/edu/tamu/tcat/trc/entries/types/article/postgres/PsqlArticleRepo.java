@@ -36,6 +36,7 @@ import org.postgresql.util.PGobject;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.notification.BaseUpdateEvent;
@@ -419,9 +420,9 @@ public class PsqlArticleRepo implements ArticleRepository
          this.info = getPublication(info);
          this.articleAbstract = articleAbstract;
          this.body = body;
-         this.citation = getCitations(citation); //citation;
-         this.footnotes = getFootnotes(footnotes); //footnotes;
-         this.bibliographies = getBiblios(bibliographies); //bibliographies;
+         this.citation = getCitations(citation);
+         this.footnotes = getFootnotes(footnotes);
+         this.bibliographies = getBiblios(bibliographies);
          this.links = getLinks(links);
          this.theme = getTheme(theme);
       }
@@ -432,7 +433,7 @@ public class PsqlArticleRepo implements ArticleRepository
          
          bibliographies.forEach((bib) ->
          {
-            biblios.add(new PsqlBibliography(bib.id, bib.type, bib.title, bib.author, bib.issued, bib.publisher, bib.publisherPlace, bib.translator, bib.url));
+            biblios.add(new PsqlBibliography(bib.id, bib.type, bib.title, bib.edition, bib.author, bib.translator, bib.publisher, bib.publisherPlace, bib.containerTitle, bib.url, bib.issued));
          });
          
          return biblios;
@@ -456,7 +457,7 @@ public class PsqlArticleRepo implements ArticleRepository
          
          citations.forEach((c) ->
          {
-            cites.add(new PsqlCitation(c.id, c.properties, c.suppressAuthor, c.citationItems));
+            cites.add(new PsqlCitation(c.id, c.citationItems));
          });
          
          return cites;
@@ -476,7 +477,7 @@ public class PsqlArticleRepo implements ArticleRepository
 
       private Theme getTheme(ThemeDTO theme)
       {
-         return new PsqlTheme(theme.title, theme.themeAbstract, theme.treatments);
+         return new PsqlTheme(theme.title, theme.themeAbstract, theme.articleRefsDTO);
       }
 
       private List<ArticleAuthor> getAuthors(List<ArticleAuthorDTO> authors)

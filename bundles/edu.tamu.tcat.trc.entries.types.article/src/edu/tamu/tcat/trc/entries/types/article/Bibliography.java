@@ -7,10 +7,12 @@ public interface Bibliography
    String getId();
    String getType();
    String getTitle();
+   String getEdition();
    List<BiblioAuthor> getAuthors();
    List<BiblioTranslator> getTranslators();
    String getPublisher();
    String getPublishLocation();
+   String getContainerTitle();
    String getUrl();
    IssuedDate getIssuedDate();
    

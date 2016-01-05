@@ -21,10 +21,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO.BibAuthorDTO;
-import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO.BibTranslatorDTO;
-import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO.IssuedBiblioDTO;
-
 
 public class RestApiV1
 {
@@ -86,9 +82,9 @@ public class RestApiV1
    
    public static class Citation
    {
-      public String id;
+      
+      public String citationID;
       public List<CitationItem> citationItems;
-      public String supressAuthor;
       public ArticleProperties properties;
    }
    
@@ -102,7 +98,7 @@ public class RestApiV1
    
    public static class ArticleProperties
    {
-      
+      public String properties;
    }
    
    public static class Bibliography
@@ -152,12 +148,13 @@ public class RestApiV1
    {
       public String title;
       public String themeAbstract;
-      public List<Treatment> treatments;
+      public List<Articles> articles;
       
    }
    
-   public static class Treatment
+   public static class Articles
    {
+      public String id;
       public String type;
       public String uri;
    }
