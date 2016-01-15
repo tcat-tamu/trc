@@ -66,6 +66,7 @@ public class ArticleDocument
       doc.indexDoc.set(ArticleSolrConfig.ID, dto.id.toString());
       doc.indexDoc.set(ArticleSolrConfig.TITLE, guardNull(dto.title));
       doc.indexDoc.set(ArticleSolrConfig.ARTICLE_ABSTRACT, guardNull(dto.articleAbstract));
+      doc.indexDoc.set(ArticleSolrConfig.ARTICLE_CONTENT, guardNull(dto.body));
       if (dto.authors != null || dto.authors.isEmpty())
          setAuthorNames(doc, dto.authors);
 
@@ -90,6 +91,7 @@ public class ArticleDocument
       doc.indexDoc.set(ArticleSolrConfig.ID, dto.id.toString());
       doc.indexDoc.update(ArticleSolrConfig.TITLE, guardNull(dto.title));
       doc.indexDoc.update(ArticleSolrConfig.ARTICLE_ABSTRACT, guardNull(dto.articleAbstract));
+      doc.indexDoc.update(ArticleSolrConfig.ARTICLE_CONTENT, guardNull(dto.body));
       if (dto.authors == null || dto.authors.isEmpty())
          updateAuthorNames(doc, dto.authors);
       
