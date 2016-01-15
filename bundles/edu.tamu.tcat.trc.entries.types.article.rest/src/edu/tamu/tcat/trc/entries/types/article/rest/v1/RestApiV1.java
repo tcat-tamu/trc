@@ -164,11 +164,17 @@ public class RestApiV1
    public static class ArticleSearchResult
    {
       public String id;
+      public String type;
       public String title;
-      public String associatedEntity;
-      public String authorId;
-      public String mimeType;
-      public String content;
+      public Publication pubInfo;
+      public List<ArticleAuthor> authors;
+      public String articleAbstract;
+      public String body;
+      public List<FootNote> footnotes;
+      public List<Citation> citations;
+      public List<Bibliography> bibliography;
+      public List<ArticleLink> links;
+      public Theme theme;
    }
 
    /**
