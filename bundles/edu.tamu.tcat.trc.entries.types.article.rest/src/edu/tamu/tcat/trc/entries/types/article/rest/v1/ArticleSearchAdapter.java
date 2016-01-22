@@ -23,14 +23,8 @@ import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Link;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQuery;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy.AuthorRef;
-import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy.BibliographyRef;
-import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy.CitationRef;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy.ContactInfoRef;
-import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy.FootnoteRef;
-import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy.IssuedDateRef;
-import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy.LinkRef;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy.PublicationRef;
-import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy.ThemeRef;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
 
 /**
@@ -41,12 +35,25 @@ public class ArticleSearchAdapter
    public static List<RestApiV1.ArticleSearchResult> toDTO(ArticleSearchResult results)
    {
       List<ArticleSearchProxy> proxies = results.getResults();
+      Map<String, Map<String, List<String>>> hits = results.getHits();
       if (proxies == null)
          return new ArrayList<>();
 
-      return proxies.stream()
+      List<RestApiV1.ArticleSearchResult> compiledResults = proxies.stream()
                     .map(ArticleSearchAdapter::toArticleDTO)
                     .collect(Collectors.toList());
+      
+      compiledResults.forEach((article)->
+      {
+         if (hits.containsKey(article.id))
+         {
+            Map<String, List<String>> map = hits.get(article.id);
+            article.absHL = map.get("article_abstract");
+            article.contentHL = map.get("article_content");
+         }
+      });
+      
+      return compiledResults;
    }
 
    private static RestApiV1.ArticleSearchResult toArticleDTO(ArticleSearchProxy article)
@@ -54,40 +61,7 @@ public class ArticleSearchAdapter
       RestApiV1.ArticleSearchResult dto = new RestApiV1.ArticleSearchResult();
       dto.id = article.id;
       dto.title = article.title;
-      dto.type = article.type;
-      dto.articleAbstract = article.articleAbstract;
-      dto.body = article.body;
-      
-      dto.theme = convertTheme(article.theme);
       dto.pubInfo = convertPubInfo(article.info);
-      
-      List<RestApiV1.ArticleLink> articlLinks = new ArrayList<>();
-      article.links.forEach((link)->
-      {
-         articlLinks.add(convertLink(link));
-      });
-      dto.links = new ArrayList<>(articlLinks);
-      
-      List<RestApiV1.Bibliography> biblios = new ArrayList<>();
-      article.bibliographies.forEach((bib)->
-      {
-         biblios.add(convertBiblio(bib));
-      });
-      dto.bibliography = new ArrayList<>(biblios);
-      
-      List<RestApiV1.Citation> citations = new ArrayList<>();
-      article.citations.forEach((cite)->
-      {
-         citations.add(convertCitation(cite));
-      });
-      dto.citations = new ArrayList<>(citations);
-      
-      List<RestApiV1.FootNote> footnotes = new ArrayList<>();
-      article.footnotes.forEach((note)->
-      {
-         footnotes.add(convertFootnote(note));
-      });
-      dto.footnotes = new ArrayList<>(footnotes);
       
       List<RestApiV1.ArticleAuthor> authors = new ArrayList<>();
       article.authors.forEach((auth)->
@@ -192,24 +166,6 @@ public class ArticleSearchAdapter
       return pub;
    }
 
-   private static RestApiV1.Theme convertTheme(ThemeRef theme)
-   {
-      RestApiV1.Theme t = new RestApiV1.Theme();
-      List<RestApiV1.Articles> articleList = new ArrayList<>();
-      t.title = theme.title;
-      t.themeAbstract = theme.abs;
-      theme.refs.forEach((ref)->
-      {
-         RestApiV1.Articles article = new RestApiV1.Articles();
-         article.id = ref.id;
-         article.type = ref.type;
-         article.uri = ref.uri;
-         articleList.add(article);
-      });
-      t.articles = new ArrayList<>(articleList);
-      return t;
-   }
-
    private static RestApiV1.Theme convertTheme(Theme theme)
    {
       RestApiV1.Theme t = new RestApiV1.Theme();
@@ -242,20 +198,6 @@ public class ArticleSearchAdapter
          articleLinks.add(link);
       });
       return articleLinks;
-   }
-
-   private static RestApiV1.ArticleLink convertLink(LinkRef linkRef)
-   {
-
-         RestApiV1.ArticleLink link = new RestApiV1.ArticleLink();
-         link.id = linkRef.id;
-         link.title = linkRef.title;
-         link.type = linkRef.type;
-         link.uri = linkRef.uri;
-         link.rel = linkRef.relation;
-         
-         return link;
-
    }
 
    private static List<RestApiV1.Bibliography> convertBiblios(List<Bibliography> bibliographies)
@@ -303,48 +245,6 @@ public class ArticleSearchAdapter
       return biblios;
    }
 
-   private static RestApiV1.Bibliography convertBiblio(BibliographyRef bibliography)
-   {
-
-      RestApiV1.Bibliography biblio = new RestApiV1.Bibliography();
-      biblio.id = bibliography.id;
-      biblio.title = bibliography.title;
-      biblio.edition = bibliography.edition;
-      biblio.publisher = bibliography.publisher;
-      biblio.publisherPlace = bibliography.location;
-      biblio.containerTitle = bibliography.containerTitle;
-      biblio.type = bibliography.type;
-      biblio.URL = bibliography.url;
-      
-      IssuedDateRef issuedDate = bibliography.issueDate;
-      RestApiV1.Issued issued = new RestApiV1.Issued();
-      issued.dateParts = new ArrayList<>(issuedDate.date);
-      biblio.issued = issued;
-      
-      List<RestApiV1.Author> authors = new ArrayList<>();
-      bibliography.auths.forEach((a)->
-      {
-         RestApiV1.Author author = new RestApiV1.Author();
-         author.family = a.family;
-         author.given = a.given;
-         authors.add(author);
-      });
-      biblio.author = new ArrayList<>(authors);
-      
-      List<RestApiV1.Translator> translators = new ArrayList<>();
-      bibliography.translators.forEach((t)->
-      {
-         RestApiV1.Translator trans = new RestApiV1.Translator();
-         trans.family = t.family;
-         trans.given = t.given;
-         trans.literal = t.lit;
-         translators.add(trans);
-      });
-      biblio.translator = new ArrayList<>(translators);
-
-      return biblio;
-   }
-
    private static List<RestApiV1.Citation> convertCitations(List<Citation> citations)
    {
       List<RestApiV1.Citation> citeDTOs = new ArrayList<>();
@@ -373,27 +273,6 @@ public class ArticleSearchAdapter
       return citeDTOs;
    }
 
-   private static RestApiV1.Citation convertCitation(CitationRef citation)
-   {
-
-      RestApiV1.Citation dto = new RestApiV1.Citation();
-      dto.citationID = citation.id;
-      dto.properties = new RestApiV1.ArticleProperties();
-      dto.citationItems = new ArrayList<>();
-      citation.items.forEach((i)->
-      {
-         RestApiV1.CitationItem cItem = new RestApiV1.CitationItem();
-         cItem.id = i.id;
-         cItem.label = i.label;
-         cItem.locator = i.locator;
-         cItem.suppressAuthor = i.author;
-         dto.citationItems.add(cItem);
-         
-      });
-
-      return dto;
-   }
-
    private static List<RestApiV1.FootNote> convertFootnotes(List<Footnote> footnotes)
    {
 
@@ -410,16 +289,6 @@ public class ArticleSearchAdapter
          });
       }
       return footnoteDTOs;
-   }
-
-   private static RestApiV1.FootNote convertFootnote(FootnoteRef footnote)
-   {
-
-      RestApiV1.FootNote dto = new RestApiV1.FootNote();
-      dto.id = footnote.id;
-      dto.text = footnote.text;
-
-      return dto;
    }
 
    private static List<RestApiV1.ArticleAuthor> convertAuthors(List<ArticleAuthor> authors)

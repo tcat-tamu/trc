@@ -1,6 +1,7 @@
 package edu.tamu.tcat.trc.entries.types.article.search;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ArticleSearchResult
 {
@@ -19,4 +20,9 @@ public interface ArticleSearchResult
     * @return search proxies for the Articles that matched the supplied results.
     */
    List<ArticleSearchProxy> getResults();
+   
+   /**
+    * @return the Hit Highlight results found.
+    */
+   Map<String, Map<String, List<String>>> getHits();
 }

@@ -1,6 +1,7 @@
 package edu.tamu.tcat.trc.entries.types.article.search.solr;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -79,8 +80,9 @@ public class ArticleSolrQueryCmd implements ArticleQueryCommand
          QueryResponse response = solr.query(qb.get());
 
          SolrDocumentList results = response.getResults();
+         Map<String, Map<String, List<String>>> highlighting = response.getHighlighting();
          List<ArticleSearchProxy> articles = qb.unpack(results, ArticleSolrConfig.SEARCH_PROXY);
-         return new SolrArticleResults(query, articles, results.getNumFound());
+         return new SolrArticleResults(query, articles, highlighting, results.getNumFound());
       }
       catch (Exception e)
       {

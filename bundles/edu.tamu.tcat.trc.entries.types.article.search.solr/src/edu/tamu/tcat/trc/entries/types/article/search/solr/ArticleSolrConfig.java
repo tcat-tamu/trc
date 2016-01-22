@@ -55,6 +55,9 @@ public class ArticleSolrConfig implements SolrIndexConfig
        */
       params.set("defType", "edismax");
       params.set("qf",TITLE.getName(), AUTHOR_NAMES.getName(), ARTICLE_CONTENT.getName(), ARTICLE_ABSTRACT.getName());
+      params.set("hl", "true");
+      params.set("hl.fl", ARTICLE_ABSTRACT.getName(), ARTICLE_CONTENT.getName());
+      
    }
 
    /**
