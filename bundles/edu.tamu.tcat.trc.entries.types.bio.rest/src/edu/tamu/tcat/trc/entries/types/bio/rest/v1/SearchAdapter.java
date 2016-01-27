@@ -27,6 +27,8 @@ import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
  */
 public class SearchAdapter
 {
+   public static final String DEFAULT_SUMMARY = "No summary text has been provided for this person yet.";
+
    public static List<RestApiV1.PersonSearchResult> toDTO(List<BioSearchProxy> origList)
    {
       if (origList == null)
@@ -38,6 +40,7 @@ public class SearchAdapter
          dto.id = orig.id;
          dto.displayName = toDTO(orig.displayName);
          dto.formattedName = orig.formattedName;
+         dto.summary = orig.summaryExcerpt == null ? DEFAULT_SUMMARY : orig.summaryExcerpt;
 
          dtoList.add(dto);
       }

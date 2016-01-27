@@ -106,5 +106,10 @@ public class RestApiV1
        * This is essentially a string representation of the display name plus the lifespan of the person.
        */
       public String formattedName;
+
+      /**
+       * A leading excerpt from the full bibliographic summary
+       */
+      public String summary;
    }
 }
