@@ -15,12 +15,14 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio.dto;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.biblio.AuthorList;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
@@ -44,7 +46,10 @@ public class WorkDV
    public String summary;
 
    // HACK: old records may not have this field; set to empty set by default.
-   public Collection<EditionDV> editions = new HashSet<>();
+   /**
+    * Editions should be sorted by publication date in ascending order
+    */
+   public List<EditionDV> editions = new ArrayList<>();
 
    public static Work instantiate(WorkDV dto)
    {
@@ -59,7 +64,8 @@ public class WorkDV
       work.summary = dto.summary;
       work.editions = dto.editions.parallelStream()
             .map(EditionDV::instantiate)
-            .collect(Collectors.toSet());
+            .sorted(Comparator.comparing(WorkDV::extractPublicationDate))
+            .collect(Collectors.toList());
 
       return work;
    }
@@ -84,10 +90,34 @@ public class WorkDV
       dto.summary = work.getSummary();
 
       dto.editions = work.getEditions().parallelStream()
+            .sorted(Comparator.comparing(WorkDV::extractPublicationDate))
             .map(EditionDV::create)
-            .collect(Collectors.toSet());
+            .collect(Collectors.toList());
 
       return dto;
+   }
+
+   private static String extractPublicationDate(Edition edition) {
+      String editionName = edition.getEditionName() == null ? "" : edition.getEditionName();
+      PublicationInfo publicationInfo = edition.getPublicationInfo();
+
+      if (publicationInfo == null) {
+         return editionName;
+      }
+
+      DateDescription publicationDate = publicationInfo.getPublicationDate();
+
+      if (publicationDate == null) {
+         return editionName;
+      }
+
+      LocalDate date = publicationDate.getCalendar();
+
+      if (date == null) {
+         return editionName;
+      }
+
+      return date.toString();
    }
 
    public static class BasicWorkImpl implements Work
@@ -99,7 +129,7 @@ public class WorkDV
          private TitleDefinitionImpl title;
          private String series;
          private String summary;
-         private Collection<Edition> editions;
+         private List<Edition> editions;
 
          @Override
          public String getId()
@@ -150,7 +180,7 @@ public class WorkDV
          }
 
          @Override
-         public Collection<Edition> getEditions()
+         public List<Edition> getEditions()
          {
             return editions;
          }

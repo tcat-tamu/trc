@@ -15,7 +15,7 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio;
 
-import java.util.Collection;
+import java.util.List;
 
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 
@@ -74,7 +74,7 @@ public interface Work
    /**
     * @return The editions associated with this work.
     */
-   Collection<Edition> getEditions();
+   List<Edition> getEditions();
 
    /**
     * Obtain a particular edition of this work by edition ID.
