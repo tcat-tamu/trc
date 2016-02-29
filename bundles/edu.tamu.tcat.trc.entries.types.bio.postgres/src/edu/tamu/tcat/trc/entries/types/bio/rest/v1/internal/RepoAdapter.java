@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.bio.rest.v1;
+package edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -27,6 +27,7 @@ import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
+import edu.tamu.tcat.trc.entries.types.bio.rest.v1.RestApiV1;
 
 /**
  * An encapsulation of adapter methods to convert between the repository API and

@@ -37,6 +37,8 @@ import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
+import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RepoAdapter;
+import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.SearchAdapter;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleSearchService;
 import edu.tamu.tcat.trc.entries.types.bio.search.PersonSearchResult;
