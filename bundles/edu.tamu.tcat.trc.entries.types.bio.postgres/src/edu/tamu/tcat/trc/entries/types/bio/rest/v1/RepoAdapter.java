@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,12 +43,16 @@ public class RepoAdapter
 
       PersonName canonicalName = orig.getCanonicalName();
       if (canonicalName != null) {
-         dto.displayName = toDTO(canonicalName);
+         dto.name = toDTO(canonicalName);
       }
 
-      dto.names = orig.getAlternativeNames().stream()
+      dto.altNames = orig.getAlternativeNames().stream()
                      .map(RepoAdapter::toDTO)
                      .collect(Collectors.toSet());
+      // remove name from altNames - for legacy reasons, the list of altnNames
+      //    originally included all names associated with this person.
+      if (dto.altNames.contains(dto.name))
+         dto.altNames.remove(dto.name);
 
       dto.birth = toDTO(orig.getBirth());
       dto.death = toDTO(orig.getDeath());
@@ -56,7 +60,7 @@ public class RepoAdapter
 
       return dto;
    }
-   
+
    public static RestApiV1.PersonName toDTO(PersonName orig)
    {
       if (orig == null)
@@ -69,11 +73,11 @@ public class RepoAdapter
       dto.familyName = orig.getFamilyName();
       dto.suffix = orig.getSuffix();
 
-      dto.displayName = orig.getDisplayName();
+      dto.label = orig.getDisplayName();
 
       return dto;
    }
-   
+
    public static RestApiV1.HistoricalEvent toDTO(HistoricalEvent orig)
    {
       if (orig == null)
@@ -86,7 +90,7 @@ public class RepoAdapter
       dto.date = toDTO(orig.getDate());
       return dto;
    }
-   
+
    public static RestApiV1.DateDescription toDTO(DateDescription orig)
    {
       if (orig == null)
@@ -99,20 +103,20 @@ public class RepoAdapter
       }
 
       dto.description = orig.getDescription();
-      
+
       return dto;
    }
-   
+
    public static PersonDTO toRepo(RestApiV1.Person orig)
    {
       if (orig == null)
          return null;
       PersonDTO dto = new PersonDTO();
       dto.id = orig.id;
-      if (orig.displayName != null)
-         dto.displayName = toRepo(orig.displayName);
-      
-      dto.names = orig.names.stream()
+      if (orig.name != null)
+         dto.displayName = toRepo(orig.name);
+
+      dto.names = orig.altNames.stream()
             .map(RepoAdapter::toRepo)
             .collect(Collectors.toSet());
 
@@ -134,11 +138,11 @@ public class RepoAdapter
       dto.familyName = orig.familyName;
       dto.suffix = orig.suffix;
 
-      dto.displayName = orig.displayName;
+      dto.displayName = orig.label;
 
       return dto;
    }
-   
+
    public static HistoricalEventDTO toRepo(RestApiV1.HistoricalEvent orig)
    {
       if (orig == null)
@@ -151,7 +155,7 @@ public class RepoAdapter
       dto.date = toRepo(orig.date);
       return dto;
    }
-   
+
    public static DateDescriptionDTO toRepo(RestApiV1.DateDescription orig)
    {
       if (orig == null)
@@ -159,7 +163,7 @@ public class RepoAdapter
       DateDescriptionDTO dto = new DateDescriptionDTO();
       dto.calendar = orig.calendar;
       dto.description = orig.description;
-      
+
       return dto;
    }
 }

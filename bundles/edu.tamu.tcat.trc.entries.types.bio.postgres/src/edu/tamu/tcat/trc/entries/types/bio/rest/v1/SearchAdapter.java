@@ -27,18 +27,18 @@ import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
  */
 public class SearchAdapter
 {
-   public static List<RestApiV1.PersonSearchResult> toDTO(List<BioSearchProxy> origList)
+   public static List<RestApiV1.SimplePerson> toDTO(List<BioSearchProxy> origList)
    {
       if (origList == null)
          return null;
-      List<RestApiV1.PersonSearchResult> dtoList = new ArrayList<>();
+      List<RestApiV1.SimplePerson> dtoList = new ArrayList<>();
       for (BioSearchProxy orig : origList)
       {
-         RestApiV1.PersonSearchResult dto = new RestApiV1.PersonSearchResult();
+         RestApiV1.SimplePerson dto = new RestApiV1.SimplePerson();
          dto.id = orig.id;
-         dto.displayName = toDTO(orig.displayName);
-         dto.formattedName = orig.formattedName;
-         dto.summary = orig.summaryExcerpt;
+         dto.name = toDTO(orig.displayName);
+         dto.label = orig.formattedName;
+         dto.summaryExcept = orig.summaryExcerpt;
 
          dtoList.add(dto);
       }
@@ -57,7 +57,7 @@ public class SearchAdapter
       dto.familyName = orig.familyName;
       dto.suffix = orig.suffix;
 
-      dto.displayName = orig.displayName;
+      dto.label = orig.displayName;
       return dto;
    }
 }

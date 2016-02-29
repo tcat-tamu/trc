@@ -78,8 +78,8 @@ public class PeopleResource
    @GET
    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 //   public RestApiV1.PersonSearchResultSet
-   public List<RestApiV1.PersonSearchResult>
-   searchPeople(@QueryParam(value="syntheticName") String q,
+   public List<RestApiV1.SimplePerson>
+   searchPeople(@QueryParam(value="q") String q,
                 @QueryParam(value = "off") @DefaultValue("0")   int offset,
                 @QueryParam(value = "max") @DefaultValue("100") int numResults)
    throws Exception
