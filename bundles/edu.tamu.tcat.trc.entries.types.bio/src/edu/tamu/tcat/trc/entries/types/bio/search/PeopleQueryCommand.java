@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,9 +20,11 @@ import edu.tamu.tcat.trc.search.SearchException;
 /**
  * Command for use in querying the associated {@link PeopleSearchService} which provides
  * search proxy instances.
+ *
  * <p>
- * A {@link PeopleQueryCommand} is intended to be initialized, executed a single time, provide results,
- * and be discarded.
+ * A {@code PeopleQueryCommand} is intended to be initialized, executed a single time, provide
+ * results, and be discarded.
+ *
  * <p>
  * The various "query" methods are intended to be for user-entered criteria which results in "like",
  * wildcard, or otherwise interpreted query criteria which may apply to multiple fields of the index.
@@ -31,6 +33,9 @@ import edu.tamu.tcat.trc.search.SearchException;
  */
 public interface PeopleQueryCommand
 {
+   // TODO need to be able to create serializable representation.
+   // TODO need to document methods
+
    PersonSearchResult execute() throws SearchException;
 
    void query(String q) throws SearchException;
