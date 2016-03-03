@@ -15,18 +15,14 @@
  */
 package edu.tamu.tcat.trc.entries.types.bio.rest.v1;
 
-import java.util.logging.Logger;
-
 import javax.ws.rs.Path;
 
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleSearchService;
 
+@Path("/")
 public class PeopleResourceService
 {
-   // records internal errors accessing the REST
-   static final Logger errorLogger = Logger.getLogger(PeopleResourceService.class.getName());
-
    private PeopleRepository repo;
    private PeopleSearchService peopleSearchService;
 
