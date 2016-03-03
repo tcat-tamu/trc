@@ -16,6 +16,14 @@
       [Enter License Description here.]
    </license>
 
+   <requires>
+      <import plugin="org.eclipse.osgi"/>
+      <import plugin="org.eclipse.equinox.common"/>
+      <import plugin="com.fasterxml.jackson.core.jackson-annotations"/>
+      <import plugin="com.fasterxml.jackson.core.jackson-core"/>
+      <import plugin="com.fasterxml.jackson.core.jackson-databind"/>
+   </requires>
+
    <plugin
          id="com.eclipsesource.jaxrs.jersey-all"
          download-size="0"
