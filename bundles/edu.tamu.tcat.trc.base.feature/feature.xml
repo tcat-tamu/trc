@@ -161,7 +161,7 @@
          id="com.zaxxer.HikariCP"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="2.4.1"
          unpack="false"/>
 
    <plugin
@@ -203,28 +203,28 @@
          id="com.fasterxml.jackson.core.jackson-annotations"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="2.3.1"
          unpack="false"/>
 
    <plugin
          id="com.fasterxml.jackson.core.jackson-core"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="2.3.1"
          unpack="false"/>
 
    <plugin
          id="com.fasterxml.jackson.core.jackson-databind"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="2.3.1"
          unpack="false"/>
 
    <plugin
          id="com.google.guava"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="15.0.0.v201403281430"
          unpack="false"/>
 
    <plugin
