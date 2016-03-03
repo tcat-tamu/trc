@@ -41,15 +41,15 @@ import edu.tamu.tcat.trc.entries.types.bio.search.PeopleSearchService;
 import edu.tamu.tcat.trc.entries.types.bio.search.PersonSearchResult;
 import edu.tamu.tcat.trc.search.SearchException;
 
-public class PeopleSubResource
+public class PeopleResource
 {
    // records internal errors accessing the REST
-   static final Logger errorLogger = Logger.getLogger(PeopleSubResource.class.getName());
+   static final Logger errorLogger = Logger.getLogger(PeopleResource.class.getName());
 
    private PeopleRepository repo;
    private PeopleSearchService peopleSearchService;
 
-   public PeopleSubResource(PeopleRepository repo, PeopleSearchService search)
+   public PeopleResource(PeopleRepository repo, PeopleSearchService search)
    {
       this.repo = repo;
       peopleSearchService = search;

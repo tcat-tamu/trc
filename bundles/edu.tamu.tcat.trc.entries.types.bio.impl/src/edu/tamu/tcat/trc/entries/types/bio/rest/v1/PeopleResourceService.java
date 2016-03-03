@@ -22,7 +22,6 @@ import javax.ws.rs.Path;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleSearchService;
 
-// TODO remove and use as sub-resource
 public class PeopleResourceService
 {
    // records internal errors accessing the REST
@@ -31,7 +30,7 @@ public class PeopleResourceService
    private PeopleRepository repo;
    private PeopleSearchService peopleSearchService;
 
-   private PeopleSubResource resource;
+   private PeopleResource resource;
 
    // called by DS
    public void setRepository(PeopleRepository repo)
@@ -47,7 +46,7 @@ public class PeopleResourceService
    // called by DS
    public void activate()
    {
-      resource = new PeopleSubResource(repo, peopleSearchService);
+      resource = new PeopleResource(repo, peopleSearchService);
    }
 
    // called by DS
@@ -57,7 +56,7 @@ public class PeopleResourceService
    }
 
    @Path("/people")
-   public PeopleSubResource delgate()
+   public PeopleResource delgate()
    {
       // TODO add version selection on this?
       return resource;

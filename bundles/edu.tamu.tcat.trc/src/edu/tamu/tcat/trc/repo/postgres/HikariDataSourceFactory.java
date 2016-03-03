@@ -28,7 +28,7 @@ public class HikariDataSourceFactory
 
    private ConfigurationProperties config;
 
-   public void bind(ConfigurationProperties props)
+   public HikariDataSourceFactory(ConfigurationProperties props)
    {
       this.config = props;
    }

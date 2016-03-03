@@ -15,7 +15,7 @@ import edu.tamu.tcat.osgi.config.ConfigurationProperties;
  * A {@link DataSourceProvider} for use by the core data table engine.
  * @since 3.0
  */
-public class EngineDataSourceProvider implements DataSourceProvider
+public class PostgresDataSourceProvider implements DataSourceProvider
 {
    // private static final Logger debug = Logger.getLogger(EngineDataSourceProvider.class.getName());
 
@@ -27,8 +27,10 @@ public class EngineDataSourceProvider implements DataSourceProvider
    private static final String PROP_PASS = "edu.tamu.tcat.trc.repo.postgresql.password";
    private static final String PROP_SSL = "edu.tamu.tcat.trc.repo.postgresql.ssl";
 
-   private ConfigurationProperties dashboardProps;
+   private ConfigurationProperties config;
    private DataSource dataSource;
+
+   // provided as cause if no datasource is available when getDataSource is called.
    private Exception err;
    private Properties propsUnsafe;
    private Properties props;
@@ -37,12 +39,8 @@ public class EngineDataSourceProvider implements DataSourceProvider
 
    public void bind(ConfigurationProperties cp)
    {
-      this.dashboardProps = cp;
-   }
-
-   public void bind(HikariDataSourceFactory fac)
-   {
-      this.factory = fac;
+      this.config = cp;
+      this.factory = new HikariDataSourceFactory(config);
    }
 
    @Override
@@ -53,22 +51,25 @@ public class EngineDataSourceProvider implements DataSourceProvider
 
    public void activate()
    {
+      // TODO may need to push into background thread
       try
       {
-         String host = dashboardProps.getPropertyValue(PROP_HOST, String.class);
-         int port = dashboardProps.getPropertyValue(PROP_PORT, Integer.class, Integer.valueOf(5432)).intValue();
+         String host = config.getPropertyValue(PROP_HOST, String.class);
+         int port = config.getPropertyValue(PROP_PORT, Integer.class, Integer.valueOf(5432)).intValue();
          if (port <= 0) {
             port = 5432;
          }
 
-         String db = dashboardProps.getPropertyValue(PROP_DB, String.class);
-         String user = dashboardProps.getPropertyValue(PROP_USER, String.class);
-         String password = dashboardProps.getPropertyValue(PROP_PASS, String.class);
-         boolean ssl = dashboardProps.getPropertyValue(PROP_SSL, Boolean.class, Boolean.FALSE).booleanValue();
+         String db = config.getPropertyValue(PROP_DB, String.class);
+         String user = config.getPropertyValue(PROP_USER, String.class);
+         String password = config.getPropertyValue(PROP_PASS, String.class);
+         boolean ssl = config.getPropertyValue(PROP_SSL, Boolean.class, Boolean.FALSE).booleanValue();
 
          createDatabaseIfNotExists(host, port, user, password, db, ssl);
 
-         PostgreSqlPropertiesBuilder builder = factory.getPropertiesBuilder().create(host, port, db, user, password);
+
+         PostgreSqlPropertiesBuilder builder =
+               factory.getPropertiesBuilder().create(host, port, db, user, password);
          builder.setUseSsl(ssl);
 
          // Clone since the factory might retain this instance
@@ -88,19 +89,24 @@ public class EngineDataSourceProvider implements DataSourceProvider
       }
    }
 
+   public void dispose()
+   {
+
+   }
+
    private void createDatabaseIfNotExists(String host, int port, String user, String password, String targetDatabase, boolean ssl) throws Exception
    {
-      // creating this extra temporary connection properties instance, because it is necessary to connect to the default ("") database
+      // creating this extra temporary connection properties instance,
+      // because it is necessary to connect to the default ("") database
       // in order to check if the target database exists
       PostgreSqlPropertiesBuilder tmpProps = factory.getPropertiesBuilder().create(host, port, "", user, password);
       tmpProps.setUseSsl(ssl);
+
       //TODO: this should probably just bypass getting a pooled connection and use a raw pg data source connection
       Properties propsCreateDb = tmpProps.getProperties();
       propsCreateDb = (Properties)propsCreateDb.clone();
-      // allow these connections to be cleaned up after app startup: retain zero idle
-      propsCreateDb.setProperty("hikari.minidle", "0");
-      // short timeout since they are only needed to check the db
-      propsCreateDb.setProperty("hikari.idletimeout", "10000"); // 10 s
+      propsCreateDb.setProperty("hikari.minidle", "0");              // allow these connections to be cleaned up after app startup: retain zero idle
+      propsCreateDb.setProperty("hikari.idletimeout", "10000");      // short (10s) timeout since they are only needed to check the db
       DataSource tmpDataSource = factory.getDataSource(propsCreateDb);
 
       boolean created = false;
@@ -118,10 +124,10 @@ public class EngineDataSourceProvider implements DataSourceProvider
          propsPostGis.setProperty("hikari.idletimeout", "10000"); // 10 s
          tmpDataSource = factory.getDataSource(propsPostGis);
 
-         try (Connection conn = tmpDataSource.getConnection())
-         {
-            PostgreSqlEntityHelper.createExtensionPostGis(conn);
-         }
+//         try (Connection conn = tmpDataSource.getConnection())
+//         {
+//            PostgreSqlEntityHelper.createExtensionPostGis(conn);
+//         }
       }
    }
 
@@ -136,6 +142,7 @@ public class EngineDataSourceProvider implements DataSourceProvider
       if (dataSource == null)
          // HACK: wrap in a runtime exception until IUserAuthenticationDataProvider does not provide a conflicting API
          throw new IllegalStateException(new SQLException("Failed initializing data source " + this, err));
+
       return dataSource;
    }
 }
