@@ -2,7 +2,6 @@ package edu.tamu.tcat.trc.entries.types.bib.rest.v1;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,45 +29,18 @@ import edu.tamu.tcat.trc.entries.types.biblio.search.WorkQueryCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkSearchService;
 import edu.tamu.tcat.trc.search.SearchException;
 
-@Path("/works")
 public class WorkCollectionResource
 {
    private static final Logger logger = Logger.getLogger(WorkCollectionResource.class.getName());
 
-   private WorkRepository repo;
-   private WorkSearchService workSearchService;
+   private final WorkRepository repo;
+   private final WorkSearchService workSearchService;
 
-   /**
-    * Bind method for persistence component (usually called by framework dependency injection layer)
-    *
-    * @param repo
-    */
-   public void setRepository(WorkRepository repo)
+   public WorkCollectionResource(WorkRepository repo, WorkSearchService searchSvc)
    {
       this.repo = repo;
+      this.workSearchService = searchSvc;
    }
-
-   /**
-    * Bind method for search component (usually called by framework dependency injection layer)
-    *
-    * @param workSearchService
-    */
-   public void setWorkService(WorkSearchService workSearchService)
-   {
-      this.workSearchService = workSearchService;
-   }
-
-   /**
-    * Lifecycle management callback (usually called by framework service layer)
-    * This method should be called once all dependent services have been provided and the resource
-    * is ready to start responding to requests.
-    */
-   public void activate()
-   {
-      Objects.requireNonNull(repo, "No works repository provided.");
-      Objects.requireNonNull(workSearchService, "No work search service provided.");
-   }
-
 
    /**
     * Perform a "basic" search. This is a search with a single string that is matched
