@@ -33,12 +33,12 @@ import org.junit.Test;
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
+import edu.tamu.tcat.sda.catalog.psql.provider.PsqlDataSourceProvider;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
-import edu.tamu.tcat.trc.entries.types.bib.copies.postgres.PsqlDigitalCopyLinkRepo;
+import edu.tamu.tcat.trc.entries.types.bib.postgres.copies.PsqlDigitalCopyLinkRepo;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.UpdateCanceledException;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.EditCopyReferenceCommand;
-import edu.tamu.tcat.trc.repo.postgres.PsqlDataSourceProvider;
 
 public class CopyRepoTest
 {

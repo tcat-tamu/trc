@@ -13,22 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.bib.copies.search.solr;
+package edu.tamu.tcat.trc.entries.types.bib.search.solr.copies;
 
 import org.apache.solr.common.SolrInputDocument;
 
-import edu.tamu.tcat.trc.entries.types.biblio.copies.search.PageSearchProxy;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 
-public class PageTextDocument
+public class VolumeTextDocument
 {
    // composed instead of extended to not expose TrcDocument as API to this class
    private TrcDocument indexDocument;
 
-   private PageSearchProxy proxy;
-
-   public PageTextDocument()
+   public VolumeTextDocument()
    {
       indexDocument = new TrcDocument(new FullTextPageConfig());
    }
@@ -38,27 +35,14 @@ public class PageTextDocument
       return indexDocument.getSolrDocument();
    }
 
-   public String getText()
+   public static VolumeTextDocument create(String volId, String assocEntry, String text) throws SearchException
    {
-      return proxy.pageText;
-   }
+      VolumeTextDocument doc = new VolumeTextDocument();
 
-   public static PageTextDocument create(String pgId, int seqNo, String text) throws SearchException
-   {
-      PageTextDocument doc = new PageTextDocument();
+      doc.indexDocument.set(FullTextVolumeConfig.ID, volId);
+      doc.indexDocument.set(FullTextVolumeConfig.TEXT, text);
+      doc.indexDocument.set(FullTextVolumeConfig.ASSOC_ENTRY, assocEntry);
 
-      doc.indexDocument.set(FullTextPageConfig.ID, pgId);
-      doc.indexDocument.set(FullTextPageConfig.TEXT, text);
-      doc.indexDocument.set(FullTextPageConfig.NUMBER, Integer.valueOf(seqNo));
-      doc.indexDocument.set(FullTextPageConfig.SEQUENCE, Integer.toString(seqNo));
-
-      PageSearchProxy proxy = new PageSearchProxy();
-      proxy.id = pgId;
-      proxy.pageNumber = Integer.toString(seqNo);
-      proxy.pageSequence = Integer.toString(seqNo);
-      proxy.pageText = text;
-
-      doc.proxy = proxy;
       return doc;
    }
 }

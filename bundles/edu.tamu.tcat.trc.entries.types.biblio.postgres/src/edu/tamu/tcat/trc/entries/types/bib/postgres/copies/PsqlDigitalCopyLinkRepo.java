@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.bib.copies.postgres;
+package edu.tamu.tcat.trc.entries.types.bib.postgres.copies;
 
 import java.io.IOException;
 import java.net.URI;

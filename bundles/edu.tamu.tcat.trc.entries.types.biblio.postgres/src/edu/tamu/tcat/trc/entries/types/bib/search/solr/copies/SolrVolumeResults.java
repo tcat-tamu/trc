@@ -13,35 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.bib.copies.search.solr;
+package edu.tamu.tcat.trc.entries.types.bib.search.solr.copies;
 
 import java.util.List;
 
-import edu.tamu.tcat.trc.entries.types.biblio.copies.search.PageSearchCommand;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.search.PageSearchProxy;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.search.PageSearchResult;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.search.VolumeSearchCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.search.VolumeSearchProxy;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.search.VolumeSearchResult;
 
-public class SolrPageResults implements PageSearchResult
+public class SolrVolumeResults implements VolumeSearchResult
 {
-   private PageSolrSearchCommand cmd;
-   private List<PageSearchProxy> page;
+   private VolumeSolrSearchCommand cmd;
+   private List<VolumeSearchProxy> vols;
 
-   public SolrPageResults(PageSolrSearchCommand cmd, List<PageSearchProxy> page)
+   public SolrVolumeResults(VolumeSolrSearchCommand cmd, List<VolumeSearchProxy> vols)
    {
       this.cmd = cmd;
-      this.page = page;
+      this.vols = vols;
    }
 
    @Override
-   public PageSearchCommand getCommand()
+   public VolumeSearchCommand getCommand()
    {
       return cmd;
    }
 
    @Override
-   public List<PageSearchProxy> get()
+   public List<VolumeSearchProxy> get()
    {
-      return page;
+      return vols;
    }
-
 }

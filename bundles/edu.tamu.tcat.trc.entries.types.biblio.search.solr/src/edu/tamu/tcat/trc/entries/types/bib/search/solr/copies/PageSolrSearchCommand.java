@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.bib.copies.search.solr;
+package edu.tamu.tcat.trc.entries.types.bib.search.solr.copies;
 
 import java.util.List;
 
@@ -23,36 +23,36 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 
-import edu.tamu.tcat.trc.entries.types.biblio.copies.search.VolumeSearchCommand;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.search.VolumeSearchProxy;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.search.VolumeSearchResult;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.search.PageSearchCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.search.PageSearchProxy;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.search.PageSearchResult;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
-public class VolumeSolrSearchCommand implements VolumeSearchCommand
+public class PageSolrSearchCommand implements PageSearchCommand
 {
    private static final int DEFAULT_MAX_RESULTS = 25;
 
    private SolrServer solr;
    private TrcQueryBuilder qb;
 
-   public VolumeSolrSearchCommand(SolrServer solrVols, TrcQueryBuilder trcQueryBuilder)
+   public PageSolrSearchCommand(SolrServer solrPages, TrcQueryBuilder qb)
    {
-      // TODO seems like trcQueryBuilder should be created here rather than passed in
-      this.solr = solrVols;
-      this.qb = trcQueryBuilder;
-      this.qb.max(DEFAULT_MAX_RESULTS);      // would be nice if we could configure this externally
+      solr = solrPages;
+      this.qb = qb;
+      this.qb.max(DEFAULT_MAX_RESULTS);
    }
 
    @Override
-   public VolumeSearchResult execute() throws SearchException
+   public PageSearchResult execute() throws SearchException
    {
+      // TODO need to supply volume id and page number.
       try
       {
          QueryResponse response = solr.query(qb.get());
          SolrDocumentList results = response.getResults();
-         List<VolumeSearchProxy> vols = qb.unpack(results, VolumeSolrSearchCommand::proxyAdapter);
-         return new SolrVolumeResults(this, vols);
+         List<PageSearchProxy> page = qb.unpack(results, PageSolrSearchCommand::proxyAdapter);
+         return new SolrPageResults(this, page);
       }
       catch (SolrServerException e)
       {
@@ -60,20 +60,23 @@ public class VolumeSolrSearchCommand implements VolumeSearchCommand
       }
    }
 
-   private static VolumeSearchProxy proxyAdapter(SolrDocument doc)
+   private static PageSearchProxy proxyAdapter(SolrDocument doc)
    {
-      // TODO need to supply volume id. Notably, this is presumably indexing digital copies
-      //      rather than HT volumes. We need to store basic info about the volume
-      //      likely, the biblio search proxy
-      VolumeSearchProxy proxy = new VolumeSearchProxy();
-      proxy.id = doc.getFieldValue("volumeText").toString();
+      PageSearchProxy proxy = new PageSearchProxy();
+      proxy.id = doc.getFieldValue("pageText").toString();
       return proxy;
    }
 
    @Override
-   public void query(String q) throws SearchException
+   public void query(String basicQueryString) throws SearchException
    {
-      qb.basic(q);
+      qb.basic(basicQueryString);
+   }
+
+   @Override
+   public void addVolumeFilter(String volumeId) throws SearchException
+   {
+      qb.filter(FullTextPageConfig.ID, volumeId);
    }
 
    @Override

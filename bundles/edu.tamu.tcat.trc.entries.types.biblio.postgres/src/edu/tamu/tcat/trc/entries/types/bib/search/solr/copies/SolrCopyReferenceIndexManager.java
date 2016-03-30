@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.bib.copies.search.solr;
+package edu.tamu.tcat.trc.entries.types.bib.search.solr.copies;
 
 import java.net.URI;
 import java.nio.file.Path;

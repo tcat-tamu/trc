@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.bib.copies.rest.v1;
+package edu.tamu.tcat.trc.entries.types.bib.rest.v1.copies;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
