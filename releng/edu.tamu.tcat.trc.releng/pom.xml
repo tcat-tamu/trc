@@ -56,9 +56,7 @@
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio.search.solr</module>
     
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.bio</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.bio.rest</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.bio.postgres</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.bio.search.solr</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.bio.impl</module>
     
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.reln</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.reln.rest</module>
