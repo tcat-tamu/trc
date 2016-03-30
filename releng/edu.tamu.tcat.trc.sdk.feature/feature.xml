@@ -315,62 +315,6 @@ limitations under the License.
          unpack="false"/>
 
    <plugin
-         id="edu.tamu.tcat.trc.notes"
-         download-size="0"
-         install-size="0"
-         version="1.1.0.qualifier"
-         unpack="false"/>
-
-   <plugin
-         id="edu.tamu.tcat.trc.notes.source"
-         download-size="0"
-         install-size="0"
-         version="1.1.0.qualifier"
-         unpack="false"/>
-
-   <plugin
-         id="edu.tamu.tcat.trc.notes.postgres"
-         download-size="0"
-         install-size="0"
-         version="1.1.0.qualifier"
-         unpack="false"/>
-
-   <plugin
-         id="edu.tamu.tcat.trc.notes.postgres.source"
-         download-size="0"
-         install-size="0"
-         version="1.1.0.qualifier"
-         unpack="false"/>
-
-   <plugin
-         id="edu.tamu.tcat.trc.notes.rest"
-         download-size="0"
-         install-size="0"
-         version="1.1.0.qualifier"
-         unpack="false"/>
-
-   <plugin
-         id="edu.tamu.tcat.trc.notes.rest.source"
-         download-size="0"
-         install-size="0"
-         version="1.1.0.qualifier"
-         unpack="false"/>
-
-   <plugin
-         id="edu.tamu.tcat.trc.notes.search.solr"
-         download-size="0"
-         install-size="0"
-         version="1.1.0.qualifier"
-         unpack="false"/>
-
-   <plugin
-         id="edu.tamu.tcat.trc.notes.search.solr.source"
-         download-size="0"
-         install-size="0"
-         version="1.1.0.qualifier"
-         unpack="false"/>
-
-   <plugin
          id="edu.tamu.tcat.trc.search.solr"
          download-size="0"
          install-size="0"
