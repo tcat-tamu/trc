@@ -127,12 +127,12 @@ public class PsqlDigitalCopyLinkRepo implements CopyReferenceRepository
    }
 
    @Override
-   public List<CopyReference> getCopies(URI entity)
+   public List<CopyReference> getCopies(URI entity, boolean deep)
    {
       Future<List<CopyReference>> results = exec.submit(conn -> {
          try (PreparedStatement ps = conn.prepareStatement(GET_ALL_SQL))
          {
-            ps.setString(1, entity.toString() + "%");
+            ps.setString(1, entity.toString() + (deep ? "%" : ""));
             try (ResultSet rs = ps.executeQuery())
             {
                List<CopyReference> copies = new ArrayList<>();

@@ -50,11 +50,23 @@ public interface CopyReferenceRepository
 
    /**
     * @param entity The URI of the bibliographic entity for which copies should be returned.
-    *       Note that this may be a work, edition or volume. This method will return copies for
-    *       the identified object and all component entities as well.
-    * @return The
+    *       Note that this may be a work, edition or volume.
+    * @param deep Whether to return copies for only the identified object or the identified object
+    *       and all component entities as well.
+    * @return
     */
-   List<CopyReference> getCopies(URI entity);
+   List<CopyReference> getCopies(URI entity, boolean deep);
+
+   /**
+    * Same as calling getCopies(entity, true)
+    *
+    * @param entity
+    * @return
+    */
+   default List<CopyReference> getCopies(URI entity)
+   {
+      return getCopies(entity, true);
+   }
 
    /**
     * Retries a specific {@link CopyReference}
