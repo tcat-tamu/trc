@@ -136,8 +136,7 @@ public class EditCopyRefCmdImpl extends BaseEditCopyRefCmd implements EditCopyRe
          catch(SQLException e)
          {
             throw new IllegalStateException("Failed to update copy reference [" + dto.id + "]. "
-                  + "\n\tEntry [" + dto.associatedEntry + "]"
-                  + "\n\tCopy  [" + dto.copyId + "]", e);
+                  + "\n\tEntry [" + dto.associatedEntry + "]", e);
          }
       };
    }

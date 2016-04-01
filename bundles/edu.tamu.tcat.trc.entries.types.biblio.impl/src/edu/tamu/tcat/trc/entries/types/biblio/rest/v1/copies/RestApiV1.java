@@ -16,7 +16,7 @@
 package edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies;
 
 import java.net.URI;
-import java.util.UUID;
+import java.util.Map;
 
 /**
  * An encapsulation of the data vehicle types used to process JSON requests and responses
@@ -26,9 +26,10 @@ public class RestApiV1
 {
    public static class CopyReference
    {
-      public UUID id;
-      public URI associatedEntry;
-      public String copyId;
+      public String id;
+      public String type;
+      public URI entryUri;
+      public Map<String, Object> properties;
       public String title;
       public String summary;
       public String rights;

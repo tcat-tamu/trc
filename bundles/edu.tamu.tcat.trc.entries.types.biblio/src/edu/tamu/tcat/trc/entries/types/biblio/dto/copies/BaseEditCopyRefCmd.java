@@ -16,6 +16,7 @@
 package edu.tamu.tcat.trc.entries.types.biblio.dto.copies;
 
 import java.net.URI;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -32,7 +33,9 @@ public abstract class BaseEditCopyRefCmd implements EditCopyReferenceCommand
    {
       this.original = null;
       this.dto = new CopyRefDTO();
-      this.dto.id = UUID.randomUUID();
+
+      // TODO: use IdFactory
+      this.dto.id = UUID.randomUUID().toString();
    }
 
    public BaseEditCopyRefCmd(CopyRefDTO dto)
@@ -48,7 +51,7 @@ public abstract class BaseEditCopyRefCmd implements EditCopyReferenceCommand
    }
 
    @Override
-   public final UUID getId()
+   public final String getId()
    {
       return dto.id;
    }
@@ -66,17 +69,27 @@ public abstract class BaseEditCopyRefCmd implements EditCopyReferenceCommand
       if (dto.id == null)
          dto.id = updates.id;
 
+      if (updates.type != null)
+         setType(updates.type);
+
       if (updates.associatedEntry != null)
          setAssociatedEntry(updates.associatedEntry);
 
-      if (updates.copyId != null)
-         setCopyId(updates.copyId);
+      if (updates.referenceProperties != null)
+         setReferenceProperties(updates.referenceProperties);
       if (updates.title != null)
          setTitle(updates.title);
       if (updates.summary != null)
          setSummary(updates.summary);
       if (updates.rights != null)
          setRights(updates.rights);
+   }
+
+   @Override
+   public final EditCopyReferenceCommand setType(String type)
+   {
+      dto.type = type;
+      return this;
    }
 
    @Override
@@ -87,9 +100,9 @@ public abstract class BaseEditCopyRefCmd implements EditCopyReferenceCommand
    }
 
    @Override
-   public final EditCopyReferenceCommand setCopyId(String id)
+   public final EditCopyReferenceCommand setReferenceProperties(Map<String, Object> properties)
    {
-      dto.copyId = id;
+      dto.referenceProperties = properties;
       return this;
    }
 

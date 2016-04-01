@@ -105,7 +105,7 @@ public class CopyRepoTest
       EditCopyReferenceCommand editor = repo.create();
       editor.setAssociatedEntry(URI.create("test/works/1"));
       String id = "htid:000000000#ark+=13960=t00z72x8w";
-      editor.setCopyId(id);
+//      editor.setCopyId(id);
       editor.setTitle("Copy from my hard drive");
       editor.setSummary("A copy reference example.");
       editor.setRights("full view");
@@ -142,7 +142,7 @@ public class CopyRepoTest
       EditCopyReferenceCommand editor = repo.create();
 
       editor.setAssociatedEntry(URI.create(workUri));
-      editor.setCopyId(htid);
+//      editor.setCopyId(htid);
       editor.setTitle("Copy from my harddrive");
       editor.setSummary("A copy reference example.");
       editor.setRights("full view");

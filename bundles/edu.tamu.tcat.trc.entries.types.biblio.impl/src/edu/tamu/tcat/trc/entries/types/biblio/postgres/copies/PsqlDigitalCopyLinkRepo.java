@@ -120,7 +120,7 @@ public class PsqlDigitalCopyLinkRepo implements CopyReferenceRepository
    }
 
    @Override
-   public EditCopyReferenceCommand edit(UUID id) throws NoSuchCatalogRecordException
+   public EditCopyReferenceCommand edit(String id) throws NoSuchCatalogRecordException
    {
       CopyRefDTO dto = getCopyDTO(GET_SQL, id);
       return new EditCopyRefCmdImpl(exec, listeners, new UpdateEventFactory(), dto);
@@ -164,13 +164,13 @@ public class PsqlDigitalCopyLinkRepo implements CopyReferenceRepository
    }
 
    @Override
-   public CopyReference get(UUID id) throws NoSuchCatalogRecordException
+   public CopyReference get(String id) throws NoSuchCatalogRecordException
    {
       return CopyRefDTO.instantiate(getCopyDTO(GET_SQL, id));
    }
 
    @Override
-   public Future<Boolean> remove(UUID id) throws CopyReferenceException
+   public Future<Boolean> remove(String id) throws CopyReferenceException
    {
       UpdateEventFactory factory = new UpdateEventFactory();
       CopyChangeEvent evt = factory.delete(id);
@@ -187,12 +187,12 @@ public class PsqlDigitalCopyLinkRepo implements CopyReferenceRepository
             }));
    }
 
-   private SqlExecutor.ExecutorTask<Boolean> makeRemoveTask(UUID id)
+   private SqlExecutor.ExecutorTask<Boolean> makeRemoveTask(String id)
    {
       return (conn) -> {
          try (PreparedStatement ps = conn.prepareStatement(REMOVE_SQL))
          {
-            ps.setString(1, id.toString());
+            ps.setString(1, id);
             int ct = ps.executeUpdate();
             if (ct == 0)
             {
@@ -238,7 +238,7 @@ public class PsqlDigitalCopyLinkRepo implements CopyReferenceRepository
    {
       public CopyChangeEvent create(CopyReference newRef)
       {
-         return new CopyChangeEventImpl(newRef.getId().toString(),
+         return new CopyChangeEventImpl(newRef.getId(),
                                         UpdateAction.CREATE,
                                         null,
                                         newRef);
@@ -246,13 +246,13 @@ public class PsqlDigitalCopyLinkRepo implements CopyReferenceRepository
 
       public CopyChangeEvent edit(CopyReference orig, CopyReference updated)
       {
-         return new CopyChangeEventImpl(updated.getId().toString(),
+         return new CopyChangeEventImpl(updated.getId(),
                                         UpdateAction.UPDATE,
                                         orig,
                                         updated);
       }
 
-      public CopyChangeEvent delete(UUID id)
+      public CopyChangeEvent delete(String id)
       {
          CopyReference old = null;
          try {
@@ -260,7 +260,7 @@ public class PsqlDigitalCopyLinkRepo implements CopyReferenceRepository
          } catch (Exception e) {
             logger.log(Level.WARNING, "Failed accessing old value for deleted copy", e);
          }
-         return new CopyChangeEventImpl(id.toString(),
+         return new CopyChangeEventImpl(id,
                                         UpdateAction.DELETE,
                                         old,
                                         null);
@@ -279,10 +279,10 @@ public class PsqlDigitalCopyLinkRepo implements CopyReferenceRepository
       }
    }
 
-   private CopyRefDTO getCopyDTO(String sql, UUID id) throws NoSuchCatalogRecordException
+   private CopyRefDTO getCopyDTO(String sql, String id) throws NoSuchCatalogRecordException
    {
-      Future<CopyRefDTO> result = exec.submit((conn) -> executeGetQuery(sql, conn, id));
-      return unwrapGetResults(result, id.toString());
+      Future<CopyRefDTO> result = exec.submit(conn -> executeGetQuery(sql, conn, id));
+      return unwrapGetResults(result, id);
    }
 
    /**
@@ -317,11 +317,11 @@ public class PsqlDigitalCopyLinkRepo implements CopyReferenceRepository
       }
    }
 
-   private CopyRefDTO executeGetQuery(String sql, Connection conn, UUID id) throws NoSuchCatalogRecordException
+   private CopyRefDTO executeGetQuery(String sql, Connection conn, String id) throws NoSuchCatalogRecordException
    {
       try (PreparedStatement ps = conn.prepareStatement(sql))
       {
-         ps.setString(1, id.toString());
+         ps.setString(1, id);
          try (ResultSet rs = ps.executeQuery())
          {
             if (!rs.next())

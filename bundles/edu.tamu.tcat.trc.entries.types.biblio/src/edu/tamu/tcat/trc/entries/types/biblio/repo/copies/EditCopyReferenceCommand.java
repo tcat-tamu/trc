@@ -16,7 +16,7 @@
 package edu.tamu.tcat.trc.entries.types.biblio.repo.copies;
 
 import java.net.URI;
-import java.util.UUID;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
@@ -33,7 +33,7 @@ public interface EditCopyReferenceCommand
    /**
     * @return The unique identifier for the {@link CopyReference} being edited by this command.
     */
-   UUID getId();
+   String getId();
 
    /**
     * Updates this edit command to reflect the supplied DTO. Note that {@code null} valued
@@ -46,6 +46,8 @@ public interface EditCopyReferenceCommand
     */
    void update(CopyRefDTO dto) throws IllegalArgumentException;
 
+   EditCopyReferenceCommand setType(String type);
+
    /**
     * @param uri The URI of the associated bibliographic entry. Note that digital copies may be
     *       attached to works, editions or volumes.
@@ -57,7 +59,7 @@ public interface EditCopyReferenceCommand
     *       {@link CopyResolverRegistry} for more detail on how to retrieve a reference to
     *       the digital copy.
     */
-   EditCopyReferenceCommand setCopyId(String id);  // TODO need info about provider, type, etc.
+   EditCopyReferenceCommand setReferenceProperties(Map<String, Object> properties);
 
    /**
     * @param title A title that describes this relationship between the work and the digital copy.

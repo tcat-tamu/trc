@@ -16,22 +16,29 @@
 package edu.tamu.tcat.trc.entries.types.biblio.dto.copies;
 
 import java.net.URI;
-import java.util.UUID;
+import java.util.Map;
 
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
 
 public class CopyRefDTO
 {
-   public UUID id;
+   public String id;
+   public String type;
    public URI associatedEntry;
-   public String copyId;
+   public Map<String, Object> referenceProperties;
    public String title;
    public String summary;
    public String rights;
 
    public static CopyReference instantiate(CopyRefDTO dto)
    {
-      return new BasicCopyReference(dto.id, dto.associatedEntry, dto.copyId, dto.title, dto.summary, dto.rights);
+      return new BasicCopyReference(dto.id,
+                                    dto.type,
+                                    dto.associatedEntry,
+                                    dto.referenceProperties,
+                                    dto.title,
+                                    dto.summary,
+                                    dto.rights);
    }
 
    public static CopyRefDTO create(CopyReference ref)
@@ -39,8 +46,9 @@ public class CopyRefDTO
       CopyRefDTO dto = new CopyRefDTO();
 
       dto.id = ref.getId();
+      dto.type = ref.getType();
       dto.associatedEntry = ref.getAssociatedEntry();
-      dto.copyId = ref.getCopyId();
+      dto.referenceProperties = ref.getReferenceProperties();
 
       dto.title = ref.getTitle();
       dto.summary = ref.getSummary();
@@ -54,8 +62,9 @@ public class CopyRefDTO
       CopyRefDTO dto = new CopyRefDTO();
 
       dto.id = orig.id;
+      dto.type = orig.type;
       dto.associatedEntry = orig.associatedEntry;
-      dto.copyId = orig.copyId;
+      dto.referenceProperties = orig.referenceProperties;
 
       dto.title = orig.title;
       dto.summary = orig.summary;

@@ -16,24 +16,26 @@
 package edu.tamu.tcat.trc.entries.types.biblio.dto.copies;
 
 import java.net.URI;
-import java.util.UUID;
+import java.util.Map;
 
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
 
 public class BasicCopyReference implements CopyReference
 {
-   private final UUID id;
+   private final String id;
+   private final String type;
    private final URI associatedEntry;
-   private final String copyId;
+   private final Map<String, Object> referenceProperties;
    private final String title;
    private final String summary;
    private final String rights;
 
-   public BasicCopyReference(UUID id, URI entry, String copyId, String title, String summary, String rights)
+   public BasicCopyReference(String id, String type, URI entry, Map<String, Object> referenceProperties, String title, String summary, String rights)
    {
       this.id = id;
+      this.type = type;
       this.associatedEntry = entry;
-      this.copyId = copyId;
+      this.referenceProperties = referenceProperties;
 
       this.title = title != null ? title : "";
       this.summary = summary != null ? summary : "";
@@ -41,9 +43,14 @@ public class BasicCopyReference implements CopyReference
    }
 
    @Override
-   public UUID getId()
+   public String getId()
    {
       return id;
+   }
+   @Override
+   public String getType()
+   {
+      return type;
    }
    @Override
    public URI getAssociatedEntry()
@@ -51,9 +58,9 @@ public class BasicCopyReference implements CopyReference
       return associatedEntry;
    }
    @Override
-   public String getCopyId()
+   public Map<String, Object> getReferenceProperties()
    {
-      return copyId;
+      return referenceProperties;
    }
    @Override
    public String getTitle()

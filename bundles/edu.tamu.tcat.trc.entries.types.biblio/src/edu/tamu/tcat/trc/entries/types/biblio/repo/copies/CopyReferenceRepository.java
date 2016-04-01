@@ -45,8 +45,23 @@ public interface CopyReferenceRepository
     * @param id
     * @return
     * @throws NoSuchCatalogRecordException If the identified copy does not exist.
+    * @deprecated use string-based IDs instead
     */
-   EditCopyReferenceCommand edit(UUID id) throws NoSuchCatalogRecordException;
+   @Deprecated
+   default EditCopyReferenceCommand edit(UUID id) throws NoSuchCatalogRecordException
+   {
+      return edit(id.toString());
+   }
+
+   /**
+    * Build an {@link EditCopyReferenceCommand} for use in creating editing an existing
+    * {@link CopyReference}.
+    *
+    * @param id
+    * @return
+    * @throws NoSuchCatalogRecordException If the identified copy does not exist.
+    */
+   EditCopyReferenceCommand edit(String id) throws NoSuchCatalogRecordException;
 
    /**
     * @param entity The URI of the bibliographic entity for which copies should be returned.
@@ -73,8 +88,39 @@ public interface CopyReferenceRepository
     * @param id The id of the copy reference to return.
     * @return
     * @throws NoSuchCatalogRecordException
+    * @deprecated use string-based IDs instead
     */
-   CopyReference get(UUID id) throws NoSuchCatalogRecordException;
+   @Deprecated
+   default CopyReference get(UUID id) throws NoSuchCatalogRecordException
+   {
+      return get(id.toString());
+   }
+
+   /**
+    * Retries a specific {@link CopyReference}
+    * @param id The id of the copy reference to return.
+    * @return
+    * @throws NoSuchCatalogRecordException
+    */
+   CopyReference get(String id) throws NoSuchCatalogRecordException;
+
+   /**
+    * Removes the identified copy reference exception. Note that this will mark the indicated
+    * entry as having been deleted, but the data may be retrieved at a later point to support
+    * historical analysis
+    *
+    * @param id The id of the reference to remove.
+    * @return A handle to determine if the item was successfully deleted from the persistence
+    *       layer. Note that this will be {@code false} if the reference does not exist in the
+    *       persistence layer and will propagate any internal errors encountered in attempting
+    *       to remove the indicated reference.
+    * @deprecated use string-based IDs instead
+    */
+   @Deprecated
+   default Future<Boolean> remove(UUID id) throws CopyReferenceException
+   {
+      return remove(id.toString());
+   }
 
    /**
     * Removes the identified copy reference exception. Note that this will mark the indicated
@@ -87,7 +133,7 @@ public interface CopyReferenceRepository
     *       persistence layer and will propagate any internal errors encountered in attempting
     *       to remove the indicated reference.
     */
-   Future<Boolean> remove(UUID id) throws CopyReferenceException;
+   Future<Boolean> remove(String id) throws CopyReferenceException;
 
    AutoCloseable register(UpdateListener<CopyChangeEvent> ears);
 }

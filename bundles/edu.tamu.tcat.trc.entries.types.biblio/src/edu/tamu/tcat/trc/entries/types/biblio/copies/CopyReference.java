@@ -16,7 +16,7 @@
 package edu.tamu.tcat.trc.entries.types.biblio.copies;
 
 import java.net.URI;
-import java.util.UUID;
+import java.util.Map;
 
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
 
@@ -29,7 +29,12 @@ public interface CopyReference
    /**
     * @return A unique, persistent identifier for this reference.
     */
-   UUID getId();
+   String getId();
+
+   /**
+    * @return A string identifying the type/origin of the referenced resource.
+    */
+   String getType();
 
    /**
     * @return The URI of the associated bibliographic entry. Note that digital copies may be
@@ -38,11 +43,10 @@ public interface CopyReference
    URI getAssociatedEntry();
 
    /**
-    * @return The unique identifier for the associated digital copy. See
-    *       {@link CopyResolverRegistry} for more detail on how to retrieve a reference to
-    *       the digital copy.
+    * @return The information necessary to resolve this reference to the associated digital copy.
+    *       For example, the remote service's identifier, sequence/page number, a URI, etc.
     */
-   String getCopyId();  // TODO need info about provider, type, etc.
+   Map<String, Object> getReferenceProperties();
 
    /**
     * @return A title that describes this relationship between the work and the digital copy.

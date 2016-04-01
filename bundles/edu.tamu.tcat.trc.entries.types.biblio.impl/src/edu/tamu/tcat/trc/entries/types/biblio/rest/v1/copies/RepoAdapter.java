@@ -28,29 +28,29 @@ public class RepoAdapter
    {
       if (orig == null)
          return null;
-      
+
       RestApiV1.CopyReference dto = new RestApiV1.CopyReference();
       dto.id = orig.getId();
-      dto.associatedEntry = orig.getAssociatedEntry();
-      dto.copyId = orig.getCopyId();
+      dto.entryUri = orig.getAssociatedEntry();
+      dto.properties = orig.getReferenceProperties();
 
       dto.title = orig.getTitle();
       dto.summary = orig.getSummary();
       dto.rights = orig.getRights();
-      
+
       return dto;
    }
-   
+
    public static CopyRefDTO toRepo(RestApiV1.CopyReference orig)
    {
       if (orig == null)
          return null;
-      
+
       CopyRefDTO dto = new CopyRefDTO();
 
       dto.id = orig.id;
-      dto.associatedEntry = orig.associatedEntry;
-      dto.copyId = orig.copyId;
+      dto.associatedEntry = orig.entryUri;
+      dto.referenceProperties = orig.properties;
 
       dto.title = orig.title;
       dto.summary = orig.summary;
