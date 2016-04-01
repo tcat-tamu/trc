@@ -88,7 +88,7 @@ public class BibCopiesRestClientRepo implements CopyReferenceRepository
    }
 
    @Override
-   public List<CopyReference> getCopies(URI entity)
+   public List<CopyReference> getCopies(URI entity, boolean deep)
    {
       // TODO Auto-generated method stub
       return null;
