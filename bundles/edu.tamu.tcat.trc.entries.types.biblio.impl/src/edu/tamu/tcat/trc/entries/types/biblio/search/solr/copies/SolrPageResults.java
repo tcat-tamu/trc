@@ -17,9 +17,9 @@ package edu.tamu.tcat.trc.entries.types.biblio.search.solr.copies;
 
 import java.util.List;
 
-import edu.tamu.tcat.trc.entries.types.biblio.copies.search.PageSearchCommand;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.search.PageSearchProxy;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.search.PageSearchResult;
+import edu.tamu.tcat.trc.entries.types.biblio.search.copies.PageSearchCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.search.copies.PageSearchProxy;
+import edu.tamu.tcat.trc.entries.types.biblio.search.copies.PageSearchResult;
 
 public class SolrPageResults implements PageSearchResult
 {

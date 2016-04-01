@@ -32,11 +32,11 @@ import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.UpdateCanceledException;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.dto.BaseEditCopyRefCmd;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.dto.CopyRefDTO;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.CopyChangeEvent;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.EditCopyReferenceCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.BaseEditCopyRefCmd;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.CopyRefDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.postgres.copies.PsqlDigitalCopyLinkRepo.UpdateEventFactory;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyChangeEvent;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.EditCopyReferenceCommand;
 
 public class EditCopyRefCmdImpl extends BaseEditCopyRefCmd implements EditCopyReferenceCommand
 {

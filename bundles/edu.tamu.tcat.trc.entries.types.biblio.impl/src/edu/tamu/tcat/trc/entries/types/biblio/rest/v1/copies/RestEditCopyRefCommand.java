@@ -22,10 +22,10 @@ import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.UpdateCanceledException;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.dto.BaseEditCopyRefCmd;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.dto.CopyRefDTO;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.CopyChangeEvent;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.BaseEditCopyRefCmd;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.CopyRefDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.postgres.copies.PsqlDigitalCopyLinkRepo.UpdateEventFactory;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyChangeEvent;
 
 @Deprecated // appears to be unused. should be DB layer concern
 public class RestEditCopyRefCommand extends BaseEditCopyRefCmd

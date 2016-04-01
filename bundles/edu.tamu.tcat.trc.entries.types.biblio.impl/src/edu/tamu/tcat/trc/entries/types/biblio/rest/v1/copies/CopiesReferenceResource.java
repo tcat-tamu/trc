@@ -41,10 +41,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.UpdateCanceledException;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.dto.CopyRefDTO;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.CopyReferenceRepository;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.EditCopyReferenceCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.CopyRefDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.EditCopyReferenceCommand;
 
 @Path("/copies")
 public class CopiesReferenceResource

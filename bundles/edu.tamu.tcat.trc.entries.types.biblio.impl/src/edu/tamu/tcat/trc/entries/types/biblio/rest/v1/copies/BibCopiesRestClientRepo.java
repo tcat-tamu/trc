@@ -32,10 +32,10 @@ import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.CopyChangeEvent;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.CopyReferenceException;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.CopyReferenceRepository;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.EditCopyReferenceCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyChangeEvent;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceException;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.EditCopyReferenceCommand;
 
 public class BibCopiesRestClientRepo implements CopyReferenceRepository
 {

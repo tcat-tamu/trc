@@ -17,7 +17,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.search.solr.copies;
 
 import org.apache.solr.common.SolrInputDocument;
 
-import edu.tamu.tcat.trc.entries.types.biblio.copies.search.PageSearchProxy;
+import edu.tamu.tcat.trc.entries.types.biblio.search.copies.PageSearchProxy;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 

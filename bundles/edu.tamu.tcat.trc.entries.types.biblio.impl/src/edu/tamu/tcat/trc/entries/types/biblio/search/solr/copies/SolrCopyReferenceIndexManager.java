@@ -38,11 +38,11 @@ import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent.UpdateAction;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.CopyChangeEvent;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.CopyReferenceRepository;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.search.FullTextSearchService;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.search.PageSearchCommand;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.search.VolumeSearchCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyChangeEvent;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.search.copies.FullTextSearchService;
+import edu.tamu.tcat.trc.entries.types.biblio.search.copies.PageSearchCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.search.copies.VolumeSearchCommand;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 

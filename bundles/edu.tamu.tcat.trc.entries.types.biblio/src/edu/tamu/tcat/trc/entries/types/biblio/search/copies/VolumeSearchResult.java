@@ -13,15 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.biblio.copies.search;
+package edu.tamu.tcat.trc.entries.types.biblio.search.copies;
 
-import edu.tamu.tcat.trc.search.SearchException;
+import java.util.List;
 
-public interface FullTextSearchService
+public interface VolumeSearchResult
 {
 
-   VolumeSearchCommand getVolumeSearchCommand() throws SearchException;
+   /**
+    * Get the {@link PageSearchCommand} which executed to provide this result.
+    */
+   VolumeSearchCommand getCommand();
 
-   PageSearchCommand getPageSearchCommand() throws SearchException;
-
+   /**
+    * @return Proxies for the works that match the current search.
+    */
+   List<VolumeSearchProxy> get();
 }

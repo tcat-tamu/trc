@@ -16,7 +16,7 @@
 package edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies;
 
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.dto.CopyRefDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.CopyRefDTO;
 
 /**
  * An encapsulation of adapter methods to convert between the repository API and

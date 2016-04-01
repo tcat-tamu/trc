@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.biblio.copies.search;
+package edu.tamu.tcat.trc.entries.types.biblio.search.copies;
 
-import edu.tamu.tcat.trc.entries.types.biblio.search.WorkQueryCommand;
 import edu.tamu.tcat.trc.search.SearchException;
 
-public interface PageSearchCommand
+public interface VolumeSearchCommand
 {
 
    /*
     * In keeping with the "spirit of search", the window (offset + length) and other paramters
     * are configured in the query itself and not in a result with a long lifecycle.
     */
-   PageSearchResult execute() throws SearchException;
+   VolumeSearchResult execute() throws SearchException;
 
    /**
     * Supply a "basic" free-text, keyword query to be executed. In general, the supplied query will
@@ -38,11 +37,9 @@ public interface PageSearchCommand
     */
    void query(String basicQueryString) throws SearchException;
 
-   void addVolumeFilter(String volumeId) throws SearchException;
-
    /**
     * Sets the index offset of the first result to be returned. Useful in conjunction with
-    * {@link WorkQueryCommand#setMaxResults(int) } to support result paging. Note that
+    * {@link VolumeSearchCommand#setMaxResults(int) } to support result paging. Note that
     * implementations are <em>strongly</em> encouraged to make a best-effort attempt to
     * preserve result order across multiple invocations of the same query.  In general, this
     * is a challenging problem in the face of updates to the underlying index and implementations

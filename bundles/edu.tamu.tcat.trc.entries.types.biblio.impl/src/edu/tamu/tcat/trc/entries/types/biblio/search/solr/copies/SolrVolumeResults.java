@@ -17,9 +17,9 @@ package edu.tamu.tcat.trc.entries.types.biblio.search.solr.copies;
 
 import java.util.List;
 
-import edu.tamu.tcat.trc.entries.types.biblio.copies.search.VolumeSearchCommand;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.search.VolumeSearchProxy;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.search.VolumeSearchResult;
+import edu.tamu.tcat.trc.entries.types.biblio.search.copies.VolumeSearchCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.search.copies.VolumeSearchProxy;
+import edu.tamu.tcat.trc.entries.types.biblio.search.copies.VolumeSearchResult;
 
 public class SolrVolumeResults implements VolumeSearchResult
 {

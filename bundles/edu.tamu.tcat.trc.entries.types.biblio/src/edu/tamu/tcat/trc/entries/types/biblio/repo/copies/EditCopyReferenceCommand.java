@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.biblio.copies.repo;
+package edu.tamu.tcat.trc.entries.types.biblio.repo.copies;
 
 import java.net.URI;
 import java.util.UUID;
@@ -21,7 +21,7 @@ import java.util.concurrent.Future;
 
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.UpdateCanceledException;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.dto.CopyRefDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.CopyRefDTO;
 
 public interface EditCopyReferenceCommand
 {

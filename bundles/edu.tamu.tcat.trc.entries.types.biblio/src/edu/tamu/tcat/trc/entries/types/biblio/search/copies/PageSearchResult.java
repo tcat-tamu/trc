@@ -13,24 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.biblio.copies.search;
+package edu.tamu.tcat.trc.entries.types.biblio.search.copies;
 
-/**
- * JSON serializable proxy for a page of full-text results, intended to be return to the
- * client for use to display results for a search hit.
- */
-public class PageSearchProxy
+import java.util.List;
+
+public interface PageSearchResult
 {
 
-   // TODO provide hit hightlighing (if possible)
+   /**
+    * Get the {@link PageSearchCommand} which executed to provide this result.
+    */
+   PageSearchCommand getCommand();
 
-   public String id;
-   public String pageText;
-   public String pageNumber;
-   public String pageSequence;
-
-   public PageSearchProxy()
-   {
-   }
-
+   /**
+    * @return Proxies for the works that match the current search.
+    */
+   List<PageSearchProxy> get();
 }

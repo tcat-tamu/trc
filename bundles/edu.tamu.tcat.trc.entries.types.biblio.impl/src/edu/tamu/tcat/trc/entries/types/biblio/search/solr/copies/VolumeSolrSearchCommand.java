@@ -23,9 +23,9 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 
-import edu.tamu.tcat.trc.entries.types.biblio.copies.search.VolumeSearchCommand;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.search.VolumeSearchProxy;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.search.VolumeSearchResult;
+import edu.tamu.tcat.trc.entries.types.biblio.search.copies.VolumeSearchCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.search.copies.VolumeSearchProxy;
+import edu.tamu.tcat.trc.entries.types.biblio.search.copies.VolumeSearchResult;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 

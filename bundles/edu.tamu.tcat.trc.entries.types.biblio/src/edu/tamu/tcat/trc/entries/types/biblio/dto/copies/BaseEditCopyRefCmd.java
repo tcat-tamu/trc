@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.biblio.copies.dto;
+package edu.tamu.tcat.trc.entries.types.biblio.dto.copies;
 
 import java.net.URI;
 import java.util.Objects;
 import java.util.UUID;
 
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.EditCopyReferenceCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.EditCopyReferenceCommand;
 
 public abstract class BaseEditCopyRefCmd implements EditCopyReferenceCommand
 {

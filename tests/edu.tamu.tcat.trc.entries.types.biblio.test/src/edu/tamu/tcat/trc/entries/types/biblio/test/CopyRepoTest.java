@@ -37,8 +37,8 @@ import edu.tamu.tcat.sda.catalog.psql.provider.PsqlDataSourceProvider;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.UpdateCanceledException;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.repo.EditCopyReferenceCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.postgres.copies.PsqlDigitalCopyLinkRepo;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.EditCopyReferenceCommand;
 
 public class CopyRepoTest
 {
