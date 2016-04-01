@@ -16,19 +16,6 @@
       [Enter License Description here.]
    </license>
 
-   <requires>
-      <import plugin="javax.ws.rs"/>
-      <import plugin="com.fasterxml.jackson.jaxrs.jackson-jaxrs-base"/>
-      <import plugin="com.fasterxml.jackson.jaxrs.jackson-jaxrs-json-provider"/>
-      <import plugin="com.google.guava"/>
-      <import plugin="javax.xml"/>
-      <import plugin="org.apache.commons.codec"/>
-      <import plugin="org.apache.commons.compress"/>
-      <import plugin="org.apache.commons.logging"/>
-      <import plugin="org.apache.solr.client.solrj" version="4.9.0" match="compatible"/>
-      <import plugin="org.postgresql"/>
-   </requires>
-
    <plugin
          id="edu.tamu.tcat.trc.entries.core"
          download-size="0"
