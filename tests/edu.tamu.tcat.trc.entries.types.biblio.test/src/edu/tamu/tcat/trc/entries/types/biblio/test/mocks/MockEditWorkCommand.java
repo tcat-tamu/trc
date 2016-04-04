@@ -26,10 +26,10 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorRefDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 import edu.tamu.tcat.trc.repo.IdFactory;
@@ -37,11 +37,11 @@ import edu.tamu.tcat.trc.repo.IdFactory;
 public class MockEditWorkCommand implements EditWorkCommand
 {
 
-   private WorkDV dto;
+   private WorkDTO dto;
    private IdFactory idFactory;
-   private Consumer<WorkDV> saveHook;
+   private Consumer<WorkDTO> saveHook;
 
-   public MockEditWorkCommand(WorkDV dto, IdFactory idFactory, Consumer<WorkDV> saveHook)
+   public MockEditWorkCommand(WorkDTO dto, IdFactory idFactory, Consumer<WorkDTO> saveHook)
    {
       this.dto = dto;
       this.idFactory = idFactory;
@@ -49,7 +49,7 @@ public class MockEditWorkCommand implements EditWorkCommand
    }
 
    @Override
-   public void setAll(WorkDV work)
+   public void setAll(WorkDTO work)
    {
       // TODO Auto-generated method stub
 
@@ -74,19 +74,19 @@ public class MockEditWorkCommand implements EditWorkCommand
    }
 
    @Override
-   public void setAuthors(List<AuthorRefDV> authors)
+   public void setAuthors(List<AuthorReferenceDTO> authors)
    {
       dto.authors = new ArrayList<>(authors);
    }
 
    @Override
-   public void setOtherAuthors(List<AuthorRefDV> authors)
+   public void setOtherAuthors(List<AuthorReferenceDTO> authors)
    {
       dto.otherAuthors = new ArrayList<>(authors);
    }
 
    @Override
-   public void setTitles(Collection<TitleDV> titles)
+   public void setTitles(Collection<TitleDTO> titles)
    {
       dto.titles = new HashSet<>(titles);
    }
@@ -94,7 +94,7 @@ public class MockEditWorkCommand implements EditWorkCommand
    @Override
    public EditionMutator createEdition()
    {
-      EditionDV edition = new EditionDV();
+      EditionDTO edition = new EditionDTO();
       edition.id = idFactory.getNextId("editions");
       dto.editions.add(edition);
 
@@ -105,7 +105,7 @@ public class MockEditWorkCommand implements EditWorkCommand
    @Override
    public EditionMutator editEdition(String id) throws NoSuchCatalogRecordException
    {
-      for (EditionDV edition : dto.editions) {
+      for (EditionDTO edition : dto.editions) {
          if (edition.id.equals(id)) {
             // create a supplier to generate volume IDs
             return new MockEditionMutator(edition, () -> idFactory.getNextId("volumes"));
@@ -121,7 +121,7 @@ public class MockEditWorkCommand implements EditWorkCommand
       if (dto.editions.isEmpty())
          throw new NoSuchCatalogRecordException("This work does not contain any editons.");
 
-      for (EditionDV edition : dto.editions)
+      for (EditionDTO edition : dto.editions)
       {
          if(edition.id.equals(editionId))
          {

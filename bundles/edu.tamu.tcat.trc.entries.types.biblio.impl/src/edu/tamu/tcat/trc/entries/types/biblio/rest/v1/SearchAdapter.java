@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,7 +18,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.rest.v1;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorRefDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.search.BiblioSearchProxy;
 
 /**
@@ -37,7 +37,6 @@ public class SearchAdapter
       {
          RestApiV1.WorkSearchResult dto = new RestApiV1.WorkSearchResult();
          dto.id = orig.id;
-         dto.type = orig.type;
          dto.label = orig.label;
          dto.title = orig.title;
          dto.uri = orig.uri;
@@ -46,7 +45,7 @@ public class SearchAdapter
          if (orig.authors != null)
          {
             dto.authors = new ArrayList<>();
-            for (AuthorRefDV auth : orig.authors)
+            for (AuthorReferenceDTO auth : orig.authors)
                dto.authors.add(RepoAdapter.toDTO(auth));
          }
 

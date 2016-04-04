@@ -18,4 +18,5 @@ Import-Package: edu.tamu.tcat.trc.entries.common;version="[1.0.0,2.0.0)",
  edu.tamu.tcat.trc.entries.notification;version="[1.0.0,2.0.0)",
  edu.tamu.tcat.trc.entries.repo;version="[1.0.0,2.0.0)",
  edu.tamu.tcat.trc.entries.types.bio;version="[1.0.0,2.0.0)",
+ edu.tamu.tcat.trc.repo;version="1.0.0",
  edu.tamu.tcat.trc.search;version="[1.0.0,2.0.0)"

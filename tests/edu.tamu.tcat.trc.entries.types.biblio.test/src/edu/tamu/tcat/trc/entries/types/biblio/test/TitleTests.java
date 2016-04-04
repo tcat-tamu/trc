@@ -26,7 +26,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.tamu.tcat.trc.entries.types.biblio.Title;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
 
 /**
  *  Tests data serialization/deserialization for basic domain model implementation. For each
@@ -61,9 +61,9 @@ public class TitleTests
 
    }
 
-   public static TitleDV createTitle(String title, String sub, String type, String lg)
+   public static TitleDTO createTitle(String title, String sub, String type, String lg)
    {
-      TitleDV dto = new TitleDV();
+      TitleDTO dto = new TitleDTO();
       dto.lg = lg;
       dto.type = type;
       dto.title = title;
@@ -72,7 +72,7 @@ public class TitleTests
       return dto;
    }
 
-   public static boolean testEquality(TitleDV expected, TitleDV actual)
+   public static boolean testEquality(TitleDTO expected, TitleDTO actual)
    {
       return Objects.equals(expected.title, actual.title)
           && Objects.equals(expected.subtitle, actual.subtitle)
@@ -92,13 +92,13 @@ public class TitleTests
    public void testTitle()
    {
       assertEquals(null, null);
-      TitleDV dto = new TitleDV();
+      TitleDTO dto = new TitleDTO();
       dto.lg = "en";
       dto.type = "canonical";
       dto.title = "A Short Work";
       dto.subtitle = "For Testing Purposes";
 
-      Title title = TitleDV.instantiate(dto);
+      Title title = TitleDTO.instantiate(dto);
 
    }
 

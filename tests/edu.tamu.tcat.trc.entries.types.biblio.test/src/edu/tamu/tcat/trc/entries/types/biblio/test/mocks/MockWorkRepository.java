@@ -24,7 +24,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.AuthorReference;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkChangeEvent;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
@@ -107,23 +107,23 @@ public class MockWorkRepository implements WorkRepository
    public EditWorkCommand create(String id)
    {
       // TODO Auto-generated method stub
-      WorkDV dto = new WorkDV();
+      WorkDTO dto = new WorkDTO();
       dto.id = id;
       return new MockEditWorkCommand(dto, idFactory, (update) ->
       {
          // TODO fire notifications
-         cache.put(update.id, WorkDV.instantiate(update));
+         cache.put(update.id, WorkDTO.instantiate(update));
       });
    }
 
    @Override
    public EditWorkCommand edit(String id) throws NoSuchCatalogRecordException
    {
-      WorkDV dto = WorkDV.create(getWork(id));
+      WorkDTO dto = WorkDTO.create(getWork(id));
       return new MockEditWorkCommand(dto, idFactory, (update) ->
       {
          // TODO fire notifications
-         cache.put(update.id, WorkDV.instantiate(update));
+         cache.put(update.id, WorkDTO.instantiate(update));
       });
    }
 

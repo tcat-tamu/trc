@@ -5,5 +5,5 @@
       <provide interface="edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository"/>
    </service>
    <reference bind="setDatabaseExecutor" cardinality="1..1" interface="edu.tamu.tcat.db.exec.sql.SqlExecutor" name="SqlExecutor" policy="static"/>
-   <reference bind="setIdFactory" cardinality="1..1" interface="edu.tamu.tcat.trc.repo.IdFactory" name="IdFactory" policy="static"/>
+   <reference bind="setIdFactory" cardinality="1..1" interface="edu.tamu.tcat.trc.repo.IdFactoryProvider" name="IdFactoryProvider" policy="static"/>
 </scr:component>

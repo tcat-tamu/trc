@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,7 +28,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.Title;
 import edu.tamu.tcat.trc.entries.types.biblio.TitleDefinition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorRefDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
 
 
 /**
@@ -44,7 +44,7 @@ public class BiblioSearchProxy
    public String id;
    public String type;
    public String uri;
-   public List<AuthorRefDV> authors = new ArrayList<>();
+   public List<AuthorReferenceDTO> authors = new ArrayList<>();
    public String title;
    public String label;
    public String summary;
@@ -55,7 +55,7 @@ public class BiblioSearchProxy
       BiblioSearchProxy result = new BiblioSearchProxy();
 
       TitleDefinition titleDefn = w.getTitle();
-      Set<Title> titles = titleDefn.getAlternateTitles();
+      Set<Title> titles = titleDefn.get();
       LocalDate d = w.getEditions().stream()
             .map(ed ->
             ed.getPublicationInfo().getPublicationDate().getCalendar())
@@ -72,7 +72,6 @@ public class BiblioSearchProxy
       String name = getAuthorName(authRef);
 
       result.id = w.getId();
-      result.type = w.getType();
       result.uri = "works/" + w.getId();        // TODO make a more flexible tool for creating work URIs
       result.title = getEntityTitle(titles);
 
@@ -81,7 +80,7 @@ public class BiblioSearchProxy
 
       result.summary = w.getSummary();
 
-      authors.forEach(author -> result.authors.add(AuthorRefDV.create(author)));
+      authors.forEach(author -> result.authors.add(AuthorReferenceDTO.create(author)));
 
       return result;
    }
@@ -112,7 +111,7 @@ public class BiblioSearchProxy
       result.summary = e.getSummary();
 
       List<AuthorReference> authors = e.getAuthors();
-      authors.forEach(author -> result.authors.add(AuthorRefDV.create(author)));
+      authors.forEach(author -> result.authors.add(AuthorReferenceDTO.create(author)));
 
       return result;
 
@@ -135,7 +134,7 @@ public class BiblioSearchProxy
       result.pubYear = pubYear;
       result.summary = v.getSummary();
 
-      authors.forEach(author -> result.authors.add(AuthorRefDV.create(author)));
+      authors.forEach(author -> result.authors.add(AuthorReferenceDTO.create(author)));
 
       return result;
 
@@ -164,10 +163,9 @@ public class BiblioSearchProxy
          AuthorReference ref = authors.get(0);
          name = trimToNull(ref.getLastName());
          if (name == null)
+         {
             name = trimToNull(ref.getFirstName());
-
-         if (name == null)
-            name = trimToNull(ref.getName());
+         }
       }
       return name;
    }

@@ -30,12 +30,12 @@ import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorRefDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.search.BiblioSearchProxy;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
@@ -67,13 +67,13 @@ public class BiblioDocument
    public static BiblioDocument createWork(Work work) throws SearchException
    {
       BiblioDocument doc = new BiblioDocument();
-      WorkDV workDV = WorkDV.create(work);
+      WorkDTO workDTO = WorkDTO.create(work);
 
-      doc.indexDocument.set(BiblioSolrConfig.ID, workDV.id);
-      doc.addAuthors(workDV.authors);
-      doc.addTitles(workDV.titles);
-      doc.indexDocument.set(BiblioSolrConfig.SERIES, workDV.series);
-      doc.indexDocument.set(BiblioSolrConfig.SUMMARY, workDV.summary);
+      doc.indexDocument.set(BiblioSolrConfig.ID, workDTO.id);
+      doc.addAuthors(workDTO.authors);
+      doc.addTitles(workDTO.titles);
+      doc.indexDocument.set(BiblioSolrConfig.SERIES, workDTO.series);
+      doc.indexDocument.set(BiblioSolrConfig.SUMMARY, workDTO.summary);
 
       try
       {
@@ -88,19 +88,19 @@ public class BiblioDocument
 
    public static BiblioDocument createEdition(String workId, Edition edition) throws SearchException
    {
-      EditionDV editionDV = EditionDV.create(edition);
+      EditionDTO editionDTO = EditionDTO.create(edition);
       StringBuilder editionId = new StringBuilder(workId)
                                .append(":")
-                               .append(editionDV.id);
+                               .append(editionDTO.id);
 
       BiblioDocument doc = new BiblioDocument();
       doc.indexDocument.set(BiblioSolrConfig.ID, editionId.toString());
-      doc.indexDocument.set(BiblioSolrConfig.EDITION_NAME, editionDV.editionName);
-      doc.addAuthors(editionDV.authors);
-      doc.addTitles(editionDV.titles);
-      doc.addPublication(editionDV.publicationInfo);
-      doc.indexDocument.set(BiblioSolrConfig.SERIES, editionDV.series);
-      doc.indexDocument.set(BiblioSolrConfig.SUMMARY, editionDV.summary);
+      doc.indexDocument.set(BiblioSolrConfig.EDITION_NAME, editionDTO.editionName);
+      doc.addAuthors(editionDTO.authors);
+      doc.addTitles(editionDTO.titles);
+      doc.addPublication(editionDTO.publicationInfo);
+      doc.indexDocument.set(BiblioSolrConfig.SERIES, editionDTO.series);
+      doc.indexDocument.set(BiblioSolrConfig.SUMMARY, editionDTO.summary);
 
       try
       {
@@ -115,22 +115,22 @@ public class BiblioDocument
 
    public static BiblioDocument createVolume(String workId, Edition edition, Volume volume) throws SearchException
    {
-      VolumeDV volumeDV = VolumeDV.create(volume);
+      VolumeDTO volumeDTO = VolumeDTO.create(volume);
       StringBuilder volumeId = new StringBuilder(workId)
                               .append(":")
                               .append(edition.getId())
                               .append(":")
-                              .append(volumeDV.id);
+                              .append(volumeDTO.id);
 
       BiblioDocument doc = new BiblioDocument();
       doc.indexDocument.set(BiblioSolrConfig.ID, volumeId.toString());
       doc.indexDocument.set(BiblioSolrConfig.EDITION_NAME, edition.getEditionName());
-      doc.indexDocument.set(BiblioSolrConfig.VOLUME_NUMBER, volumeDV.volumeNumber);
-      doc.addAuthors(volumeDV.authors);
-      doc.addTitles(volumeDV.titles);
-      doc.addPublication(volumeDV.publicationInfo);
-      doc.indexDocument.set(BiblioSolrConfig.SERIES, volumeDV.series);
-      doc.indexDocument.set(BiblioSolrConfig.SUMMARY, volumeDV.summary);
+      doc.indexDocument.set(BiblioSolrConfig.VOLUME_NUMBER, volumeDTO.volumeNumber);
+      doc.addAuthors(volumeDTO.authors);
+      doc.addTitles(volumeDTO.titles);
+      doc.addPublication(volumeDTO.publicationInfo);
+      doc.indexDocument.set(BiblioSolrConfig.SERIES, volumeDTO.series);
+      doc.indexDocument.set(BiblioSolrConfig.SUMMARY, volumeDTO.summary);
 
       try
       {
@@ -146,13 +146,13 @@ public class BiblioDocument
    public static BiblioDocument updateWork(Work work) throws SearchException
    {
       BiblioDocument doc = new BiblioDocument();
-      WorkDV workDV = WorkDV.create(work);
+      WorkDTO workDTO = WorkDTO.create(work);
 
-      doc.indexDocument.update(BiblioSolrConfig.ID, workDV.id);
-      doc.updateAuthors(workDV.authors);
-      doc.updateTitles(workDV.titles);
-      doc.indexDocument.update(BiblioSolrConfig.SERIES, workDV.series);
-      doc.indexDocument.update(BiblioSolrConfig.SUMMARY, workDV.summary);
+      doc.indexDocument.update(BiblioSolrConfig.ID, workDTO.id);
+      doc.updateAuthors(workDTO.authors);
+      doc.updateTitles(workDTO.titles);
+      doc.indexDocument.update(BiblioSolrConfig.SERIES, workDTO.series);
+      doc.indexDocument.update(BiblioSolrConfig.SUMMARY, workDTO.summary);
 
       try
       {
@@ -167,19 +167,19 @@ public class BiblioDocument
 
    public static BiblioDocument updateEdition(String workId, Edition edition) throws SearchException
    {
-      EditionDV editionDV = EditionDV.create(edition);
+      EditionDTO editionDTO = EditionDTO.create(edition);
       StringBuilder editionId = new StringBuilder(workId)
                                .append(":")
-                               .append(editionDV.id);
+                               .append(editionDTO.id);
 
       BiblioDocument doc = new BiblioDocument();
       doc.indexDocument.update(BiblioSolrConfig.ID, editionId.toString());
-      doc.indexDocument.update(BiblioSolrConfig.EDITION_NAME, editionDV.editionName);
-      doc.updateAuthors(editionDV.authors);
-      doc.updateTitles(editionDV.titles);
-      doc.updatePublication(editionDV.publicationInfo);
-      doc.indexDocument.update(BiblioSolrConfig.SERIES, editionDV.series);
-      doc.indexDocument.update(BiblioSolrConfig.SUMMARY, editionDV.summary);
+      doc.indexDocument.update(BiblioSolrConfig.EDITION_NAME, editionDTO.editionName);
+      doc.updateAuthors(editionDTO.authors);
+      doc.updateTitles(editionDTO.titles);
+      doc.updatePublication(editionDTO.publicationInfo);
+      doc.indexDocument.update(BiblioSolrConfig.SERIES, editionDTO.series);
+      doc.indexDocument.update(BiblioSolrConfig.SUMMARY, editionDTO.summary);
 
       try
       {
@@ -194,22 +194,22 @@ public class BiblioDocument
 
    public static BiblioDocument updateVolume(String workId, Edition edition, Volume volume) throws SearchException
    {
-      VolumeDV volumeDV = VolumeDV.create(volume);
+      VolumeDTO volumeDTO = VolumeDTO.create(volume);
       StringBuilder volumeId = new StringBuilder(workId)
                               .append(":")
                               .append(edition.getId())
                               .append(":")
-                              .append(volumeDV.id);
+                              .append(volumeDTO.id);
 
       BiblioDocument doc = new BiblioDocument();
       doc.indexDocument.update(BiblioSolrConfig.ID, volumeId.toString());
       doc.indexDocument.update(BiblioSolrConfig.EDITION_NAME, edition.getEditionName());
-      doc.indexDocument.update(BiblioSolrConfig.VOLUME_NUMBER, volumeDV.volumeNumber);
-      doc.updateAuthors(volumeDV.authors);
-      doc.updateTitles(volumeDV.titles);
-      doc.updatePublication(volumeDV.publicationInfo);
-      doc.indexDocument.update(BiblioSolrConfig.SERIES, volumeDV.series);
-      doc.indexDocument.update(BiblioSolrConfig.SUMMARY, volumeDV.summary);
+      doc.indexDocument.update(BiblioSolrConfig.VOLUME_NUMBER, volumeDTO.volumeNumber);
+      doc.updateAuthors(volumeDTO.authors);
+      doc.updateTitles(volumeDTO.titles);
+      doc.updatePublication(volumeDTO.publicationInfo);
+      doc.indexDocument.update(BiblioSolrConfig.SERIES, volumeDTO.series);
+      doc.indexDocument.update(BiblioSolrConfig.SUMMARY, volumeDTO.summary);
 
       try
       {
@@ -222,9 +222,9 @@ public class BiblioDocument
       return doc;
    }
 
-   private void addAuthors(List<AuthorRefDV> authors) throws SearchException
+   private void addAuthors(List<AuthorReferenceDTO> authors) throws SearchException
    {
-      for (AuthorRefDV author : authors)
+      for (AuthorReferenceDTO author : authors)
       {
          if (author.authorId != null)
             indexDocument.set(BiblioSolrConfig.AUTHOR_IDS, author.authorId);
@@ -235,13 +235,13 @@ public class BiblioDocument
       }
    }
 
-   private void updateAuthors(List<AuthorRefDV> authors) throws SearchException
+   private void updateAuthors(List<AuthorReferenceDTO> authors) throws SearchException
    {
       Collection<String> allIds = new ArrayList<>();
       Collection<String> allNames = new ArrayList<>();
       Collection<String> allRoles = new ArrayList<>();
 
-      for (AuthorRefDV author : authors)
+      for (AuthorReferenceDTO author : authors)
       {
          if (author.authorId != null)
             allIds.add(author.authorId);
@@ -256,9 +256,9 @@ public class BiblioDocument
       indexDocument.update(BiblioSolrConfig.AUTHOR_ROLES, allRoles);
    }
 
-   private void addTitles(Collection<TitleDV> titlesDV) throws SearchException
+   private void addTitles(Collection<TitleDTO> titlesDV) throws SearchException
    {
-      for (TitleDV title : titlesDV)
+      for (TitleDTO title : titlesDV)
       {
          indexDocument.set(BiblioSolrConfig.TITLE_TYPES, title.type);
          indexDocument.set(BiblioSolrConfig.LANGUAGES, title.lg);
@@ -267,14 +267,14 @@ public class BiblioDocument
       }
    }
 
-   private void updateTitles(Collection<TitleDV> titlesDV) throws SearchException
+   private void updateTitles(Collection<TitleDTO> titlesDV) throws SearchException
    {
       Collection<String> allTypes = new ArrayList<>();
       Collection<String> allLangs = new ArrayList<>();
       Collection<String> allTitles = new ArrayList<>();
       Collection<String> allSubTitles = new ArrayList<>();
 
-      for (TitleDV title : titlesDV)
+      for (TitleDTO title : titlesDV)
       {
          allTypes.add(title.type);
          allLangs.add(title.lg);
@@ -288,7 +288,7 @@ public class BiblioDocument
       indexDocument.update(BiblioSolrConfig.SUBTITLES, allSubTitles);
    }
 
-   private void addPublication(PublicationInfoDV publication) throws SearchException
+   private void addPublication(PublicationInfoDTO publication) throws SearchException
    {
       if (publication.publisher != null)
          indexDocument.set(BiblioSolrConfig.PUBLISHER, publication.publisher);
@@ -324,7 +324,7 @@ public class BiblioDocument
       }
    }
 
-   private void updatePublication(PublicationInfoDV publication) throws SearchException
+   private void updatePublication(PublicationInfoDTO publication) throws SearchException
    {
       if (publication.publisher != null)
          indexDocument.update(BiblioSolrConfig.PUBLISHER, publication.publisher);

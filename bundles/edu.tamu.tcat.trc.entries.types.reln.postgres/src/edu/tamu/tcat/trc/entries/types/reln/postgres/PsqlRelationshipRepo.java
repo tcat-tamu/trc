@@ -46,6 +46,7 @@ import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipPersistenceExceptio
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 import edu.tamu.tcat.trc.repo.IdFactory;
+import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 
 public class PsqlRelationshipRepo implements RelationshipRepository
 {
@@ -69,9 +70,9 @@ public class PsqlRelationshipRepo implements RelationshipRepository
       this.exec = exec;
    }
 
-   public void setIdFactory(IdFactory factory)
+   public void setIdFactory(IdFactoryProvider idFactoryProvider)
    {
-      this.idFactory = factory;
+      this.idFactory = idFactoryProvider.getIdFactory(ID_CONTEXT);
    }
 
    public void setTypeRegistry(RelationshipTypeRegistry typeReg)
@@ -150,7 +151,7 @@ public class PsqlRelationshipRepo implements RelationshipRepository
    public EditRelationshipCommand create() throws CatalogRepoException
    {
       RelationshipDTO relationship = new RelationshipDTO();
-      relationship.id = idFactory.getNextId(ID_CONTEXT);
+      relationship.id = idFactory.get();
 
       EditRelationshipCommandImpl command = new EditRelationshipCommandImpl(relationship, idFactory);
       command.setCommitHook((r) -> {

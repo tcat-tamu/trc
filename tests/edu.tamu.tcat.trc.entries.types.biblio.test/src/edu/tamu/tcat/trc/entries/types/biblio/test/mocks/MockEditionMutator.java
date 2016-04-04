@@ -20,19 +20,19 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorRefDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.VolumeMutator;
 
 public class MockEditionMutator implements EditionMutator
 {
-   private EditionDV dto;
+   private EditionDTO dto;
    private Supplier<String> volumeIds;
 
-   public MockEditionMutator(EditionDV edition, Supplier<String> volumeIds)
+   public MockEditionMutator(EditionDTO edition, Supplier<String> volumeIds)
    {
       this.dto = edition;
       this.volumeIds = volumeIds;
@@ -46,28 +46,28 @@ public class MockEditionMutator implements EditionMutator
    }
 
    @Override
-   public void setAll(EditionDV edition)
+   public void setAll(EditionDTO edition)
    {
       // TODO Auto-generated method stub
 
    }
 
    @Override
-   public void setAuthors(List<AuthorRefDV> authors)
+   public void setAuthors(List<AuthorReferenceDTO> authors)
    {
       // TODO Auto-generated method stub
 
    }
 
    @Override
-   public void setTitles(Collection<TitleDV> titles)
+   public void setTitles(Collection<TitleDTO> titles)
    {
       // TODO Auto-generated method stub
 
    }
 
    @Override
-   public void setOtherAuthors(List<AuthorRefDV> otherAuthors)
+   public void setOtherAuthors(List<AuthorReferenceDTO> otherAuthors)
    {
       // TODO Auto-generated method stub
 
@@ -81,7 +81,7 @@ public class MockEditionMutator implements EditionMutator
    }
 
    @Override
-   public void setPublicationInfo(PublicationInfoDV pubInfo)
+   public void setPublicationInfo(PublicationInfoDTO pubInfo)
    {
       // TODO Auto-generated method stub
 

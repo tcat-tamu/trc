@@ -57,6 +57,7 @@ import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonChangeEvent;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNotAvailableException;
 import edu.tamu.tcat.trc.repo.IdFactory;
+import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.repo.postgres.NotifyingTaskFactory;
 import edu.tamu.tcat.trc.repo.postgres.NotifyingTaskFactory.ObservableTask;
 
@@ -98,9 +99,9 @@ public class PsqlPeopleRepo implements PeopleRepository
    }
 
    // Dependency Inject
-   public void setIdFactory(IdFactory factory)
+   public void setIdFactory(IdFactoryProvider idFactoryProvider)
    {
-      this.idFactory = factory;
+      this.idFactory = idFactoryProvider.getIdFactory(ID_CONTEXT);
    }
 
    // DS entry point
@@ -243,7 +244,7 @@ public class PsqlPeopleRepo implements PeopleRepository
    @Override
    public EditPersonCommand create()
    {
-      String id = idFactory.getNextId(ID_CONTEXT);
+      String id = idFactory.get();
       return create(id);
    }
 
