@@ -13,41 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.common.dto;
-
-import java.util.Date;
+package edu.tamu.tcat.trc.entries.types.biblio.dto;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
-import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
+import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.PublicationInfo;
 
-public class HistoricalEventDTO
+public class PublicationInfoDTO
 {
-
-   public String id;
-   public String title;
-   public String description;
-   public String location;
-
-   /** The date this event took place. */
+   public String place;
+   public String publisher;
+   // TODO: should default date description be null or empty object?
    public DateDescriptionDTO date;
 
-   /** Replaced by date. */
-   @Deprecated
-   public Date eventDate;
-
-   public static HistoricalEventDTO create(HistoricalEvent orig)
+   public static PublicationInfoDTO create(PublicationInfo pubInfo)
    {
-      HistoricalEventDTO dto = new HistoricalEventDTO();
+      PublicationInfoDTO dto = new PublicationInfoDTO();
 
-      dto.id = orig.getId();
+      if (pubInfo == null)
+      {
+         return dto;
+      }
 
-      dto.title = orig.getTitle();
+      dto.place = pubInfo.getLocation();
 
-      dto.description = orig.getDescription();
+      dto.publisher = pubInfo.getPublisher();
 
-      dto.location = orig.getLocation();
-
-      DateDescription date = orig.getDate();
+      DateDescription date = pubInfo.getPublicationDate();
       if (date != null)
       {
          dto.date = DateDescriptionDTO.create(date);

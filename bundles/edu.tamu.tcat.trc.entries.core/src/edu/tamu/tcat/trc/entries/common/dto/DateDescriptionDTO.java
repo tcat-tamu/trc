@@ -38,26 +38,31 @@ public class DateDescriptionDTO
    /** A human readable description of this date. */
    public String description;     // NOTE use this to capture intended degree of precision
 
-   public DateDescriptionDTO()
+   public static DateDescriptionDTO create(String description, LocalDate calendar)
    {
+      DateDescriptionDTO dto = new DateDescriptionDTO();
+
+      dto.description = description;
+
+      dto.calendar = (calendar == null) ? null : Iso8601Formatter.format(calendar);
+
+      return dto;
    }
 
-   public DateDescriptionDTO(String description, LocalDate calendar)
+   public static DateDescriptionDTO create(DateDescription date)
    {
-      this.description = description;
-      this.calendar = (calendar == null) ? null : Iso8601Formatter.format(calendar);
-   }
+      DateDescriptionDTO dto = new DateDescriptionDTO();
 
-   public DateDescriptionDTO(DateDescription date)
-   {
       LocalDate d = date.getCalendar();
       if (d != null)
       {
-         this.calendar = Iso8601Formatter.format(d);
+         dto.calendar = Iso8601Formatter.format(d);
       }
 
       // TODO convert legacy eventDate into DateDescriptionDTO and set to null
-      this.description = date.getDescription();
+      dto.description = date.getDescription();
+
+      return dto;
    }
 
    @Deprecated

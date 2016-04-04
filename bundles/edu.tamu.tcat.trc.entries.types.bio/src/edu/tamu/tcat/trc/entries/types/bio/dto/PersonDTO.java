@@ -60,8 +60,8 @@ public class PersonDTO
                      .map(PersonNameDTO::create)
                      .collect(Collectors.toSet());
 
-      this.birth = new HistoricalEventDTO(figure.getBirth());
-      this.death = new HistoricalEventDTO(figure.getDeath());
+      this.birth = HistoricalEventDTO.create(figure.getBirth());
+      this.death = HistoricalEventDTO.create(figure.getDeath());
       this.summary = figure.getSummary();
    }
 
