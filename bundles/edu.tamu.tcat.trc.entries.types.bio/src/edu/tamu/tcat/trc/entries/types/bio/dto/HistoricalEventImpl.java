@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -48,11 +48,11 @@ public class HistoricalEventImpl implements HistoricalEvent
             LocalDate localDate = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalDate();
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMM yyyy");
-            DateDescriptionDTO dv = new DateDescriptionDTO(localDate.format(formatter), localDate);
+            DateDescriptionDTO dv = DateDescriptionDTO.create(localDate.format(formatter), localDate);
 
             this.eventDate = DateDescriptionDTO.convert(dv);
          } else {
-            this.eventDate = DateDescriptionDTO.convert(new DateDescriptionDTO("", null));
+            this.eventDate = DateDescriptionDTO.convert(DateDescriptionDTO.create("", null));
          }
       } else {
          this.eventDate = DateDescriptionDTO.convert(src.date);

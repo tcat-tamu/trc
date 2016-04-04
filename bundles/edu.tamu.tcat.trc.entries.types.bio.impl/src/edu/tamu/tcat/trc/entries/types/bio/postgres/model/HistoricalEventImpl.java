@@ -48,11 +48,11 @@ public class HistoricalEventImpl implements HistoricalEvent
             LocalDate localDate = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalDate();
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMM yyyy");
-            DateDescriptionDTO dv = new DateDescriptionDTO(localDate.format(formatter), localDate);
+            DateDescriptionDTO dv = DateDescriptionDTO.create(localDate.format(formatter), localDate);
 
             this.eventDate = new DateDescriptionImpl(dv);
          } else {
-            this.eventDate = new DateDescriptionImpl(new DateDescriptionDTO("", null));
+            this.eventDate = new DateDescriptionImpl(DateDescriptionDTO.create("", null));
          }
       } else {
          this.eventDate = new DateDescriptionImpl(src.date);
