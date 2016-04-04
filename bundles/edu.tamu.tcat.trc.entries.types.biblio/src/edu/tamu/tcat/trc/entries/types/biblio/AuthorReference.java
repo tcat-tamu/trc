@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,7 +15,6 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio;
 
-import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 
 /**
@@ -40,13 +39,6 @@ public interface AuthorReference
     * @return The unique identifier of the referenced author.
     */
    String getId();
-
-   /**
-    * @return The name of the author as it appears on the work.
-    * @deprecated Use {@link #getLastName()} and {@link #getFirstName()} instead.
-    */
-   @Deprecated
-   String getName();
 
    /**
     * @return The first portion of the author's name (including, optionally, middle names).

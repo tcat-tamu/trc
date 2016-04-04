@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,8 +16,9 @@
 package edu.tamu.tcat.trc.entries.types.biblio;
 
 import java.util.List;
+import java.util.Set;
 
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
 
 
 /**
@@ -32,19 +33,6 @@ public interface Work
     * @return A unique, persistent identifier for this work.
     */
    String getId();      // TODO create named ID type
-
-   /**
-    * Applications may need to distinguish between multiple types of works stored within a
-    * single repository for analytical purposes.
-    *
-    * @return a application-defined type identifier for this work.
-    * @deprecated we should probably support the use of multiple WorkRepositories to
-    *       represent different types of bibliographic entries. Applications can then look
-    *       up the repo that they need.
-    */
-   @Deprecated  // FIXME we should probably create multiple WorkRepos to represent the
-                //       different work types and
-   String getType();
 
    /**
     * @return The authors of this work.
@@ -66,13 +54,7 @@ public interface Work
    AuthorList getOtherAuthors();
 
    /**
-    * @return Details about when, where and by whom this work was published.
-    */
-   @Deprecated
-   PublicationInfo getPublicationInfo();
-
-   /**
-    * @return The editions associated with this work.
+    * @return The editions associated with this work sorted by publication date in ascending order.
     */
    List<Edition> getEditions();
 
@@ -80,10 +62,10 @@ public interface Work
     * Obtain a particular edition of this work by edition ID.
     *
     * @param editionId
-    * @return The edition associated with this work that possesses the given ID.
-    * @throws NoSuchCatalogRecordException
+    * @return The edition associated with this work that possesses the given ID or {@code null} if
+    *       an edition with the given ID cannot be found.
     */
-   Edition getEdition(String editionId) throws NoSuchCatalogRecordException;
+   Edition getEdition(String editionId);
 
    /**
     * @return A defined series of related works, typically published by a single publishers and
@@ -95,4 +77,15 @@ public interface Work
     * @return A brief summary of this work.
     */
    String getSummary();
+
+   /**
+    * @return The default copy reference associated with this work or {@code null} if no default has
+    *       been set.
+    */
+   CopyReference getDefaultCopyReference();
+
+   /**
+    * @return all copy references that have been affiliated with this work.
+    */
+   Set<CopyReference> getCopyReferences();
 }

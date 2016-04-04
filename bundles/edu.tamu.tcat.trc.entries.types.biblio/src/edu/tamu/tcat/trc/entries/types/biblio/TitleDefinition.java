@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,7 +15,6 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio;
 
-import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -40,28 +39,18 @@ public interface TitleDefinition
    //       access by role.
 
    /**
-    * @return The title that should be used as the authoritative title for the associated work.
+    * @return A set of all titles defined for this work
     */
-   Title getCanonicalTitle();
+   Set<Title> get();
 
    /**
-    * @return A short title to be used when compact representations are most appropriate.
+    * @param type The desired title type to retrieve
+    * @return The title of the given type or null if a title of the given type is not defined.
     */
-   Title getShortTitle();
+   Title get(String type);
 
    /**
-    * @return A set containing all titles defined for this work.
+    * @return A set containing all defined title types.
     */
-   Set<Title> getAlternateTitles();
-
-   /**
-    * For translated titles, returns the title associated with the supplied local. While
-    * titles may regularly be represented in multiple languages, this is intended to allow the
-    * collection maintainer to supply translations of titles into the language of different
-    * users rather than to re
-    *
-    * @param language
-    * @return
-    */
-   Title getTitle(Locale language);
+   Set<String> getTypes();
 }

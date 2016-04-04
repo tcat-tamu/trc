@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,9 @@ package edu.tamu.tcat.trc.entries.types.biblio;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+
+import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
 
 /**
  * A physical volume in which an edition is published. Editions of a work are published in some media, typically one
@@ -89,5 +92,15 @@ public interface Volume
     * @return
     */
    String getSummary();
+
+   /**
+    * @return The default copy reference associated with this work
+    */
+   CopyReference getDefaultCopyReference();
+
+   /**
+    * @return all copy references that have been affiliated with this work.
+    */
+   Set<CopyReference> getCopyReferences();
 
 }
