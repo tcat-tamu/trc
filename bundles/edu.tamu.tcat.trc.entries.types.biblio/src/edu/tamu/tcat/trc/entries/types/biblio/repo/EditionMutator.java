@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,10 +20,10 @@ import java.util.List;
 
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorRefDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceMutator;
 
 /**
  * Used to edit the properties of an {@link Edition}. A {@code EditionMutator} is created
@@ -39,34 +39,24 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDV;
 public interface EditionMutator
 {
    /**
-   *
-   * @return The unique identifier for the edition that this mutator modifies.
-   *         Will not be {@code null}. For newly created editions, this identifier
-   *         will be assigned when the java object is first created rather than when
-   *         the edition is committed to the persistence layer.
-   */
-  String getId();
-
-   /**
-    * Sets all values from the supplied data vehicle into the edition being edited.
-    * @param edition
+    * @return The ID of the edition being edited.
     */
-   void setAll(EditionDV edition);
+   String getId();
 
    /**
     * @param authors The list of authors to be set for this edition.
     */
-   void setAuthors(List<AuthorRefDV> authors);
+   void setAuthors(List<AuthorReferenceDTO> authors);
 
    /**
     * @param titles The titles to be set for this edition
     */
-   void setTitles(Collection<TitleDV> titles);
+   void setTitles(Collection<TitleDTO> titles);
 
    /**
     * @param otherAuthors The other authors for this edition.
     */
-   void setOtherAuthors(List<AuthorRefDV> otherAuthors);
+   void setOtherAuthors(List<AuthorReferenceDTO> otherAuthors);
 
    /**
     * @param editionName the name of this edition.
@@ -76,7 +66,7 @@ public interface EditionMutator
    /**
     * @param pubInfo Information about who, where and when this edition was published.
     */
-   void setPublicationInfo(PublicationInfoDV pubInfo);
+   void setPublicationInfo(PublicationInfoDTO pubInfo);
 
    /**
     * @param series The series name to which this edition belongs.
@@ -101,7 +91,39 @@ public interface EditionMutator
     * @return A mutator to be used to edit the newly created volume.
     * @throws NoSuchCatalogRecordException If the identified volume is not associated with this edition.
     */
-   VolumeMutator editVolume(String id) throws NoSuchCatalogRecordException;
+   VolumeMutator editVolume(String id);
 
+   /**
+    * Removed the specified volume from the work.
+    */
+   void removeVolume(String volumeId);
 
+   /**
+    * Sets the default copy reference by ID
+    *
+    * @throws IllegalArgumentException if a copy reference with the given ID does not exist.
+    */
+   void setDefaultCopyReference(String defaultCopyReferenceId);
+
+   /**
+    * Creates a copy reference mutator to update fields on an existing digital copy reference.
+    *
+    * @param id The ID of a contained copy reference.
+    * @return A mutator for the given copy reference ID.
+    */
+   CopyReferenceMutator editCopyReference(String id);
+
+   /**
+    * Creates a copy reference mutator for a new digital copy.
+    *
+    * @return
+    */
+   CopyReferenceMutator createCopyReference();
+
+   /**
+    * Removes a copy reference by id
+    *
+    * @param id
+    */
+   void removeCopyReference(String id);
 }

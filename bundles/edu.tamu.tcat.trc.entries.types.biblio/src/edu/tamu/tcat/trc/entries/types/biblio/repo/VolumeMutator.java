@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,10 +19,10 @@ import java.util.Collection;
 import java.util.List;
 
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorRefDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceMutator;
 
 /**
  * Used to edit the properties of a {@link Volume}. A {@code VolumeMutator} is created
@@ -38,19 +38,9 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDV;
 public interface VolumeMutator
 {
    /**
-    *
-    * @return The unique identifier for the volume that this mutator modifies.
-    *         Will not be {@code null}. For newly created volumes, this identifier
-    *         will be assigned when the java object is first created rather than when
-    *         the volume is committed to the persistence layer.
+    * @return The ID of the volume being edited
     */
    String getId();
-
-   /**
-    * Sets all information in the supplied data vehicle into this mutator.
-    * @param volume the data to set.
-    */
-   void setAll(VolumeDV volume);
 
    /**
     * @param volumeNumber The number or other identifier for this volume.
@@ -60,23 +50,23 @@ public interface VolumeMutator
    /**
     * @param authors The list of author responsible for creating this volume
     */
-   void setAuthors(List<AuthorRefDV> authors);
+   void setAuthors(List<AuthorReferenceDTO> authors);
 
    /**
     * @param titles The title(s) associated with this volume.
     */
-   void setTitles(Collection<TitleDV> titles);
+   void setTitles(Collection<TitleDTO> titles);
 
    /**
     * @param otherAuthors The list of other authors who contributed to the creation of this
     *       volume.
     */
-   void setOtherAuthors(List<AuthorRefDV> otherAuthors);
+   void setOtherAuthors(List<AuthorReferenceDTO> otherAuthors);
 
    /**
     * @param info The publication info for this volume.
     */
-   void setPublicationInfo(PublicationInfoDV info);
+   void setPublicationInfo(PublicationInfoDTO info);
 
    /**
     *
@@ -90,6 +80,32 @@ public interface VolumeMutator
     */
    void setSummary(String summary);
 
+   /**
+    * Sets the default copy reference by ID
+    *
+    * @throws IllegalArgumentException if a copy reference with the given ID does not exist.
+    */
+   void setDefaultCopyReference(String defaultCopyReferenceId);
 
+   /**
+    * Creates a copy reference mutator to update fields on an existing digital copy reference.
+    *
+    * @param id The ID of a contained copy reference.
+    * @return A mutator for the given copy reference ID.
+    */
+   CopyReferenceMutator editCopyReference(String id);
 
+   /**
+    * Creates a copy reference mutator for a new digital copy.
+    *
+    * @return
+    */
+   CopyReferenceMutator createCopyReference();
+
+   /**
+    * Removes a copy reference by id
+    *
+    * @param id
+    */
+   void removeCopyReference(String id);
 }

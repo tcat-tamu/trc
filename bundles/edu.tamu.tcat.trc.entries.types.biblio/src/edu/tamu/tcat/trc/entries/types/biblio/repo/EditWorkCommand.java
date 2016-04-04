@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,15 +17,14 @@ package edu.tamu.tcat.trc.entries.types.biblio.repo;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.Future;
 
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorRefDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceMutator;
+import edu.tamu.tcat.trc.repo.RecordEditCommand;
 
 /**
  * Used to edit a {@link Work}. This class allows clients to make updates to a {@link Work}
@@ -38,43 +37,32 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDV;
  * @see WorkRepository#create()
  * @see WorkRepository#edit(String)
  */
-public interface EditWorkCommand
+public interface EditWorkCommand extends RecordEditCommand
 {
-   // TODO: Should these methods take in full models or data vehicles?
-   //       Should there be methods to handle both data types?
+   // TODO: Any field that is a collection of models should eventually use mutators.
 
    /**
-    * Sets all properties defined in the supplied {@link WorkDV} (i.e., non-null values).
-    *
-    * @param work The data vehicle to be used to update the work being edited.
+    * @return The ID of the work being edited.
     */
-   void setAll(WorkDV work);
-
-   // TODO: Any field that is a collection of models should eventually use mutators.
+   String getId();
 
    /**
     * Updates the list of authors.
     * @param authors
     */
-   void setAuthors(List<AuthorRefDV> authors);
+   void setAuthors(List<AuthorReferenceDTO> authors);
 
    /**
     *
     * @param titles
     */
-   void setTitles(Collection<TitleDV> titles);
+   void setTitles(Collection<TitleDTO> titles);
 
    /**
     *
     * @param authors
     */
-   void setOtherAuthors(List<AuthorRefDV> authors);
-
-   /**
-    *
-    * @param type
-    */
-   void setType(String type);
+   void setOtherAuthors(List<AuthorReferenceDTO> authors);
 
    /**
     *
@@ -94,7 +82,7 @@ public interface EditWorkCommand
     * @param id The ID of a contained edition.
     * @return A mutator for the given edition ID.
     */
-   EditionMutator editEdition(String id) throws NoSuchCatalogRecordException;
+   EditionMutator editEdition(String id);
 
    /**
     * Creates an edition mutator for a new edition of this work.
@@ -106,17 +94,34 @@ public interface EditWorkCommand
    /**
     * Removes the specified edition from the work.
     */
-   void removeEdition(String editionId) throws NoSuchCatalogRecordException;
+   void removeEdition(String editionId);
 
    /**
-    * Removed the specified volume from the work.
-    */
-   //TODO: why is this not in the EditionMutator? --pb
-   void removeVolume(String volumeId) throws NoSuchCatalogRecordException;
-
-   /**
+    * Sets the default copy reference by ID
     *
-    * @return The id of the created or edited work.
+    * @throws IllegalArgumentException if a copy reference with the given ID does not exist.
     */
-   Future<String> execute();
+   void setDefaultCopyReference(String defaultCopyReferenceId);
+
+   /**
+    * Creates a copy reference mutator to update fields on an existing digital copy reference.
+    *
+    * @param id The ID of a contained copy reference.
+    * @return A mutator for the given copy reference ID.
+    */
+   CopyReferenceMutator editCopyReference(String id);
+
+   /**
+    * Creates a copy reference mutator for a new digital copy.
+    *
+    * @return
+    */
+   CopyReferenceMutator createCopyReference();
+
+   /**
+    * Removes a copy reference by id
+    *
+    * @param id
+    */
+   void removeCopyReference(String id);
 }
