@@ -7,7 +7,7 @@ import edu.tamu.tcat.trc.repo.IdFactory;
 public class UuidProvider implements IdFactory
 {
    @Override
-   public String getNextId(String context)
+   public String get()
    {
       return UUID.randomUUID().toString();
    }

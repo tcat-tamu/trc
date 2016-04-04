@@ -50,9 +50,9 @@ LhKA
  */
 public class IdObfuscator
 {
-//    private static final String ALPHABET = "mn6j2c4rv8bpygw95z7hsdaetxuk3fq";
-//    private static final int BLOCK_SIZE = 24;
-//    private static final int MIN_LENGTH = 5;
+    static final String ALPHABET = "mn6j2c4rv8bpygw95z7hsdaetxuk3fq";
+    static final int BLOCK_SIZE = 24;
+    static final int MIN_LENGTH = 5;
 
     private final String alphabet;      /** The alphabet that defines the base system to encode number into. */
     private final int blockSize;        /** The number of bits to shuffle. */

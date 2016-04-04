@@ -10,17 +10,29 @@ import java.util.logging.Logger;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.repo.IdFactory;
+import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 
-public class DbBackedObfuscatingIdFactory implements IdFactory
+public class DbBackedObfuscatingIdFactoryProvider implements IdFactoryProvider
 {
-   private final static Logger logger = Logger.getLogger(DbBackedObfuscatingIdFactory.class.getName());
+   private final static Logger logger = Logger.getLogger(DbBackedObfuscatingIdFactoryProvider.class.getName());
 
    private SqlExecutor exec;
    private final ConcurrentHashMap<String, IdGenerator> generators = new ConcurrentHashMap<>();
+   private IdObfuscator obfuscator;
 
-   public DbBackedObfuscatingIdFactory()
+   public DbBackedObfuscatingIdFactoryProvider()
    {
-      // TODO Auto-generated constructor stub
+      // TODO the default will eventually become true
+      this(false);
+   }
+
+   public DbBackedObfuscatingIdFactoryProvider(boolean obfuscate)
+   {
+      if (obfuscate)
+      {
+         // HACK: don't know of any better alphabet/blockSize/minLength values to use... --matthew.barry
+         obfuscator = new IdObfuscator(IdObfuscator.ALPHABET, IdObfuscator.BLOCK_SIZE, IdObfuscator.MIN_LENGTH);
+      }
    }
 
    public void setDatabaseExecutor(SqlExecutor exec)
@@ -41,21 +53,23 @@ public class DbBackedObfuscatingIdFactory implements IdFactory
    }
 
    @Override
-   public String getNextId(String context)
+   public IdFactory getIdFactory(String context)
    {
-      if (!generators.contains(context))
+      return () ->
       {
-         generators.putIfAbsent(context, new IdGenerator(context));
-      }
+         if (!generators.contains(context))
+         {
+            generators.putIfAbsent(context, new IdGenerator(context));
+         }
 
-      long id = generators.get(context).next();
-      return obfuscate(id);
+         long id = generators.get(context).next();
+         return obfuscate(id);
+      };
    }
 
    private String obfuscate(long id)
    {
-      // TODO actually perform obfuscation
-      return Long.toString(id);
+      return obfuscator == null ? Long.toString(id) : obfuscator.encode(id);
    }
 
    private final class GrantProvider

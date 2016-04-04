@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package edu.tamu.tcat.trc.repo;
+
+import java.util.function.Supplier;
 
 /**
  * A service for creating identifiers for catalog entries. Identifiers are guaranteed to be
@@ -26,17 +28,15 @@ package edu.tamu.tcat.trc.repo;
  * Implementations are free to provide there own identification schemes. Notably, there is
  * no guarantee that the values returned will be numeric.
  */
-public interface IdFactory
+public interface IdFactory extends Supplier<String>
 {
-   
+
    // Twitter has encountered a similar need for generating coherent IDs and has developed Snowflake:
    // https://blog.twitter.com/2010/announcing-snowflake
-   
+
    /**
-    * Generate a new id for the named context.
-    *
-    * @param context The context for the id to be generated.
-    * @return A new unique identifier for the supplied context.
+    * @return A new unique identifier for the encapsulated context.
     */
-   String getNextId(String context);
+   @Override
+   String get();
 }
