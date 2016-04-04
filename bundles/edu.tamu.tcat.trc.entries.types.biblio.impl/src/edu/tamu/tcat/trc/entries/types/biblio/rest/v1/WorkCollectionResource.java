@@ -20,7 +20,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 
-import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDV;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
 import edu.tamu.tcat.trc.entries.types.biblio.search.BiblioSearchProxy;
@@ -156,14 +155,13 @@ public class WorkCollectionResource
    @Produces(MediaType.APPLICATION_JSON)
    public RestApiV1.WorkId createWork(RestApiV1.Work work)
    {
-      EditWorkCommand workCommand = repo.create();
-      WorkDV repoDto = RepoAdapter.toRepo(work);
-      workCommand.setAll(repoDto);
+      EditWorkCommand command = repo.createWork();
+      RepoAdapter.save(work, command);
 
       try
       {
          RestApiV1.WorkId wid = new RestApiV1.WorkId();
-         wid.id = workCommand.execute().get();
+         wid.id = command.execute().get();
          return wid;
       }
       catch (Exception e)

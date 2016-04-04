@@ -18,11 +18,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
@@ -45,32 +43,30 @@ public class WorkResource
     */
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public WorkDV getWork()
+   public WorkDTO getWork()
    {
-      // FIXME should be returning RestApiV1.Work instead of WorkDV
+      // FIXME should be returning RestApiV1.Work instead of WorkDTO
       Work work = loadWork();
-      return WorkDV.create(work);
+      return WorkDTO.create(work);
    }
 
    /**
     * Save an updated work entity back to the persistence layer.
     *
     * @param work
-    * @return
     */
    @PUT
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
    public void updateWork(RestApiV1.Work updatedWork)
    {
-      if (updatedWork.id != id) {
+      if (updatedWork.id != id)
+      {
          throw new BadRequestException("Work ID mismatch");
       }
 
       EditWorkCommand editWorkCommand = editWork();
-
-      WorkDV repoDto = RepoAdapter.toRepo(updatedWork);
-      editWorkCommand.setAll(repoDto);
+      RepoAdapter.save(updatedWork, editWorkCommand);
 
       try
       {
@@ -93,14 +89,20 @@ public class WorkResource
    {
       try
       {
-         repo.delete(id);
+         repo.deleteWork(id);
+      }
+      catch (IllegalArgumentException e)
+      {
+         String message = "Unable to find work {" + id + "} for deletion.";
+         logger.log(Level.WARNING, message, e);
+         throw new NotFoundException(message, e);
       }
       catch (Exception e)
       {
          String message = "Unable to delete work {" + id + "}.";
          logger.log(Level.SEVERE, message, e);
-         throw new NotFoundException(message, e);
-         // TODO: might be something else
+         throw new InternalServerErrorException(message, e);
+         // TODO: error might be related to something other than "not found"
       }
    }
 
@@ -134,8 +136,7 @@ public class WorkResource
    {
       EditWorkCommand command = editWork();
       EditionMutator editionMutator = command.createEdition();
-      EditionDV repoDto = RepoAdapter.toRepo(edition);
-      editionMutator.setAll(repoDto);
+      RepoAdapter.save(edition, editionMutator);
 
       try
       {
@@ -178,11 +179,17 @@ public class WorkResource
       {
          return repo.getWork(id);
       }
-      catch (NoSuchCatalogRecordException e)
+      catch (IllegalArgumentException e)
       {
          String message = "Unable to find work {" + id + "}.";
          logger.log(Level.WARNING, message, e);
          throw new NotFoundException(message, e);
+      }
+      catch (Exception e)
+      {
+         String message = "Encountered an unexpected error while attempting to load work {" + id + "}.";
+         logger.log(Level.SEVERE, message, e);
+         throw new InternalServerErrorException(message, e);
       }
    }
 
@@ -197,12 +204,19 @@ public class WorkResource
    {
       try
       {
-         return repo.edit(id);
+         return repo.editWork(id);
       }
-      catch (NoSuchCatalogRecordException e)
+      catch (IllegalArgumentException e)
       {
-         logger.log(Level.SEVERE, "unable to edit work {" + id + "}", e);
-         throw new NotFoundException("Unable to update work {" + id + "}", e);
+         String message = "Unable to update work {" + id + "}";
+         logger.log(Level.WARNING, message, e);
+         throw new NotFoundException(message, e);
+      }
+      catch (Exception e)
+      {
+         String message = "Encountered an unexpected error while attempting to edit work {" + id + "}.";
+         logger.log(Level.SEVERE, message, e);
+         throw new InternalServerErrorException(message, e);
       }
    }
 }

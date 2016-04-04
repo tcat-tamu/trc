@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,7 +16,8 @@
 package edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies;
 
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.CopyRefDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.CopyReferenceDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.EditCopyReferenceCommand;
 
 /**
  * An encapsulation of adapter methods to convert between the repository API and
@@ -24,38 +25,50 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.CopyRefDTO;
  */
 public class RepoAdapter
 {
-   public static RestApiV1.CopyReference toDTO(CopyReference orig)
+   public static void save(RestApiV1.CopyReference dto, EditCopyReferenceCommand command)
    {
-      if (orig == null)
+      command.setType(dto.type);
+      command.setProperties(dto.properties);
+      command.setTitle(dto.title);
+      command.setSummary(dto.summary);
+      command.setRights(dto.rights);
+   }
+
+   public static RestApiV1.CopyReference toDTO(CopyReference copyReference)
+   {
+      if (copyReference == null)
+      {
          return null;
+      }
 
       RestApiV1.CopyReference dto = new RestApiV1.CopyReference();
-      dto.id = orig.getId();
-      dto.entryUri = orig.getAssociatedEntry();
-      dto.properties = orig.getReferenceProperties();
 
-      dto.title = orig.getTitle();
-      dto.summary = orig.getSummary();
-      dto.rights = orig.getRights();
+      dto.id = copyReference.getId();
+      dto.type = copyReference.getType();
+      dto.properties = copyReference.getProperties();
+      dto.title = copyReference.getTitle();
+      dto.summary = copyReference.getSummary();
+      dto.rights = copyReference.getRights();
 
       return dto;
    }
 
-   public static CopyRefDTO toRepo(RestApiV1.CopyReference orig)
+   public static CopyReferenceDTO toRepo(RestApiV1.CopyReference restDto)
    {
-      if (orig == null)
+      if (restDto == null)
+      {
          return null;
+      }
 
-      CopyRefDTO dto = new CopyRefDTO();
+      CopyReferenceDTO repoDto = new CopyReferenceDTO();
 
-      dto.id = orig.id;
-      dto.associatedEntry = orig.entryUri;
-      dto.referenceProperties = orig.properties;
+      repoDto.id = restDto.id;
+      repoDto.type = restDto.type;
+      repoDto.properties = restDto.properties;
+      repoDto.title = restDto.title;
+      repoDto.summary = restDto.summary;
+      repoDto.rights = restDto.rights;
 
-      dto.title = orig.title;
-      dto.summary = orig.summary;
-      dto.rights = orig.rights;
-
-      return dto;
+      return repoDto;
    }
 }

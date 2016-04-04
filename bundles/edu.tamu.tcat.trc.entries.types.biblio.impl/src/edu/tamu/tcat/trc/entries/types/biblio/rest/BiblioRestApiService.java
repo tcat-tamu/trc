@@ -5,6 +5,7 @@ import java.util.Objects;
 import javax.ws.rs.Path;
 
 import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepositoryProvider;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.v1.WorkCollectionResource;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkSearchService;
 
@@ -17,11 +18,11 @@ public class BiblioRestApiService
    /**
     * Bind method for persistence component (usually called by framework dependency injection layer)
     *
-    * @param repo
+    * @param repoProvider
     */
-   public void setRepository(WorkRepository repo)
+   public void setRepository(WorkRepositoryProvider repoProvider)
    {
-      this.repo = repo;
+      this.repo = repoProvider.getRepository();
    }
 
    /**
@@ -43,6 +44,16 @@ public class BiblioRestApiService
    {
       Objects.requireNonNull(repo, "No works repository provided.");
       Objects.requireNonNull(searchSvc, "No work search service provided.");
+   }
+
+   /**
+    * Lifecycle management callback (usually called by framework service layer)
+    * This method should be called when the services provided by this class are no longer needed.
+    */
+   public void dispose()
+   {
+      repo = null;
+      searchSvc = null;
    }
 
    @Path("v1/works")

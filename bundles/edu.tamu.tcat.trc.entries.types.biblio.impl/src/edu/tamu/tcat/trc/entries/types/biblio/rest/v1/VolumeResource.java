@@ -21,12 +21,12 @@ import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
@@ -66,8 +66,20 @@ public class VolumeResource
    {
       EditWorkCommand editWorkCommand = editWork();
       VolumeMutator volumeMutator = editVolume(editWorkCommand);
-      volumeMutator.setAll(RepoAdapter.toRepo(volume));
-      editWorkCommand.execute();
+      RepoAdapter.save(volume, volumeMutator);
+
+      try
+      {
+         editWorkCommand.execute().get();
+      }
+      catch (Exception e)
+      {
+         String message = "Unable to update volume {" + volumeId + "} on edition {" + editionId + "} on work {" + workId + "}.";
+         logger.log(Level.SEVERE, message, e);
+         throw new InternalServerErrorException(message, e);
+         // TODO: check ExecutionException to see what underlying issue is
+      }
+
       RestApiV1.VolumeId vid = new RestApiV1.VolumeId();
       vid.id = volumeMutator.getId();
       return vid;
@@ -77,13 +89,15 @@ public class VolumeResource
    public void deleteVolume()
    {
       EditWorkCommand command = editWork();
+      EditionMutator editionMutator = editEdition(command);
+
       try
       {
-         command.removeVolume(volumeId);
+         editionMutator.removeVolume(volumeId);
       }
-      catch (NoSuchCatalogRecordException e)
+      catch (IllegalArgumentException e)
       {
-         String message = "Unable to remove volume {" + volumeId + "} from work {" + workId + "}.";
+         String message = "Unable to remove volume {" + volumeId + "} from edition {" + editionId + "} on work {" + workId + "}.";
          logger.log(Level.WARNING, message, e);
          throw new NotFoundException(message, e);
       }
@@ -94,8 +108,9 @@ public class VolumeResource
       }
       catch (Exception e)
       {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
+         String message = "Unable to save work {" + workId + "} after removing volume {" + volumeId + "} from edition {" + editionId + "}.";
+         logger.log(Level.SEVERE, message, e);
+         throw new InternalServerErrorException(message, e);
       }
    }
 
@@ -112,7 +127,7 @@ public class VolumeResource
       {
          return repo.getVolume(workId, editionId, volumeId);
       }
-      catch (NoSuchCatalogRecordException e)
+      catch (IllegalArgumentException e)
       {
          String message = "Unable to find volume {" + volumeId + "} on edition {" + editionId + "} on work {" + workId + "}.";
          logger.log(Level.WARNING, message, e);
@@ -131,9 +146,9 @@ public class VolumeResource
    {
       try
       {
-         return repo.edit(workId);
+         return repo.editWork(workId);
       }
-      catch (NoSuchCatalogRecordException e)
+      catch (IllegalArgumentException e)
       {
          String message = "Unable to modify work {" + workId + "}.";
          logger.log(Level.WARNING, message, e);
@@ -148,26 +163,36 @@ public class VolumeResource
     * @return
     * @throws NotFoundException if the edition identified by the given ID cannot be found
     */
-   private VolumeMutator editVolume(EditWorkCommand editWorkCommand)
+   private EditionMutator editEdition(EditWorkCommand editWorkCommand)
    {
-      EditionMutator editionMutator;
-
       try
       {
-         editionMutator = editWorkCommand.editEdition(editionId);
+         return editWorkCommand.editEdition(editionId);
       }
-      catch (NoSuchCatalogRecordException e)
+      catch (IllegalArgumentException e)
       {
          String message = "Unable to modify edition {" + editionId + "} on work {" + workId + "}.";
          logger.log(Level.WARNING, message, e);
          throw new NotFoundException(message, e);
       }
+   }
+
+   /**
+    * Helper method to start editing an edition, handling any checked exceptions that arise and
+    * passing them as HTTP messages.
+    *
+    * @return
+    * @throws NotFoundException if the edition identified by the given ID cannot be found
+    */
+   private VolumeMutator editVolume(EditWorkCommand editWorkCommand)
+   {
+      EditionMutator editionMutator = editEdition(editWorkCommand);
 
       try
       {
          return editionMutator.editVolume(volumeId);
       }
-      catch (NoSuchCatalogRecordException e)
+      catch (IllegalArgumentException e)
       {
          String message = "Unable to modify volume {" + volumeId + "} on edition {" + editionId + "} on work {" + workId + "}.";
          logger.log(Level.WARNING, message, e);

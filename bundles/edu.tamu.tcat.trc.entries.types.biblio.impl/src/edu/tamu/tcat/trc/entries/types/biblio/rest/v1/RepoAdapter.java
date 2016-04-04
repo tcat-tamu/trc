@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,6 +18,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.rest.v1;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
@@ -27,12 +28,15 @@ import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.PublicationInfo;
 import edu.tamu.tcat.trc.entries.types.biblio.Title;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorRefDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.VolumeMutator;
 
 /**
  * An encapsulation of adapter methods to convert between the repository API and
@@ -40,21 +44,20 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDV;
  */
 public class RepoAdapter
 {
-   public static RestApiV1.AuthorRef toDTO(AuthorRefDV orig)
+   public static RestApiV1.AuthorRef toDTO(AuthorReferenceDTO orig)
    {
       if (orig == null)
          return null;
-      
+
       RestApiV1.AuthorRef dto = new RestApiV1.AuthorRef();
       dto.authorId = orig.authorId;
-      dto.name = orig.name;
       dto.lastName = orig.lastName;
       dto.firstName = orig.firstName;
       dto.role = orig.role;
 
       return dto;
    }
-   
+
    public static RestApiV1.Edition toDTO(Edition ed)
    {
       RestApiV1.Edition dto = new RestApiV1.Edition();
@@ -86,19 +89,19 @@ public class RepoAdapter
 
       return dto;
    }
-   
+
    public static RestApiV1.PublicationInfo toDTO(PublicationInfo orig)
    {
       if (orig == null)
          return null;
-      
+
       RestApiV1.PublicationInfo dto = new RestApiV1.PublicationInfo();
       dto.publisher = orig.getPublisher();
       dto.place = orig.getLocation();
       dto.date = toDTO(orig.getPublicationDate());
       return dto;
    }
-   
+
    public static RestApiV1.DateDescription toDTO(DateDescription orig)
    {
       if (orig == null)
@@ -111,15 +114,15 @@ public class RepoAdapter
       }
 
       dto.description = orig.getDescription();
-      
+
       return dto;
    }
-   
+
    public static RestApiV1.Volume toDTO(Volume ed)
    {
       if (ed == null)
          return null;
-      
+
       RestApiV1.Volume dto = new RestApiV1.Volume();
       dto.id = ed.getId();
 
@@ -149,7 +152,7 @@ public class RepoAdapter
    {
       if (orig == null)
          return null;
-      
+
       RestApiV1.Title dto = new RestApiV1.Title();
       dto.type = orig.getType();
       dto.lg = orig.getLanguage();
@@ -162,10 +165,9 @@ public class RepoAdapter
    {
       if (author == null)
          return null;
-      
+
       RestApiV1.AuthorRef dto = new RestApiV1.AuthorRef();
       dto.authorId = author.getId();
-      dto.name = author.getName();
       if (dto.name != null)
          parseLegacyName(dto);
 
@@ -178,7 +180,7 @@ public class RepoAdapter
       dto.role = author.getRole();
       return dto;
    }
-   
+
    private static void parseLegacyName(RestApiV1.AuthorRef author)
    {
       // HACK for legacy entries, try to split out first and last names.
@@ -200,27 +202,26 @@ public class RepoAdapter
       }
    }
 
-   public static AuthorRefDV toRepo(RestApiV1.AuthorRef orig)
+   public static AuthorReferenceDTO toRepo(RestApiV1.AuthorRef orig)
    {
       if (orig == null)
          return null;
-      
-      AuthorRefDV dto = new AuthorRefDV();
+
+      AuthorReferenceDTO dto = new AuthorReferenceDTO();
       dto.authorId = orig.authorId;
-      dto.name = orig.name;
       dto.lastName = orig.lastName;
       dto.firstName = orig.firstName;
       dto.role = orig.role;
-      
+
       return dto;
    }
-   
-   public static WorkDV toRepo(RestApiV1.Work orig)
+
+   public static WorkDTO toRepo(RestApiV1.Work orig)
    {
       if (orig == null)
          return null;
-      
-      WorkDV dto = new WorkDV();
+
+      WorkDTO dto = new WorkDTO();
       dto.id = orig.id;
 
       if (orig.authors != null)
@@ -253,12 +254,12 @@ public class RepoAdapter
       return dto;
    }
 
-   public static EditionDV toRepo(RestApiV1.Edition orig)
+   public static EditionDTO toRepo(RestApiV1.Edition orig)
    {
       if (orig == null)
          return null;
-      
-      EditionDV dto = new EditionDV();
+
+      EditionDTO dto = new EditionDTO();
       dto.id = orig.id;
       dto.editionName = orig.editionName;
       dto.publicationInfo = toRepo(orig.publicationInfo);
@@ -289,16 +290,16 @@ public class RepoAdapter
       }
       dto.summary = orig.summary;
       dto.series = orig.series;
-      
+
       return dto;
    }
 
-   public static VolumeDV toRepo(RestApiV1.Volume orig)
+   public static VolumeDTO toRepo(RestApiV1.Volume orig)
    {
       if (orig == null)
          return null;
-      
-      VolumeDV dto = new VolumeDV();
+
+      VolumeDTO dto = new VolumeDTO();
       dto.id = orig.id;
       dto.volumeNumber = orig.volumeNumber;
       dto.publicationInfo = toRepo(orig.publicationInfo);
@@ -323,20 +324,20 @@ public class RepoAdapter
       }
       dto.summary = orig.summary;
       dto.series = orig.series;
-      
+
       return dto;
    }
 
-   public static PublicationInfoDV toRepo(RestApiV1.PublicationInfo orig)
+   public static PublicationInfoDTO toRepo(RestApiV1.PublicationInfo orig)
    {
       if (orig == null)
          return null;
-      
-      PublicationInfoDV dto = new PublicationInfoDV();
+
+      PublicationInfoDTO dto = new PublicationInfoDTO();
       dto.publisher = orig.publisher;
       dto.place = orig.place;
       dto.date = toRepo(orig.date);
-      
+
       return dto;
    }
 
@@ -344,25 +345,105 @@ public class RepoAdapter
    {
       if (orig == null)
          return null;
-      
+
       DateDescriptionDTO dto = new DateDescriptionDTO();
       dto.calendar = orig.calendar;
       dto.description = orig.description;
-      
+
       return dto;
    }
 
-   public static TitleDV toRepo(RestApiV1.Title orig)
+   public static TitleDTO toRepo(RestApiV1.Title orig)
    {
       if (orig == null)
          return null;
-      
-      TitleDV dto = new TitleDV();
+
+      TitleDTO dto = new TitleDTO();
       dto.title = orig.title;
       dto.type = orig.type;
       dto.lg = orig.lg;
       dto.subtitle = orig.subtitle;
-      
+
       return dto;
+   }
+
+   public static void save(RestApiV1.Work work, EditWorkCommand command)
+   {
+      List<AuthorReferenceDTO> authors = work.authors.stream()
+            .map(RepoAdapter::toRepo)
+            .collect(Collectors.toList());
+      command.setAuthors(authors);
+
+      List<TitleDTO> titles = work.titles.stream()
+            .map(RepoAdapter::toRepo)
+            .collect(Collectors.toList());
+      command.setTitles(titles);
+
+      List<AuthorReferenceDTO> otherAuthors = work.otherAuthors.stream()
+            .map(RepoAdapter::toRepo)
+            .collect(Collectors.toList());
+      command.setOtherAuthors(otherAuthors);
+
+      command.setSeries(work.series);
+
+      command.setSummary(work.summary);
+
+      // TODO: default copy reference... how do we want it to be exposed via REST?
+   }
+
+   public static void save(RestApiV1.Edition edition, EditionMutator mutator)
+   {
+      mutator.setEditionName(edition.editionName);
+
+      mutator.setPublicationInfo(toRepo(edition.publicationInfo));
+
+      List<AuthorReferenceDTO> authors = edition.authors.stream()
+            .map(RepoAdapter::toRepo)
+            .collect(Collectors.toList());
+      mutator.setAuthors(authors);
+
+      List<TitleDTO> titles = edition.titles.stream()
+            .map(RepoAdapter::toRepo)
+            .collect(Collectors.toList());
+      mutator.setTitles(titles);
+
+      List<AuthorReferenceDTO> otherAuthors = edition.otherAuthors.stream()
+            .map(RepoAdapter::toRepo)
+            .collect(Collectors.toList());
+      mutator.setOtherAuthors(otherAuthors);
+
+      mutator.setSeries(edition.series);
+
+      mutator.setSummary(edition.summary);
+
+      // TODO: default copy reference... how do we want it to be exposed via REST?
+   }
+
+   public static void save(RestApiV1.Volume volume, VolumeMutator mutator)
+   {
+      mutator.setVolumeNumber(volume.volumeNumber);
+
+      mutator.setPublicationInfo(toRepo(volume.publicationInfo));
+
+      List<AuthorReferenceDTO> authors = volume.authors.stream()
+            .map(RepoAdapter::toRepo)
+            .collect(Collectors.toList());
+      mutator.setAuthors(authors);
+
+      List<TitleDTO> titles = volume.titles.stream()
+            .map(RepoAdapter::toRepo)
+            .collect(Collectors.toList());
+      mutator.setTitles(titles);
+
+      List<AuthorReferenceDTO> otherAuthors = volume.otherAuthors.stream()
+            .map(RepoAdapter::toRepo)
+            .collect(Collectors.toList());
+      mutator.setOtherAuthors(otherAuthors);
+
+      mutator.setSeries(volume.series);
+
+      mutator.setSummary(volume.summary);
+
+      // TODO: default copy reference... how do we want it to be exposed via REST?
    }
 }

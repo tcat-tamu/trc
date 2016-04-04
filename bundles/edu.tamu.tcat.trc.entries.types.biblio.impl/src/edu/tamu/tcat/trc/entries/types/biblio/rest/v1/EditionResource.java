@@ -32,11 +32,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDV;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.VolumeMutator;
@@ -78,11 +75,11 @@ public class EditionResource
     */
    @PUT
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.EditionId updateEdition(EditionDV edition)
+   public RestApiV1.EditionId updateEdition(RestApiV1.Edition edition)
    {
       EditWorkCommand command = editWork();
       EditionMutator editionMutator = editEdition(command);
-      editionMutator.setAll(edition);
+      RepoAdapter.save(edition, editionMutator);
 
       try
       {
@@ -113,7 +110,7 @@ public class EditionResource
       {
          command.removeEdition(editionId);
       }
-      catch (NoSuchCatalogRecordException e)
+      catch (IllegalArgumentException e)
       {
          String message = "Unable to find edition {" + editionId + "} on work {" + workId + "}.";
          logger.log(Level.WARNING, message, e);
@@ -164,8 +161,7 @@ public class EditionResource
       EditWorkCommand command = editWork();
       EditionMutator editionMutator = editEdition(command);
       VolumeMutator volumeMutator = editionMutator.createVolume();
-      VolumeDV repoDto = RepoAdapter.toRepo(volume);
-      volumeMutator.setAll(repoDto);
+      RepoAdapter.save(volume, volumeMutator);
 
       try
       {
@@ -208,7 +204,7 @@ public class EditionResource
       {
          return repo.getEdition(workId, editionId);
       }
-      catch (NoSuchCatalogRecordException e)
+      catch (IllegalArgumentException e)
       {
          String message = "Unable to find edition {" + editionId + "} on work {" + workId + "}.";
          logger.log(Level.WARNING, message, e);
@@ -227,9 +223,9 @@ public class EditionResource
    {
       try
       {
-         return repo.edit(workId);
+         return repo.editWork(workId);
       }
-      catch (NoSuchCatalogRecordException e)
+      catch (IllegalArgumentException e)
       {
          String message = "Unable to modify work {" + workId + "}.";
          logger.log(Level.WARNING, message, e);
@@ -250,7 +246,7 @@ public class EditionResource
       {
          return editWorkCommand.editEdition(editionId);
       }
-      catch (NoSuchCatalogRecordException e)
+      catch (IllegalArgumentException e)
       {
          String message = "Unable to modify edition {" + editionId + "} on work {" + workId + "}.";
          logger.log(Level.WARNING, message, e);

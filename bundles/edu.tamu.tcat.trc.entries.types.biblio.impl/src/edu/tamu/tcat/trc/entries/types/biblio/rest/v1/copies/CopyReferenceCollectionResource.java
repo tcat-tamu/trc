@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,145 +15,58 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.UpdateCanceledException;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.CopyRefDTO;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceRepository;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.EditCopyReferenceCommand;
+import edu.tamu.tcat.trc.repo.DocumentRepository;
 
 @Path("/copies")
-public class CopiesReferenceResource
+public class CopyReferenceCollectionResource
 {
-   private WorkRepository repo;
-   private CopyReferenceRepository copiesRepo;
-   private ObjectMapper mapper;
+   private static final Logger logger = Logger.getLogger(CopyReferenceCollectionResource.class.getName());
 
-   // Called by DS
-   public void setRepository(WorkRepository repo)
+   private final DocumentRepository<CopyReference, EditCopyReferenceCommand> repo;
+
+   public CopyReferenceCollectionResource(DocumentRepository<CopyReference, EditCopyReferenceCommand> repo)
    {
       this.repo = repo;
    }
 
-   public void setCopyRepository(CopyReferenceRepository repo)
+//   @GET
+//   @Produces(MediaType.APPLICATION_JSON)
+//   public List<RestApiV1.CopyReference> getByWorkId(@QueryParam("uri") String entityUri,
+//                                                    @QueryParam("deep") @DefaultValue("false") boolean deep)
+//   {
+//      URI uri;
+//      try
+//      {
+//         uri = new URI(entityUri);
+//      }
+//      catch (URISyntaxException e)
+//      {
+//         throw new BadRequestException("Malformed query URI", e);
+//      }
+//
+//      List<CopyReference> matchedCopies = repo.getCopies(uri, deep);
+//      return matchedCopies.parallelStream()
+//                          .map(RepoAdapter::toDTO)
+//                          .collect(Collectors.toList());
+//   }
+
+   @Path("{id}")
+   public CopyReferenceResource getCopy(@PathParam("id") String id)
    {
-      copiesRepo = repo;
-   }
-
-   // called by DS
-   public void activate()
-   {
-      Objects.requireNonNull(repo, "No bibliographic work repository configured");
-      Objects.requireNonNull(copiesRepo, "No copy reference repository configured");
-
-      mapper = new ObjectMapper();
-      mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-   }
-
-   // called by DS
-   public void dispose()
-   {
-      repo = null;
-      copiesRepo = null;
-      mapper = null;
-   }
-
-   @GET
-   @Path("{entityId : works/.+}")
-   @Produces(MediaType.APPLICATION_JSON)
-   public List<RestApiV1.CopyReference> getByWorkId(@PathParam(value = "entityId") String entityId)
-   {
-      // FIXME requires error handling
-      URI uri = URI.create(entityId);
-      List<CopyReference> matchedCopies = copiesRepo.getCopies(uri);
-      return matchedCopies.parallelStream()
-                          .map(RepoAdapter::toDTO)
-                          .collect(Collectors.toList());
-   }
-
-   @GET
-   @Path("{refId : [0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}}")
-   @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.CopyReference getByRefId(@PathParam(value = "refId") String refId)
-   {
-      // TODO requires better error handling
-      UUID id = UUID.fromString(refId);
-      try
-      {
-         CopyReference reference = copiesRepo.get(id);
-         return RepoAdapter.toDTO(reference);
-      }
-      catch (NoSuchCatalogRecordException e)
-      {
-         throw new NotFoundException("Could not find copy [" + refId +"]");
-      }
-   }
-
-   /**
-    * Updates an existing copy reference.
-    *
-    * @param refId
-    * @return
-    */
-   @PUT
-   @Path("{refId : [0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}}")
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Produces(MediaType.APPLICATION_JSON)
-   public Response updateRef(@PathParam(value = "refId") String refId, RestApiV1.CopyReference dto)
-   {
-      // FIXME fix error handling!!
-      try
-      {
-         UUID id = UUID.fromString(refId);
-         if (dto.id != null && !dto.id.equals(id))
-            throw new BadRequestException("Copy reference id [" + dto.id + "] does not match resource id [" + id + "]");
-         else if (dto.id == null)
-            dto.id = id;
-
-         // TODO check to see if this reference exists - if not, create it
-         EditCopyReferenceCommand command = copiesRepo.edit(id);
-         command.update(RepoAdapter.toRepo(dto));
-
-         CopyReference ref = command.execute().get(10, TimeUnit.SECONDS);
-
-         // things that could go wrong. general Exception, timeout, illegal arg updating command
-         String json = mapper.writeValueAsString(CopyRefDTO.create(ref));
-         ResponseBuilder builder = Response.ok(json, MediaType.APPLICATION_JSON);
-
-         return builder.build();
-      }
-      catch (NoSuchCatalogRecordException arg)
-      {
-         throw new NotFoundException("Invalid reference id [" + refId + "]");
-      }
-      catch (Exception e)
-      {
-         throw new IllegalStateException("Failed to update reference [" + refId + "].", e);
-      }
+      return new CopyReferenceResource(id, repo);
    }
 
    /**
@@ -164,38 +77,24 @@ public class CopiesReferenceResource
     * @throws UpdateCanceledException
     */
    @POST
-   @Path("{entityId : works/.+}")
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public Response createByWorkId(@PathParam(value = "entityId") String entityId, RestApiV1.CopyReference dto) throws UpdateCanceledException
+   public RestApiV1.CopyReferenceId createCopyReference(RestApiV1.CopyReference dto)
    {
-      // FIXME fix error handling!!
-      // TODO response should supply URL of resource
+      EditCopyReferenceCommand command = repo.create();
+      RepoAdapter.save(dto, command);
+
       try
       {
-         URI entityUri = URI.create(entityId);
-         if (!entityUri.equals(dto.associatedEntry))
-            throw new BadRequestException("Copy reference id [" + dto.associatedEntry + "] does not match resource id [" + entityId + "]");
-
-         if (dto.id == null)
-            dto.id = UUID.randomUUID();
-
-         // TODO verify valid copy id
-
-         EditCopyReferenceCommand command = copiesRepo.create();
-         command.update(RepoAdapter.toRepo(dto));
-
-         CopyReference ref = command.execute().get(10, TimeUnit.SECONDS);
-
-         // things that could go wrong. general Exception, timeout, illegal arg updating command
-         String json = mapper.writeValueAsString(CopyRefDTO.create(ref));
-         ResponseBuilder builder = Response.ok(json, MediaType.APPLICATION_JSON);
-
-         return builder.build();
+         RestApiV1.CopyReferenceId copyReferenceId = new RestApiV1.CopyReferenceId();
+         copyReferenceId.id = command.execute().get();
+         return copyReferenceId;
       }
       catch (Exception e)
       {
-         throw new IllegalStateException("Failed to update reference [" + entityId + "].", e);
+         String message = "Unable to save new copy reference.";
+         logger.log(Level.SEVERE, message, e);
+         throw new InternalServerErrorException(message, e);
       }
    }
 
