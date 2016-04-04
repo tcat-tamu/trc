@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,21 +19,28 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
-import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorRefDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.CopyReferenceDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.postgres.copies.CopyReferenceMutatorImpl;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.VolumeMutator;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceMutator;
+import edu.tamu.tcat.trc.repo.IdFactory;
+import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 
 public class VolumeMutatorImpl implements VolumeMutator
 {
-   private final VolumeDV volume;
+   private final VolumeDTO volume;
+   private IdFactory copyReferenceIdFactory;
 
-
-   VolumeMutatorImpl(VolumeDV volume)
+   VolumeMutatorImpl(VolumeDTO volume, IdFactoryProvider idFactoryProvider)
    {
       this.volume = volume;
+      this.copyReferenceIdFactory = idFactoryProvider.getIdFactory("copies");
    }
 
    @Override
@@ -43,19 +50,7 @@ public class VolumeMutatorImpl implements VolumeMutator
    }
 
    @Override
-   public void setAll(VolumeDV volume)
-   {
-      setVolumeNumber(volume.volumeNumber);
-      setAuthors(volume.authors);
-      setTitles(volume.titles);
-      setOtherAuthors(volume.otherAuthors);
-      setPublicationInfo(volume.publicationInfo);
-      setSummary(volume.summary);
-      setSeries(volume.series);
-   }
-
-   @Override
-   public void setPublicationInfo(PublicationInfoDV info)
+   public void setPublicationInfo(PublicationInfoDTO info)
    {
       this.volume.publicationInfo = info;
    }
@@ -67,19 +62,19 @@ public class VolumeMutatorImpl implements VolumeMutator
    }
 
    @Override
-   public void setAuthors(List<AuthorRefDV> authors)
+   public void setAuthors(List<AuthorReferenceDTO> authors)
    {
       volume.authors = new ArrayList<>(authors);
    }
 
    @Override
-   public void setTitles(Collection<TitleDV> titles)
+   public void setTitles(Collection<TitleDTO> titles)
    {
       volume.titles = new HashSet<>(titles);
    }
 
    @Override
-   public void setOtherAuthors(List<AuthorRefDV> otherAuthors)
+   public void setOtherAuthors(List<AuthorReferenceDTO> otherAuthors)
    {
       volume.otherAuthors = new ArrayList<>(otherAuthors);
    }
@@ -94,5 +89,45 @@ public class VolumeMutatorImpl implements VolumeMutator
    public void setSeries(String series)
    {
       volume.series = series;
+   }
+
+   @Override
+   public void setDefaultCopyReference(String defaultCopyReferenceId)
+   {
+      boolean found = volume.copyReferences.stream()
+            .anyMatch(cr -> Objects.equals(cr.id, defaultCopyReferenceId));
+
+      if (!found)
+      {
+         throw new IllegalArgumentException("Cannot find copy reference with id {" + defaultCopyReferenceId + "}.");
+      }
+
+      volume.defaultCopyReferenceId = defaultCopyReferenceId;
+   }
+
+   @Override
+   public CopyReferenceMutator createCopyReference()
+   {
+      CopyReferenceDTO copyReference = new CopyReferenceDTO();
+      copyReference.id = copyReferenceIdFactory.get();
+      volume.copyReferences.add(copyReference);
+      return new CopyReferenceMutatorImpl(copyReference);
+   }
+
+   @Override
+   public CopyReferenceMutator editCopyReference(String id)
+   {
+      CopyReferenceDTO copyReference = volume.copyReferences.stream()
+            .filter(ref -> Objects.equals(id, ref.id))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Cannot find copy reference with id {" + id + "}."));
+
+      return new CopyReferenceMutatorImpl(copyReference);
+   }
+
+   @Override
+   public void removeCopyReference(String id)
+   {
+      volume.copyReferences.removeIf(cr -> Objects.equals(cr.id, id));
    }
 }

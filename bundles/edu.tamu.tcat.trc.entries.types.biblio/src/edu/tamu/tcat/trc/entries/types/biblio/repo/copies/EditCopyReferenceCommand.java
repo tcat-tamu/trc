@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,51 +15,26 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio.repo.copies;
 
-import java.net.URI;
 import java.util.Map;
-import java.util.concurrent.Future;
 
-import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.UpdateCanceledException;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.CopyRefDTO;
+import edu.tamu.tcat.trc.repo.RecordEditCommand;
 
-public interface EditCopyReferenceCommand
+/**
+ * @deprecated copy references are now stored locally on works. use {@link CopyReferenceMutator} instead
+ */
+@Deprecated
+public interface EditCopyReferenceCommand extends RecordEditCommand
 {
    /**
-    * @return A copy of the current state of this copy command.
+    * @param type An identifier for the origin or type of the referenced digital copy.
     */
-   CopyReference getCurrentState();
+   void setType(String type);
 
    /**
-    * @return The unique identifier for the {@link CopyReference} being edited by this command.
+    * @param id The information necessary to resolve this reference to the associated digital copy.
+    *       For example, the remote service's identifier, sequence/page number, a URI, etc.
     */
-   String getId();
-
-   /**
-    * Updates this edit command to reflect the supplied DTO. Note that {@code null} valued
-    * fields will not be applied.
-    *
-    * @param dto Values to apply to this edit command.
-    * @throws IllegalArgumentException If the supplied command is not valid. Notably, this
-    *       will happen if the supplied dto has an id defined that does not match the id
-    *       for this edit copy reference and if this is not a new copy reference.
-    */
-   void update(CopyRefDTO dto) throws IllegalArgumentException;
-
-   EditCopyReferenceCommand setType(String type);
-
-   /**
-    * @param uri The URI of the associated bibliographic entry. Note that digital copies may be
-    *       attached to works, editions or volumes.
-    */
-   EditCopyReferenceCommand setAssociatedEntry(URI uri);
-
-   /**
-    * @param id The unique identifier for the associated digital copy. See
-    *       {@link CopyResolverRegistry} for more detail on how to retrieve a reference to
-    *       the digital copy.
-    */
-   EditCopyReferenceCommand setReferenceProperties(Map<String, Object> properties);
+   void setProperties(Map<String, String> properties);
 
    /**
     * @param title A title that describes this relationship between the work and the digital copy.
@@ -67,7 +42,7 @@ public interface EditCopyReferenceCommand
     *       'Harvard Copy'. May be an empty string. {@code null} values will be converted to the
     *       empty string.
     */
-   EditCopyReferenceCommand setTitle(String title);
+   void setTitle(String title);
 
    /**
     * @param summary A short description (if desired) that describes interesting features of the
@@ -76,19 +51,11 @@ public interface EditCopyReferenceCommand
     *       provenance, or the accuracy of OCR.  May be an empty string. {@code null} values
     *       will be converted to the empty string.
     */
-   EditCopyReferenceCommand setSummary(String summary);
+   void setSummary(String summary);
 
    /**
     * @param description A description of the usage rights of this work.  May be an empty
     *       string. {@code null} values will be converted to the empty string.
     */
-   EditCopyReferenceCommand setRights(String description);     // TODO use structured model for rights.
-
-   /**
-    * Attempts to executed the provided updates.
-    * @throws UpdateCanceledException If the update was cancelled.
-    */
-   Future<CopyReference> execute() throws UpdateCanceledException;
-   // TODO cancellation needs a review
-
+   void setRights(String description);     // TODO use structured model for rights.
 }

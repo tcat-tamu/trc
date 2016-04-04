@@ -15,222 +15,217 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio.postgres;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.Future;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.function.Supplier;
 
-import edu.tamu.tcat.trc.entries.core.InvalidDataException;
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorRefDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDV;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDV;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.CopyReferenceDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.postgres.copies.CopyReferenceMutatorImpl;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceMutator;
+import edu.tamu.tcat.trc.repo.CommitHook;
 import edu.tamu.tcat.trc.repo.IdFactory;
+import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 
 public class EditWorkCommandImpl implements EditWorkCommand
 {
-//   private static final Logger logger = Logger.getLogger(EditWorkCommandImpl.class.getName());
+   private final CommitHook<WorkDTO> hook;
+   private final WorkChangeSet changeSet;
 
-   private final WorkDV work;
-   private final IdFactory idFactory;
+   private final IdFactoryProvider idFactoryProvider;
+   private final IdFactory editionIdFactory;
+   private final IdFactory copyReferenceIdFactory;
 
-   private Function<WorkDV, Future<String>> commitHook;
-
-   EditWorkCommandImpl(WorkDV work, IdFactory idFactory)
+   public EditWorkCommandImpl(String id, Supplier<WorkDTO> currentState, CommitHook<WorkDTO> hook, IdFactoryProvider idFactoryProvider)
    {
-      this.work = work;
-      this.idFactory = idFactory;
-   }
+      this.hook = hook;
+      this.idFactoryProvider = idFactoryProvider;
+      this.editionIdFactory = idFactoryProvider.getIdFactory("editions");
+      this.copyReferenceIdFactory = idFactoryProvider.getIdFactory("copies");
 
-   public void setCommitHook(Function<WorkDV, Future<String>> hook)
-   {
-      commitHook = hook;
-   }
-
-   @Override
-   public void setAll(WorkDV work) throws InvalidDataException
-   {
-      setType(work.type);
-      setSeries(work.series);
-      setSummary(work.summary);
-      setAuthors(work.authors);
-      setOtherAuthors(work.otherAuthors);
-      setTitles(work.titles);
-
-      setEditions(work.editions);
-   }
-
-   private void setEditions(Collection<EditionDV> editions)
-   {
-      // get IDs supplied by the client; after the update, these IDs should be the only ones in the database
-      Set<String> clientIds = editions.parallelStream()
-            .map(e -> e.id)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toSet());
-
-      // remove any editions that were removed by the client
-      work.editions.removeIf(e -> !clientIds.contains(e.id));
-
-      // create or update client-supplied editions
-      for (EditionDV edition : editions) {
-         EditionMutator mutator;
-
-         try {
-            mutator = (null == edition.id) ? createEdition() : editEdition(edition.id);
-         }
-         catch (NoSuchCatalogRecordException e) {
-            throw new InvalidDataException("Failed to edit existing edition. A supplied edition contains an id [" + edition.id + "], but the identified edition cannot be retrieved for editing.", e);
-         }
-
-         mutator.setAll(edition);
+      this.changeSet = new WorkChangeSet(id);
+      if (currentState != null)
+      {
+         changeSet.original = currentState.get();
+         changeSet.editions = changeSet.original.editions;
       }
+
    }
 
    @Override
-   public void setType(String type)
+   public String getId()
    {
-      work.type = type;
+      return changeSet.id;
+   }
+
+   @Override
+   public void setAuthors(List<AuthorReferenceDTO> authors)
+   {
+      changeSet.authors = authors;
+   }
+
+   @Override
+   public void setTitles(Collection<TitleDTO> titles)
+   {
+      changeSet.titles = titles;
+   }
+
+   @Override
+   public void setOtherAuthors(List<AuthorReferenceDTO> authors)
+   {
+      changeSet.otherAuthors = authors;
    }
 
    @Override
    public void setSeries(String series)
    {
-      work.series = series;
+      changeSet.series = series;
    }
 
    @Override
    public void setSummary(String summary)
    {
-      work.summary = summary;
+      changeSet.summary = summary;
    }
 
    @Override
-   public void setAuthors(List<AuthorRefDV> authors)
+   public EditionMutator editEdition(String id)
    {
-      work.authors = new ArrayList<>(authors);
+      EditionDTO edition = changeSet.editions.stream()
+            .filter(ed -> Objects.equals(ed.id, id))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Cannot find edition with id {" + id + "}."));
+
+      return new EditionMutatorImpl(edition, getEditionsIdFactoryProvider(id));
    }
 
-   @Override
-   public void setOtherAuthors(List<AuthorRefDV> authors)
+   private IdFactoryProvider getEditionsIdFactoryProvider(String id)
    {
-      work.otherAuthors = new ArrayList<>(authors);
+      return idFactoryProvider.extend("editions/" + id + "/");
    }
-
-   @Override
-   public void setTitles(Collection<TitleDV> titles)
-   {
-      work.titles = new HashSet<>(titles);
-   }
-
-//   @Override
-//   public void setPublicationDate(Date pubDate)
-//   {
-//      if (null == work.pubInfo) {
-//         work.pubInfo = new PublicationInfoDV();
-//      }
-//
-//      if (null == work.pubInfo.date) {
-//         work.pubInfo.date = new DateDescriptionDTO();
-//      }
-//
-//      work.pubInfo.date.value = pubDate;
-//   }
-//
-//   @Override
-//   public void setPublicationDateDisplay(String display)
-//   {
-//      if (null == work.pubInfo) {
-//         work.pubInfo = new PublicationInfoDV();
-//      }
-//
-//      if (null == work.pubInfo.date) {
-//         work.pubInfo.date = new DateDescriptionDTO();
-//      }
-//
-//      work.pubInfo.date.display = display;
-//   }
 
    @Override
    public EditionMutator createEdition()
    {
-      EditionDV edition = new EditionDV();
-      edition.id = idFactory.getNextId(PsqlWorkRepo.getContext(work));
-      work.editions.add(edition);
-
-      // create a supplier to generate volume IDs
-      return new EditionMutatorImpl(edition, () -> idFactory.getNextId(PsqlWorkRepo.getContext(work, edition)));
+      EditionDTO edition = new EditionDTO();
+      edition.id = editionIdFactory.get();
+      changeSet.editions.add(edition);
+      return new EditionMutatorImpl(edition, getEditionsIdFactoryProvider(edition.id));
    }
 
    @Override
-   public EditionMutator editEdition(String id) throws NoSuchCatalogRecordException
+   public void removeEdition(String editionId)
    {
-      for (EditionDV edition : work.editions) {
-         if (edition.id.equals(id)) {
-            // create a supplier to generate volume IDs
-            return new EditionMutatorImpl(edition, () -> idFactory.getNextId(PsqlWorkRepo.getContext(work, edition)));
-         }
-      }
-
-      throw new NoSuchCatalogRecordException("Unable to find edition with id [" + id + "].");
+      changeSet.editions.removeIf(edition -> Objects.equals(edition.id, editionId));
    }
 
    @Override
-   public void removeEdition(String editionId) throws NoSuchCatalogRecordException
+   public void setDefaultCopyReference(String defaultCopyReferenceId)
    {
-      if (work.editions.isEmpty())
-         throw new NoSuchCatalogRecordException("This work does not contain any editons.");
+      boolean found = false;
 
-      for (EditionDV edition : work.editions)
+      // look in newly added (or modified) copy references
+      found = changeSet.newCopyReferences.stream()
+            .anyMatch(cr -> Objects.equals(cr.id, defaultCopyReferenceId));
+
+      // look in existing copy references
+      if (!found && changeSet.original != null && changeSet.original.copyReferences != null)
       {
-         if(edition.id.equals(editionId))
-         {
-            work.editions.remove(edition);
-            return;
-         }
+         found = changeSet.original.copyReferences.stream()
+            .anyMatch(copyReference -> Objects.equals(defaultCopyReferenceId, copyReference.id));
       }
 
-      throw new NoSuchCatalogRecordException("Could not find the edition [" + editionId + "]. The edition could not be removed.");
+      if (!found)
+      {
+         throw new IllegalArgumentException("Cannot find copy reference with id {" + defaultCopyReferenceId + "}.");
+      }
+
+      changeSet.defaultCopyReferenceId = defaultCopyReferenceId;
    }
 
    @Override
-   public void removeVolume(String volumeId) throws NoSuchCatalogRecordException
+   public CopyReferenceMutator createCopyReference()
    {
-      if (work.editions.isEmpty())
-         throw new NoSuchCatalogRecordException("This work does not contain any editons.");
+      CopyReferenceDTO copyReference = new CopyReferenceDTO();
+      copyReference.id = copyReferenceIdFactory.get();
+      changeSet.newCopyReferences.add(copyReference);
+      return new CopyReferenceMutatorImpl(copyReference);
+   }
 
-      for (EditionDV edition : work.editions)
+   @Override
+   public CopyReferenceMutator editCopyReference(String id)
+   {
+      if (changeSet.original == null || changeSet.original.copyReferences == null)
       {
-         if (edition.volumes.isEmpty())
-            throw new NoSuchCatalogRecordException("This edition does not contain any volumes.");
-
-         for(VolumeDV volume : edition.volumes)
-         {
-            if(volume.id.equals(volumeId))
-            {
-               edition.volumes.remove(volume);
-               return;
-            }
-         }
+         throw new IllegalArgumentException("Cannot find copy reference with id {" + id + "}.");
       }
 
-      throw new NoSuchCatalogRecordException("Could not find the volume [" + volumeId + "]. The volume could not be removed.");
+      CopyReferenceDTO original = changeSet.original.copyReferences.stream()
+            .filter(ref -> Objects.equals(id, ref.id))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Cannot find copy reference with id {" + id + "}."));
+
+      changeSet.removedCopyReferences.add(original);
+      CopyReferenceDTO modified = CopyReferenceDTO.copy(original);
+      changeSet.newCopyReferences.add(modified);
+
+      return new CopyReferenceMutatorImpl(modified);
+   }
+
+   @Override
+   public void removeCopyReference(String id)
+   {
+      if (changeSet.original == null || changeSet.original.copyReferences == null)
+      {
+         throw new IllegalArgumentException("Cannot find copy reference with id {" + id + "}.");
+      }
+
+      CopyReferenceDTO copyReference = changeSet.original.copyReferences.stream()
+            .filter(ref -> Objects.equals(id, ref.id))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Cannot find copy reference with id {" + id + "}."));
+
+      changeSet.removedCopyReferences.add(copyReference);
    }
 
    @Override
    public Future<String> execute()
    {
-      Objects.requireNonNull(commitHook, "");
+      WorkDTO data = constructUpdatedData(changeSet.original);
 
-      return commitHook.apply(work);
+      return hook.submit(data, changeSet);
    }
 
+   private WorkDTO constructUpdatedData(WorkDTO original)
+   {
+      WorkDTO data = new WorkDTO();
+
+      if (original != null)
+      {
+         data.copyReferences = original.copyReferences;
+      }
+
+      data.id = changeSet.id;
+      data.authors = changeSet.authors;
+      data.titles = changeSet.titles;
+      data.otherAuthors = changeSet.otherAuthors;
+      data.series = changeSet.series;
+      data.summary = changeSet.summary;
+      data.defaultCopyReferenceId = changeSet.defaultCopyReferenceId;
+
+      // HACK: it would be nice to have added/removed granularity, but order should be preserved.
+      data.editions = changeSet.editions;
+
+      data.copyReferences.removeAll(changeSet.removedCopyReferences);
+      data.copyReferences.addAll(changeSet.newCopyReferences);
+
+      return data;
+   }
 }
