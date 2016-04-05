@@ -67,10 +67,6 @@ public class RepoAdapter
 
       dto.publicationInfo = toDTO(ed.getPublicationInfo());
 
-      dto.volumes = ed.getVolumes().stream()
-            .map(RepoAdapter::toDTO)
-            .collect(Collectors.toList());
-
       dto.authors = ed.getAuthors().stream()
             .map(RepoAdapter::toDTO)
             .collect(Collectors.toList());
@@ -86,6 +82,16 @@ public class RepoAdapter
       dto.summary = ed.getSummary();
 
       dto.series = ed.getSeries();
+
+      dto.volumes = ed.getVolumes().stream()
+            .map(RepoAdapter::toDTO)
+            .collect(Collectors.toList());
+
+      // TODO default copy reference
+
+      dto.copies = ed.getCopyReferences().stream()
+            .map(edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies.RepoAdapter::toDTO)
+            .collect(Collectors.toList());
 
       return dto;
    }
@@ -118,33 +124,40 @@ public class RepoAdapter
       return dto;
    }
 
-   public static RestApiV1.Volume toDTO(Volume ed)
+   public static RestApiV1.Volume toDTO(Volume vol)
    {
-      if (ed == null)
+      if (vol == null)
          return null;
 
       RestApiV1.Volume dto = new RestApiV1.Volume();
-      dto.id = ed.getId();
+      dto.id = vol.getId();
 
-      dto.volumeNumber = ed.getVolumeNumber();
+      dto.volumeNumber = vol.getVolumeNumber();
 
-      dto.publicationInfo = toDTO(ed.getPublicationInfo());
+      dto.publicationInfo = toDTO(vol.getPublicationInfo());
 
-      dto.authors = ed.getAuthors().stream()
+      dto.authors = vol.getAuthors().stream()
             .map(RepoAdapter::toDTO)
             .collect(Collectors.toList());
 
-      dto.titles = ed.getTitles().parallelStream()
+      dto.titles = vol.getTitles().parallelStream()
             .map(RepoAdapter::toDTO)
             .collect(Collectors.toSet());
 
-      dto.otherAuthors = ed.getOtherAuthors().stream()
+      dto.otherAuthors = vol.getOtherAuthors().stream()
             .map(RepoAdapter::toDTO)
             .collect(Collectors.toList());
 
-      dto.summary = ed.getSummary();
+      dto.summary = vol.getSummary();
 
-      dto.series = ed.getSeries();
+      dto.series = vol.getSeries();
+
+      // TODO default copy reference
+
+      dto.copies = vol.getCopyReferences().stream()
+            .map(edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies.RepoAdapter::toDTO)
+            .collect(Collectors.toList());
+
       return dto;
    }
 

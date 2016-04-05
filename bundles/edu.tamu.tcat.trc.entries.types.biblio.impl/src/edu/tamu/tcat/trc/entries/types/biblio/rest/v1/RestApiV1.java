@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies.RestApiV1.CopyReference;
+
 /**
  * An encapsulation of the data vehicle types used to process JSON requests and responses
  * for version 1 of the TRC REST API for Bibliographic entries.
@@ -82,8 +84,9 @@ public class RestApiV1
       public String series;
       public String summary;
 
-      public Collection<Edition> editions;
-      // TODO: default digital copy; digital copies
+      public List<Edition> editions;
+      // TODO: default copy reference
+      public List<CopyReference> copies;
    }
 
    public static class Title
@@ -107,6 +110,8 @@ public class RestApiV1
       public String summary;
       public String series;
       public List<Volume> volumes;
+      // TODO: default copy reference
+      public List<CopyReference> copies;
    }
 
    public static class Volume
@@ -119,6 +124,8 @@ public class RestApiV1
       public List<AuthorRef> otherAuthors;
       public String summary;
       public String series;
+      // TODO: default copy reference
+      public List<CopyReference> copies;
    }
 
    public static class PublicationInfo
