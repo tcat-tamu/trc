@@ -17,7 +17,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies;
 
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.CopyReferenceDTO;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.EditCopyReferenceCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceMutator;
 
 /**
  * An encapsulation of adapter methods to convert between the repository API and
@@ -25,13 +25,13 @@ import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.EditCopyReferenceComma
  */
 public class RepoAdapter
 {
-   public static void save(RestApiV1.CopyReference dto, EditCopyReferenceCommand command)
+   public static void save(RestApiV1.CopyReference dto, CopyReferenceMutator mutator)
    {
-      command.setType(dto.type);
-      command.setProperties(dto.properties);
-      command.setTitle(dto.title);
-      command.setSummary(dto.summary);
-      command.setRights(dto.rights);
+      mutator.setType(dto.type);
+      mutator.setProperties(dto.properties);
+      mutator.setTitle(dto.title);
+      mutator.setSummary(dto.summary);
+      mutator.setRights(dto.rights);
    }
 
    public static RestApiV1.CopyReference toDTO(CopyReference copyReference)

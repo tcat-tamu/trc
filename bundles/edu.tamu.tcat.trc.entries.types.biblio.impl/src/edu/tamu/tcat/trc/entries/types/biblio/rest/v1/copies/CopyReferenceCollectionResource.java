@@ -15,11 +15,11 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -27,46 +27,33 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.EditCopyReferenceCommand;
-import edu.tamu.tcat.trc.repo.DocumentRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceMutator;
+import edu.tamu.tcat.trc.entries.types.biblio.rest.CollectionRepoHelper;
+import edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies.RestApiV1.CopyReferenceId;
 
 @Path("/copies")
 public class CopyReferenceCollectionResource
 {
-   private static final Logger logger = Logger.getLogger(CopyReferenceCollectionResource.class.getName());
+   private final CollectionRepoHelper<CopyReference, CopyReferenceMutator> repoHelper;
 
-   private final DocumentRepository<CopyReference, EditCopyReferenceCommand> repo;
-
-   public CopyReferenceCollectionResource(DocumentRepository<CopyReference, EditCopyReferenceCommand> repo)
+   public CopyReferenceCollectionResource(CollectionRepoHelper<CopyReference, CopyReferenceMutator> repoHelper)
    {
-      this.repo = repo;
+      this.repoHelper = repoHelper;
    }
 
-//   @GET
-//   @Produces(MediaType.APPLICATION_JSON)
-//   public List<RestApiV1.CopyReference> getByWorkId(@QueryParam("uri") String entityUri,
-//                                                    @QueryParam("deep") @DefaultValue("false") boolean deep)
-//   {
-//      URI uri;
-//      try
-//      {
-//         uri = new URI(entityUri);
-//      }
-//      catch (URISyntaxException e)
-//      {
-//         throw new BadRequestException("Malformed query URI", e);
-//      }
-//
-//      List<CopyReference> matchedCopies = repo.getCopies(uri, deep);
-//      return matchedCopies.parallelStream()
-//                          .map(RepoAdapter::toDTO)
-//                          .collect(Collectors.toList());
-//   }
+   @GET
+   @Produces(MediaType.APPLICATION_JSON)
+   public List<RestApiV1.CopyReference> getByWorkId()
+   {
+      return repoHelper.get().stream()
+            .map(RepoAdapter::toDTO)
+            .collect(Collectors.toList());
+   }
 
    @Path("{id}")
    public CopyReferenceResource getCopy(@PathParam("id") String id)
    {
-      return new CopyReferenceResource(id, repo);
+      return new CopyReferenceResource(repoHelper.get(id));
    }
 
    /**
@@ -81,21 +68,9 @@ public class CopyReferenceCollectionResource
    @Produces(MediaType.APPLICATION_JSON)
    public RestApiV1.CopyReferenceId createCopyReference(RestApiV1.CopyReference dto)
    {
-      EditCopyReferenceCommand command = repo.create();
-      RepoAdapter.save(dto, command);
-
-      try
-      {
-         RestApiV1.CopyReferenceId copyReferenceId = new RestApiV1.CopyReferenceId();
-         copyReferenceId.id = command.execute().get();
-         return copyReferenceId;
-      }
-      catch (Exception e)
-      {
-         String message = "Unable to save new copy reference.";
-         logger.log(Level.SEVERE, message, e);
-         throw new InternalServerErrorException(message, e);
-      }
+      CopyReferenceId copyReferenceId = new RestApiV1.CopyReferenceId();
+      copyReferenceId.id = repoHelper.create(mutator -> RepoAdapter.save(dto, mutator));
+      return copyReferenceId;
    }
 
 

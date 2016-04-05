@@ -1,6 +1,9 @@
 package edu.tamu.tcat.trc.entries.types.biblio.rest.v1;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -20,22 +23,24 @@ import javax.ws.rs.core.MediaType;
 
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceMutator;
+import edu.tamu.tcat.trc.entries.types.biblio.rest.CollectionRepoHelper;
+import edu.tamu.tcat.trc.entries.types.biblio.rest.RepoHelper;
+import edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies.CopyReferenceCollectionResource;
 
 public class WorkResource
 {
    private static final Logger logger = Logger.getLogger(WorkResource.class.getName());
 
-   private final String id;
-   private final WorkRepository repo;
+   private RepoHelper<Work, EditWorkCommand> repoHelper;
 
-   public WorkResource(String id, WorkRepository repo)
+
+   public WorkResource(RepoHelper<Work, EditWorkCommand> repoHelper)
    {
-      this.id = id;
-      this.repo = repo;
+      this.repoHelper = repoHelper;
    }
 
    /**
@@ -45,7 +50,7 @@ public class WorkResource
    @Produces(MediaType.APPLICATION_JSON)
    public RestApiV1.Work getWork()
    {
-      Work work = loadWork();
+      Work work = repoHelper.get();
       return RepoAdapter.toDTO(work);
    }
 
@@ -59,25 +64,14 @@ public class WorkResource
    @Produces(MediaType.APPLICATION_JSON)
    public void updateWork(RestApiV1.Work updatedWork)
    {
-      if (updatedWork.id != id)
-      {
-         throw new BadRequestException("Work ID mismatch");
-      }
+      repoHelper.edit(command -> {
+         if (!Objects.equals(updatedWork.id, command.getId()))
+         {
+            throw new BadRequestException("Work ID mismatch");
+         }
 
-      EditWorkCommand editWorkCommand = editWork();
-      RepoAdapter.save(updatedWork, editWorkCommand);
-
-      try
-      {
-         editWorkCommand.execute().get();
-      }
-      catch (Exception e)
-      {
-         String message = "Unable to update work {" + id + "}.";
-         logger.log(Level.SEVERE, message, e);
-         throw new InternalServerErrorException(message, e);
-         // TODO: check ExecutionException to see what underlying issue is
-      }
+         RepoAdapter.save(updatedWork, command);
+      });
    }
 
    /**
@@ -86,136 +80,286 @@ public class WorkResource
    @DELETE
    public void deleteWork()
    {
-      try
+      repoHelper.delete();
+   }
+
+   @Path("editions")
+   public EditionCollectionResource getEditions()
+   {
+      CollectionRepoHelper<Edition, EditionMutator> helper = new EditionCollectionRepoHelper();
+      return new EditionCollectionResource(helper);
+   }
+
+   @Path("copies")
+   public CopyReferenceCollectionResource getCopyReferences()
+   {
+      CollectionRepoHelper<CopyReference, CopyReferenceMutator> helper = new CopyReferenceCollectionRepoHelper();
+      return new CopyReferenceCollectionResource(helper);
+   }
+
+   private static class EditionCollectionResource
+   {
+      private final CollectionRepoHelper<Edition, EditionMutator> repoHelper;
+
+      public EditionCollectionResource(CollectionRepoHelper<Edition, EditionMutator> repoHelper)
       {
-         repo.deleteWork(id);
+         this.repoHelper = repoHelper;
       }
-      catch (IllegalArgumentException e)
+
+      /**
+       * List all editions on the current work object
+       *
+       * @return
+       */
+      @GET
+      @Produces(MediaType.APPLICATION_JSON)
+      public List<RestApiV1.Edition> listEditions()
       {
-         String message = "Unable to find work {" + id + "} for deletion.";
-         logger.log(Level.WARNING, message, e);
-         throw new NotFoundException(message, e);
+         return repoHelper.get().stream()
+               .map(RepoAdapter::toDTO)
+               .collect(Collectors.toList());
       }
-      catch (Exception e)
+
+      /**
+       * Create a new edition on the current work object
+       *
+       * @param edition
+       */
+      @POST
+      @Consumes(MediaType.APPLICATION_JSON)
+      @Produces(MediaType.APPLICATION_JSON)
+      public RestApiV1.EditionId createEdition(RestApiV1.Edition edition)
       {
-         String message = "Unable to delete work {" + id + "}.";
-         logger.log(Level.SEVERE, message, e);
-         throw new InternalServerErrorException(message, e);
-         // TODO: error might be related to something other than "not found"
+         RestApiV1.EditionId eid = new RestApiV1.EditionId();
+         eid.id = repoHelper.create(mutator -> RepoAdapter.save(edition, mutator));
+         return eid;
+      }
+
+      /**
+       * Fetch a specific edition from the work and perform operations on it
+       *
+       * @param editionId
+       * @return
+       */
+      @Path("{id}")
+      public EditionResource getEdition(@PathParam("id") String editionId)
+      {
+         return new EditionResource(repoHelper.get(editionId));
       }
    }
 
-   /**
-    * List all editions on the current work object
-    *
-    * @return
-    */
-   @GET
-   @Path("/editions")
-   @Produces(MediaType.APPLICATION_JSON)
-   public List<RestApiV1.Edition> listEditions()
+   private class EditionCollectionRepoHelper implements CollectionRepoHelper<Edition, EditionMutator>
    {
-      Work work = loadWork();
-      List<Edition> editions = work.getEditions();
-      return editions.stream()
-            .map(RepoAdapter::toDTO)
-            .collect(Collectors.toList());
+      @Override
+      public Collection<Edition> get()
+      {
+         return repoHelper.get().getEditions();
+      }
+
+      @Override
+      public RepoHelper<Edition, EditionMutator> get(String id)
+      {
+         return new RepoHelper<Edition, EditionMutator>()
+         {
+            @Override
+            public Edition get()
+            {
+               Edition edition = repoHelper.get().getEdition(id);
+
+               if (edition == null)
+               {
+                  String message = "Unable to find edition with id {" + id + "}.";
+                  logger.log(Level.WARNING, message);
+                  throw new NotFoundException(message);
+               }
+
+               return edition;
+            }
+
+            @Override
+            public void edit(Consumer<EditionMutator> modifier)
+            {
+               repoHelper.edit(command -> {
+                  EditionMutator mutator;
+
+                  try
+                  {
+                     mutator = command.editEdition(id);
+                  }
+                  catch (IllegalArgumentException e)
+                  {
+                     String message = "Unable to edit edition with id {" + id + "}.";
+                     logger.log(Level.WARNING, message, e);
+                     throw new NotFoundException(message, e);
+                  }
+                  catch (Exception e)
+                  {
+                     String message = "Encountered an unexpected error while trying to edit edition {" + id + "}.";
+                     logger.log(Level.SEVERE, message, e);
+                     throw new InternalServerErrorException(message, e);
+                  }
+
+                  modifier.accept(mutator);
+               });
+            }
+
+            @Override
+            public void delete()
+            {
+               repoHelper.edit(command -> {
+                  try
+                  {
+                     command.removeEdition(id);
+                  }
+                  catch (IllegalArgumentException e)
+                  {
+                     String message = "Unable to delete edition with id {" + id + "}.";
+                     logger.log(Level.WARNING, message, e);
+                     throw new NotFoundException(message, e);
+                  }
+                  catch (Exception e)
+                  {
+                     String message = "Encountered an unexpected error while trying to delete edition {" + id + "}.";
+                     logger.log(Level.SEVERE, message, e);
+                     throw new InternalServerErrorException(message, e);
+                  }
+               });
+            }
+         };
+      }
+
+      @Override
+      public String create(Consumer<EditionMutator> modifier)
+      {
+         class CreateEditionConsumer implements Consumer<EditWorkCommand>
+         {
+            private String id;
+
+            @Override
+            public void accept(EditWorkCommand command)
+            {
+               EditionMutator mutator = command.createEdition();
+               id = mutator.getId();
+               modifier.accept(mutator);
+            }
+
+            public String getId()
+            {
+               return id;
+            }
+         }
+
+         // HACK the only reason this works is because repoHelper.edit() is synchronous.
+         CreateEditionConsumer consumer = new CreateEditionConsumer();
+         repoHelper.edit(consumer);
+         return consumer.getId();
+      }
    }
 
-   /**
-    * Create a new edition on the current work object
-    *
-    * @param edition
-    */
-   @POST
-   @Path("/editions")
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.EditionId createEdition(RestApiV1.Edition edition)
+   private class CopyReferenceCollectionRepoHelper implements CollectionRepoHelper<CopyReference, CopyReferenceMutator>
    {
-      EditWorkCommand command = editWork();
-      EditionMutator editionMutator = command.createEdition();
-      RepoAdapter.save(edition, editionMutator);
-
-      try
+      @Override
+      public Collection<CopyReference> get()
       {
-         command.execute().get();
-      }
-      catch (Exception e)
-      {
-         String message = "Unable to save work {" + id + "} after adding edition.";
-         logger.log(Level.SEVERE, message, e);
-         throw new InternalServerErrorException(message, e);
+         return repoHelper.get().getCopyReferences();
       }
 
-      RestApiV1.EditionId eid = new RestApiV1.EditionId();
-      eid.id = editionMutator.getId();
-      return eid;
-   }
+      @Override
+      public RepoHelper<CopyReference, CopyReferenceMutator> get(String id)
+      {
+         return new RepoHelper<CopyReference, CopyReferenceMutator>()
+         {
+            @Override
+            public CopyReference get()
+            {
+               return repoHelper.get().getCopyReferences().stream()
+                  .filter(copyReference -> Objects.equals(copyReference.getId(), id))
+                  .findFirst()
+                  .orElseThrow(() -> {
+                     String message = "Unable to find copy reference with id {" + id + "}.";
+                     logger.log(Level.WARNING, message);
+                     return new NotFoundException(message);
+                  });
 
-   /**
-    * Fetch a specific edition from the work and perform operations on it
-    *
-    * @param editionId
-    * @return
-    */
-   @Path("/editions/{id}")
-   public EditionResource getEdition(@PathParam("id") String editionId)
-   {
-      return new EditionResource(id, editionId, repo);
-   }
+            }
 
-   /**
-    * Helper method to load a work from persistence, handling any checked exceptions that arise and
-    * passing them as HTTP messages.
-    *
-    * @return
-    * @throws NotFoundException if the work identified by the given ID cannot be found
-    */
-   private Work loadWork()
-   {
-      try
-      {
-         return repo.getWork(id);
-      }
-      catch (IllegalArgumentException e)
-      {
-         String message = "Unable to find work {" + id + "}.";
-         logger.log(Level.WARNING, message, e);
-         throw new NotFoundException(message, e);
-      }
-      catch (Exception e)
-      {
-         String message = "Encountered an unexpected error while attempting to load work {" + id + "}.";
-         logger.log(Level.SEVERE, message, e);
-         throw new InternalServerErrorException(message, e);
-      }
-   }
+            @Override
+            public void edit(Consumer<CopyReferenceMutator> modifier)
+            {
+               repoHelper.edit(command -> {
+                  CopyReferenceMutator mutator;
 
-   /**
-    * Helper method to start editing a work, handling any checked exceptions that arise and passing
-    * them as HTTP messages.
-    *
-    * @return
-    * @throws NotFoundException if the work identified by the given ID cannot be found
-    */
-   private EditWorkCommand editWork()
-   {
-      try
-      {
-         return repo.editWork(id);
+                  try
+                  {
+                     mutator = command.editCopyReference(id);
+                  }
+                  catch (IllegalArgumentException e)
+                  {
+                     String message = "Unable to edit copy reference with id {" + id + "}.";
+                     logger.log(Level.WARNING, message, e);
+                     throw new NotFoundException(message, e);
+                  }
+                  catch (Exception e)
+                  {
+                     String message = "Encountered an unexpected error while trying to edit copy reference {" + id + "}.";
+                     logger.log(Level.SEVERE, message, e);
+                     throw new InternalServerErrorException(message, e);
+                  }
+
+                  modifier.accept(mutator);
+               });
+            }
+
+            @Override
+            public void delete()
+            {
+               repoHelper.edit(command -> {
+                  try
+                  {
+                     command.removeCopyReference(id);
+                  }
+                  catch (IllegalArgumentException e)
+                  {
+                     String message = "Unable to delete copy reference with id {" + id + "}.";
+                     logger.log(Level.WARNING, message, e);
+                     throw new NotFoundException(message, e);
+                  }
+                  catch (Exception e)
+                  {
+                     String message = "Encountered an unexpected error while trying to delete copy reference {" + id + "}.";
+                     logger.log(Level.SEVERE, message, e);
+                     throw new InternalServerErrorException(message, e);
+                  }
+               });
+            }
+         };
       }
-      catch (IllegalArgumentException e)
+
+      @Override
+      public String create(Consumer<CopyReferenceMutator> modifier)
       {
-         String message = "Unable to update work {" + id + "}";
-         logger.log(Level.WARNING, message, e);
-         throw new NotFoundException(message, e);
-      }
-      catch (Exception e)
-      {
-         String message = "Encountered an unexpected error while attempting to edit work {" + id + "}.";
-         logger.log(Level.SEVERE, message, e);
-         throw new InternalServerErrorException(message, e);
+         class CreateCopyReferenceConsumer implements Consumer<EditWorkCommand>
+         {
+            private String id;
+
+            @Override
+            public void accept(EditWorkCommand command)
+            {
+               CopyReferenceMutator mutator = command.createCopyReference();
+               id = mutator.getId();
+               modifier.accept(mutator);
+            }
+
+            public String getId()
+            {
+               return id;
+            }
+         }
+
+         // HACK the only reason this works is because repoHelper.edit() is synchronous.
+         CreateCopyReferenceConsumer consumer = new CreateCopyReferenceConsumer();
+         repoHelper.edit(consumer);
+         return consumer.getId();
       }
    }
 }

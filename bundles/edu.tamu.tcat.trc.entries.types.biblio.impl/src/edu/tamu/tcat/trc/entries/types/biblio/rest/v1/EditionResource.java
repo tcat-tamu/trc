@@ -15,11 +15,15 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio.rest.v1;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -34,24 +38,23 @@ import javax.ws.rs.core.MediaType;
 
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.VolumeMutator;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceMutator;
+import edu.tamu.tcat.trc.entries.types.biblio.rest.CollectionRepoHelper;
+import edu.tamu.tcat.trc.entries.types.biblio.rest.RepoHelper;
+import edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies.CopyReferenceCollectionResource;
 
 public class EditionResource
 {
    private static final Logger logger = Logger.getLogger(EditionResource.class.getName());
 
-   private final String workId;
-   private final String editionId;
-   private final WorkRepository repo;
+   private final RepoHelper<Edition, EditionMutator> repoHelper;
 
-   public EditionResource(String workId, String editionId, WorkRepository repo)
+   public EditionResource(RepoHelper<Edition, EditionMutator> repoHelper)
    {
-      this.workId = workId;
-      this.editionId = editionId;
-      this.repo = repo;
+      this.repoHelper = repoHelper;
    }
 
    /**
@@ -63,7 +66,7 @@ public class EditionResource
    @Produces(MediaType.APPLICATION_JSON)
    public RestApiV1.Edition getEdition()
    {
-      Edition edition = loadEdition();
+      Edition edition = repoHelper.get();
       return RepoAdapter.toDTO(edition);
    }
 
@@ -75,27 +78,16 @@ public class EditionResource
     */
    @PUT
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.EditionId updateEdition(RestApiV1.Edition edition)
+   public void updateEdition(RestApiV1.Edition edition)
    {
-      EditWorkCommand command = editWork();
-      EditionMutator editionMutator = editEdition(command);
-      RepoAdapter.save(edition, editionMutator);
+      repoHelper.edit(mutator -> {
+         if (!Objects.equals(edition.id, mutator.getId()))
+         {
+            throw new BadRequestException("Edition ID mismatch.");
+         }
 
-      try
-      {
-         command.execute().get();
-      }
-      catch (Exception e)
-      {
-         String message = "Unable to update edition {" + editionId + "} on work {" + workId + "}.";
-         logger.log(Level.SEVERE, message, e);
-         throw new InternalServerErrorException(message, e);
-         // TODO: check ExecutionException to see what underlying issue is
-      }
-
-      RestApiV1.EditionId eid = new RestApiV1.EditionId();
-      eid.id = editionMutator.getId();
-      return eid;
+         RepoAdapter.save(edition, mutator);
+      });
    }
 
    /**
@@ -104,153 +96,287 @@ public class EditionResource
    @DELETE
    public void deleteEdition()
    {
-      EditWorkCommand command = editWork();
+      repoHelper.delete();
+   }
 
-      try
+   @Path("volumes")
+   public VolumeCollectionResource getVolumes()
+   {
+      CollectionRepoHelper<Volume, VolumeMutator> helper = new VolumeCollectionResourceRepoHelper();
+      return new VolumeCollectionResource(helper);
+   }
+
+   @Path("copies")
+   public CopyReferenceCollectionResource getCopyReferences()
+   {
+      CollectionRepoHelper<CopyReference, CopyReferenceMutator> helper = new CopyReferenceCollectionRepoHelper();
+      return new CopyReferenceCollectionResource(helper);
+   }
+
+   private static class VolumeCollectionResource
+   {
+
+      private final CollectionRepoHelper<Volume, VolumeMutator> repoHelper;
+
+      public VolumeCollectionResource(CollectionRepoHelper<Volume, VolumeMutator> helper)
       {
-         command.removeEdition(editionId);
-      }
-      catch (IllegalArgumentException e)
-      {
-         String message = "Unable to find edition {" + editionId + "} on work {" + workId + "}.";
-         logger.log(Level.WARNING, message, e);
-         throw new NotFoundException(message, e);
+         this.repoHelper = helper;
       }
 
-      try
+      /**
+       * List all volumes on the current edition object
+       *
+       * @return
+       */
+      @GET
+      @Produces(MediaType.APPLICATION_JSON)
+      public List<RestApiV1.Volume> listVolumes()
       {
-         command.execute().get();
+         return repoHelper.get().stream()
+               .map(RepoAdapter::toDTO)
+               .collect(Collectors.toList());
       }
-      catch (Exception e)
+
+      /**
+       * Create a new volume on the current edition object
+       *
+       * @param volume
+       */
+      @POST
+      @Consumes(MediaType.APPLICATION_JSON)
+      @Produces(MediaType.APPLICATION_JSON)
+      public RestApiV1.VolumeId createVolume(RestApiV1.Volume volume)
       {
-         String message = "Unable to remove edition {" + editionId + "} from work {" + workId + "}.";
-         logger.log(Level.SEVERE, message, e);
-         throw new InternalServerErrorException(message, e);
-         // TODO: check ExecutionException to see what underlying issue is
+         RestApiV1.VolumeId vid = new RestApiV1.VolumeId();
+         vid.id = repoHelper.create(mutator -> RepoAdapter.save(volume, mutator));
+         return vid;
+      }
+
+      /**
+       * Fetch a specific volume from the edition and perform operations on it
+       *
+       * @param volumeId
+       * @return
+       */
+      @Path("{id}")
+      public VolumeResource getVolume(@PathParam("id") String volumeId)
+      {
+         return new VolumeResource(repoHelper.get(volumeId));
       }
    }
 
-   /**
-    * List all volumes on the current edition object
-    *
-    * @return
-    */
-   @GET
-   @Path("/volumes")
-   @Produces(MediaType.APPLICATION_JSON)
-   public List<RestApiV1.Volume> listVolumes()
+   private class VolumeCollectionResourceRepoHelper implements CollectionRepoHelper<Volume, VolumeMutator>
    {
-      Edition edition = loadEdition();
-      List<Volume> volumes = edition.getVolumes();
-      return volumes.stream()
-            .map(RepoAdapter::toDTO)
-            .collect(Collectors.toList());
+      @Override
+      public Collection<Volume> get()
+      {
+         return repoHelper.get().getVolumes();
+      }
+
+      @Override
+      public RepoHelper<Volume, VolumeMutator> get(String id)
+      {
+         return new RepoHelper<Volume, VolumeMutator>()
+         {
+            @Override
+            public Volume get()
+            {
+               Volume volume = repoHelper.get().getVolume(id);
+
+               if (volume == null)
+               {
+                  String message = "Unable to find volume with id {" + id + "}.";
+                  logger.log(Level.WARNING, message);
+                  throw new NotFoundException(message);
+               }
+
+               return volume;
+            }
+
+            @Override
+            public void edit(Consumer<VolumeMutator> modifier)
+            {
+               repoHelper.edit(editionMutator -> {
+                  VolumeMutator volumeMutator;
+
+                  try
+                  {
+                     volumeMutator = editionMutator.editVolume(id);
+                  }
+                  catch (IllegalArgumentException e)
+                  {
+                     String message = "Unable to edit volume with id {" + id + "}.";
+                     logger.log(Level.WARNING, message, e);
+                     throw new NotFoundException(message, e);
+                  }
+                  catch (Exception e)
+                  {
+                     String message = "Encountered an unexpected error while trying to edit volume {" + id + "}.";
+                     logger.log(Level.SEVERE, message, e);
+                     throw new InternalServerErrorException(message, e);
+                  }
+
+                  modifier.accept(volumeMutator);
+               });
+            }
+
+            @Override
+            public void delete()
+            {
+               repoHelper.edit(editionMutator -> {
+                  try
+                  {
+                     editionMutator.removeVolume(id);
+                  }
+                  catch (IllegalArgumentException e)
+                  {
+                     String message = "Unable to delete volume with id {" + id + "}.";
+                     logger.log(Level.WARNING, message, e);
+                     throw new NotFoundException(message, e);
+                  }
+                  catch (Exception e)
+                  {
+                     String message = "Encountered an unexpected error while trying to delete volume {" + id + "}.";
+                     logger.log(Level.SEVERE, message, e);
+                     throw new InternalServerErrorException(message, e);
+                  }
+               });
+            }
+         };
+      }
+
+      @Override
+      public String create(Consumer<VolumeMutator> modifier)
+      {
+         class CreateVolumeConsumer implements Consumer<EditionMutator>
+         {
+            private String id;
+
+            @Override
+            public synchronized void accept(EditionMutator editionMutator)
+            {
+               VolumeMutator volumeMutator = editionMutator.createVolume();
+               id = volumeMutator.getId();
+               modifier.accept(volumeMutator);
+            }
+
+            public String getId()
+            {
+               return id;
+            }
+         }
+
+         // HACK the only reason this works is because repoHelper.edit() is synchronous.
+         CreateVolumeConsumer consumer = new CreateVolumeConsumer();
+         repoHelper.edit(consumer);
+         return consumer.getId();
+      }
    }
 
-   /**
-    * Create a new volume on the current edition object
-    *
-    * @param volume
-    */
-   @POST
-   @Path("/volumes")
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.VolumeId createVolume(RestApiV1.Volume volume)
+   private class CopyReferenceCollectionRepoHelper implements CollectionRepoHelper<CopyReference, CopyReferenceMutator>
    {
-      EditWorkCommand command = editWork();
-      EditionMutator editionMutator = editEdition(command);
-      VolumeMutator volumeMutator = editionMutator.createVolume();
-      RepoAdapter.save(volume, volumeMutator);
-
-      try
+      @Override
+      public Collection<CopyReference> get()
       {
-         command.execute().get();
-      }
-      catch (Exception e)
-      {
-         String message = "Unable to save work {" + workId + "} after adding volume to edition {" + editionId + "}.";
-         logger.log(Level.SEVERE, message, e);
-         throw new InternalServerErrorException(message, e);
+         return repoHelper.get().getCopyReferences();
       }
 
-      RestApiV1.VolumeId vid = new RestApiV1.VolumeId();
-      vid.id = volumeMutator.getId();
-      return vid;
-   }
+      @Override
+      public RepoHelper<CopyReference, CopyReferenceMutator> get(String id)
+      {
+         return new RepoHelper<CopyReference, CopyReferenceMutator>()
+         {
+            @Override
+            public CopyReference get()
+            {
+               return repoHelper.get().getCopyReferences().stream()
+                  .filter(copyReference -> Objects.equals(copyReference.getId(), id))
+                  .findFirst()
+                  .orElseThrow(() -> {
+                     String message = "Unable to find copy reference with id {" + id + "}.";
+                     logger.log(Level.WARNING, message);
+                     return new NotFoundException(message);
+                  });
 
-   /**
-    * Fetch a specific volume from the edition and perform operations on it
-    *
-    * @param volumeId
-    * @return
-    */
-   @Path("/volumes/{id}")
-   public VolumeResource getVolume(@PathParam("id") String volumeId)
-   {
-      return new VolumeResource(workId, editionId, volumeId, repo);
-   }
+            }
 
-   /**
-    * Helper method to load a work from persistence, handling any checked exceptions that arise and
-    * passing them as HTTP messages.
-    *
-    * @return
-    * @throws NotFoundException if the work identified by the given ID cannot be found
-    */
-   private Edition loadEdition()
-   {
-      try
-      {
-         return repo.getEdition(workId, editionId);
-      }
-      catch (IllegalArgumentException e)
-      {
-         String message = "Unable to find edition {" + editionId + "} on work {" + workId + "}.";
-         logger.log(Level.WARNING, message, e);
-         throw new NotFoundException(message, e);
-      }
-   }
+            @Override
+            public void edit(Consumer<CopyReferenceMutator> modifier)
+            {
+               repoHelper.edit(command -> {
+                  CopyReferenceMutator mutator;
 
-   /**
-    * Helper method to start editing a work, handling any checked exceptions that arise and passing
-    * them as HTTP messages.
-    *
-    * @return
-    * @throws NotFoundException if the work identified by the given ID cannot be found
-    */
-   private EditWorkCommand editWork()
-   {
-      try
-      {
-         return repo.editWork(workId);
-      }
-      catch (IllegalArgumentException e)
-      {
-         String message = "Unable to modify work {" + workId + "}.";
-         logger.log(Level.WARNING, message, e);
-         throw new NotFoundException(message, e);
-      }
-   }
+                  try
+                  {
+                     mutator = command.editCopyReference(id);
+                  }
+                  catch (IllegalArgumentException e)
+                  {
+                     String message = "Unable to edit copy reference with id {" + id + "}.";
+                     logger.log(Level.WARNING, message, e);
+                     throw new NotFoundException(message, e);
+                  }
+                  catch (Exception e)
+                  {
+                     String message = "Encountered an unexpected error while trying to edit copy reference {" + id + "}.";
+                     logger.log(Level.SEVERE, message, e);
+                     throw new InternalServerErrorException(message, e);
+                  }
 
-   /**
-    * Helper method to start editing an edition, handling any checked exceptions that arise and
-    * passing them as HTTP messages.
-    *
-    * @return
-    * @throws NotFoundException if the edition identified by the given ID cannot be found
-    */
-   private EditionMutator editEdition(EditWorkCommand editWorkCommand)
-   {
-      try
-      {
-         return editWorkCommand.editEdition(editionId);
+                  modifier.accept(mutator);
+               });
+            }
+
+            @Override
+            public void delete()
+            {
+               repoHelper.edit(command -> {
+                  try
+                  {
+                     command.removeCopyReference(id);
+                  }
+                  catch (IllegalArgumentException e)
+                  {
+                     String message = "Unable to delete copy reference with id {" + id + "}.";
+                     logger.log(Level.WARNING, message, e);
+                     throw new NotFoundException(message, e);
+                  }
+                  catch (Exception e)
+                  {
+                     String message = "Encountered an unexpected error while trying to delete copy reference {" + id + "}.";
+                     logger.log(Level.SEVERE, message, e);
+                     throw new InternalServerErrorException(message, e);
+                  }
+               });
+            }
+         };
       }
-      catch (IllegalArgumentException e)
+
+      @Override
+      public String create(Consumer<CopyReferenceMutator> modifier)
       {
-         String message = "Unable to modify edition {" + editionId + "} on work {" + workId + "}.";
-         logger.log(Level.WARNING, message, e);
-         throw new NotFoundException(message, e);
+         class CreateCopyReferenceConsumer implements Consumer<EditionMutator>
+         {
+            private String id;
+
+            @Override
+            public void accept(EditionMutator editionMutator)
+            {
+               CopyReferenceMutator copyReferenceMutator = editionMutator.createCopyReference();
+               id = copyReferenceMutator.getId();
+               modifier.accept(copyReferenceMutator);
+            }
+
+            public String getId()
+            {
+               return id;
+            }
+         }
+
+         // HACK the only reason this works is because repoHelper.edit() is synchronous.
+         CreateCopyReferenceConsumer consumer = new CreateCopyReferenceConsumer();
+         repoHelper.edit(consumer);
+         return consumer.getId();
       }
    }
 }

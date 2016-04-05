@@ -2,6 +2,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.rest.v1;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -9,6 +10,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -20,8 +22,10 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 
+import edu.tamu.tcat.trc.entries.types.biblio.Work;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.rest.RepoHelper;
 import edu.tamu.tcat.trc.entries.types.biblio.search.BiblioSearchProxy;
 import edu.tamu.tcat.trc.entries.types.biblio.search.SearchWorksResult;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkQueryCommand;
@@ -181,7 +185,82 @@ public class WorkCollectionResource
    @Path("/{id}")
    public WorkResource getWork(@PathParam("id") String id)
    {
-      return new WorkResource(id, repo);
+      WorkResourceRepoHelper helper = new WorkResourceRepoHelper(id);
+      return new WorkResource(helper);
+   }
+
+   private class WorkResourceRepoHelper implements RepoHelper<Work, EditWorkCommand>
+   {
+      private final String id;
+
+      public WorkResourceRepoHelper(String id)
+      {
+         this.id = id;
+      }
+
+      @Override
+      public Work get()
+      {
+         return repo.getWork(id);
+      }
+
+      @Override
+      public void edit(Consumer<EditWorkCommand> modifier)
+      {
+         EditWorkCommand command;
+
+         try
+         {
+            command = repo.editWork(id);
+         }
+         catch (IllegalArgumentException e)
+         {
+            String message = "Unable to update work {" + id + "}";
+            logger.log(Level.WARNING, message, e);
+            throw new NotFoundException(message, e);
+         }
+         catch (Exception e)
+         {
+            String message = "Encountered an unexpected error while attempting to edit work {" + id + "}.";
+            logger.log(Level.SEVERE, message, e);
+            throw new InternalServerErrorException(message, e);
+         }
+
+         modifier.accept(command);
+
+         try
+         {
+            command.execute().get();
+         }
+         catch (Exception e)
+         {
+            String message = "Unable to save updated work {" + id + "}.";
+            logger.log(Level.SEVERE, message, e);
+            throw new InternalServerErrorException(message, e);
+         }
+      }
+
+      @Override
+      public void delete()
+      {
+         try
+         {
+            repo.deleteWork(id);
+         }
+         catch (IllegalArgumentException e)
+         {
+            String message = "Unable to find work {" + id + "} for deletion.";
+            logger.log(Level.WARNING, message, e);
+            throw new NotFoundException(message, e);
+         }
+         catch (Exception e)
+         {
+            String message = "Unable to delete work {" + id + "}.";
+            logger.log(Level.SEVERE, message, e);
+            throw new InternalServerErrorException(message, e);
+            // TODO: error might be related to something user-related.
+         }
+      }
    }
 
    /**
