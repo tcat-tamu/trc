@@ -54,7 +54,6 @@ public class RestApiV1
    public static class AuthorRef
    {
       public String authorId;
-      public String name;
       public String firstName;
       public String lastName;
       public String role;

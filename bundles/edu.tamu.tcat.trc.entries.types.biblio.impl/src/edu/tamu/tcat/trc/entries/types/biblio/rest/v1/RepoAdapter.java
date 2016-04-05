@@ -181,8 +181,6 @@ public class RepoAdapter
 
       RestApiV1.AuthorRef dto = new RestApiV1.AuthorRef();
       dto.authorId = author.getId();
-      if (dto.name != null)
-         parseLegacyName(dto);
 
       String fName = author.getFirstName();
       String lName = author.getLastName();
@@ -192,27 +190,6 @@ public class RepoAdapter
 
       dto.role = author.getRole();
       return dto;
-   }
-
-   private static void parseLegacyName(RestApiV1.AuthorRef author)
-   {
-      // HACK for legacy entries, try to split out first and last names.
-      // TODO remove once data in DB has been converted.
-      author.name = author.name.trim();
-      int ix = author.name.lastIndexOf(",");
-      ix = ix > 0 ? ix : author.name.lastIndexOf(";");
-      if (ix > 0)
-      {
-         author.firstName = author.name.substring(ix + 1).trim();
-         author.lastName = author.name.substring(0, ix).trim();
-      } else {
-         ix = author.name.lastIndexOf(" ");
-         if (ix > 0)
-         {
-            author.lastName = author.name.substring(ix + 1).trim();
-            author.firstName = author.name.substring(0, ix).trim();
-         }
-      }
    }
 
    public static AuthorReferenceDTO toRepo(RestApiV1.AuthorRef orig)
