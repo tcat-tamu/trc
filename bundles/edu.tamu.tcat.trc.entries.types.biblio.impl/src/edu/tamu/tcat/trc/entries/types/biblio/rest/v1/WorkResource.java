@@ -43,11 +43,10 @@ public class WorkResource
     */
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public WorkDTO getWork()
+   public RestApiV1.Work getWork()
    {
-      // FIXME should be returning RestApiV1.Work instead of WorkDTO
       Work work = loadWork();
-      return WorkDTO.create(work);
+      return RepoAdapter.toDTO(work);
    }
 
    /**

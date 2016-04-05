@@ -20,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
@@ -28,6 +29,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.PublicationInfo;
 import edu.tamu.tcat.trc.entries.types.biblio.Title;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
+import edu.tamu.tcat.trc.entries.types.biblio.Work;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDTO;
@@ -44,6 +46,46 @@ import edu.tamu.tcat.trc.entries.types.biblio.repo.VolumeMutator;
  */
 public class RepoAdapter
 {
+   public static RestApiV1.Work toDTO(Work work)
+   {
+      if (work == null)
+      {
+         return null;
+      }
+
+      RestApiV1.Work dto = new RestApiV1.Work();
+
+      dto.id = work.getId();
+
+      dto.authors = StreamSupport.stream(work.getAuthors().spliterator(), false)
+            .map(RepoAdapter::toDTO)
+            .collect(Collectors.toList());
+
+      dto.titles = work.getTitle().get().stream()
+            .map(RepoAdapter::toDTO)
+            .collect(Collectors.toList());
+
+      dto.otherAuthors = StreamSupport.stream(work.getOtherAuthors().spliterator(), false)
+            .map(RepoAdapter::toDTO)
+            .collect(Collectors.toList());
+
+      dto.series = work.getSeries();
+
+      dto.summary = work.getSummary();
+
+      dto.editions = work.getEditions().stream()
+            .map(RepoAdapter::toDTO)
+            .collect(Collectors.toList());
+
+      // TODO default digital copy
+
+      dto.copies = work.getCopyReferences().stream()
+            .map(edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies.RepoAdapter::toDTO)
+            .collect(Collectors.toList());
+
+      return dto;
+   }
+
    public static RestApiV1.AuthorRef toDTO(AuthorReferenceDTO orig)
    {
       if (orig == null)
