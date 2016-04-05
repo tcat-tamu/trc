@@ -117,7 +117,7 @@ public class BiblioEntriesSearchService implements WorkSearchService, WorkIndexS
    }
 
    @Override
-   public void workCreated(Work work)
+   public void index(Work work)
    {
       String id = work.getId();
       if (isIndexed(id))
@@ -160,15 +160,7 @@ public class BiblioEntriesSearchService implements WorkSearchService, WorkIndexS
    }
 
    @Override
-   public void workUpdated(Work newWork, Work oldWork)
-   {
-      //HACK: Until granular Change notifications are implemented we will remove all works and corresponding editions / volumes.
-      //      Once removed we will re-add all entities from the work.
-      workCreated(newWork);
-   }
-
-   @Override
-   public  void workDeleted(String id)
+   public  void remove(String id)
    {
       if (isIndexed(id))
       {
