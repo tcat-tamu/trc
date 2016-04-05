@@ -1,26 +1,130 @@
 package edu.tamu.tcat.trc.entries.types.biblio.postgres;
 
-import java.util.concurrent.ExecutionException;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.search.WorkIndexService;
+import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.IdFactory;
+import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.repo.RepositoryException;
+import edu.tamu.tcat.trc.repo.RepositorySchema;
+import edu.tamu.tcat.trc.repo.SchemaBuilder;
+import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
 
 public class WorkRepositoryImpl implements WorkRepository
 {
+   private static final Logger logger = Logger.getLogger(WorkRepositoryImpl.class.getName());
 
-   private final DocumentRepository<Work, EditWorkCommand> repoBackend;
-   private final IdFactory idFactory;
+   public static final String CONTEXT_WORK = "works";
 
-   public WorkRepositoryImpl(DocumentRepository<Work, EditWorkCommand> repo, IdFactory idFactory)
+   private static final String TABLE_NAME = "works";
+   private static final String SCHEMA_ID = "trcWork";
+   private static final String SCHEMA_DATA_FIELD = "work";
+
+   private DocumentRepository<Work, EditWorkCommand> repoBackend;
+   private SqlExecutor sqlExecutor;
+   private IdFactoryProvider idFactoryProvider;
+   private WorkIndexService indexService;
+
+   private IdFactory idFactory;
+
+   /**
+    * Bind method for SQL executor service dependency (usually called by dependency injection layer)
+    *
+    * @param sqlExecutor
+    */
+   public void setSqlExecutor(SqlExecutor sqlExecutor)
    {
-      this.repoBackend = repo;
-      this.idFactory = idFactory;
+      this.sqlExecutor = sqlExecutor;
+   }
+
+   /**
+    * Bind method for ID factory provider service dependency (usually called by dependency injection layer)
+    *
+    * @param idFactory
+    */
+   public void setIdFactory(IdFactoryProvider idFactoryProvider)
+   {
+      this.idFactoryProvider = idFactoryProvider;
+   }
+
+   /**
+    * Bind method for search index service dependency (usually called by dependency injection layer)
+    *
+    * @param workIndexService
+    */
+   public void setIndexService(WorkIndexService workIndexService)
+   {
+      this.indexService = workIndexService;
+   }
+
+   /**
+    * Lifecycle management method (usually called by framework service layer)
+    * Called when all dependencies have been provided and the service is ready to run.
+    */
+   public void activate()
+   {
+      Objects.requireNonNull(sqlExecutor, "No SQL Executor provided.");
+      Objects.requireNonNull(indexService, "No Indexing service provided.");
+
+      repoBackend = buildDocumentRepository();
+      idFactory = idFactoryProvider.getIdFactory(CONTEXT_WORK);
+   }
+
+   /**
+    * Lifecycle management method (usually called by framework service layer)
+    * Called when this service is no longer required.
+    */
+   public void dispose()
+   {
+      sqlExecutor = null;
+   }
+
+   /**
+    * @return A new document repository instance for persisting and retrieving works
+    */
+   private DocumentRepository<Work, EditWorkCommand> buildDocumentRepository()
+   {
+      PsqlJacksonRepoBuilder<Work, EditWorkCommand, WorkDTO> repoBuilder = new PsqlJacksonRepoBuilder<>();
+
+      repoBuilder.setDbExecutor(sqlExecutor);
+      repoBuilder.setTableName(TABLE_NAME);
+      repoBuilder.setEditCommandFactory(new EditWorkCommandFactoryImpl(idFactoryProvider, indexService));
+      repoBuilder.setDataAdapter(ModelAdapter::adapt);
+      repoBuilder.setSchema(buildSchema());
+      repoBuilder.setStorageType(WorkDTO.class);
+      repoBuilder.setEnableCreation(true);
+
+      try
+      {
+         return repoBuilder.build();
+      }
+      catch (RepositoryException e)
+      {
+         logger.log(Level.SEVERE, "Failed to construct work repository instance.", e);
+      }
+      return null;
+   }
+
+   /**
+    * @return The repository schema
+    */
+   private RepositorySchema buildSchema()
+   {
+      SchemaBuilder schemaBuilder = new BasicSchemaBuilder();
+      schemaBuilder.setId(SCHEMA_ID);
+      schemaBuilder.setDataField(SCHEMA_DATA_FIELD);
+      return schemaBuilder.build();
    }
 
    @Override
@@ -59,15 +163,21 @@ public class WorkRepositoryImpl implements WorkRepository
    @Override
    public void deleteWork(String workId)
    {
+      boolean result;
       try {
-         boolean result = repoBackend.delete(workId).get();
-         if (!result)
-         {
-            throw new IllegalArgumentException("Unable to find work with id {" + workId + "}.");
-         }
+         result = repoBackend.delete(workId).get();
       }
-      catch (UnsupportedOperationException | InterruptedException | ExecutionException e) {
+      catch (Exception e) {
          throw new IllegalStateException("Encountered an unexpected error while trying to delete work with id {" + workId + "}.", e);
+      }
+
+      if (result)
+      {
+         indexService.remove(workId);
+      }
+      else
+      {
+         throw new IllegalArgumentException("Unable to find work with id {" + workId + "}.");
       }
    }
 
