@@ -5,7 +5,6 @@ import java.util.Objects;
 import javax.ws.rs.Path;
 
 import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepositoryProvider;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.v1.WorkCollectionResource;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkSearchService;
 
@@ -20,9 +19,9 @@ public class BiblioRestApiService
     *
     * @param repoProvider
     */
-   public void setRepository(WorkRepositoryProvider repoProvider)
+   public void setRepository(WorkRepository repo)
    {
-      this.repo = repoProvider.getRepository();
+      this.repo = repo;
    }
 
    /**
