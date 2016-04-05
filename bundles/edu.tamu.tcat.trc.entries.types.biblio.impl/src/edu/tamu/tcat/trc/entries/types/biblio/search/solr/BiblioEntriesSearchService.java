@@ -19,11 +19,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,12 +34,10 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepositoryProvider;
+import edu.tamu.tcat.trc.entries.types.biblio.search.WorkIndexService;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkQueryCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkSearchService;
 import edu.tamu.tcat.trc.search.SearchException;
@@ -52,7 +47,7 @@ import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
  * Provides a service to support SOLR backed searching over bibliographic entries.
  *
  */
-public class BiblioEntriesSearchService implements WorkSearchService
+public class BiblioEntriesSearchService implements WorkSearchService, WorkIndexService
 {
    private final static Logger logger = Logger.getLogger(BiblioEntriesSearchService.class.getName());
 
@@ -62,18 +57,9 @@ public class BiblioEntriesSearchService implements WorkSearchService
    /** Configuration property key that defines Solr core to be used for relationships. */
    public static final String SOLR_CORE = "catalogentries.works.solr.core";      // TODO rename to trc.biblio.works.solr.core
 
-   private WorkRepository repo;
    private ConfigurationProperties config;
    private SolrServer solr;
    private AutoCloseable registration;
-
-   /**
-    * @param repo The repository that is used to manage persistence of bibliographic entries.
-    */
-   public void setWorksRepo(WorkRepositoryProvider repoProvider)
-   {
-      this.repo = repoProvider.getRepository();
-   }
 
    /**
     * @param cp configuration properties. These are required at initialization.
@@ -87,15 +73,6 @@ public class BiblioEntriesSearchService implements WorkSearchService
    public void activate()
    {
       logger.fine("Activating " + getClass().getSimpleName());
-      // Check here is only necessary for test cases which instantiate the service; DS will ensure it is not null
-      Objects.requireNonNull(repo, "No work repository supplied.");
-
-      // configure handlers
-      EntryChangeHandlers<WorkChangeEvent> updateHandlers = new EntryChangeHandlers<WorkChangeEvent>();
-      updateHandlers.register(UpdateEvent.UpdateAction.CREATE, this::onCreate);
-      updateHandlers.register(UpdateEvent.UpdateAction.UPDATE, this::onWorkUpdate);
-      updateHandlers.register(UpdateEvent.UpdateAction.DELETE, this::onDelete);
-      registration = repo.addUpdateListener(updateHandlers::handle);
 
       // construct Solr core
       URI solrBaseUri = config.getPropertyValue(SOLR_API_ENDPOINT, URI.class);
@@ -111,7 +88,6 @@ public class BiblioEntriesSearchService implements WorkSearchService
    {
       logger.info("Deactivating BiblioEntriesSearchService");
 
-      unregisterRepoListener();
       releaseSolrConnection();
    }
 
@@ -121,71 +97,14 @@ public class BiblioEntriesSearchService implements WorkSearchService
       return new WorkSolrQueryCommand(solr, new TrcQueryBuilder(solr, new BiblioSolrConfig()));
    }
 
-   public boolean isIndexed(String id)
-   {
-      Objects.requireNonNull(solr, "The connection to Solr server is not available.");
-
-      SolrQuery query = new SolrQuery();
-      query.setQuery("id:" + id);
-      try
-      {
-         QueryResponse response = solr.query(query);
-         return  !response.getResults().isEmpty();
-      }
-      catch (SolrServerException e)
-      {
-         logger.log(Level.SEVERE, "Failed to query the work id: [" + id + "] from the SOLR server. " + e);
-         return false;
-      }
-   }
-
-   public void removeWork(String id)
-   {
-      List<String> deleteIds = new ArrayList<>();
-      deleteIds.add(id);
-
-      SolrQuery query = new SolrQuery();
-      query.setQuery("id:" + id + "\\:*");
-      try
-      {
-         QueryResponse response = solr.query(query);
-         SolrDocumentList results = response.getResults();
-         for(SolrDocument doc : results)
-         {
-            deleteIds.add(doc.getFieldValue("id").toString());
-         }
-         solr.deleteById(deleteIds);
-         solr.commit();
-      }
-      catch (SolrServerException | IOException e)
-      {
-         logger.log(Level.SEVERE, "Failed to delete the work id: [" + id + "] from the the SOLR server. " + e);
-      }
-   }
-
-   private void unregisterRepoListener()
-   {
-      if (registration == null)
-         return;
-
-      try
-      {
-         registration.close();
-      }
-      catch (Exception e)
-      {
-         logger.log(Level.WARNING, "Failed to unregister update listener on works repository.", e);
-      }
-      finally {
-         registration = null;
-      }
-   }
-
    private void releaseSolrConnection()
    {
       logger.fine("Releasing connection to Solr server");
+
       if (solr == null)
+      {
          return;
+      }
 
       try
       {
@@ -197,20 +116,14 @@ public class BiblioEntriesSearchService implements WorkSearchService
       }
    }
 
-   private Void onCreate(WorkChangeEvent evt)
+   @Override
+   public void workCreated(Work work)
    {
-      Work work;
-      try
+      String id = work.getId();
+      if (isIndexed(id))
       {
-         work = evt.getWork();
+         removeWork(id);
       }
-      catch (Exception ex)
-      {
-         logger.log(Level.WARNING, "Failed accessing work after create " + evt, ex);
-         return null;
-      }
-
-      removeIfPresent(work.getId());
 
       Collection<SolrInputDocument> solrDocs = new ArrayList<>();
       try
@@ -233,7 +146,6 @@ public class BiblioEntriesSearchService implements WorkSearchService
       catch (Exception e)
       {
          logger.log(Level.SEVERE, "Failed to adapt created Work to indexable data transfer objects for work id: [" + work.getId() + "]", e);
-         return null;
       }
 
       try
@@ -245,68 +157,75 @@ public class BiblioEntriesSearchService implements WorkSearchService
       {
          logger.log(Level.SEVERE, "Failed to commit the work id: [" + work.getId() + "] to the SOLR server.", e);
       }
-
-      return null;
-
    }
 
-   private Void onWorkUpdate(WorkChangeEvent workEvt)
+   @Override
+   public void workUpdated(Work newWork, Work oldWork)
    {
       //HACK: Until granular Change notifications are implemented we will remove all works and corresponding editions / volumes.
       //      Once removed we will re-add all entities from the work.
-      return onCreate(workEvt);
+      workCreated(newWork);
    }
 
-   private Void onDelete(WorkChangeEvent workEvt)
+   @Override
+   public  void workDeleted(String id)
    {
-      String id = workEvt.getEntityId();
+      if (isIndexed(id))
+      {
+         removeWork(id);
+      }
+   }
+
+   /**
+    * Determines whether a work with the given ID exists in the search index
+    *
+    * @param id
+    * @return
+    */
+   private boolean isIndexed(String id)
+   {
+      Objects.requireNonNull(solr, "The connection to Solr server is not available.");
+
+      SolrQuery query = new SolrQuery();
+      query.setQuery("id:" + id);
       try
       {
-         solr.deleteById(id);
+         QueryResponse response = solr.query(query);
+         return  !response.getResults().isEmpty();
+      }
+      catch (SolrServerException e)
+      {
+         logger.log(Level.SEVERE, "Failed to query the work id: [" + id + "] from the SOLR server. " + e);
+         return false;
+      }
+   }
+
+   /**
+    * Deletes work from index, along with all editions and volumes.
+    *
+    * @param id ID of the owning work.
+    */
+   private void removeWork(String id)
+   {
+      List<String> deleteIds = new ArrayList<>();
+      deleteIds.add(id);
+
+      SolrQuery query = new SolrQuery();
+      query.setQuery("id:" + id + "\\:*");
+      try
+      {
+         QueryResponse response = solr.query(query);
+         SolrDocumentList results = response.getResults();
+         for(SolrDocument doc : results)
+         {
+            deleteIds.add(doc.getFieldValue("id").toString());
+         }
+         solr.deleteById(deleteIds);
          solr.commit();
       }
       catch (SolrServerException | IOException e)
       {
-         logger.log(Level.SEVERE, "Failed to delete the work id: [" + id + "] from the SOLR server. " + e);
-      }
-
-      return null;
-   }
-
-   private void removeIfPresent(String id)
-   {
-      if (isIndexed(id))
-         removeWork(id);
-   }
-
-   private static class EntryChangeHandlers<EVENT extends WorkChangeEvent>
-   {
-      // TODO to make this more general purpose, change to ChangeEvent.
-      Map<UpdateEvent.UpdateAction, Function<EVENT, Void>> changeHandlers = new HashMap<>();
-
-      public void register(UpdateEvent.UpdateAction type, Function<EVENT, Void> handler)
-      {
-         changeHandlers.put(type, handler);
-      }
-
-      public synchronized void handle(EVENT event)
-      {
-         UpdateEvent.UpdateAction type = event.getUpdateAction();
-         Function<EVENT, Void> handler = changeHandlers.get(type);
-         if (handler == null)
-         {
-            logger.info("No handler registered for [" + type + "]");
-            return;
-         }
-
-         try
-         {
-            handler.apply(event);
-         }
-         catch (Exception ex)
-         {
-            logger.log(Level.SEVERE, "Failed to handle event " + event, ex);
-         }
+         logger.log(Level.SEVERE, "Failed to delete the work id: [" + id + "] from the the SOLR server. " + e);
       }
    }
 }
