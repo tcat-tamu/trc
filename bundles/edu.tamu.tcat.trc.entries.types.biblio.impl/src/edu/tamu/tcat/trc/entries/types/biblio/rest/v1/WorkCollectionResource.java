@@ -16,6 +16,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.http.NameValuePair;
@@ -185,15 +186,15 @@ public class WorkCollectionResource
    @Path("/{id}")
    public WorkResource getWork(@PathParam("id") String id)
    {
-      WorkResourceRepoHelper helper = new WorkResourceRepoHelper(id);
+      EntityPersistenceAdapter<Work, EditWorkCommand> helper = new WorkPersistenceAdapter(id);
       return new WorkResource(helper);
    }
 
-   private class WorkResourceRepoHelper implements EntityPersistenceAdapter<Work, EditWorkCommand>
+   private class WorkPersistenceAdapter implements EntityPersistenceAdapter<Work, EditWorkCommand>
    {
       private final String id;
 
-      public WorkResourceRepoHelper(String id)
+      public WorkPersistenceAdapter(String id)
       {
          this.id = id;
       }
@@ -226,7 +227,23 @@ public class WorkCollectionResource
             throw new InternalServerErrorException(message, e);
          }
 
-         modifier.accept(command);
+         try
+         {
+            modifier.accept(command);
+         }
+         catch (WebApplicationException e)
+         {
+            // allow JAX-RS exceptions to be thrown as-is
+            throw e;
+         }
+         catch (Exception e)
+         {
+            // wrap all other exceptions in a server error
+            String message = "Encountered an unexpected error while updating work {" + id + "}.";
+            logger.log(Level.SEVERE, message);
+            throw new InternalServerErrorException(message, e);
+         }
+
 
          try
          {

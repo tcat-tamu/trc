@@ -17,6 +17,9 @@ package edu.tamu.tcat.trc.entries.types.biblio.rest.v1;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,6 +33,7 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.core.MediaType;
 
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
@@ -43,18 +47,18 @@ public class VolumeResource
 {
    private static final Logger logger = Logger.getLogger(VolumeResource.class.getName());
 
-   private final EntityPersistenceAdapter<Volume, VolumeMutator> repoHelper;
+   private final EntityPersistenceAdapter<Volume, VolumeMutator> volumePersistenceAdapter;
 
    public VolumeResource(EntityPersistenceAdapter<Volume, VolumeMutator> repoHelper)
    {
-      this.repoHelper = repoHelper;
+      this.volumePersistenceAdapter = repoHelper;
    }
 
    @GET
    @Produces(MediaType.APPLICATION_JSON)
    public RestApiV1.Volume getVolume()
    {
-      Volume volume = repoHelper.get();
+      Volume volume = volumePersistenceAdapter.get();
       return RepoAdapter.toDTO(volume);
    }
 
@@ -63,7 +67,7 @@ public class VolumeResource
    @Produces(MediaType.APPLICATION_JSON)
    public void updateVolume(RestApiV1.Volume volume)
    {
-      repoHelper.edit(mutator -> {
+      volumePersistenceAdapter.edit(mutator -> {
          if (!Objects.equals(volume.id, mutator.getId()))
          {
             throw new BadRequestException("Volume ID mismatch.");
@@ -76,7 +80,7 @@ public class VolumeResource
    @DELETE
    public void deleteVolume()
    {
-      repoHelper.delete();
+      volumePersistenceAdapter.delete();
    }
 
    @Path("copies")
@@ -91,105 +95,124 @@ public class VolumeResource
       @Override
       public Collection<CopyReference> get()
       {
-         return repoHelper.get().getCopyReferences();
+         return volumePersistenceAdapter.get().getCopyReferences();
       }
 
       @Override
       public EntityPersistenceAdapter<CopyReference, CopyReferenceMutator> get(String id)
       {
-         return new EntityPersistenceAdapter<CopyReference, CopyReferenceMutator>()
-         {
-            @Override
-            public CopyReference get()
-            {
-               return repoHelper.get().getCopyReferences().stream()
-                  .filter(copyReference -> Objects.equals(copyReference.getId(), id))
-                  .findFirst()
-                  .orElseThrow(() -> {
-                     String message = "Unable to find copy reference with id {" + id + "}.";
-                     logger.log(Level.WARNING, message);
-                     return new NotFoundException(message);
-                  });
-
-            }
-
-            @Override
-            public void edit(Consumer<CopyReferenceMutator> modifier)
-            {
-               repoHelper.edit(command -> {
-                  CopyReferenceMutator mutator;
-
-                  try
-                  {
-                     mutator = command.editCopyReference(id);
-                  }
-                  catch (IllegalArgumentException e)
-                  {
-                     String message = "Unable to edit copy reference with id {" + id + "}.";
-                     logger.log(Level.WARNING, message, e);
-                     throw new NotFoundException(message, e);
-                  }
-                  catch (Exception e)
-                  {
-                     String message = "Encountered an unexpected error while trying to edit copy reference {" + id + "}.";
-                     logger.log(Level.SEVERE, message, e);
-                     throw new InternalServerErrorException(message, e);
-                  }
-
-                  modifier.accept(mutator);
-               });
-            }
-
-            @Override
-            public void delete()
-            {
-               repoHelper.edit(command -> {
-                  try
-                  {
-                     command.removeCopyReference(id);
-                  }
-                  catch (IllegalArgumentException e)
-                  {
-                     String message = "Unable to delete copy reference with id {" + id + "}.";
-                     logger.log(Level.WARNING, message, e);
-                     throw new NotFoundException(message, e);
-                  }
-                  catch (Exception e)
-                  {
-                     String message = "Encountered an unexpected error while trying to delete copy reference {" + id + "}.";
-                     logger.log(Level.SEVERE, message, e);
-                     throw new InternalServerErrorException(message, e);
-                  }
-               });
-            }
-         };
+         return new CopyReferencePersistenceAdapter(id);
       }
 
       @Override
-      public String create(Consumer<CopyReferenceMutator> modifier)
+      public String create(Consumer<CopyReferenceMutator> copyReferenceModifier)
       {
-         class CreateCopyReferenceConsumer implements Consumer<VolumeMutator>
+         // HACK the internals may or may not be synchronous, but we don't have API to wait for
+         //      their result. This will release the latch once the mutator has been submitted to
+         //      the parent, but this may or may not correspond to final execution within the
+         //      persistence layer. Technically, the REST API should respond with ACCEPTED and a
+         //      reference of where to find the accepted object once creation is finished.
+         CountDownLatch latch = new CountDownLatch(1);
+         AtomicReference<String> idRef = new AtomicReference<>();
+
+         volumePersistenceAdapter.edit(volumeMutator -> {
+            CopyReferenceMutator copyReferenceMutator = volumeMutator.createCopyReference();
+            idRef.set(copyReferenceMutator.getId());
+            copyReferenceModifier.accept(copyReferenceMutator);
+            latch.countDown();
+         });
+
+         try
          {
-            private String id;
+            latch.await(2, TimeUnit.MINUTES);
+            return idRef.get();
+         }
+         catch (InterruptedException e)
+         {
+            String msg = "This seems to be taking longer than expected. Failed to create the new edition within two minutes.";
+            logger.log(Level.SEVERE, msg, e);
+            throw new ServiceUnavailableException(msg);
+         }
+      }
+   }
 
-            @Override
-            public void accept(VolumeMutator volumeMutator)
-            {
-               CopyReferenceMutator copyReferenceMutator = volumeMutator.createCopyReference();
-               id = copyReferenceMutator.getId();
-               modifier.accept(copyReferenceMutator);
-            }
+   private class CopyReferencePersistenceAdapter implements EntityPersistenceAdapter<CopyReference, CopyReferenceMutator>
+   {
+      private final String id;
 
-            public String getId()
-            {
-               return id;
-            }
+      public CopyReferencePersistenceAdapter(String id)
+      {
+         this.id = id;
+      }
+
+      @Override
+      public CopyReference get()
+      {
+         return volumePersistenceAdapter.get().getCopyReferences().stream()
+            .filter(copyReference -> Objects.equals(copyReference.getId(), id))
+            .findFirst()
+            .orElseThrow(() -> {
+               String message = "Unable to find copy reference with id {" + id + "}.";
+               logger.log(Level.WARNING, message);
+               return new NotFoundException(message);
+            });
+
+      }
+
+      @Override
+      public void edit(Consumer<CopyReferenceMutator> modifier)
+      {
+         volumePersistenceAdapter.edit(command -> doEdit(command, modifier));
+      }
+
+      private void doEdit(VolumeMutator command, Consumer<CopyReferenceMutator> modifier)
+      {
+         CopyReferenceMutator mutator;
+
+         try
+         {
+            mutator = command.editCopyReference(id);
+         }
+         catch (IllegalArgumentException e)
+         {
+            String message = "Unable to edit copy reference with id {" + id + "}.";
+            logger.log(Level.WARNING, message, e);
+            throw new NotFoundException(message, e);
+         }
+         catch (Exception e)
+         {
+            String message = "Encountered an unexpected error while trying to edit copy reference {" + id + "}.";
+            logger.log(Level.SEVERE, message, e);
+            throw new InternalServerErrorException(message, e);
          }
 
-         // HACK the only reason this works is because repoHelper.edit() is synchronous.
-         CreateCopyReferenceConsumer consumer = new CreateCopyReferenceConsumer();
-         repoHelper.edit(consumer);
-         return consumer.getId();
+         modifier.accept(mutator);
+      }
+
+      @Override
+      public void delete()
+      {
+         volumePersistenceAdapter.edit(this::doDelete);
+      }
+
+      private void doDelete(VolumeMutator command)
+      {
+         try
+         {
+            command.removeCopyReference(id);
+         }
+         catch (IllegalArgumentException e)
+         {
+            String message = "Unable to delete copy reference with id {" + id + "}.";
+            logger.log(Level.WARNING, message, e);
+            throw new NotFoundException(message, e);
+         }
+         catch (Exception e)
+         {
+            String message = "Encountered an unexpected error while trying to delete copy reference {" + id + "}.";
+            logger.log(Level.SEVERE, message, e);
+            throw new InternalServerErrorException(message, e);
+         }
       }
    }
 }
