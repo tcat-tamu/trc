@@ -69,7 +69,7 @@ public class VolumeResource
             throw new BadRequestException("Volume ID mismatch.");
          }
 
-         RepoAdapter.save(volume, mutator);
+         RepoAdapter.apply(volume, mutator);
       });
    }
 

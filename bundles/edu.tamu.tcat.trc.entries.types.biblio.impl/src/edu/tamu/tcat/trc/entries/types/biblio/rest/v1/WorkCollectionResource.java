@@ -160,7 +160,7 @@ public class WorkCollectionResource
    public RestApiV1.WorkId createWork(RestApiV1.Work work)
    {
       EditWorkCommand command = repo.createWork();
-      RepoAdapter.save(work, command);
+      RepoAdapter.apply(work, command);
 
       try
       {

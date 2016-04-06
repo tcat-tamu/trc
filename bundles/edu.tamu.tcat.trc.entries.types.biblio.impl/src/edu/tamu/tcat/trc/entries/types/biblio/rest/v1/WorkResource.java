@@ -73,7 +73,7 @@ public class WorkResource
             throw new BadRequestException("Work ID mismatch");
          }
 
-         RepoAdapter.save(updatedWork, command);
+         RepoAdapter.apply(updatedWork, command);
       });
    }
 
@@ -134,7 +134,7 @@ public class WorkResource
       public RestApiV1.EditionId createEdition(RestApiV1.Edition edition)
       {
          RestApiV1.EditionId eid = new RestApiV1.EditionId();
-         eid.id = repoHelper.create(mutator -> RepoAdapter.save(edition, mutator));
+         eid.id = repoHelper.create(mutator -> RepoAdapter.apply(edition, mutator));
          return eid;
       }
 

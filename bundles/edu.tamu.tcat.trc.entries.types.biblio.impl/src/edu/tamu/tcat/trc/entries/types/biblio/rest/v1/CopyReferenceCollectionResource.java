@@ -68,7 +68,7 @@ public class CopyReferenceCollectionResource
    public RestApiV1.CopyReferenceId createCopyReference(RestApiV1.CopyReference dto)
    {
       RestApiV1.CopyReferenceId copyReferenceId = new RestApiV1.CopyReferenceId();
-      copyReferenceId.id = repoHelper.create(mutator -> RepoAdapter.save(dto, mutator));
+      copyReferenceId.id = repoHelper.create(mutator -> RepoAdapter.apply(dto, mutator));
       return copyReferenceId;
    }
 

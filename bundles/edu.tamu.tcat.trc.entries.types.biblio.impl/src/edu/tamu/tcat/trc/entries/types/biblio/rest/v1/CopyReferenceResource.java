@@ -50,7 +50,7 @@ public class CopyReferenceResource
             throw new BadRequestException("Copy reference ID mismatch.");
          }
 
-         RepoAdapter.save(updatedCopyReference, mutator);
+         RepoAdapter.apply(updatedCopyReference, mutator);
       });
    }
 

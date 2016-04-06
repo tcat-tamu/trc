@@ -429,20 +429,20 @@ public class RepoAdapter
       {
          return null;
       }
-   
+
       CopyReferenceDTO repoDto = new CopyReferenceDTO();
-   
+
       repoDto.id = restDto.id;
       repoDto.type = restDto.type;
       repoDto.properties = restDto.properties;
       repoDto.title = restDto.title;
       repoDto.summary = restDto.summary;
       repoDto.rights = restDto.rights;
-   
+
       return repoDto;
    }
 
-   public static void save(RestApiV1.Work work, EditWorkCommand command)
+   public static void apply(RestApiV1.Work work, EditWorkCommand command)
    {
       List<AuthorReferenceDTO> authors = work.authors.stream()
             .map(RepoAdapter::toRepo)
@@ -472,7 +472,7 @@ public class RepoAdapter
 
       work.editions.forEach(edition -> {
          EditionMutator editionMutator = edition.id == null ? command.createEdition() : command.editEdition(edition.id);
-         RepoAdapter.save(edition, editionMutator);
+         RepoAdapter.apply(edition, editionMutator);
       });
 
       Set<String> copyReferenceIds = work.copies.stream()
@@ -485,7 +485,7 @@ public class RepoAdapter
       // TODO: default copy reference... how do we want it to be exposed via REST?
    }
 
-   public static void save(RestApiV1.Edition edition, EditionMutator mutator)
+   public static void apply(RestApiV1.Edition edition, EditionMutator mutator)
    {
       mutator.setEditionName(edition.editionName);
 
@@ -519,7 +519,7 @@ public class RepoAdapter
 
       edition.volumes.forEach(volume -> {
          VolumeMutator volumeMutator = volume.id == null ? mutator.createVolume() : mutator.editVolume(volume.id);
-         RepoAdapter.save(volume, volumeMutator);
+         RepoAdapter.apply(volume, volumeMutator);
       });
 
       Set<String> copyReferenceIds = edition.copies.stream()
@@ -532,7 +532,7 @@ public class RepoAdapter
       // TODO: default copy reference... how do we want it to be exposed via REST?
    }
 
-   public static void save(RestApiV1.Volume volume, VolumeMutator mutator)
+   public static void apply(RestApiV1.Volume volume, VolumeMutator mutator)
    {
       mutator.setVolumeNumber(volume.volumeNumber);
 
@@ -567,8 +567,7 @@ public class RepoAdapter
       // TODO: default copy reference... how do we want it to be exposed via REST?
    }
 
-   // CODE INSERT HERE
-   public static void save(RestApiV1.CopyReference dto, CopyReferenceMutator mutator)
+   public static void apply(RestApiV1.CopyReference dto, CopyReferenceMutator mutator)
    {
       mutator.setType(dto.type);
       mutator.setProperties(dto.properties);

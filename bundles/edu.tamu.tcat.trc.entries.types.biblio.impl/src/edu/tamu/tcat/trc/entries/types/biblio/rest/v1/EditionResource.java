@@ -85,7 +85,7 @@ public class EditionResource
             throw new BadRequestException("Edition ID mismatch.");
          }
 
-         RepoAdapter.save(edition, mutator);
+         RepoAdapter.apply(edition, mutator);
       });
    }
 
@@ -147,7 +147,7 @@ public class EditionResource
       public RestApiV1.VolumeId createVolume(RestApiV1.Volume volume)
       {
          RestApiV1.VolumeId vid = new RestApiV1.VolumeId();
-         vid.id = repoHelper.create(mutator -> RepoAdapter.save(volume, mutator));
+         vid.id = repoHelper.create(mutator -> RepoAdapter.apply(volume, mutator));
          return vid;
       }
 
