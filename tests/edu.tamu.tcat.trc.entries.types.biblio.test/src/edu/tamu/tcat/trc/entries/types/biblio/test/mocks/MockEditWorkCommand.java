@@ -195,16 +195,16 @@ public class MockEditWorkCommand implements EditWorkCommand
    }
 
    @Override
-   public void retainAllEditions(Set<String> editionIds)
+   public Set<String> retainAllEditions(Set<String> editionIds)
    {
       // TODO Auto-generated method stub
-
+      return null;
    }
 
    @Override
-   public void retainAllCopyReferences(Set<String> copyReferenceIds)
+   public Set<String> retainAllCopyReferences(Set<String> copyReferenceIds)
    {
       // TODO Auto-generated method stub
-
+      return null;
    }
 }

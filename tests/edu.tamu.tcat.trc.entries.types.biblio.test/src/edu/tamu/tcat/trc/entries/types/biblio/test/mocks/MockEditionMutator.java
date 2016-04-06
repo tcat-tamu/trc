@@ -147,17 +147,17 @@ public class MockEditionMutator implements EditionMutator
    }
 
    @Override
-   public void retainAllVolumes(Set<String> volumeIds)
+   public Set<String> retainAllVolumes(Set<String> volumeIds)
    {
       // TODO Auto-generated method stub
-
+      return null;
    }
 
    @Override
-   public void retainAllCopyReferences(Set<String> copyReferenceIds)
+   public Set<String> retainAllCopyReferences(Set<String> copyReferenceIds)
    {
       // TODO Auto-generated method stub
-
+      return null;
    }
 
 }
