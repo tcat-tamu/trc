@@ -3,6 +3,9 @@ package edu.tamu.tcat.trc.entries.types.biblio.rest.v1;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,6 +22,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.core.MediaType;
 
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
@@ -228,30 +232,34 @@ public class WorkResource
       }
 
       @Override
-      public String create(Consumer<EditionMutator> modifier)
+      public String create(Consumer<EditionMutator> editionModifier)
       {
-         class CreateEditionConsumer implements Consumer<EditWorkCommand>
+         // HACK the internals may or may not be synchronous, but we don't have API to wait for
+         //      their result. This will release the latch once the mutator has been submitted to
+         //      the parent, but this may or may not correspond to final execution within the
+         //      persistence layer. Technically, the REST API should respond with ACCEPTED and a
+         //      reference of where to find the accepted object once creation is finished.
+         CountDownLatch latch = new CountDownLatch(1);
+         AtomicReference<String> idRef = new AtomicReference<>();
+
+         repoHelper.edit(command -> {
+            EditionMutator mutator = command.createEdition();
+            idRef.set(mutator.getId());
+            editionModifier.accept(mutator);
+            latch.countDown();
+         });
+
+         try
          {
-            private String id;
-
-            @Override
-            public void accept(EditWorkCommand command)
-            {
-               EditionMutator mutator = command.createEdition();
-               id = mutator.getId();
-               modifier.accept(mutator);
-            }
-
-            public String getId()
-            {
-               return id;
-            }
+            latch.await(2, TimeUnit.MINUTES);
+            return idRef.get();
          }
-
-         // HACK the only reason this works is because repoHelper.edit() is synchronous.
-         CreateEditionConsumer consumer = new CreateEditionConsumer();
-         repoHelper.edit(consumer);
-         return consumer.getId();
+         catch (InterruptedException e)
+         {
+            String msg = "This seems to be taking longer than expected. Failed to create the new edition within two minutes.";
+            logger.log(Level.SEVERE, msg, e);
+            throw new ServiceUnavailableException(msg);
+         }
       }
    }
 
