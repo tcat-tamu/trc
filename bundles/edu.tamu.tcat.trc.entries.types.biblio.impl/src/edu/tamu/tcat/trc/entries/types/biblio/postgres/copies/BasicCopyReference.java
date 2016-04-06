@@ -17,7 +17,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.postgres.copies;
 
 import java.util.Map;
 
-import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
+import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 
 public class BasicCopyReference implements CopyReference
 {

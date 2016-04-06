@@ -6,7 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
+import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.CopyReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceRepositoryProvider;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.EditCopyReferenceCommand;

@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.biblio.copies;
+package edu.tamu.tcat.trc.entries.types.biblio;
 
 import java.util.Map;
-
-import edu.tamu.tcat.trc.entries.types.biblio.Work;
 
 /**
  * Associates a {@link DigitalCopy} with a bibliographic {@link Work} or portion of a work

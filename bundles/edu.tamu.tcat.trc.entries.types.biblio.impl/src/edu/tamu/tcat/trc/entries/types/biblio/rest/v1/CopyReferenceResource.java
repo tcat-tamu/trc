@@ -8,7 +8,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
+import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityPersistenceAdapter;
 

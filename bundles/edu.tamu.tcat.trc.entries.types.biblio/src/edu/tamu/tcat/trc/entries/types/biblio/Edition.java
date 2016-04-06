@@ -19,8 +19,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
-
 /**
  * Editions are published manifestations of a {@link Work}. An edition adds specific information related to the
  */

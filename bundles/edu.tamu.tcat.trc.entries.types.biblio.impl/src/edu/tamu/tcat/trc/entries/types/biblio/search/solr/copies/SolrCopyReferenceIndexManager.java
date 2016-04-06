@@ -37,7 +37,7 @@ import edu.tamu.tcat.hathitrust.htrc.features.simple.impl.DefaultExtractedFeatur
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent.UpdateAction;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
+import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.search.copies.FullTextSearchService;
 import edu.tamu.tcat.trc.entries.types.biblio.search.copies.PageSearchCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.search.copies.VolumeSearchCommand;

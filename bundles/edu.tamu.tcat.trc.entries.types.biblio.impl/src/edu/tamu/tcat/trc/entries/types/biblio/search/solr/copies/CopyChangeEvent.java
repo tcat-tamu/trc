@@ -17,7 +17,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.search.solr.copies;
 
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
+import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 
 // This is here to prevent compile errors (unimplemented) pending a reworking
 // of the full-text search capabilities for digital copies. It should be replaced by a more

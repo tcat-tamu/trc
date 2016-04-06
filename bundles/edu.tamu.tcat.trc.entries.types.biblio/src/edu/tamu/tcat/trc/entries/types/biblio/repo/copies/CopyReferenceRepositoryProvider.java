@@ -1,6 +1,6 @@
 package edu.tamu.tcat.trc.entries.types.biblio.repo.copies;
 
-import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
+import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 
 /**

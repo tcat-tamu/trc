@@ -18,7 +18,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.dto.copies;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
+import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 
 public class CopyReferenceDTO
 {

@@ -18,8 +18,6 @@ package edu.tamu.tcat.trc.entries.types.biblio;
 import java.util.List;
 import java.util.Set;
 
-import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
-
 
 /**
  * Bibliographic description for a book, article, journal or other work. This is the main

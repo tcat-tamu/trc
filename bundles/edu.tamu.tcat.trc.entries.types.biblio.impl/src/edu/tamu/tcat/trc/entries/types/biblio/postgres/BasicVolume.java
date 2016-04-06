@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Set;
 
 import edu.tamu.tcat.trc.entries.types.biblio.AuthorReference;
+import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.PublicationInfo;
 import edu.tamu.tcat.trc.entries.types.biblio.Title;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
 
 public class BasicVolume implements Volume
 {

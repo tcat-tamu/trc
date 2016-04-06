@@ -19,8 +19,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
-
 /**
  * A physical volume in which an edition is published. Editions of a work are published in some media, typically one
  * or more volumes. While the bibliographic description of the parent work is typically inherited by different volumes,
