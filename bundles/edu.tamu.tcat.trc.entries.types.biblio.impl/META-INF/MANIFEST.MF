@@ -49,6 +49,5 @@ Export-Package:
  edu.tamu.tcat.trc.entries.types.biblio.postgres.copies,
  edu.tamu.tcat.trc.entries.types.biblio.rest,
  edu.tamu.tcat.trc.entries.types.biblio.rest.v1,
- edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies,
  edu.tamu.tcat.trc.entries.types.biblio.search.solr,
  edu.tamu.tcat.trc.entries.types.biblio.search.solr.copies

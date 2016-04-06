@@ -160,13 +160,14 @@ public class SolrCopyReferenceIndexManager implements FullTextSearchService
       UpdateAction action = evt.getUpdateAction();
       try
       {
+         String entryId = evt.getAssociatedEntry();
          switch (action)
          {
-            case CREATE: onCreate(evt.getOriginal());
+            case CREATE: onCreate(evt.getOriginal(), entryId);
                break;
-            case UPDATE: onUpdate(evt.get());
+            case UPDATE: onUpdate(evt.get(), entryId);
                break;
-            case DELETE: onDelete(evt.get());
+            case DELETE: onDelete(evt.get(), entryId);
                break;
          }
       }
@@ -176,15 +177,15 @@ public class SolrCopyReferenceIndexManager implements FullTextSearchService
       }
    }
 
-   private void onCreate(CopyReference copyRef)
+   private void onCreate(CopyReference copyRef, String entryId)
    {
-      String copyId = copyRef.getCopyId();
+      String copyId = copyRef.getId();
 
       try
       {
          Collection<PageTextDocument> pages = getPageText(copyRef);
 
-         String associatedEntry = copyRef.getAssociatedEntry().toString();
+         String associatedEntry = entryId;
          String volumeText = pages.parallelStream()
                .map(PageTextDocument::getText)
                .collect(Collectors.joining(" "));
@@ -205,7 +206,7 @@ public class SolrCopyReferenceIndexManager implements FullTextSearchService
 
    private String getHtid(CopyReference copyRef)
    {
-      String copyId = copyRef.getCopyId();
+      String copyId = copyRef.getId();
       Matcher matcher = copyIdPattern.matcher(copyId);
       if (!matcher.find())
          throw new IllegalArgumentException("Id does not match current patterns: " + copyId);
@@ -214,12 +215,12 @@ public class SolrCopyReferenceIndexManager implements FullTextSearchService
       return htid;
    }
 
-   private void onUpdate(CopyReference copyRef)
+   private void onUpdate(CopyReference copyRef, String entryId)
    {
 
    }
 
-   private void onDelete(CopyReference copyRef)
+   private void onDelete(CopyReference copyRef, String entryId)
    {
 
    }
