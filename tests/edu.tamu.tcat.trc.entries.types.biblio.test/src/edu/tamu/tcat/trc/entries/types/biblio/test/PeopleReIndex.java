@@ -38,10 +38,10 @@ import org.junit.Test;
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
-import edu.tamu.tcat.sda.catalog.psql.provider.PsqlDataSourceProvider;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.postgres.PsqlPeopleRepo;
 import edu.tamu.tcat.trc.entries.types.bio.search.solr.BioDocument;
+import edu.tamu.tcat.trc.repo.postgres.PostgresDataSourceProvider;
 import edu.tamu.tcat.trc.repo.postgres.id.DbBackedObfuscatingIdFactoryProvider;
 
 public class PeopleReIndex
@@ -50,7 +50,7 @@ public class PeopleReIndex
 
    private PostgreSqlExecutor exec;
    private SimpleFileConfigurationProperties config;
-   private PsqlDataSourceProvider dsp;
+   private PostgresDataSourceProvider dsp;
    private PsqlPeopleRepo repo;
 //   private DbBackedObfuscatingIdFactoryProvider factory;
 
@@ -66,7 +66,7 @@ public class PeopleReIndex
       config = new SimpleFileConfigurationProperties();
       config.activate(params);
 
-      dsp = new PsqlDataSourceProvider();
+      dsp = new PostgresDataSourceProvider();
       dsp.bind(config);
       dsp.activate();
 

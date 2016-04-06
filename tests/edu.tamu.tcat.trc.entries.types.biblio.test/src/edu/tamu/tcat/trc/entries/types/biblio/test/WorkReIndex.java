@@ -37,13 +37,13 @@ import org.junit.Test;
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
-import edu.tamu.tcat.sda.catalog.psql.provider.PsqlDataSourceProvider;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
 import edu.tamu.tcat.trc.entries.types.biblio.postgres.WorkRepositoryImpl;
 import edu.tamu.tcat.trc.entries.types.biblio.search.solr.BiblioDocument;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
+import edu.tamu.tcat.trc.repo.postgres.PostgresDataSourceProvider;
 import edu.tamu.tcat.trc.test.MockIdFactoryProvider;
 
 public class WorkReIndex
@@ -52,7 +52,7 @@ public class WorkReIndex
 
    private PostgreSqlExecutor exec;
    private SimpleFileConfigurationProperties config;
-   private PsqlDataSourceProvider dsp;
+   private PostgresDataSourceProvider dsp;
    private WorkRepositoryImpl repo;
    private IdFactoryProvider idFactoryProvider;
 
@@ -68,7 +68,7 @@ public class WorkReIndex
       config = new SimpleFileConfigurationProperties();
       config.activate(params);
 
-      dsp = new PsqlDataSourceProvider();
+      dsp = new PostgresDataSourceProvider();
       dsp.bind(config);
       dsp.activate();
 

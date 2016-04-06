@@ -8,15 +8,15 @@ import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
-import edu.tamu.tcat.sda.catalog.psql.provider.PsqlDataSourceProvider;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
+import edu.tamu.tcat.trc.repo.postgres.PostgresDataSourceProvider;
 
 public class TestUtils
 {
 
    public static ClosableSqlExecutor initPostgreSqlExecutor(ConfigurationProperties config) throws DataSourceException
    {
-      PsqlDataSourceProvider dsp = new PsqlDataSourceProvider();
+      PostgresDataSourceProvider dsp = new PostgresDataSourceProvider();
       dsp.bind(config);
       dsp.activate();
 
