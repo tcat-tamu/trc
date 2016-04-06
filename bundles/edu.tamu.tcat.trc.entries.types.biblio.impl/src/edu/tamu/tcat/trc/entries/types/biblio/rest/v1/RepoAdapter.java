@@ -19,6 +19,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -420,6 +422,25 @@ public class RepoAdapter
 
       command.setSummary(work.summary);
 
+      Set<String> editionIds = work.editions.stream()
+            .map(edition -> edition.id)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+
+      command.syncEditions(editionIds);
+
+      work.editions.forEach(edition -> {
+         EditionMutator editionMutator = edition.id == null ? command.createEdition() : command.editEdition(edition.id);
+         RepoAdapter.save(edition, editionMutator);
+      });
+
+      Set<String> copyReferenceIds = work.copies.stream()
+            .map(copy -> copy.id)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+
+      command.syncCopyReferences(copyReferenceIds);
+
       // TODO: default copy reference... how do we want it to be exposed via REST?
    }
 
@@ -448,6 +469,25 @@ public class RepoAdapter
 
       mutator.setSummary(edition.summary);
 
+      Set<String> volumeIds = edition.volumes.stream()
+            .map(volume -> volume.id)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+
+      mutator.syncVolumes(volumeIds);
+
+      edition.volumes.forEach(volume -> {
+         VolumeMutator volumeMutator = volume.id == null ? mutator.createVolume() : mutator.editVolume(volume.id);
+         RepoAdapter.save(volume, volumeMutator);
+      });
+
+      Set<String> copyReferenceIds = edition.copies.stream()
+            .map(copy -> copy.id)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+
+      mutator.syncCopyReferences(copyReferenceIds);
+
       // TODO: default copy reference... how do we want it to be exposed via REST?
    }
 
@@ -475,6 +515,13 @@ public class RepoAdapter
       mutator.setSeries(volume.series);
 
       mutator.setSummary(volume.summary);
+
+      Set<String> copyReferenceIds = volume.copies.stream()
+            .map(copy -> copy.id)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+
+      mutator.syncCopyReferences(copyReferenceIds);
 
       // TODO: default copy reference... how do we want it to be exposed via REST?
    }
