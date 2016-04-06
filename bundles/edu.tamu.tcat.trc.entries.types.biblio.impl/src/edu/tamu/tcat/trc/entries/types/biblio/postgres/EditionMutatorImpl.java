@@ -137,7 +137,7 @@ public class EditionMutatorImpl implements EditionMutator
    }
 
    @Override
-   public void syncVolumes(Set<String> volumeIds)
+   public void retainAllVolumes(Set<String> volumeIds)
    {
       Objects.requireNonNull(volumeIds);
       // TODO: should this method check that all copyReferenceIds are valid?
@@ -185,7 +185,7 @@ public class EditionMutatorImpl implements EditionMutator
    }
 
    @Override
-   public void syncCopyReferences(Set<String> copyReferenceIds)
+   public void retainAllCopyReferences(Set<String> copyReferenceIds)
    {
       Objects.requireNonNull(copyReferenceIds);
       // TODO: should this method check that all copyReferenceIds are valid?

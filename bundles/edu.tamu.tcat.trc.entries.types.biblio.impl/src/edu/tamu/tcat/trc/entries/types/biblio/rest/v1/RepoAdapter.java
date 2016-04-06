@@ -468,7 +468,7 @@ public class RepoAdapter
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
 
-      command.syncEditions(editionIds);
+      command.retainAllEditions(editionIds);
 
       work.editions.forEach(edition -> {
          EditionMutator editionMutator = edition.id == null ? command.createEdition() : command.editEdition(edition.id);
@@ -480,7 +480,7 @@ public class RepoAdapter
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
 
-      command.syncCopyReferences(copyReferenceIds);
+      command.retainAllCopyReferences(copyReferenceIds);
 
       // TODO: default copy reference... how do we want it to be exposed via REST?
    }
@@ -515,7 +515,7 @@ public class RepoAdapter
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
 
-      mutator.syncVolumes(volumeIds);
+      mutator.retainAllVolumes(volumeIds);
 
       edition.volumes.forEach(volume -> {
          VolumeMutator volumeMutator = volume.id == null ? mutator.createVolume() : mutator.editVolume(volume.id);
@@ -527,7 +527,7 @@ public class RepoAdapter
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
 
-      mutator.syncCopyReferences(copyReferenceIds);
+      mutator.retainAllCopyReferences(copyReferenceIds);
 
       // TODO: default copy reference... how do we want it to be exposed via REST?
    }
@@ -562,7 +562,7 @@ public class RepoAdapter
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
 
-      mutator.syncCopyReferences(copyReferenceIds);
+      mutator.retainAllCopyReferences(copyReferenceIds);
 
       // TODO: default copy reference... how do we want it to be exposed via REST?
    }

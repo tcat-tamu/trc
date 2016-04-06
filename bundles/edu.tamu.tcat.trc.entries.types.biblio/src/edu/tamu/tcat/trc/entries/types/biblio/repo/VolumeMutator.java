@@ -115,5 +115,5 @@ public interface VolumeMutator
     *
     * @param copyReferenceIds Copy reference IDs to keep
     */
-   void syncCopyReferences(Set<String> copyReferenceIds);
+   void retainAllCopyReferences(Set<String> copyReferenceIds);
 }

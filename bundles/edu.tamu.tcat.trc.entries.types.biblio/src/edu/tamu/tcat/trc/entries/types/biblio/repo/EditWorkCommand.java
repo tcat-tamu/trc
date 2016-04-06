@@ -102,7 +102,7 @@ public interface EditWorkCommand extends RecordEditCommand
     *
     * @param editionIds Edition IDs to keep
     */
-   void syncEditions(Set<String> editionIds);
+   void retainAllEditions(Set<String> editionIds);
 
    /**
     * Sets the default copy reference by ID
@@ -138,5 +138,5 @@ public interface EditWorkCommand extends RecordEditCommand
     *
     * @param copyReferenceIds Copy reference IDs to keep
     */
-   void syncCopyReferences(Set<String> copyReferenceIds);
+   void retainAllCopyReferences(Set<String> copyReferenceIds);
 }

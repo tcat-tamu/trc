@@ -104,7 +104,7 @@ public interface EditionMutator
     *
     * @param volumeIds Volume IDs to keep
     */
-   void syncVolumes(Set<String> volumeIds);
+   void retainAllVolumes(Set<String> volumeIds);
 
    /**
     * Sets the default copy reference by ID
@@ -140,5 +140,5 @@ public interface EditionMutator
     *
     * @param copyReferenceIds Copy reference IDs to keep
     */
-   void syncCopyReferences(Set<String> copyReferenceIds);
+   void retainAllCopyReferences(Set<String> copyReferenceIds);
 }

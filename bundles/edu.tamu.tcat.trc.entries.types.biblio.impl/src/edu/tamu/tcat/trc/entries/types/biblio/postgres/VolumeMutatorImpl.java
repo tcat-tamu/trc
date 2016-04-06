@@ -133,7 +133,7 @@ public class VolumeMutatorImpl implements VolumeMutator
    }
 
    @Override
-   public void syncCopyReferences(Set<String> copyReferenceIds)
+   public void retainAllCopyReferences(Set<String> copyReferenceIds)
    {
       Objects.requireNonNull(copyReferenceIds);
       // TODO: should this method check that all copyReferenceIds are valid?

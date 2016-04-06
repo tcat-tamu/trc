@@ -148,7 +148,7 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
       }
 
       @Override
-      public void syncEditions(Set<String> editionIds)
+      public void retainAllEditions(Set<String> editionIds)
       {
          Objects.requireNonNull(editionIds);
          // TODO: should this method check that all copyReferenceIds are valid?
@@ -225,7 +225,7 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
       }
 
       @Override
-      public void syncCopyReferences(Set<String> copyReferenceIds)
+      public void retainAllCopyReferences(Set<String> copyReferenceIds)
       {
          Objects.requireNonNull(copyReferenceIds);
          if (changeSet.original == null || changeSet.original.copyReferences == null)
