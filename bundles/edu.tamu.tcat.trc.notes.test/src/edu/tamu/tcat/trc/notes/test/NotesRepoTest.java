@@ -33,12 +33,12 @@ import org.junit.Test;
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
+import edu.tamu.tcat.sda.catalog.psql.provider.PsqlDataSourceProvider;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.dto.NoteDTO;
 import edu.tamu.tcat.trc.notes.postgres.PsqlNotesRepo;
 import edu.tamu.tcat.trc.notes.repo.EditNoteCommand;
-import edu.tamu.tcat.trc.repo.postgres.PsqlDataSourceProvider;
 
 public class NotesRepoTest
 {

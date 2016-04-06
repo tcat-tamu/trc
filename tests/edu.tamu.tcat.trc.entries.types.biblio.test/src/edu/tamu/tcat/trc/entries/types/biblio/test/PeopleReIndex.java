@@ -42,7 +42,7 @@ import edu.tamu.tcat.sda.catalog.psql.provider.PsqlDataSourceProvider;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.postgres.PsqlPeopleRepo;
 import edu.tamu.tcat.trc.entries.types.bio.search.solr.BioDocument;
-import edu.tamu.tcat.trc.repo.postgres.id.DbBackedObfuscatingIdFactory;
+import edu.tamu.tcat.trc.repo.postgres.id.DbBackedObfuscatingIdFactoryProvider;
 
 public class PeopleReIndex
 {
@@ -52,7 +52,7 @@ public class PeopleReIndex
    private SimpleFileConfigurationProperties config;
    private PsqlDataSourceProvider dsp;
    private PsqlPeopleRepo repo;
-   private DbBackedObfuscatingIdFactory factory;
+   private DbBackedObfuscatingIdFactoryProvider factory;
 
    private SolrServer solr;
    public static final String SOLR_API_ENDPOINT = "solr.api.endpoint";
@@ -73,7 +73,7 @@ public class PeopleReIndex
       exec = new PostgreSqlExecutor();
       exec.init(dsp);
 
-      factory = new DbBackedObfuscatingIdFactory();
+      factory = new DbBackedObfuscatingIdFactoryProvider();
       factory.setDatabaseExecutor(exec);
       factory.activate();
 

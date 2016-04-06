@@ -23,7 +23,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
 import edu.tamu.tcat.db.core.DataSourceException;
-import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
@@ -36,27 +35,32 @@ import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
 import edu.tamu.tcat.trc.entries.types.bio.postgres.PsqlPeopleRepo;
 import edu.tamu.tcat.trc.repo.IdFactory;
+import edu.tamu.tcat.trc.repo.IdFactoryProvider;
+import edu.tamu.tcat.trc.test.ClosableSqlExecutor;
 import edu.tamu.tcat.trc.test.TestUtils;
 
 public class TestPersistence
 {
-   private SqlExecutor exec;
+   private ClosableSqlExecutor exec;
    private ConfigurationProperties config;
 
    private PsqlPeopleRepo repo;
+   private IdFactoryProvider idFactoryProvider;
    private IdFactory idFactory;
    private boolean canWrite = false;
 
    @Before
    public void setupTest() throws DataSourceException
    {
+      idFactoryProvider = TestUtils.makeIdFactoryProvider();
+      idFactory = idFactoryProvider.getIdFactory(PsqlPeopleRepo.ID_CONTEXT);
+
       config = TestUtils.loadConfigFile();
       exec = TestUtils.initPostgreSqlExecutor(config);
 
       this.repo = new PsqlPeopleRepo();
       repo.setDatabaseExecutor(exec);
-      idFactory = TestUtils.makeIdFactory();
-      repo.setIdFactory(idFactory);
+      repo.setIdFactory(idFactoryProvider);
       repo.activate();
    }
 
@@ -119,7 +123,7 @@ public class TestPersistence
 
       // tests the low-level data creation API.
       PersonDTO dto = new PersonDTO();
-      dto.id = idFactory.getNextId(PsqlPeopleRepo.ID_CONTEXT);
+      dto.id = idFactory.get();
       dto.displayName = new PersonNameDTO("Test", null, "User");
       dto.birth = makeHistoricalEvent(
             "Birth date of " + dto.displayName,

@@ -78,8 +78,7 @@ public class TestJsonDataStore
    @After
    public void tearDown() throws Exception
    {
-
-      sqlExec.close();
+      sqlExec = null;
    }
 
    @Test

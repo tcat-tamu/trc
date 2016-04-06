@@ -2,22 +2,19 @@ package edu.tamu.tcat.trc.test;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.tamu.tcat.db.core.DataSourceException;
-import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
-import edu.tamu.tcat.trc.repo.IdFactory;
-import edu.tamu.tcat.trc.repo.postgres.PsqlDataSourceProvider;
+import edu.tamu.tcat.sda.catalog.psql.provider.PsqlDataSourceProvider;
+import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 
 public class TestUtils
 {
 
-   public static SqlExecutor initPostgreSqlExecutor(ConfigurationProperties config) throws DataSourceException
+   public static ClosableSqlExecutor initPostgreSqlExecutor(ConfigurationProperties config) throws DataSourceException
    {
       PsqlDataSourceProvider dsp = new PsqlDataSourceProvider();
       dsp.bind(config);
@@ -27,7 +24,7 @@ public class TestUtils
       exec.init(dsp);
 
       // decorate the executor to ensure that the data source provider is properly disposed
-      return new SqlExecutor() {
+      return new ClosableSqlExecutor() {
          @Override
          public void close() throws Exception
          {
@@ -53,27 +50,8 @@ public class TestUtils
       return config;
    }
 
-   public static IdFactory makeIdFactory()
+   public static IdFactoryProvider makeIdFactoryProvider()
    {
-      return new IdFactoryImpl();
-   }
-
-   /**
-    * Simple, thread-safe, in memory id factory.
-    */
-   private static final class IdFactoryImpl implements IdFactory
-   {
-      ConcurrentHashMap<String, AtomicInteger> counters = new ConcurrentHashMap<>();
-
-      @Override
-      public String getNextId(String context)
-      {
-         if (!counters.containsKey(context))
-            counters.putIfAbsent(context, new AtomicInteger());
-
-         int id = counters.get(context).incrementAndGet();
-         return Integer.toString(id);
-      }
-
+      return new MockIdFactoryProvider();
    }
 }

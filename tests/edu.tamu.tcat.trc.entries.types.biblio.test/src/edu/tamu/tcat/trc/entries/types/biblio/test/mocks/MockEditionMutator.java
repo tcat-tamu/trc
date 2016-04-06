@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,25 +17,27 @@ package edu.tamu.tcat.trc.entries.types.biblio.test.mocks;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Supplier;
 
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.VolumeMutator;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceMutator;
+import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 
 public class MockEditionMutator implements EditionMutator
 {
-   private EditionDTO dto;
-   private Supplier<String> volumeIds;
+   private final EditionDTO dto;
+   private final IdFactoryProvider idFactoryProvider;
+   private final Object volumeIdFactory;
 
-   public MockEditionMutator(EditionDTO edition, Supplier<String> volumeIds)
+   public MockEditionMutator(EditionDTO edition, IdFactoryProvider idFactoryProvider)
    {
       this.dto = edition;
-      this.volumeIds = volumeIds;
+      this.idFactoryProvider = idFactoryProvider;
+      this.volumeIdFactory = idFactoryProvider.getIdFactory("volumes");
    }
 
    @Override
@@ -43,13 +45,6 @@ public class MockEditionMutator implements EditionMutator
    {
       // TODO Auto-generated method stub
       return null;
-   }
-
-   @Override
-   public void setAll(EditionDTO edition)
-   {
-      // TODO Auto-generated method stub
-
    }
 
    @Override
@@ -109,10 +104,45 @@ public class MockEditionMutator implements EditionMutator
    }
 
    @Override
-   public VolumeMutator editVolume(String id) throws NoSuchCatalogRecordException
+   public VolumeMutator editVolume(String id)
    {
       // TODO Auto-generated method stub
       return null;
+   }
+
+   @Override
+   public void removeVolume(String volumeId)
+   {
+      // TODO Auto-generated method stub
+
+   }
+
+   @Override
+   public void setDefaultCopyReference(String defaultCopyReferenceId)
+   {
+      // TODO Auto-generated method stub
+
+   }
+
+   @Override
+   public CopyReferenceMutator editCopyReference(String id)
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public CopyReferenceMutator createCopyReference()
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public void removeCopyReference(String id)
+   {
+      // TODO Auto-generated method stub
+
    }
 
 }

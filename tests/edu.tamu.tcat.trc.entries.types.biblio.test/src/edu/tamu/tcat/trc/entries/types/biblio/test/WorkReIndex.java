@@ -41,8 +41,10 @@ import edu.tamu.tcat.sda.catalog.psql.provider.PsqlDataSourceProvider;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
-import edu.tamu.tcat.trc.entries.types.biblio.postgres.PsqlWorkRepo;
+import edu.tamu.tcat.trc.entries.types.biblio.postgres.WorkRepositoryImpl;
 import edu.tamu.tcat.trc.entries.types.biblio.search.solr.BiblioDocument;
+import edu.tamu.tcat.trc.repo.IdFactoryProvider;
+import edu.tamu.tcat.trc.test.MockIdFactoryProvider;
 
 public class WorkReIndex
 {
@@ -51,7 +53,8 @@ public class WorkReIndex
    private PostgreSqlExecutor exec;
    private SimpleFileConfigurationProperties config;
    private PsqlDataSourceProvider dsp;
-   private PsqlWorkRepo repo;
+   private WorkRepositoryImpl repo;
+   private IdFactoryProvider idFactoryProvider;
 
    private SolrServer solr;
    public static final String SOLR_API_ENDPOINT = "solr.api.endpoint";
@@ -72,8 +75,11 @@ public class WorkReIndex
       exec = new PostgreSqlExecutor();
       exec.init(dsp);
 
-      repo = new PsqlWorkRepo();
-      repo.setDatabaseExecutor(exec);
+      idFactoryProvider = new MockIdFactoryProvider();
+
+      repo = new WorkRepositoryImpl();
+      repo.setSqlExecutor(exec);
+      repo.setIdFactory(idFactoryProvider);
       repo.activate();
 
       // construct Solr core
@@ -111,7 +117,7 @@ public class WorkReIndex
          logger.log(Level.SEVERE, "Failed to remove data from the works core.");
       }
 
-      Iterable<Work> works = repo.listWorks();
+      Iterable<Work> works = () -> repo.getAllWorks();
 
       Collection<SolrInputDocument> solrDocs = new ArrayList<>();
 

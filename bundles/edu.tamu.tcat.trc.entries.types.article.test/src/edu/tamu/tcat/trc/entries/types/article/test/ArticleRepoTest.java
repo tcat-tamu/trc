@@ -31,22 +31,21 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.tamu.tcat.db.core.DataSourceException;
-import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
-import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleDTO;
 import edu.tamu.tcat.trc.entries.types.article.postgres.PsqlArticleRepo;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
+import edu.tamu.tcat.trc.test.ClosableSqlExecutor;
 import edu.tamu.tcat.trc.test.TestUtils;
 
 public class ArticleRepoTest
 {
 
-   private SqlExecutor exec;
+   private ClosableSqlExecutor exec;
    private ConfigurationProperties config;
    private PsqlArticleRepo repo;
 
@@ -169,18 +168,18 @@ public class ArticleRepoTest
    {
       ArticleDTO article = new ArticleDTO();
       List<ArticleAuthorDTO> authors = new ArrayList<ArticleAuthorDTO>();
-      
+
       ArticleAuthorDTO author1 = new ArticleAuthorDTO();
       author1.id = "n_audenaert";
       author1.name = "Neal Audenaert";
       authors.add(author1);
-      
+
       ArticleAuthorDTO author2 = new ArticleAuthorDTO();
       author1.id = "j_mitchell";
       author1.name = "Jesse Mitchell";
       authors.add(author2);
-      
-      
+
+
       article.title = "The New and Everlasting Title";
       article.associatedEntity = URI.create("articles/1");
       article.authors = authors;

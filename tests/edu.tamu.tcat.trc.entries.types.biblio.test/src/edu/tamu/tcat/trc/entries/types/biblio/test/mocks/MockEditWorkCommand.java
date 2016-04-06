@@ -25,40 +25,30 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceMutator;
 import edu.tamu.tcat.trc.repo.IdFactory;
+import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 
 public class MockEditWorkCommand implements EditWorkCommand
 {
 
    private WorkDTO dto;
-   private IdFactory idFactory;
+   private IdFactoryProvider idFactoryProvider;
+   private IdFactory editionIdFactory;
    private Consumer<WorkDTO> saveHook;
 
-   public MockEditWorkCommand(WorkDTO dto, IdFactory idFactory, Consumer<WorkDTO> saveHook)
+   public MockEditWorkCommand(WorkDTO dto, IdFactoryProvider idFactoryProvider, Consumer<WorkDTO> saveHook)
    {
       this.dto = dto;
-      this.idFactory = idFactory;
+      this.idFactoryProvider = idFactoryProvider;
+      this.editionIdFactory = idFactoryProvider.getIdFactory("editions");
       this.saveHook = saveHook;
-   }
-
-   @Override
-   public void setAll(WorkDTO work)
-   {
-      // TODO Auto-generated method stub
-
-   }
-
-   @Override
-   public void setType(String type)
-   {
-      dto.type = type;
    }
 
    @Override
@@ -95,31 +85,31 @@ public class MockEditWorkCommand implements EditWorkCommand
    public EditionMutator createEdition()
    {
       EditionDTO edition = new EditionDTO();
-      edition.id = idFactory.getNextId("editions");
+      edition.id = editionIdFactory.get();
       dto.editions.add(edition);
 
       // create a supplier to generate volume IDs
-      return new MockEditionMutator(edition, () -> idFactory.getNextId("volumes"));
+      return new MockEditionMutator(edition, idFactoryProvider.extend(edition.id));
    }
 
    @Override
-   public EditionMutator editEdition(String id) throws NoSuchCatalogRecordException
+   public EditionMutator editEdition(String id)
    {
       for (EditionDTO edition : dto.editions) {
          if (edition.id.equals(id)) {
             // create a supplier to generate volume IDs
-            return new MockEditionMutator(edition, () -> idFactory.getNextId("volumes"));
+            return new MockEditionMutator(edition, idFactoryProvider.extend(id));
          }
       }
 
-      throw new NoSuchCatalogRecordException("Unable to find edition with id [" + id + "].");
+      throw new IllegalArgumentException("Unable to find edition with id [" + id + "].");
    }
 
    @Override
-   public void removeEdition(String editionId) throws NoSuchCatalogRecordException
+   public void removeEdition(String editionId)
    {
       if (dto.editions.isEmpty())
-         throw new NoSuchCatalogRecordException("This work does not contain any editons.");
+         throw new IllegalArgumentException("This work does not contain any editons.");
 
       for (EditionDTO edition : dto.editions)
       {
@@ -130,13 +120,7 @@ public class MockEditWorkCommand implements EditWorkCommand
          }
       }
 
-      throw new NoSuchCatalogRecordException("Could not find the edition [" + editionId + "]. The edition could not be removed.");
-   }
-
-   @Override
-   public void removeVolume(String volumeId) throws NoSuchCatalogRecordException
-   {
-      // TODO Auto-generated method stub
+      throw new IllegalArgumentException("Could not find the edition [" + editionId + "]. The edition could not be removed.");
    }
 
    @Override
@@ -175,5 +159,37 @@ public class MockEditWorkCommand implements EditWorkCommand
             return dto.id;
          }
       };
+   }
+
+   @Override
+   public String getId()
+   {
+      return dto.id;
+   }
+
+   @Override
+   public void setDefaultCopyReference(String defaultCopyReferenceId)
+   {
+      // TODO Auto-generated method stub
+   }
+
+   @Override
+   public CopyReferenceMutator editCopyReference(String id)
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public CopyReferenceMutator createCopyReference()
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public void removeCopyReference(String id)
+   {
+      // TODO Auto-generated method stub
    }
 }

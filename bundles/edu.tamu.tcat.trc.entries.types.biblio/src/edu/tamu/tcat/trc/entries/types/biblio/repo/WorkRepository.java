@@ -19,6 +19,15 @@ public interface WorkRepository
    EditWorkCommand createWork();
 
    /**
+    * Creates a work with the given ID. The burden is placed on the implementing code to prevent the
+    * creation of works with duplicate IDs.
+    *
+    * @param id
+    * @return Edit command ato modify and persist a new work document.
+    */
+   EditWorkCommand createWork(String workId);
+
+   /**
     * Retrieve an existing work document.
     *
     * @param workId

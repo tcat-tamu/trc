@@ -38,8 +38,6 @@ import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent.UpdateAction;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyChangeEvent;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceRepository;
 import edu.tamu.tcat.trc.entries.types.biblio.search.copies.FullTextSearchService;
 import edu.tamu.tcat.trc.entries.types.biblio.search.copies.PageSearchCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.search.copies.VolumeSearchCommand;
@@ -72,10 +70,8 @@ public class SolrCopyReferenceIndexManager implements FullTextSearchService
    private SolrServer solrPages;
 
    private ConfigurationProperties config;
-   private CopyReferenceRepository repo;
 
    private DefaultExtractedFeaturesProvider provider;
-   private AutoCloseable registration;
 
    /**
     * Supply the configure properties to be used
@@ -87,15 +83,8 @@ public class SolrCopyReferenceIndexManager implements FullTextSearchService
       this.config = config;
    }
 
-   public void setCopyRefRepo(CopyReferenceRepository repo)
-   {
-      this.repo = repo;
-   }
-
    public void activate()
    {
-      registration = repo.register(this::onUpdate);
-
       Path exFeatPath = config.getPropertyValue(SOLR_API_ENDPOINT, Path.class);
       provider = new DefaultExtractedFeaturesProvider(exFeatPath);
 
@@ -111,8 +100,6 @@ public class SolrCopyReferenceIndexManager implements FullTextSearchService
 
    public void deactivate()
    {
-      unregisterRepoListener();
-
       releaseSolrConnection(solrVols);
       releaseSolrConnection(solrPages);
 
@@ -148,24 +135,6 @@ public class SolrCopyReferenceIndexManager implements FullTextSearchService
       finally
       {
          provider = null;
-      }
-   }
-
-   private void unregisterRepoListener()
-   {
-      if (registration != null)
-      {
-         try
-         {
-            registration.close();
-         }
-         catch (Exception e)
-         {
-            logger.log(Level.WARNING, "Failed to unregister update listener on people repository.", e);
-         }
-         finally {
-            registration = null;
-         }
       }
    }
 

@@ -158,6 +158,12 @@ public class WorkRepositoryImpl implements WorkRepository
    public EditWorkCommand createWork()
    {
       String id = idFactory.get();
+      return createWork(id);
+   }
+
+   @Override
+   public EditWorkCommand createWork(String id)
+   {
       return repoBackend.create(id);
    }
 
