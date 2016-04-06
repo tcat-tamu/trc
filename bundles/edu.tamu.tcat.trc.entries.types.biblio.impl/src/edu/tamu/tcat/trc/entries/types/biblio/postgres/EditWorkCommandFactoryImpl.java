@@ -3,6 +3,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.postgres;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.Supplier;
 
@@ -147,6 +148,14 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
       }
 
       @Override
+      public void syncEditions(Set<String> editionIds)
+      {
+         Objects.requireNonNull(editionIds);
+         // TODO: should this method check that all copyReferenceIds are valid?
+         changeSet.editions.removeIf(edition -> !editionIds.contains(edition.id));
+      }
+
+      @Override
       public void setDefaultCopyReference(String defaultCopyReferenceId)
       {
          boolean found = false;
@@ -216,6 +225,25 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
       }
 
       @Override
+      public void syncCopyReferences(Set<String> copyReferenceIds)
+      {
+         Objects.requireNonNull(copyReferenceIds);
+         if (changeSet.original == null || changeSet.original.copyReferences == null)
+         {
+            throw new IllegalArgumentException("Work does not contain any copy references");
+         }
+
+         // TODO: should this method check that all copyReferenceIds are valid?
+
+         changeSet.original.copyReferences.forEach(cr -> {
+            if (!copyReferenceIds.contains(cr.id))
+            {
+               changeSet.removedCopyReferences.add(cr);
+            }
+         });
+      }
+
+      @Override
       public Future<String> execute()
       {
          WorkDTO data = constructUpdatedData(changeSet.original);
@@ -271,6 +299,5 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
          Future<String> future = delegate.submit(data, changeSet);
          return JdkFutureAdapters.listenInPoolThread(future);
       }
-
    }
 }

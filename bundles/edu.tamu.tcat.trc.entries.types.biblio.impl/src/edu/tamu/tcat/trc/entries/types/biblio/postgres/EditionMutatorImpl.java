@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
@@ -136,6 +137,14 @@ public class EditionMutatorImpl implements EditionMutator
    }
 
    @Override
+   public void syncVolumes(Set<String> volumeIds)
+   {
+      Objects.requireNonNull(volumeIds);
+      // TODO: should this method check that all copyReferenceIds are valid?
+      edition.volumes.removeIf(volume -> !volumeIds.contains(volume.id));
+   }
+
+   @Override
    public void setDefaultCopyReference(String defaultCopyReferenceId)
    {
       boolean found = edition.copyReferences.stream()
@@ -173,5 +182,13 @@ public class EditionMutatorImpl implements EditionMutator
    public void removeCopyReference(String id)
    {
       edition.copyReferences.removeIf(cr -> Objects.equals(cr.id, id));
+   }
+
+   @Override
+   public void syncCopyReferences(Set<String> copyReferenceIds)
+   {
+      Objects.requireNonNull(copyReferenceIds);
+      // TODO: should this method check that all copyReferenceIds are valid?
+      edition.copyReferences.removeIf(cr -> !copyReferenceIds.contains(cr.id));
    }
 }

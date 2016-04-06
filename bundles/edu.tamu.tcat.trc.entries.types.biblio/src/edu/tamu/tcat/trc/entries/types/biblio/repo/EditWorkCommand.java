@@ -17,6 +17,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.repo;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
@@ -97,6 +98,13 @@ public interface EditWorkCommand extends RecordEditCommand
    void removeEdition(String editionId);
 
    /**
+    * Removes editions whose ID does not appear in the provided set of edition IDs
+    *
+    * @param editionIds Edition IDs to keep
+    */
+   void syncEditions(Set<String> editionIds);
+
+   /**
     * Sets the default copy reference by ID
     *
     * @throws IllegalArgumentException if a copy reference with the given ID does not exist.
@@ -124,4 +132,11 @@ public interface EditWorkCommand extends RecordEditCommand
     * @param id
     */
    void removeCopyReference(String id);
+
+   /**
+    * Removes copy references whose ID does not appear in the provided set of copy reference IDs
+    *
+    * @param copyReferenceIds Copy reference IDs to keep
+    */
+   void syncCopyReferences(Set<String> copyReferenceIds);
 }

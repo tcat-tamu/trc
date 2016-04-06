@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDTO;
@@ -129,5 +130,13 @@ public class VolumeMutatorImpl implements VolumeMutator
    public void removeCopyReference(String id)
    {
       volume.copyReferences.removeIf(cr -> Objects.equals(cr.id, id));
+   }
+
+   @Override
+   public void syncCopyReferences(Set<String> copyReferenceIds)
+   {
+      Objects.requireNonNull(copyReferenceIds);
+      // TODO: should this method check that all copyReferenceIds are valid?
+      volume.copyReferences.removeIf(cr -> !copyReferenceIds.contains(cr.id));
    }
 }

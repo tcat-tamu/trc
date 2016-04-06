@@ -17,6 +17,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.repo;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
@@ -99,6 +100,13 @@ public interface EditionMutator
    void removeVolume(String volumeId);
 
    /**
+    * Removes volumes whose ID does not appear in the provided set of volume IDs
+    *
+    * @param volumeIds Volume IDs to keep
+    */
+   void syncVolumes(Set<String> volumeIds);
+
+   /**
     * Sets the default copy reference by ID
     *
     * @throws IllegalArgumentException if a copy reference with the given ID does not exist.
@@ -126,4 +134,11 @@ public interface EditionMutator
     * @param id
     */
    void removeCopyReference(String id);
+
+   /**
+    * Removes copy references whose ID does not appear in the provided set of copy reference IDs
+    *
+    * @param copyReferenceIds Copy reference IDs to keep
+    */
+   void syncCopyReferences(Set<String> copyReferenceIds);
 }

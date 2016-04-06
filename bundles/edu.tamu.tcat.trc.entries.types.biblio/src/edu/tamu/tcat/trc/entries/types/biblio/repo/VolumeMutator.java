@@ -17,6 +17,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.repo;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
@@ -108,4 +109,11 @@ public interface VolumeMutator
     * @param id
     */
    void removeCopyReference(String id);
+
+   /**
+    * Removes copy references whose ID does not appear in the provided set of copy reference IDs
+    *
+    * @param copyReferenceIds Copy reference IDs to keep
+    */
+   void syncCopyReferences(Set<String> copyReferenceIds);
 }
