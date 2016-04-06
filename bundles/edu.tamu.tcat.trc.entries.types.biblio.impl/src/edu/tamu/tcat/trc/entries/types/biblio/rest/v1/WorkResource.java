@@ -29,7 +29,6 @@ import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityCollectionPersistenceAdapter;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityPersistenceAdapter;
-import edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies.CopyReferenceCollectionResource;
 
 public class WorkResource
 {

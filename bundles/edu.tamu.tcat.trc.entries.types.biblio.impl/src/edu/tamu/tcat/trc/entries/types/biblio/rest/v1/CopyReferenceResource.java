@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies;
+package edu.tamu.tcat.trc.entries.types.biblio.rest.v1;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;

@@ -18,10 +18,9 @@ package edu.tamu.tcat.trc.entries.types.biblio.rest.v1;
 import java.time.Year;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies.RestApiV1.CopyReference;
 
 /**
  * An encapsulation of the data vehicle types used to process JSON requests and responses
@@ -176,5 +175,20 @@ public class RestApiV1
       {
          return start+".."+end;
       }
+   }
+
+   public static class CopyReferenceId
+   {
+      public String id;
+   }
+
+   public static class CopyReference
+   {
+      public String id;
+      public String type;
+      public Map<String, String> properties;
+      public String title;
+      public String summary;
+      public String rights;
    }
 }

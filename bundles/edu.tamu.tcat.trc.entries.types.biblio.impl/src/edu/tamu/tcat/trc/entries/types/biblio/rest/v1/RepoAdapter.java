@@ -32,15 +32,18 @@ import edu.tamu.tcat.trc.entries.types.biblio.PublicationInfo;
 import edu.tamu.tcat.trc.entries.types.biblio.Title;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
+import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.CopyReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.VolumeMutator;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceMutator;
 
 /**
  * An encapsulation of adapter methods to convert between the repository API and
@@ -82,7 +85,7 @@ public class RepoAdapter
       // TODO default digital copy
 
       dto.copies = work.getCopyReferences().stream()
-            .map(edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies.RepoAdapter::toDTO)
+            .map(edu.tamu.tcat.trc.entries.types.biblio.rest.v1.RepoAdapter::toDTO)
             .collect(Collectors.toList());
 
       return dto;
@@ -134,7 +137,7 @@ public class RepoAdapter
       // TODO default copy reference
 
       dto.copies = ed.getCopyReferences().stream()
-            .map(edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies.RepoAdapter::toDTO)
+            .map(edu.tamu.tcat.trc.entries.types.biblio.rest.v1.RepoAdapter::toDTO)
             .collect(Collectors.toList());
 
       return dto;
@@ -199,7 +202,7 @@ public class RepoAdapter
       // TODO default copy reference
 
       dto.copies = vol.getCopyReferences().stream()
-            .map(edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies.RepoAdapter::toDTO)
+            .map(edu.tamu.tcat.trc.entries.types.biblio.rest.v1.RepoAdapter::toDTO)
             .collect(Collectors.toList());
 
       return dto;
@@ -233,6 +236,25 @@ public class RepoAdapter
       dto.lastName = ((lName != null) && !lName.trim().isEmpty()) ? lName : dto.lastName;
 
       dto.role = author.getRole();
+      return dto;
+   }
+
+   public static RestApiV1.CopyReference toDTO(CopyReference copyReference)
+   {
+      if (copyReference == null)
+      {
+         return null;
+      }
+
+      RestApiV1.CopyReference dto = new RestApiV1.CopyReference();
+
+      dto.id = copyReference.getId();
+      dto.type = copyReference.getType();
+      dto.properties = copyReference.getProperties();
+      dto.title = copyReference.getTitle();
+      dto.summary = copyReference.getSummary();
+      dto.rights = copyReference.getRights();
+
       return dto;
    }
 
@@ -401,6 +423,25 @@ public class RepoAdapter
       return dto;
    }
 
+   public static CopyReferenceDTO toRepo(RestApiV1.CopyReference restDto)
+   {
+      if (restDto == null)
+      {
+         return null;
+      }
+   
+      CopyReferenceDTO repoDto = new CopyReferenceDTO();
+   
+      repoDto.id = restDto.id;
+      repoDto.type = restDto.type;
+      repoDto.properties = restDto.properties;
+      repoDto.title = restDto.title;
+      repoDto.summary = restDto.summary;
+      repoDto.rights = restDto.rights;
+   
+      return repoDto;
+   }
+
    public static void save(RestApiV1.Work work, EditWorkCommand command)
    {
       List<AuthorReferenceDTO> authors = work.authors.stream()
@@ -524,5 +565,15 @@ public class RepoAdapter
       mutator.syncCopyReferences(copyReferenceIds);
 
       // TODO: default copy reference... how do we want it to be exposed via REST?
+   }
+
+   // CODE INSERT HERE
+   public static void save(RestApiV1.CopyReference dto, CopyReferenceMutator mutator)
+   {
+      mutator.setType(dto.type);
+      mutator.setProperties(dto.properties);
+      mutator.setTitle(dto.title);
+      mutator.setSummary(dto.summary);
+      mutator.setRights(dto.rights);
    }
 }

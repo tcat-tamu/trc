@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies;
+package edu.tamu.tcat.trc.entries.types.biblio.rest.v1;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +29,6 @@ import javax.ws.rs.core.MediaType;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityCollectionPersistenceAdapter;
-import edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies.RestApiV1.CopyReferenceId;
 
 @Path("/copies")
 public class CopyReferenceCollectionResource
@@ -68,7 +67,7 @@ public class CopyReferenceCollectionResource
    @Produces(MediaType.APPLICATION_JSON)
    public RestApiV1.CopyReferenceId createCopyReference(RestApiV1.CopyReference dto)
    {
-      CopyReferenceId copyReferenceId = new RestApiV1.CopyReferenceId();
+      RestApiV1.CopyReferenceId copyReferenceId = new RestApiV1.CopyReferenceId();
       copyReferenceId.id = repoHelper.create(mutator -> RepoAdapter.save(dto, mutator));
       return copyReferenceId;
    }
