@@ -1,5 +1,6 @@
 package edu.tamu.tcat.trc.entries.types.biblio.postgres;
 
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -125,6 +126,19 @@ public class WorkRepositoryImpl implements WorkRepository
       schemaBuilder.setId(SCHEMA_ID);
       schemaBuilder.setDataField(SCHEMA_DATA_FIELD);
       return schemaBuilder.build();
+   }
+
+   @Override
+   public Iterator<Work> getAllWorks()
+   {
+      try
+      {
+         return repoBackend.listAll();
+      }
+      catch (RepositoryException e)
+      {
+         throw new IllegalStateException("Unable to list all works", e);
+      }
    }
 
    @Override

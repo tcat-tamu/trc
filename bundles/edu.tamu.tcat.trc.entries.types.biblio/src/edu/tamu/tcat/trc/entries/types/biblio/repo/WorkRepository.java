@@ -1,11 +1,18 @@
 package edu.tamu.tcat.trc.entries.types.biblio.repo;
 
+import java.util.Iterator;
+
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
 
 public interface WorkRepository
 {
+   /**
+    * @return An iterator over all works in the repository.
+    */
+   Iterator<Work> getAllWorks();
+
    /**
     * @return Edit command to modify and persist a new work document.
     */
