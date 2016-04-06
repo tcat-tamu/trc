@@ -17,7 +17,6 @@ package edu.tamu.tcat.trc.entries.types.biblio.rest.v1;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -34,12 +33,8 @@ import edu.tamu.tcat.trc.entries.types.biblio.Title;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDTO;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.CopyReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.VolumeMutator;
@@ -272,118 +267,6 @@ public class RepoAdapter
       return dto;
    }
 
-   public static WorkDTO toRepo(RestApiV1.Work orig)
-   {
-      if (orig == null)
-         return null;
-
-      WorkDTO dto = new WorkDTO();
-      dto.id = orig.id;
-
-      if (orig.authors != null)
-      {
-         dto.authors = new ArrayList<>();
-         for (RestApiV1.AuthorRef auth : orig.authors)
-            dto.authors.add(toRepo(auth));
-      }
-      if (orig.titles != null)
-      {
-         dto.titles = new ArrayList<>();
-         for (RestApiV1.Title title : orig.titles)
-            dto.titles.add(toRepo(title));
-      }
-      if (orig.otherAuthors != null)
-      {
-         dto.otherAuthors = new ArrayList<>();
-         for (RestApiV1.AuthorRef auth : orig.otherAuthors)
-            dto.otherAuthors.add(toRepo(auth));
-      }
-      dto.series = orig.series;
-      dto.summary = orig.summary;
-      if (orig.editions != null)
-      {
-         dto.editions = new ArrayList<>();
-         for (RestApiV1.Edition ed : orig.editions)
-            dto.editions.add(toRepo(ed));
-      }
-
-      return dto;
-   }
-
-   public static EditionDTO toRepo(RestApiV1.Edition orig)
-   {
-      if (orig == null)
-         return null;
-
-      EditionDTO dto = new EditionDTO();
-      dto.id = orig.id;
-      dto.editionName = orig.editionName;
-      dto.publicationInfo = toRepo(orig.publicationInfo);
-
-      if (orig.volumes != null)
-      {
-         dto.volumes = new ArrayList<>();
-         for (RestApiV1.Volume vol : orig.volumes)
-            dto.volumes.add(toRepo(vol));
-      }
-      if (orig.authors != null)
-      {
-         dto.authors = new ArrayList<>();
-         for (RestApiV1.AuthorRef auth : orig.authors)
-            dto.authors.add(toRepo(auth));
-      }
-      if (orig.titles != null)
-      {
-         dto.titles = new ArrayList<>();
-         for (RestApiV1.Title title : orig.titles)
-            dto.titles.add(toRepo(title));
-      }
-      if (orig.otherAuthors != null)
-      {
-         dto.otherAuthors = new ArrayList<>();
-         for (RestApiV1.AuthorRef auth : orig.otherAuthors)
-            dto.otherAuthors.add(toRepo(auth));
-      }
-      dto.summary = orig.summary;
-      dto.series = orig.series;
-
-      return dto;
-   }
-
-   public static VolumeDTO toRepo(RestApiV1.Volume orig)
-   {
-      if (orig == null)
-         return null;
-
-      VolumeDTO dto = new VolumeDTO();
-      dto.id = orig.id;
-      dto.volumeNumber = orig.volumeNumber;
-      dto.publicationInfo = toRepo(orig.publicationInfo);
-
-      if (orig.authors != null)
-      {
-         dto.authors = new ArrayList<>();
-         for (RestApiV1.AuthorRef auth : orig.authors)
-            dto.authors.add(toRepo(auth));
-      }
-      if (orig.titles != null)
-      {
-         dto.titles = new ArrayList<>();
-         for (RestApiV1.Title title : orig.titles)
-            dto.titles.add(toRepo(title));
-      }
-      if (orig.otherAuthors != null)
-      {
-         dto.otherAuthors = new ArrayList<>();
-         for (RestApiV1.AuthorRef auth : orig.otherAuthors)
-            dto.otherAuthors.add(toRepo(auth));
-      }
-      dto.summary = orig.summary;
-      dto.series = orig.series;
-
-      return dto;
-   }
-
    public static PublicationInfoDTO toRepo(RestApiV1.PublicationInfo orig)
    {
       if (orig == null)
@@ -421,25 +304,6 @@ public class RepoAdapter
       dto.subtitle = orig.subtitle;
 
       return dto;
-   }
-
-   public static CopyReferenceDTO toRepo(RestApiV1.CopyReference restDto)
-   {
-      if (restDto == null)
-      {
-         return null;
-      }
-
-      CopyReferenceDTO repoDto = new CopyReferenceDTO();
-
-      repoDto.id = restDto.id;
-      repoDto.type = restDto.type;
-      repoDto.properties = restDto.properties;
-      repoDto.title = restDto.title;
-      repoDto.summary = restDto.summary;
-      repoDto.rights = restDto.rights;
-
-      return repoDto;
    }
 
    public static void apply(RestApiV1.Work work, EditWorkCommand command)
