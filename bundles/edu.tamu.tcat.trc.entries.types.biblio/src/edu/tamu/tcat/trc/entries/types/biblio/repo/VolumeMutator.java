@@ -114,6 +114,7 @@ public interface VolumeMutator
     * Removes copy references whose ID does not appear in the provided set of copy reference IDs
     *
     * @param copyReferenceIds Copy reference IDs to keep
+    * @return IDs that were not found
     */
-   void retainAllCopyReferences(Set<String> copyReferenceIds);
+   Set<String> retainAllCopyReferences(Set<String> copyReferenceIds);
 }

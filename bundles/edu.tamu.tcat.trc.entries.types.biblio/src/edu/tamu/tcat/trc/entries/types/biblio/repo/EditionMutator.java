@@ -103,8 +103,9 @@ public interface EditionMutator
     * Removes volumes whose ID does not appear in the provided set of volume IDs
     *
     * @param volumeIds Volume IDs to keep
+    * @return IDs that were not found
     */
-   void retainAllVolumes(Set<String> volumeIds);
+   Set<String> retainAllVolumes(Set<String> volumeIds);
 
    /**
     * Sets the default copy reference by ID
@@ -139,6 +140,7 @@ public interface EditionMutator
     * Removes copy references whose ID does not appear in the provided set of copy reference IDs
     *
     * @param copyReferenceIds Copy reference IDs to keep
+    * @return IDs that were not found
     */
-   void retainAllCopyReferences(Set<String> copyReferenceIds);
+   Set<String> retainAllCopyReferences(Set<String> copyReferenceIds);
 }

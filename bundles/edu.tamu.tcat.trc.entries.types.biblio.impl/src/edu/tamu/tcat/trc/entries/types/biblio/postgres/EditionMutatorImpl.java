@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
@@ -137,11 +138,21 @@ public class EditionMutatorImpl implements EditionMutator
    }
 
    @Override
-   public void retainAllVolumes(Set<String> volumeIds)
+   public Set<String> retainAllVolumes(Set<String> volumeIds)
    {
       Objects.requireNonNull(volumeIds);
-      // TODO: should this method check that all copyReferenceIds are valid?
+
+      Set<String> existingIds = edition.copyReferences.stream()
+            .map(cr -> cr.id)
+            .collect(Collectors.toSet());
+
+      Set<String> notFound = volumeIds.stream()
+         .filter(id -> !existingIds.contains(id))
+         .collect(Collectors.toSet());
+
       edition.volumes.removeIf(volume -> !volumeIds.contains(volume.id));
+
+      return notFound;
    }
 
    @Override
@@ -185,10 +196,20 @@ public class EditionMutatorImpl implements EditionMutator
    }
 
    @Override
-   public void retainAllCopyReferences(Set<String> copyReferenceIds)
+   public Set<String> retainAllCopyReferences(Set<String> copyReferenceIds)
    {
       Objects.requireNonNull(copyReferenceIds);
-      // TODO: should this method check that all copyReferenceIds are valid?
+
+      Set<String> existingIds = edition.copyReferences.stream()
+            .map(cr -> cr.id)
+            .collect(Collectors.toSet());
+
+      Set<String> notFound = copyReferenceIds.stream()
+         .filter(id -> !existingIds.contains(id))
+         .collect(Collectors.toSet());
+
       edition.copyReferences.removeIf(cr -> !copyReferenceIds.contains(cr.id));
+
+      return notFound;
    }
 }

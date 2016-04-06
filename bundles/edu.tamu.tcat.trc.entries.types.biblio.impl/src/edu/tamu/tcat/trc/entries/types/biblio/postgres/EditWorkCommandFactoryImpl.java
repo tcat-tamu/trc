@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -148,11 +149,21 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
       }
 
       @Override
-      public void retainAllEditions(Set<String> editionIds)
+      public Set<String> retainAllEditions(Set<String> editionIds)
       {
          Objects.requireNonNull(editionIds);
-         // TODO: should this method check that all copyReferenceIds are valid?
+
+         Set<String> existingIds = changeSet.editions.stream()
+               .map(edition -> edition.id)
+               .collect(Collectors.toSet());
+
+         Set<String> notFound = editionIds.stream()
+            .filter(id -> !existingIds.contains(id))
+            .collect(Collectors.toSet());
+
          changeSet.editions.removeIf(edition -> !editionIds.contains(edition.id));
+
+         return notFound;
       }
 
       @Override
@@ -225,7 +236,7 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
       }
 
       @Override
-      public void retainAllCopyReferences(Set<String> copyReferenceIds)
+      public Set<String> retainAllCopyReferences(Set<String> copyReferenceIds)
       {
          Objects.requireNonNull(copyReferenceIds);
          if (changeSet.original == null || changeSet.original.copyReferences == null)
@@ -233,7 +244,13 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
             throw new IllegalArgumentException("Work does not contain any copy references");
          }
 
-         // TODO: should this method check that all copyReferenceIds are valid?
+         Set<String> existingIds = changeSet.original.copyReferences.stream()
+               .map(cr -> cr.id)
+               .collect(Collectors.toSet());
+
+         Set<String> notFound = copyReferenceIds.stream()
+            .filter(id -> !existingIds.contains(id))
+            .collect(Collectors.toSet());
 
          changeSet.original.copyReferences.forEach(cr -> {
             if (!copyReferenceIds.contains(cr.id))
@@ -241,6 +258,8 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
                changeSet.removedCopyReferences.add(cr);
             }
          });
+
+         return notFound;
       }
 
       @Override

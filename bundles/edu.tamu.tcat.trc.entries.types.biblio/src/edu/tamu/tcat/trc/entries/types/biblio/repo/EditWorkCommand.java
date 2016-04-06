@@ -101,8 +101,9 @@ public interface EditWorkCommand extends RecordEditCommand
     * Removes editions whose ID does not appear in the provided set of edition IDs
     *
     * @param editionIds Edition IDs to keep
+    * @return IDs that were not found
     */
-   void retainAllEditions(Set<String> editionIds);
+   Set<String> retainAllEditions(Set<String> editionIds);
 
    /**
     * Sets the default copy reference by ID
@@ -137,6 +138,7 @@ public interface EditWorkCommand extends RecordEditCommand
     * Removes copy references whose ID does not appear in the provided set of copy reference IDs
     *
     * @param copyReferenceIds Copy reference IDs to keep
+    * @return IDs that were not found
     */
-   void retainAllCopyReferences(Set<String> copyReferenceIds);
+   Set<String> retainAllCopyReferences(Set<String> copyReferenceIds);
 }
