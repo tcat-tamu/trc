@@ -17,6 +17,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.test.mocks;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
@@ -140,6 +141,20 @@ public class MockEditionMutator implements EditionMutator
 
    @Override
    public void removeCopyReference(String id)
+   {
+      // TODO Auto-generated method stub
+
+   }
+
+   @Override
+   public void retainAllVolumes(Set<String> volumeIds)
+   {
+      // TODO Auto-generated method stub
+
+   }
+
+   @Override
+   public void retainAllCopyReferences(Set<String> copyReferenceIds)
    {
       // TODO Auto-generated method stub
 

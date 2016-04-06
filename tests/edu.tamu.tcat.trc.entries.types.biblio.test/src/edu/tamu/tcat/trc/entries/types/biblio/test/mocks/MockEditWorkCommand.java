@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -191,5 +192,19 @@ public class MockEditWorkCommand implements EditWorkCommand
    public void removeCopyReference(String id)
    {
       // TODO Auto-generated method stub
+   }
+
+   @Override
+   public void retainAllEditions(Set<String> editionIds)
+   {
+      // TODO Auto-generated method stub
+
+   }
+
+   @Override
+   public void retainAllCopyReferences(Set<String> copyReferenceIds)
+   {
+      // TODO Auto-generated method stub
+
    }
 }

@@ -23,7 +23,7 @@ public interface WorkRepository
     * creation of works with duplicate IDs.
     *
     * @param id
-    * @return Edit command ato modify and persist a new work document.
+    * @return Edit command to modify and persist a new work document.
     */
    EditWorkCommand createWork(String workId);
 
