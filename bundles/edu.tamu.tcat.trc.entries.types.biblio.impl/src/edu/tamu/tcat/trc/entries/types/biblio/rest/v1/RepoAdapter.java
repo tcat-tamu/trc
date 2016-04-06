@@ -20,8 +20,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import javax.ws.rs.BadRequestException;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
@@ -77,7 +80,11 @@ public class RepoAdapter
             .map(RepoAdapter::toDTO)
             .collect(Collectors.toList());
 
-      // TODO default digital copy
+      CopyReference defaultCopyReference = work.getDefaultCopyReference();
+      if (defaultCopyReference != null)
+      {
+         dto.defaultCopyId = defaultCopyReference.getId();
+      }
 
       dto.copies = work.getCopyReferences().stream()
             .map(edu.tamu.tcat.trc.entries.types.biblio.rest.v1.RepoAdapter::toDTO)
@@ -129,7 +136,11 @@ public class RepoAdapter
             .map(RepoAdapter::toDTO)
             .collect(Collectors.toList());
 
-      // TODO default copy reference
+      CopyReference defaultCopyReference = ed.getDefaultCopyReference();
+      if (defaultCopyReference != null)
+      {
+         dto.defaultCopyId = defaultCopyReference.getId();
+      }
 
       dto.copies = ed.getCopyReferences().stream()
             .map(edu.tamu.tcat.trc.entries.types.biblio.rest.v1.RepoAdapter::toDTO)
@@ -194,7 +205,11 @@ public class RepoAdapter
 
       dto.series = vol.getSeries();
 
-      // TODO default copy reference
+      CopyReference defaultCopyReference = vol.getDefaultCopyReference();
+      if (defaultCopyReference != null)
+      {
+         dto.defaultCopyId = defaultCopyReference.getId();
+      }
 
       dto.copies = vol.getCopyReferences().stream()
             .map(edu.tamu.tcat.trc.entries.types.biblio.rest.v1.RepoAdapter::toDTO)
@@ -332,7 +347,13 @@ public class RepoAdapter
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
 
-      command.retainAllEditions(editionIds);
+      Set<String> extraneousEditionIds = command.retainAllEditions(editionIds);
+      if (!extraneousEditionIds.isEmpty())
+      {
+         StringJoiner sj = new StringJoiner(", ");
+         extraneousEditionIds.forEach(sj::add);
+         throw new BadRequestException("The following copy reference IDs do not exist: " + sj.toString());
+      }
 
       work.editions.forEach(edition -> {
          EditionMutator editionMutator = edition.id == null ? command.createEdition() : command.editEdition(edition.id);
@@ -344,9 +365,30 @@ public class RepoAdapter
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
 
-      command.retainAllCopyReferences(copyReferenceIds);
+      Set<String> extraneousCopyReferenceIds = command.retainAllCopyReferences(copyReferenceIds);
+      if (!extraneousCopyReferenceIds.isEmpty())
+      {
+         StringJoiner sj = new StringJoiner(", ");
+         extraneousCopyReferenceIds.forEach(sj::add);
+         throw new BadRequestException("The following copy reference IDs do not exist: " + sj.toString());
+      }
 
-      // TODO: default copy reference... how do we want it to be exposed via REST?
+      work.copies.forEach(copyReference -> {
+         CopyReferenceMutator copyReferenceMutator = copyReference.id == null ? command.createCopyReference() : command.editCopyReference(copyReference.id);
+         RepoAdapter.apply(copyReference, copyReferenceMutator);
+      });
+
+      if (work.defaultCopyId != null)
+      {
+         try
+         {
+            command.setDefaultCopyReference(work.defaultCopyId);
+         }
+         catch (IllegalArgumentException e)
+         {
+            throw new BadRequestException("Unable to find copy reference with ID {" + work.defaultCopyId + "}.");
+         }
+      }
    }
 
    public static void apply(RestApiV1.Edition edition, EditionMutator mutator)
@@ -379,7 +421,13 @@ public class RepoAdapter
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
 
-      mutator.retainAllVolumes(volumeIds);
+      Set<String> extraneousVolumeIds = mutator.retainAllVolumes(volumeIds);
+      if (!extraneousVolumeIds.isEmpty())
+      {
+         StringJoiner sj = new StringJoiner(", ");
+         extraneousVolumeIds.forEach(sj::add);
+         throw new BadRequestException("The following copy reference IDs do not exist: " + sj.toString());
+      }
 
       edition.volumes.forEach(volume -> {
          VolumeMutator volumeMutator = volume.id == null ? mutator.createVolume() : mutator.editVolume(volume.id);
@@ -391,9 +439,30 @@ public class RepoAdapter
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
 
-      mutator.retainAllCopyReferences(copyReferenceIds);
+      Set<String> extraneousCopyReferenceIds = mutator.retainAllCopyReferences(copyReferenceIds);
+      if (!extraneousCopyReferenceIds.isEmpty())
+      {
+         StringJoiner sj = new StringJoiner(", ");
+         extraneousCopyReferenceIds.forEach(sj::add);
+         throw new BadRequestException("The following copy reference IDs do not exist: " + sj.toString());
+      }
 
-      // TODO: default copy reference... how do we want it to be exposed via REST?
+      edition.copies.forEach(copyReference -> {
+         CopyReferenceMutator copyReferenceMutator = copyReference.id == null ? mutator.createCopyReference() : mutator.editCopyReference(copyReference.id);
+         RepoAdapter.apply(copyReference, copyReferenceMutator);
+      });
+
+      if (edition.defaultCopyId != null)
+      {
+         try
+         {
+            mutator.setDefaultCopyReference(edition.defaultCopyId);
+         }
+         catch (IllegalArgumentException e)
+         {
+            throw new BadRequestException("Unable to find copy reference with ID {" + edition.defaultCopyId + "}.");
+         }
+      }
    }
 
    public static void apply(RestApiV1.Volume volume, VolumeMutator mutator)
@@ -426,9 +495,30 @@ public class RepoAdapter
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
 
-      mutator.retainAllCopyReferences(copyReferenceIds);
+      Set<String> extraneousCopyReferenceIds = mutator.retainAllCopyReferences(copyReferenceIds);
+      if (!extraneousCopyReferenceIds.isEmpty())
+      {
+         StringJoiner sj = new StringJoiner(", ");
+         extraneousCopyReferenceIds.forEach(sj::add);
+         throw new BadRequestException("The following copy reference IDs do not exist: " + sj.toString());
+      }
 
-      // TODO: default copy reference... how do we want it to be exposed via REST?
+      volume.copies.forEach(copyReference -> {
+         CopyReferenceMutator copyReferenceMutator = copyReference.id == null ? mutator.createCopyReference() : mutator.editCopyReference(copyReference.id);
+         RepoAdapter.apply(copyReference, copyReferenceMutator);
+      });
+
+      if (volume.defaultCopyId != null)
+      {
+         try
+         {
+            mutator.setDefaultCopyReference(volume.defaultCopyId);
+         }
+         catch (IllegalArgumentException e)
+         {
+            throw new BadRequestException("Unable to find copy reference with ID {" + volume.defaultCopyId + "}.");
+         }
+      }
    }
 
    public static void apply(RestApiV1.CopyReference dto, CopyReferenceMutator mutator)

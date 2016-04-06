@@ -83,7 +83,7 @@ public class RestApiV1
       public String summary;
 
       public List<Edition> editions;
-      // TODO: default copy reference
+      public String defaultCopyId;
       public List<CopyReference> copies;
    }
 
@@ -108,7 +108,7 @@ public class RestApiV1
       public String summary;
       public String series;
       public List<Volume> volumes;
-      // TODO: default copy reference
+      public String defaultCopyId;
       public List<CopyReference> copies;
    }
 
@@ -122,7 +122,7 @@ public class RestApiV1
       public List<AuthorRef> otherAuthors;
       public String summary;
       public String series;
-      // TODO: default copy reference
+      public String defaultCopyId;
       public List<CopyReference> copies;
    }
 
