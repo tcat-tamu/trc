@@ -25,7 +25,7 @@ import org.apache.http.message.BasicNameValuePair;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
-import edu.tamu.tcat.trc.entries.types.biblio.rest.RepoHelper;
+import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityPersistenceAdapter;
 import edu.tamu.tcat.trc.entries.types.biblio.search.BiblioSearchProxy;
 import edu.tamu.tcat.trc.entries.types.biblio.search.SearchWorksResult;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkQueryCommand;
@@ -189,7 +189,7 @@ public class WorkCollectionResource
       return new WorkResource(helper);
    }
 
-   private class WorkResourceRepoHelper implements RepoHelper<Work, EditWorkCommand>
+   private class WorkResourceRepoHelper implements EntityPersistenceAdapter<Work, EditWorkCommand>
    {
       private final String id;
 

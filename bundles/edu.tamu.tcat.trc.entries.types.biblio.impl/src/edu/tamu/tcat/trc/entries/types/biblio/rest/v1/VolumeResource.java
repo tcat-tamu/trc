@@ -36,17 +36,17 @@ import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.VolumeMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceMutator;
-import edu.tamu.tcat.trc.entries.types.biblio.rest.CollectionRepoHelper;
-import edu.tamu.tcat.trc.entries.types.biblio.rest.RepoHelper;
+import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityCollectionPersistenceAdapter;
+import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityPersistenceAdapter;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies.CopyReferenceCollectionResource;
 
 public class VolumeResource
 {
    private static final Logger logger = Logger.getLogger(VolumeResource.class.getName());
 
-   private final RepoHelper<Volume, VolumeMutator> repoHelper;
+   private final EntityPersistenceAdapter<Volume, VolumeMutator> repoHelper;
 
-   public VolumeResource(RepoHelper<Volume, VolumeMutator> repoHelper)
+   public VolumeResource(EntityPersistenceAdapter<Volume, VolumeMutator> repoHelper)
    {
       this.repoHelper = repoHelper;
    }
@@ -83,11 +83,11 @@ public class VolumeResource
    @Path("copies")
    public CopyReferenceCollectionResource getCopyReferences()
    {
-      CollectionRepoHelper<CopyReference, CopyReferenceMutator> helper = new CopyReferenceCollectionRepoHelper();
+      EntityCollectionPersistenceAdapter<CopyReference, CopyReferenceMutator> helper = new CopyReferenceCollectionRepoHelper();
       return new CopyReferenceCollectionResource(helper);
    }
 
-   private class CopyReferenceCollectionRepoHelper implements CollectionRepoHelper<CopyReference, CopyReferenceMutator>
+   private class CopyReferenceCollectionRepoHelper implements EntityCollectionPersistenceAdapter<CopyReference, CopyReferenceMutator>
    {
       @Override
       public Collection<CopyReference> get()
@@ -96,9 +96,9 @@ public class VolumeResource
       }
 
       @Override
-      public RepoHelper<CopyReference, CopyReferenceMutator> get(String id)
+      public EntityPersistenceAdapter<CopyReference, CopyReferenceMutator> get(String id)
       {
-         return new RepoHelper<CopyReference, CopyReferenceMutator>()
+         return new EntityPersistenceAdapter<CopyReference, CopyReferenceMutator>()
          {
             @Override
             public CopyReference get()

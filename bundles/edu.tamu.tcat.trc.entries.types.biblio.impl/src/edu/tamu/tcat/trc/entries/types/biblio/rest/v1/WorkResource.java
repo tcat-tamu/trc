@@ -27,18 +27,18 @@ import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceMutator;
-import edu.tamu.tcat.trc.entries.types.biblio.rest.CollectionRepoHelper;
-import edu.tamu.tcat.trc.entries.types.biblio.rest.RepoHelper;
+import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityCollectionPersistenceAdapter;
+import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityPersistenceAdapter;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies.CopyReferenceCollectionResource;
 
 public class WorkResource
 {
    private static final Logger logger = Logger.getLogger(WorkResource.class.getName());
 
-   private RepoHelper<Work, EditWorkCommand> repoHelper;
+   private EntityPersistenceAdapter<Work, EditWorkCommand> repoHelper;
 
 
-   public WorkResource(RepoHelper<Work, EditWorkCommand> repoHelper)
+   public WorkResource(EntityPersistenceAdapter<Work, EditWorkCommand> repoHelper)
    {
       this.repoHelper = repoHelper;
    }
@@ -86,22 +86,22 @@ public class WorkResource
    @Path("editions")
    public EditionCollectionResource getEditions()
    {
-      CollectionRepoHelper<Edition, EditionMutator> helper = new EditionCollectionRepoHelper();
+      EntityCollectionPersistenceAdapter<Edition, EditionMutator> helper = new EditionCollectionRepoHelper();
       return new EditionCollectionResource(helper);
    }
 
    @Path("copies")
    public CopyReferenceCollectionResource getCopyReferences()
    {
-      CollectionRepoHelper<CopyReference, CopyReferenceMutator> helper = new CopyReferenceCollectionRepoHelper();
+      EntityCollectionPersistenceAdapter<CopyReference, CopyReferenceMutator> helper = new CopyReferenceCollectionRepoHelper();
       return new CopyReferenceCollectionResource(helper);
    }
 
    private static class EditionCollectionResource
    {
-      private final CollectionRepoHelper<Edition, EditionMutator> repoHelper;
+      private final EntityCollectionPersistenceAdapter<Edition, EditionMutator> repoHelper;
 
-      public EditionCollectionResource(CollectionRepoHelper<Edition, EditionMutator> repoHelper)
+      public EditionCollectionResource(EntityCollectionPersistenceAdapter<Edition, EditionMutator> repoHelper)
       {
          this.repoHelper = repoHelper;
       }
@@ -148,7 +148,7 @@ public class WorkResource
       }
    }
 
-   private class EditionCollectionRepoHelper implements CollectionRepoHelper<Edition, EditionMutator>
+   private class EditionCollectionRepoHelper implements EntityCollectionPersistenceAdapter<Edition, EditionMutator>
    {
       @Override
       public Collection<Edition> get()
@@ -157,9 +157,9 @@ public class WorkResource
       }
 
       @Override
-      public RepoHelper<Edition, EditionMutator> get(String id)
+      public EntityPersistenceAdapter<Edition, EditionMutator> get(String id)
       {
-         return new RepoHelper<Edition, EditionMutator>()
+         return new EntityPersistenceAdapter<Edition, EditionMutator>()
          {
             @Override
             public Edition get()
@@ -256,7 +256,7 @@ public class WorkResource
       }
    }
 
-   private class CopyReferenceCollectionRepoHelper implements CollectionRepoHelper<CopyReference, CopyReferenceMutator>
+   private class CopyReferenceCollectionRepoHelper implements EntityCollectionPersistenceAdapter<CopyReference, CopyReferenceMutator>
    {
       @Override
       public Collection<CopyReference> get()
@@ -265,9 +265,9 @@ public class WorkResource
       }
 
       @Override
-      public RepoHelper<CopyReference, CopyReferenceMutator> get(String id)
+      public EntityPersistenceAdapter<CopyReference, CopyReferenceMutator> get(String id)
       {
-         return new RepoHelper<CopyReference, CopyReferenceMutator>()
+         return new EntityPersistenceAdapter<CopyReference, CopyReferenceMutator>()
          {
             @Override
             public CopyReference get()

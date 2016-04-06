@@ -42,17 +42,17 @@ import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.VolumeMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceMutator;
-import edu.tamu.tcat.trc.entries.types.biblio.rest.CollectionRepoHelper;
-import edu.tamu.tcat.trc.entries.types.biblio.rest.RepoHelper;
+import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityCollectionPersistenceAdapter;
+import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityPersistenceAdapter;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies.CopyReferenceCollectionResource;
 
 public class EditionResource
 {
    private static final Logger logger = Logger.getLogger(EditionResource.class.getName());
 
-   private final RepoHelper<Edition, EditionMutator> repoHelper;
+   private final EntityPersistenceAdapter<Edition, EditionMutator> repoHelper;
 
-   public EditionResource(RepoHelper<Edition, EditionMutator> repoHelper)
+   public EditionResource(EntityPersistenceAdapter<Edition, EditionMutator> repoHelper)
    {
       this.repoHelper = repoHelper;
    }
@@ -102,23 +102,23 @@ public class EditionResource
    @Path("volumes")
    public VolumeCollectionResource getVolumes()
    {
-      CollectionRepoHelper<Volume, VolumeMutator> helper = new VolumeCollectionResourceRepoHelper();
+      EntityCollectionPersistenceAdapter<Volume, VolumeMutator> helper = new VolumeCollectionResourceRepoHelper();
       return new VolumeCollectionResource(helper);
    }
 
    @Path("copies")
    public CopyReferenceCollectionResource getCopyReferences()
    {
-      CollectionRepoHelper<CopyReference, CopyReferenceMutator> helper = new CopyReferenceCollectionRepoHelper();
+      EntityCollectionPersistenceAdapter<CopyReference, CopyReferenceMutator> helper = new CopyReferenceCollectionRepoHelper();
       return new CopyReferenceCollectionResource(helper);
    }
 
    private static class VolumeCollectionResource
    {
 
-      private final CollectionRepoHelper<Volume, VolumeMutator> repoHelper;
+      private final EntityCollectionPersistenceAdapter<Volume, VolumeMutator> repoHelper;
 
-      public VolumeCollectionResource(CollectionRepoHelper<Volume, VolumeMutator> helper)
+      public VolumeCollectionResource(EntityCollectionPersistenceAdapter<Volume, VolumeMutator> helper)
       {
          this.repoHelper = helper;
       }
@@ -165,7 +165,7 @@ public class EditionResource
       }
    }
 
-   private class VolumeCollectionResourceRepoHelper implements CollectionRepoHelper<Volume, VolumeMutator>
+   private class VolumeCollectionResourceRepoHelper implements EntityCollectionPersistenceAdapter<Volume, VolumeMutator>
    {
       @Override
       public Collection<Volume> get()
@@ -174,9 +174,9 @@ public class EditionResource
       }
 
       @Override
-      public RepoHelper<Volume, VolumeMutator> get(String id)
+      public EntityPersistenceAdapter<Volume, VolumeMutator> get(String id)
       {
-         return new RepoHelper<Volume, VolumeMutator>()
+         return new EntityPersistenceAdapter<Volume, VolumeMutator>()
          {
             @Override
             public Volume get()
@@ -273,7 +273,7 @@ public class EditionResource
       }
    }
 
-   private class CopyReferenceCollectionRepoHelper implements CollectionRepoHelper<CopyReference, CopyReferenceMutator>
+   private class CopyReferenceCollectionRepoHelper implements EntityCollectionPersistenceAdapter<CopyReference, CopyReferenceMutator>
    {
       @Override
       public Collection<CopyReference> get()
@@ -282,9 +282,9 @@ public class EditionResource
       }
 
       @Override
-      public RepoHelper<CopyReference, CopyReferenceMutator> get(String id)
+      public EntityPersistenceAdapter<CopyReference, CopyReferenceMutator> get(String id)
       {
-         return new RepoHelper<CopyReference, CopyReferenceMutator>()
+         return new EntityPersistenceAdapter<CopyReference, CopyReferenceMutator>()
          {
             @Override
             public CopyReference get()

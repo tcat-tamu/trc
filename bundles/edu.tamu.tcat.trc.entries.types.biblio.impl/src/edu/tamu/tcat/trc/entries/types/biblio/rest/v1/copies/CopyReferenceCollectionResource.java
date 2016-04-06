@@ -28,15 +28,15 @@ import javax.ws.rs.core.MediaType;
 
 import edu.tamu.tcat.trc.entries.types.biblio.copies.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceMutator;
-import edu.tamu.tcat.trc.entries.types.biblio.rest.CollectionRepoHelper;
+import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityCollectionPersistenceAdapter;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.v1.copies.RestApiV1.CopyReferenceId;
 
 @Path("/copies")
 public class CopyReferenceCollectionResource
 {
-   private final CollectionRepoHelper<CopyReference, CopyReferenceMutator> repoHelper;
+   private final EntityCollectionPersistenceAdapter<CopyReference, CopyReferenceMutator> repoHelper;
 
-   public CopyReferenceCollectionResource(CollectionRepoHelper<CopyReference, CopyReferenceMutator> repoHelper)
+   public CopyReferenceCollectionResource(EntityCollectionPersistenceAdapter<CopyReference, CopyReferenceMutator> repoHelper)
    {
       this.repoHelper = repoHelper;
    }
