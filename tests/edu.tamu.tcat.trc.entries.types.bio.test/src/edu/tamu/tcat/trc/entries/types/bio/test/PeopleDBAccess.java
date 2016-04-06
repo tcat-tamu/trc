@@ -36,13 +36,12 @@ public class PeopleDBAccess
    private ConfigurationProperties config;
 
    private PsqlPeopleRepo repo;
-   private IdFactoryProvider idFactoryProvider;
    private IdFactory idFactory;
 
    @Before
    public void setupTest() throws DataSourceException
    {
-      idFactoryProvider = TestUtils.makeIdFactoryProvider();
+      IdFactoryProvider idFactoryProvider = TestUtils.makeIdFactoryProvider();
       idFactory = idFactoryProvider.getIdFactory(PsqlPeopleRepo.ID_CONTEXT);
 
       config = TestUtils.loadConfigFile();
@@ -50,7 +49,7 @@ public class PeopleDBAccess
 
       this.repo = new PsqlPeopleRepo();
       repo.setDatabaseExecutor(exec);
-      repo.setIdFactory(idFactoryProvider);
+      repo.setIdFactory(idFactory);
       repo.activate();
    }
 

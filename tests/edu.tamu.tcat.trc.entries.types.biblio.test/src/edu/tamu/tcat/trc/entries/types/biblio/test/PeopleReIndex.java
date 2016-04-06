@@ -52,7 +52,7 @@ public class PeopleReIndex
    private SimpleFileConfigurationProperties config;
    private PsqlDataSourceProvider dsp;
    private PsqlPeopleRepo repo;
-   private DbBackedObfuscatingIdFactoryProvider factory;
+//   private DbBackedObfuscatingIdFactoryProvider factory;
 
    private SolrServer solr;
    public static final String SOLR_API_ENDPOINT = "solr.api.endpoint";
@@ -73,13 +73,13 @@ public class PeopleReIndex
       exec = new PostgreSqlExecutor();
       exec.init(dsp);
 
-      factory = new DbBackedObfuscatingIdFactoryProvider();
+      DbBackedObfuscatingIdFactoryProvider factory = new DbBackedObfuscatingIdFactoryProvider();
       factory.setDatabaseExecutor(exec);
       factory.activate();
 
       repo = new PsqlPeopleRepo();
       repo.setDatabaseExecutor(exec);
-      repo.setIdFactory(factory);
+      repo.setIdFactory(factory.getIdFactory("people"));
       repo.activate();
 
       // construct Solr core
