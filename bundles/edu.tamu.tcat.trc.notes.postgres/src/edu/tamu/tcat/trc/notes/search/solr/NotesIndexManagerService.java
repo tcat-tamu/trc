@@ -24,9 +24,9 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,7 +56,7 @@ public class NotesIndexManagerService
 
    private NotesRepository repo;
 
-   private SolrServer solr;
+   private SolrClient solr;
    private ConfigurationProperties config;
 
    private AutoCloseable register;
@@ -82,7 +82,7 @@ public class NotesIndexManagerService
       URI coreUri = solrBaseUri.resolve(solrCore);
       logger.info("Connecting to Solr Service [" + coreUri + "]");
 
-      solr = new HttpSolrServer(coreUri.toString());
+      solr = new HttpSolrClient(coreUri.toString());
    }
 
    public void dispose()
@@ -101,7 +101,7 @@ public class NotesIndexManagerService
 
       try
       {
-         solr.shutdown();
+         solr.close();
       }
       catch (Exception ex)
       {
