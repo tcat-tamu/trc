@@ -52,8 +52,8 @@ public class EditionMutatorImpl implements EditionMutator
    {
       this.edition = edition;
       this.idFactoryProvider = idFactoryProvider;
-      this.volumeIdFactory = idFactoryProvider.getIdFactory("volumes");
-      this.copyReferenceIdFactory = idFactoryProvider.getIdFactory("copies");
+      this.volumeIdFactory = idFactoryProvider.getIdFactory(WorkRepositoryImpl.ID_CONTEXT_VOLUMES);
+      this.copyReferenceIdFactory = idFactoryProvider.getIdFactory(WorkRepositoryImpl.ID_CONTEXT_COPIES);
    }
 
 
@@ -111,7 +111,7 @@ public class EditionMutatorImpl implements EditionMutator
       VolumeDTO volume = new VolumeDTO();
       volume.id = volumeIdFactory.get();
       edition.volumes.add(volume);
-      return new VolumeMutatorImpl(volume, getVolumeIdFactoryProvider(volume.id));
+      return new VolumeMutatorImpl(volume, idFactoryProvider);
    }
 
    @Override
@@ -122,12 +122,7 @@ public class EditionMutatorImpl implements EditionMutator
             .findFirst()
             .orElseThrow(() -> new IllegalArgumentException("Unable to find volume with id [" + id + "]."));
 
-      return new VolumeMutatorImpl(volume, getVolumeIdFactoryProvider(id));
-   }
-
-   private IdFactoryProvider getVolumeIdFactoryProvider(String id)
-   {
-      return idFactoryProvider.extend("volumes/" + id + "/");
+      return new VolumeMutatorImpl(volume, idFactoryProvider);
    }
 
 

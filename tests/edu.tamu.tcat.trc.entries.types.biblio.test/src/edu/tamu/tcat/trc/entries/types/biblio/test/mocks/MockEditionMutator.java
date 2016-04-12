@@ -38,7 +38,7 @@ public class MockEditionMutator implements EditionMutator
    {
       this.dto = edition;
       this.idFactoryProvider = idFactoryProvider;
-      this.volumeIdFactory = idFactoryProvider.getIdFactory("volumes");
+      this.volumeIdFactory = idFactoryProvider.getIdFactory(MockWorkRepository.ID_CONTEXT_VOLUMES);
    }
 
    @Override

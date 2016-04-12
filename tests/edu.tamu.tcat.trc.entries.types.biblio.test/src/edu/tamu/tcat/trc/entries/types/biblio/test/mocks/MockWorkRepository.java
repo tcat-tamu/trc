@@ -35,8 +35,12 @@ import edu.tamu.tcat.trc.test.MockIdFactoryProvider;
  */
 public class MockWorkRepository implements WorkRepository
 {
+   public static final String ID_CONTEXT_WORKS = "works";
+   public static final String ID_CONTEXT_EDITIONS = "editions";
+   public static final String ID_CONTEXT_VOLUMES = "volumes";
+
    private final IdFactoryProvider idFactoryProvider = new MockIdFactoryProvider();
-   private final IdFactory workIdFactory = idFactoryProvider.getIdFactory("works");
+   private final IdFactory workIdFactory = idFactoryProvider.getIdFactory(ID_CONTEXT_WORKS);
    private final Map<String, Work> cache = new HashMap<>();
 
    @Override
@@ -97,7 +101,7 @@ public class MockWorkRepository implements WorkRepository
       // TODO Auto-generated method stub
       WorkDTO dto = new WorkDTO();
       dto.id = id;
-      return new MockEditWorkCommand(dto, idFactoryProvider.extend(id), (update) ->
+      return new MockEditWorkCommand(dto, idFactoryProvider, (update) ->
       {
          cache.put(update.id, ModelAdapter.adapt(update));
       });
@@ -107,7 +111,7 @@ public class MockWorkRepository implements WorkRepository
    public EditWorkCommand editWork(String id)
    {
       WorkDTO dto = WorkDTO.create(getWork(id));
-      return new MockEditWorkCommand(dto, idFactoryProvider.extend(id), (update) ->
+      return new MockEditWorkCommand(dto, idFactoryProvider, (update) ->
       {
          // TODO fire notifications
          cache.put(update.id, ModelAdapter.adapt(update));

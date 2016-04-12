@@ -60,7 +60,6 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
       private final ListeningCommitHookAdapter<WorkDTO> hook;
       private final WorkChangeSet changeSet;
 
-      private final IdFactoryProvider workIdFactoryProvider;
       private final IdFactory editionIdFactory;
       private final IdFactory copyReferenceIdFactory;
 
@@ -68,9 +67,8 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
       {
          this.hook = hook;
          // TODO: Do we really want to create new id generators for each work? (edition, volume, etc.)
-         this.workIdFactoryProvider = idFactoryProvider.extend(WorkRepositoryImpl.CONTEXT_WORK + "/" + id);
-         this.editionIdFactory = workIdFactoryProvider.getIdFactory("editions");
-         this.copyReferenceIdFactory = workIdFactoryProvider.getIdFactory("copies");
+         this.editionIdFactory = idFactoryProvider.getIdFactory(WorkRepositoryImpl.ID_CONTEXT_EDITIONS);
+         this.copyReferenceIdFactory = idFactoryProvider.getIdFactory(WorkRepositoryImpl.ID_CONTEXT_COPIES);
 
          this.changeSet = new WorkChangeSet(id);
          if (currentState != null)
@@ -129,12 +127,7 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
                .findFirst()
                .orElseThrow(() -> new IllegalArgumentException("Cannot find edition with id {" + id + "}."));
 
-         return new EditionMutatorImpl(edition, getEditionsIdFactoryProvider(id));
-      }
-
-      private IdFactoryProvider getEditionsIdFactoryProvider(String id)
-      {
-         return workIdFactoryProvider.extend("editions/" + id + "/");
+         return new EditionMutatorImpl(edition, idFactoryProvider);
       }
 
       @Override
@@ -143,7 +136,7 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
          EditionDTO edition = new EditionDTO();
          edition.id = editionIdFactory.get();
          changeSet.editions.add(edition);
-         return new EditionMutatorImpl(edition, getEditionsIdFactoryProvider(edition.id));
+         return new EditionMutatorImpl(edition, idFactoryProvider);
       }
 
       @Override

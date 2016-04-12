@@ -26,7 +26,10 @@ public class WorkRepositoryImpl implements WorkRepository
 {
    private static final Logger logger = Logger.getLogger(WorkRepositoryImpl.class.getName());
 
-   public static final String CONTEXT_WORK = "works";
+   public static final String ID_CONTEXT_WORKS = "works";
+   public static final String ID_CONTEXT_EDITIONS = "editions";
+   public static final String ID_CONTEXT_VOLUMES = "volumes";
+   public static final String ID_CONTEXT_COPIES = "copies";
 
    private static final String TABLE_NAME = "works";
    private static final String SCHEMA_ID = "trcWork";
@@ -79,7 +82,7 @@ public class WorkRepositoryImpl implements WorkRepository
       Objects.requireNonNull(indexService, "No Indexing service provided.");
 
       repoBackend = buildDocumentRepository();
-      idFactory = idFactoryProvider.getIdFactory(CONTEXT_WORK);
+      idFactory = idFactoryProvider.getIdFactory(ID_CONTEXT_WORKS);
    }
 
    /**

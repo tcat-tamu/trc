@@ -42,7 +42,7 @@ public class VolumeMutatorImpl implements VolumeMutator
    VolumeMutatorImpl(VolumeDTO volume, IdFactoryProvider idFactoryProvider)
    {
       this.volume = volume;
-      this.copyReferenceIdFactory = idFactoryProvider.getIdFactory("copies");
+      this.copyReferenceIdFactory = idFactoryProvider.getIdFactory(WorkRepositoryImpl.ID_CONTEXT_COPIES);
    }
 
    @Override

@@ -48,7 +48,7 @@ public class MockEditWorkCommand implements EditWorkCommand
    {
       this.dto = dto;
       this.idFactoryProvider = idFactoryProvider;
-      this.editionIdFactory = idFactoryProvider.getIdFactory("editions");
+      this.editionIdFactory = idFactoryProvider.getIdFactory(MockWorkRepository.ID_CONTEXT_EDITIONS);
       this.saveHook = saveHook;
    }
 
@@ -90,7 +90,7 @@ public class MockEditWorkCommand implements EditWorkCommand
       dto.editions.add(edition);
 
       // create a supplier to generate volume IDs
-      return new MockEditionMutator(edition, idFactoryProvider.extend(edition.id));
+      return new MockEditionMutator(edition, idFactoryProvider);
    }
 
    @Override
@@ -99,7 +99,7 @@ public class MockEditWorkCommand implements EditWorkCommand
       for (EditionDTO edition : dto.editions) {
          if (edition.id.equals(id)) {
             // create a supplier to generate volume IDs
-            return new MockEditionMutator(edition, idFactoryProvider.extend(id));
+            return new MockEditionMutator(edition, idFactoryProvider);
          }
       }
 
