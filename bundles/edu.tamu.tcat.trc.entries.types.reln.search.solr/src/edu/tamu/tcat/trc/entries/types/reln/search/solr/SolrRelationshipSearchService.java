@@ -23,9 +23,9 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
@@ -51,7 +51,7 @@ public class SolrRelationshipSearchService implements RelationshipSearchIndexMan
 
    private RelationshipRepository repo;
    private AutoCloseable registration;
-   private SolrServer solr;
+   private SolrClient solr;
    private ConfigurationProperties config;
    private RelationshipTypeRegistry typeReg;
 
@@ -86,7 +86,7 @@ public class SolrRelationshipSearchService implements RelationshipSearchIndexMan
       URI coreUri = solrBaseUri.resolve(solrCore);
       logger.info("Connecting to Solr Service [" + coreUri + "]");
 
-      solr = new HttpSolrServer(coreUri.toString());
+      solr = new HttpSolrClient(coreUri.toString());
    }
 
    public void deactivate()
@@ -100,7 +100,8 @@ public class SolrRelationshipSearchService implements RelationshipSearchIndexMan
    @Override
    public RelationshipQueryCommand createQueryCommand() throws SearchException
    {
-      return new RelationshipSolrQueryCommand(solr, typeReg, new TrcQueryBuilder(solr, new RelnSolrConfig()));
+      TrcQueryBuilder builder = new TrcQueryBuilder(new RelnSolrConfig());
+      return new RelationshipSolrQueryCommand(solr, builder);
    }
 
    private void unregisterRepoListener()
@@ -128,7 +129,7 @@ public class SolrRelationshipSearchService implements RelationshipSearchIndexMan
       {
          try
          {
-            solr.shutdown();
+            solr.close();
          }
          catch (Exception e)
          {

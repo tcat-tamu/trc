@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,9 +15,10 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio.search.solr.copies;
 
+import java.io.IOException;
 import java.util.List;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -33,10 +34,10 @@ public class PageSolrSearchCommand implements PageSearchCommand
 {
    private static final int DEFAULT_MAX_RESULTS = 25;
 
-   private SolrServer solr;
+   private SolrClient solr;
    private TrcQueryBuilder qb;
 
-   public PageSolrSearchCommand(SolrServer solrPages, TrcQueryBuilder qb)
+   public PageSolrSearchCommand(SolrClient solrPages, TrcQueryBuilder qb)
    {
       solr = solrPages;
       this.qb = qb;
@@ -54,7 +55,7 @@ public class PageSolrSearchCommand implements PageSearchCommand
          List<PageSearchProxy> page = qb.unpack(results, PageSolrSearchCommand::proxyAdapter);
          return new SolrPageResults(this, page);
       }
-      catch (SolrServerException e)
+      catch (IOException | SolrServerException e)
       {
          throw new SearchException("An error occurred while querying the volume core", e);
       }

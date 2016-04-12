@@ -28,8 +28,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
 import edu.tamu.tcat.hathitrust.HathiTrustClientException;
 import edu.tamu.tcat.hathitrust.htrc.features.simple.ExtractedFeatures;
@@ -66,8 +66,8 @@ public class SolrCopyReferenceIndexManager implements FullTextSearchService
    /** Configuration property key that defines Solr core to be used page-level full text. */
    public static final String SOLR_CORE_PAGES = "trc.entries.bib.copies.pages.core";
 
-   private SolrServer solrVols;
-   private SolrServer solrPages;
+   private SolrClient solrVols;
+   private SolrClient solrPages;
 
    private ConfigurationProperties config;
 
@@ -91,11 +91,11 @@ public class SolrCopyReferenceIndexManager implements FullTextSearchService
       URI solrBaseURI = config.getPropertyValue(SOLR_API_ENDPOINT, URI.class);
       String volCore = config.getPropertyValue(SOLR_CORE_VOLS, String.class, "volumes");
       URI volURI = solrBaseURI.resolve(volCore);
-      solrVols = new HttpSolrServer(volURI.toString());
+      solrVols = new HttpSolrClient(volURI.toString());
 
       String pageCore = config.getPropertyValue(SOLR_CORE_PAGES, String.class, "pages");
       URI pageURI = solrBaseURI.resolve(pageCore);
-      solrPages = new HttpSolrServer(pageURI.toString());
+      solrPages = new HttpSolrClient(pageURI.toString());
    }
 
    public void deactivate()
@@ -109,14 +109,14 @@ public class SolrCopyReferenceIndexManager implements FullTextSearchService
    @Override
    public VolumeSearchCommand getVolumeSearchCommand() throws SearchException
    {
-      TrcQueryBuilder builder = new TrcQueryBuilder(solrVols, new FullTextVolumeConfig());
+      TrcQueryBuilder builder = new TrcQueryBuilder(new FullTextVolumeConfig());
       return new VolumeSolrSearchCommand(solrVols, builder);
    }
 
    @Override
    public PageSearchCommand getPageSearchCommand() throws SearchException
    {
-      return new PageSolrSearchCommand(solrPages, new TrcQueryBuilder(solrPages, new FullTextPageConfig()));
+      return new PageSolrSearchCommand(solrPages, new TrcQueryBuilder(new FullTextPageConfig()));
    }
 
    private void releaseFeaturesProvider()
@@ -138,7 +138,7 @@ public class SolrCopyReferenceIndexManager implements FullTextSearchService
       }
    }
 
-   private void releaseSolrConnection(SolrServer solr)
+   private void releaseSolrConnection(SolrClient solr)
    {
       logger.fine("Releasing connection to Solr server");
       if (solr == null)
@@ -146,7 +146,7 @@ public class SolrCopyReferenceIndexManager implements FullTextSearchService
 
       try
       {
-         solr.shutdown();
+         solr.close();
       }
       catch (Exception e)
       {

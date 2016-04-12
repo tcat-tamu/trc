@@ -15,6 +15,7 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio.search.solr;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
@@ -26,8 +27,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
@@ -43,13 +44,13 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
    private static final Logger logger = Logger.getLogger(WorkSolrQueryCommand.class.getName());
    private static final int DEFAULT_MAX_RESULTS = 25;
 
-   private final SolrServer solr;
+   private final SolrClient solr;
    private final TrcQueryBuilder qb;
 
    private Set<String> authorIds;
    private List<DateRangeDTO> dates;
 
-   public WorkSolrQueryCommand(SolrServer solr, TrcQueryBuilder qb)
+   public WorkSolrQueryCommand(SolrClient solr, TrcQueryBuilder qb)
    {
       this.solr = solr;
       this.qb = qb;
@@ -99,7 +100,7 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
          List<BiblioSearchProxy> works = qb.unpack(results, BiblioSolrConfig.SEARCH_PROXY);
          return new SolrWorksResults(this, works);
       }
-      catch (SolrServerException e)
+      catch (SolrServerException | IOException e)
       {
          throw new SearchException("An error occurred while querying the works core", e);
       }

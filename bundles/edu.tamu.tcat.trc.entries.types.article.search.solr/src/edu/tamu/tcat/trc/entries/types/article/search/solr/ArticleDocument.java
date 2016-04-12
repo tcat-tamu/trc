@@ -15,11 +15,6 @@
  */
 package edu.tamu.tcat.trc.entries.types.article.search.solr;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.solr.common.SolrInputDocument;
@@ -72,13 +67,13 @@ public class ArticleDocument
 
       return doc;
    }
-   
+
    public static ArticleDocument update(Article article) throws SearchException
    {
       // TODO use changeset, don't store proxy separately.
       ArticleDocument doc = new ArticleDocument();
       ArticleDTO dto = ArticleDTO.create(article);
-      
+
       try
       {
          doc.indexDoc.update(ArticleSolrConfig.SEARCH_PROXY, new ArticleSearchProxy(article));
@@ -87,17 +82,17 @@ public class ArticleDocument
       {
          throw new IllegalStateException("Failed to serialize NotesSearchProxy data", e);
       }
-      
+
       doc.indexDoc.set(ArticleSolrConfig.ID, dto.id.toString());
       doc.indexDoc.update(ArticleSolrConfig.TITLE, guardNull(dto.title));
       doc.indexDoc.update(ArticleSolrConfig.ARTICLE_ABSTRACT, guardNull(dto.articleAbstract));
       doc.indexDoc.update(ArticleSolrConfig.ARTICLE_CONTENT, guardNull(dto.body));
       if (dto.authors == null || dto.authors.isEmpty())
          updateAuthorNames(doc, dto.authors);
-      
+
       return doc;
    }
-   
+
    private static void setAuthorNames(ArticleDocument doc, List<ArticleAuthorDTO> authors)
    {
       authors.forEach((a) ->
@@ -112,7 +107,7 @@ public class ArticleDocument
          }
       });
    }
-   
+
    private static void updateAuthorNames(ArticleDocument doc, List<ArticleAuthorDTO> authors)
    {
       authors.forEach((a) ->
@@ -126,18 +121,6 @@ public class ArticleDocument
             throw new IllegalStateException("Failed to update author names", e);
          }
       });
-   }
-   
-   private static void setDateValue(ArticleDocument doc, Date publication) throws SearchException
-   {
-      if (publication == null)
-         return;
-      Instant instant = Instant.ofEpochMilli(publication.getTime());
-      LocalDate localDate = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalDate();
-      if (localDate == null)
-         return;
-
-      doc.indexDoc.set(ArticleSolrConfig.PUBLISHED, localDate);
    }
 
    private static String guardNull(String value)

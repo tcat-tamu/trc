@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,9 +15,10 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio.search.solr.copies;
 
+import java.io.IOException;
 import java.util.List;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -33,10 +34,10 @@ public class VolumeSolrSearchCommand implements VolumeSearchCommand
 {
    private static final int DEFAULT_MAX_RESULTS = 25;
 
-   private SolrServer solr;
+   private SolrClient solr;
    private TrcQueryBuilder qb;
 
-   public VolumeSolrSearchCommand(SolrServer solrVols, TrcQueryBuilder trcQueryBuilder)
+   public VolumeSolrSearchCommand(SolrClient solrVols, TrcQueryBuilder trcQueryBuilder)
    {
       // TODO seems like trcQueryBuilder should be created here rather than passed in
       this.solr = solrVols;
@@ -54,7 +55,7 @@ public class VolumeSolrSearchCommand implements VolumeSearchCommand
          List<VolumeSearchProxy> vols = qb.unpack(results, VolumeSolrSearchCommand::proxyAdapter);
          return new SolrVolumeResults(this, vols);
       }
-      catch (SolrServerException e)
+      catch (IOException | SolrServerException e)
       {
          throw new SearchException("An error occurred while querying the volume core", e);
       }

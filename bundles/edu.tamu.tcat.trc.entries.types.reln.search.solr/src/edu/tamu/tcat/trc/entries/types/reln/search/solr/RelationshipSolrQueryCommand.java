@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,13 +21,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 
 import com.google.common.base.Joiner;
 
-import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipDirection;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelnSearchProxy;
@@ -38,17 +37,15 @@ public class RelationshipSolrQueryCommand implements RelationshipQueryCommand
 {
    private static final int DEFAULT_MAX_RESULTS = 25;
 
-   private final SolrServer solr;
+   private final SolrClient solr;
    private final TrcQueryBuilder qb;
 
    private Collection<String> criteria = new ArrayList<>();
 
-   private RelationshipTypeRegistry typeReg;
 
-   public RelationshipSolrQueryCommand(SolrServer solr, RelationshipTypeRegistry typeReg, TrcQueryBuilder qb)
+   public RelationshipSolrQueryCommand(SolrClient solr, TrcQueryBuilder qb)
    {
       this.solr = solr;
-      this.typeReg = typeReg;
       this.qb = qb;
       qb.max(DEFAULT_MAX_RESULTS);
    }

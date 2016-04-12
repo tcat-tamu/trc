@@ -23,9 +23,9 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
@@ -50,7 +50,7 @@ public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleS
 
    private PeopleRepository repo;
    private ConfigurationProperties config;
-   private SolrServer solr;
+   private SolrClient solr;
    private AutoCloseable registration;
 
    public void setRepo(PeopleRepository repo)
@@ -79,7 +79,7 @@ public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleS
       URI coreUri = solrBaseUri.resolve(solrCore);
       logger.info("Connecting to Solr Service [" + coreUri + "]");
 
-      solr = new HttpSolrServer(coreUri.toString());
+      solr = new HttpSolrClient(coreUri.toString());
    }
 
    public void deactivate()
@@ -93,7 +93,8 @@ public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleS
    @Override
    public PeopleQueryCommand createQueryCommand() throws SearchException
    {
-      return new PeopleSolrQueryCommand(solr, new TrcQueryBuilder(solr, new BioSolrConfig()));
+      TrcQueryBuilder builder = new TrcQueryBuilder(new BioSolrConfig());
+      return new PeopleSolrQueryCommand(solr, builder);
    }
 
    private void unregisterRepoListener()
@@ -121,7 +122,7 @@ public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleS
       {
          try
          {
-            solr.shutdown();
+            solr.close();
          }
          catch (Exception e)
          {

@@ -18,7 +18,6 @@ package edu.tamu.tcat.trc.entries.types.article.search.solr;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 
 import org.apache.solr.client.solrj.SolrQuery;
 
@@ -57,7 +56,7 @@ public class ArticleSolrConfig implements SolrIndexConfig
       params.set("qf",TITLE.getName(), AUTHOR_NAMES.getName(), ARTICLE_CONTENT.getName(), ARTICLE_ABSTRACT.getName());
       params.set("hl", "true");
       params.set("hl.fl", ARTICLE_ABSTRACT.getName(), ARTICLE_CONTENT.getName());
-      
+
    }
 
    /**

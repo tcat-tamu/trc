@@ -3,7 +3,7 @@ package edu.tamu.tcat.trc.entries.types.article.search.solr;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 
@@ -22,21 +22,12 @@ public class ArticleSolrQueryCmd implements ArticleQueryCommand
    private static final int DEFAULT_MAX_RESULTS = 25;
 
    private final ArticleQuery query;;
-   private final SolrServer solr;
+   private final SolrClient solr;
    private final TrcQueryBuilder qb;
 
-   public ArticleSolrQueryCmd(SolrServer solr, TrcQueryBuilder qb)
-   {
-      this.solr = solr;
-      this.qb = qb;
-      this.query = new ArticleQuery();
 
-      this.query.max = DEFAULT_MAX_RESULTS;
 
-      qb.max(DEFAULT_MAX_RESULTS);
-   }
-
-   public ArticleSolrQueryCmd(SolrServer solr, ArticleQuery query, TrcQueryBuilder qb)
+   public ArticleSolrQueryCmd(SolrClient solr, ArticleQuery query, TrcQueryBuilder qb)
    {
       this.query = query;
       this.solr = solr;

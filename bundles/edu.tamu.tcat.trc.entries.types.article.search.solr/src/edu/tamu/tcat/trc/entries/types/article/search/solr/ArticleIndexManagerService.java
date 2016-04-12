@@ -23,9 +23,9 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -61,7 +61,7 @@ public class ArticleIndexManagerService implements ArticleSearchService
 
    private ArticleRepository repo;
 
-   private SolrServer solr;
+   private SolrClient solr;
    private ConfigurationProperties config;
 
    private AutoCloseable listenerReg;
@@ -87,7 +87,7 @@ public class ArticleIndexManagerService implements ArticleSearchService
       URI coreUri = solrBaseUri.resolve(solrCore);
       logger.info("Connecting to Solr Service [" + coreUri + "]");
 
-      solr = new HttpSolrServer(coreUri.toString());
+      solr = new HttpSolrClient(coreUri.toString());
    }
 
    public void dispose()
@@ -106,7 +106,7 @@ public class ArticleIndexManagerService implements ArticleSearchService
 
       try
       {
-         solr.shutdown();
+         solr.close();
       }
       catch (Exception ex)
       {
@@ -180,7 +180,7 @@ public class ArticleIndexManagerService implements ArticleSearchService
    @Override
    public ArticleQueryCommand createQuery() throws SearchException
    {
-      return new ArticleSolrQueryCmd(solr, new TrcQueryBuilder(solr, new ArticleSolrConfig()));
+      return createQuery(new ArticleQuery());
    }
 
    /**
@@ -190,7 +190,8 @@ public class ArticleIndexManagerService implements ArticleSearchService
    public ArticleQueryCommand createQuery(ArticleQuery query) throws SearchException
    {
 
-      return new ArticleSolrQueryCmd(solr, query, new TrcQueryBuilder(solr, new ArticleSolrConfig()));
+      TrcQueryBuilder builder = new TrcQueryBuilder(new ArticleSolrConfig());
+      return new ArticleSolrQueryCmd(solr, query, builder);
    }
 
    /**

@@ -26,9 +26,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import org.junit.After;
 import org.junit.Before;
@@ -54,7 +54,7 @@ public class PeopleReIndex
    private PsqlPeopleRepo repo;
 //   private DbBackedObfuscatingIdFactoryProvider factory;
 
-   private SolrServer solr;
+   private SolrClient solr;
    public static final String SOLR_API_ENDPOINT = "solr.api.endpoint";
    public static final String SOLR_CORE = "catalogentries.authors.solr.core";
 
@@ -89,18 +89,18 @@ public class PeopleReIndex
       URI coreUri = solrBaseUri.resolve(solrCore);
       logger.info("Connecting to Solr Service [" + coreUri + "]");
 
-      solr = new HttpSolrServer(coreUri.toString());
+      solr = new HttpSolrClient(coreUri.toString());
    }
 
    @After
-   public void tearDownTest() throws InterruptedException, ExecutionException
+   public void tearDownTest() throws InterruptedException, ExecutionException, IOException
    {
 
       repo.dispose();
       exec.close();
       dsp.dispose();
       config.dispose();
-      solr.shutdown();
+      solr.close();
    }
 
    @Test

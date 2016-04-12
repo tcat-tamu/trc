@@ -22,7 +22,6 @@ import java.util.StringJoiner;
 import java.util.function.Function;
 
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.SolrParams;
@@ -38,13 +37,11 @@ import edu.tamu.tcat.trc.search.solr.SolrQueryBuilder;
  */
 public class TrcQueryBuilder implements SolrQueryBuilder
 {
-//   private SolrServer solr;
    private SolrQuery params;
    private SolrIndexConfig cfg;
 
-   public TrcQueryBuilder(SolrServer solr, SolrIndexConfig cfg) throws SearchException
+   public TrcQueryBuilder(SolrIndexConfig cfg) throws SearchException
    {
-//      this.solr = solr;
       this.cfg = cfg;
       params = new SolrQuery();
 

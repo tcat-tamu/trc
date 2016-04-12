@@ -24,10 +24,10 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -58,8 +58,7 @@ public class BiblioEntriesSearchService implements WorkSearchService, WorkIndexS
    public static final String SOLR_CORE = "catalogentries.works.solr.core";      // TODO rename to trc.biblio.works.solr.core
 
    private ConfigurationProperties config;
-   private SolrServer solr;
-   private AutoCloseable registration;
+   private SolrClient solr;
 
    /**
     * @param cp configuration properties. These are required at initialization.
@@ -81,7 +80,7 @@ public class BiblioEntriesSearchService implements WorkSearchService, WorkIndexS
       URI coreUri = solrBaseUri.resolve(solrCore);
       logger.info("Connecting to Solr Service [" + coreUri + "]");
 
-      solr = new HttpSolrServer(coreUri.toString());
+      solr = new HttpSolrClient(coreUri.toString());
    }
 
    public void deactivate()
@@ -94,7 +93,8 @@ public class BiblioEntriesSearchService implements WorkSearchService, WorkIndexS
    @Override
    public WorkQueryCommand createQueryCommand() throws SearchException
    {
-      return new WorkSolrQueryCommand(solr, new TrcQueryBuilder(solr, new BiblioSolrConfig()));
+      TrcQueryBuilder builder = new TrcQueryBuilder(new BiblioSolrConfig());
+      return new WorkSolrQueryCommand(solr, builder);
    }
 
    private void releaseSolrConnection()
@@ -108,7 +108,7 @@ public class BiblioEntriesSearchService implements WorkSearchService, WorkIndexS
 
       try
       {
-         solr.shutdown();
+         solr.close();
       }
       catch (Exception e)
       {
@@ -185,7 +185,7 @@ public class BiblioEntriesSearchService implements WorkSearchService, WorkIndexS
          QueryResponse response = solr.query(query);
          return  !response.getResults().isEmpty();
       }
-      catch (SolrServerException e)
+      catch (IOException | SolrServerException e)
       {
          logger.log(Level.SEVERE, "Failed to query the work id: [" + id + "] from the SOLR server. " + e);
          return false;

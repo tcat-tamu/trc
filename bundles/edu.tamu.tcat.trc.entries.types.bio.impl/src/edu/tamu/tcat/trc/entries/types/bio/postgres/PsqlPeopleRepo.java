@@ -31,7 +31,6 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 import org.postgresql.util.PGobject;
 
@@ -66,8 +65,6 @@ import edu.tamu.tcat.trc.repo.postgres.NotifyingTaskFactory.ObservableTask;
  */
 public class PsqlPeopleRepo implements PeopleRepository
 {
-   private static final Logger logger = Logger.getLogger(PsqlPeopleRepo.class.getName());
-
    private final static String GET_PERSON_SQL = "SELECT historical_figure FROM people WHERE id = ?";
    private final static String GET_ALL_SQL = "SELECT historical_figure FROM people WHERE active = true";
    private static final String INSERT_SQL = "INSERT INTO people (historical_figure, id) VALUES(?, ?)";

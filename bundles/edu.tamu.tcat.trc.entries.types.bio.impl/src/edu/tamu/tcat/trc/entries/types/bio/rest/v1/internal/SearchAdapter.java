@@ -20,8 +20,6 @@ import java.util.List;
 
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.RestApiV1;
-import edu.tamu.tcat.trc.entries.types.bio.rest.v1.RestApiV1.PersonName;
-import edu.tamu.tcat.trc.entries.types.bio.rest.v1.RestApiV1.SimplePerson;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
 
 /**
