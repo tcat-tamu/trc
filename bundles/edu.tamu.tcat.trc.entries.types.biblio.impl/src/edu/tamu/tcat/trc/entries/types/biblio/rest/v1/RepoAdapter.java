@@ -426,7 +426,7 @@ public class RepoAdapter
       {
          StringJoiner sj = new StringJoiner(", ");
          extraneousVolumeIds.forEach(sj::add);
-         throw new BadRequestException("The following copy reference IDs do not exist: " + sj.toString());
+         throw new BadRequestException("The following volume IDs do not exist: " + sj.toString());
       }
 
       edition.volumes.forEach(volume -> {

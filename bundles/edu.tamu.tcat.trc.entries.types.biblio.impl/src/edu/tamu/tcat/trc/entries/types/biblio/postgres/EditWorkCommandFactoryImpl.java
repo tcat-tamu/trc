@@ -76,7 +76,11 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
          if (currentState != null)
          {
             changeSet.original = currentState.get();
-            changeSet.editions = changeSet.original.editions;
+
+            if (changeSet.original != null)
+            {
+               changeSet.editions = changeSet.original.editions;
+            }
          }
 
       }
@@ -241,7 +245,7 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
          Objects.requireNonNull(copyReferenceIds);
          if (changeSet.original == null || changeSet.original.copyReferences == null)
          {
-            throw new IllegalArgumentException("Work does not contain any copy references");
+            return copyReferenceIds;
          }
 
          Set<String> existingIds = changeSet.original.copyReferences.stream()

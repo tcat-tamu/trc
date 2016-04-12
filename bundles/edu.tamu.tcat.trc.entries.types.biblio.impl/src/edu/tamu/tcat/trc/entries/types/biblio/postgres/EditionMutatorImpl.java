@@ -142,7 +142,7 @@ public class EditionMutatorImpl implements EditionMutator
    {
       Objects.requireNonNull(volumeIds);
 
-      Set<String> existingIds = edition.copyReferences.stream()
+      Set<String> existingIds = edition.volumes.stream()
             .map(cr -> cr.id)
             .collect(Collectors.toSet());
 
