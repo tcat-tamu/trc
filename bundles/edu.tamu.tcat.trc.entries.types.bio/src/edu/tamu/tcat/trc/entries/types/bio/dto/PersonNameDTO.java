@@ -17,6 +17,10 @@ package edu.tamu.tcat.trc.entries.types.bio.dto;
 
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 
+/**
+ * @deprecated This is an implementation-level detail and will be removed from the API in 2.0.0.
+ */
+@Deprecated
 public class PersonNameDTO
 {
    public String title;

@@ -73,13 +73,13 @@ public class PeopleReIndex
       exec = new PostgreSqlExecutor();
       exec.init(dsp);
 
-      DbBackedObfuscatingIdFactoryProvider factory = new DbBackedObfuscatingIdFactoryProvider();
-      factory.setDatabaseExecutor(exec);
-      factory.activate();
+      DbBackedObfuscatingIdFactoryProvider provider = new DbBackedObfuscatingIdFactoryProvider();
+      provider.setDatabaseExecutor(exec);
+      provider.activate();
 
       repo = new PsqlPeopleRepo();
       repo.setDatabaseExecutor(exec);
-      repo.setIdFactory(factory.getIdFactory("people"));
+      repo.setIdFactory(provider);
       repo.activate();
 
       // construct Solr core

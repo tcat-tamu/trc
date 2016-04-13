@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Java REST API Client for TRC Biographies
 Bundle-SymbolicName: edu.tamu.tcat.trc.entries.types.bio.client.java
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.2.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.eclipsesource.jaxrs.jersey-all;bundle-version="2.10.1",
  com.eclipsesource.jaxrs.publisher;bundle-version="4.3.0"

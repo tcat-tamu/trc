@@ -49,7 +49,7 @@ public class PeopleDBAccess
 
       this.repo = new PsqlPeopleRepo();
       repo.setDatabaseExecutor(exec);
-      repo.setIdFactory(idFactory);
+      repo.setIdFactory(idFactoryProvider);
       repo.activate();
    }
 

@@ -29,7 +29,10 @@ import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 
 /**
  * Represents a Person
+ *
+ * @deprecated This is an implementation-level detail and will be removed from the API in 2.0.0.
  */
+@Deprecated
 public class PersonDTO
 {
    public String id;

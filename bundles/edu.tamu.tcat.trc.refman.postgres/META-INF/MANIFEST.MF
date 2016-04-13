@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Postgres
+Bundle-Name: TRC Reference Management Implementation
 Bundle-SymbolicName: edu.tamu.tcat.trc.refman.postgres
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.2.0.qualifier
 Bundle-Vendor: Texas A&M Center for Applied Technology
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: edu.tamu.tcat.account;version="1.0.0",
