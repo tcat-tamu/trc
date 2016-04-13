@@ -20,4 +20,5 @@ Import-Package: com.fasterxml.jackson.core;version="2.3.1",
  org.postgresql.util;version="9.3.1102"
 Export-Package: edu.tamu.tcat.trc.repo;version="1.0.0",
  edu.tamu.tcat.trc.repo.postgres;version="1.0.0",
- edu.tamu.tcat.trc.repo.postgres.id;version="1.0.0"
+ edu.tamu.tcat.trc.repo.postgres.id;version="1.0.0",
+ edu.tamu.tcat.trc.search;version="1.0.0"
