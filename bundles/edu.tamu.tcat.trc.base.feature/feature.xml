@@ -2,159 +2,175 @@
 <feature
       id="edu.tamu.tcat.trc.base.feature"
       label="Base TRC Feature"
-      version="1.0.0.qualifier"
+      version="1.2.0.qualifier"
       provider-name="Texas A&amp;M Engineering Experiment Station">
 
    <description url="http://www.example.com/description">
       This is a base application feature that contains the core plugins needed to launch various TRC related WAR applications. It includes the Equinox OSGi runtime, PostgreSQL and Solr dependencies and other commonly used third-party libraries.
    </description>
 
-   <copyright url="http://www.example.com/copyright">
-      [Enter Copyright Description here.]
+   <copyright>
+      Copyright © 2014-2015, All Rights Reserved.
+Texas Center for Applied Technology
+Texas A&amp;M Engineering Experiment Station
+1470 William D. Fitch Parkway
+College Station, Texas, USA 77845
    </copyright>
 
-   <license url="http://www.example.com/license">
-      [Enter License Description here.]
+   <license url="http://www.apache.org/licenses/LICENSE-2.0">
+      Copyright 2014-20015 Texas A&amp;M Engineering Experiment Station
+
+Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
    </license>
 
    <plugin
          id="org.eclipse.core.contenttype"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="3.5.0.v20150421-2214"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.core.jobs"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="3.7.0.v20150330-2103"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.core.runtime"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="3.11.0.v20150405-1723"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.app"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.3.300.v20150423-1356"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.common"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="3.7.0.v20150402-1709"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.console"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.1.100.v20141023-1406"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.ds"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.4.300.v20150423-1356"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.http.registry"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.1.300.v20130402-1529"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.http.servlet"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.2.1.v20150828-1818"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.http.servletbridge"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.0.300.v20130327-1442"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.preferences"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="3.5.300.v20150408-1437"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.registry"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="3.6.0.v20150318-1503"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.simpleconfigurator"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.1.100.v20150423-1455"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.util"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.0.500.v20130404-1337"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.osgi"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="3.10.101.v20150820-1432"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.osgi.services"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="3.5.0.v20150519-2006"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.update.configurator"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="3.3.300.v20140518-1928"
          unpack="false"/>
 
    <plugin
          id="org.apache.felix.gogo.command"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="0.10.0.v201209301215"
          unpack="false"/>
 
    <plugin
          id="org.apache.felix.gogo.runtime"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="0.10.0.v201209301036"
          unpack="false"/>
 
    <plugin
          id="org.apache.felix.gogo.shell"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="0.10.0.v201212101605"
          unpack="false"/>
 
    <plugin
@@ -168,35 +184,35 @@
          id="edu.tamu.tcat.db.core"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.0.3.20151012-1932"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.db.exec"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.1.0.20151015-1630"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.db.postgresql"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.4.0.20160219-1439"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.db.postgresql.exec"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.2.0.20151015-1630"
          unpack="false"/>
 
    <plugin
          id="org.postgresql"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="9.3.1102"
          unpack="false"/>
 
    <plugin
@@ -224,63 +240,70 @@
          id="com.google.guava"
          download-size="0"
          install-size="0"
-         version="15.0.0.v201403281430"
+         version="10.0.1.v201203051515"
          unpack="false"/>
 
    <plugin
          id="javax.xml"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.3.4.v201005080400"
          unpack="false"/>
 
    <plugin
          id="org.apache.commons.codec"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.7.0"
          unpack="false"/>
 
    <plugin
          id="org.apache.commons.compress"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.9.0"
          unpack="false"/>
 
    <plugin
          id="org.apache.commons.logging"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.1.1.v201101211721"
          unpack="false"/>
 
    <plugin
          id="org.apache.commons.dbcp"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.4.0.v201204271417"
          unpack="false"/>
 
    <plugin
          id="org.apache.commons.dbcp2"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="2.1.1"
          unpack="false"/>
 
    <plugin
          id="org.apache.commons.pool"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.6.0.v201204271246"
          unpack="false"/>
 
    <plugin
          id="org.apache.commons.pool2"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="2.4.2"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.servicemix.bundles.solr-solrj"
+         download-size="0"
+         install-size="0"
+         version="5.5.0.1"
          unpack="false"/>
 
 </feature>

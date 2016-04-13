@@ -51,34 +51,23 @@
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.core</module>
     
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio.rest</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio.postgres</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio.search.solr</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio.impl</module>
     
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.bio</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.bio.impl</module>
     
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.reln</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.reln.rest</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.reln.postgres</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.reln.search.solr</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.reln.impl</module>
 
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.article</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.article.rest</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.article.postgres</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.article.search.solr</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.article.impl</module>
     
     <module>oss.trc/bundles/edu.tamu.tcat.trc.digires</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.digires.books.hathitrust</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.digires.rest</module>
     
     <module>oss.trc/bundles/edu.tamu.tcat.trc.notes</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.notes.rest</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.notes.postgres</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.notes.search.solr</module>
-    
-<!--     <module>oss.trc/bundles/edu.tamu.tcat.trc.refman</module> -->
-<!--     <module>oss.trc/bundles/edu.tamu.tcat.trc.refman.types.zotero</module> -->
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.notes.impl</module>
   </modules>
 
   <repositories>

@@ -12,7 +12,7 @@
     <version>1</version>
   </parent>
 
-  <artifactId>edu.tamu.tcat.trc.sdk.feature</artifactId>
+  <artifactId>edu.tamu.tcat.trc.base.feature</artifactId>
   <packaging>eclipse-feature</packaging>
   <version>1.2.0-SNAPSHOT</version>
 </project>

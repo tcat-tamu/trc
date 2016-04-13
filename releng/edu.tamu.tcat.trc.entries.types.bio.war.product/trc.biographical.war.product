@@ -25,7 +25,7 @@
    <features>
       <feature id="edu.tamu.tcat.trc.entries.types.bio.feature" version="1.0.0.qualifier"/>
       <feature id="edu.tamu.tcat.jersey.feature" version="1.0.0.qualifier"/>
-      <feature id="edu.tamu.tcat.trc.base.feature" version="1.0.0.qualifier"/>
+      <feature id="edu.tamu.tcat.trc.base.feature" version="1.2.0.qualifier"/>
    </features>
 
    <configurations>

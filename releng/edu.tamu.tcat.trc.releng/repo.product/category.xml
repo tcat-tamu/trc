@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature id="edu.tamu.tcat.trc.sdk.feature" version="1.1.1.qualifier">
-      <category name="edu.tamu.tcat.oss"/>
+   <feature url="features/edu.tamu.tcat.trc.sdk.feature_1.2.0.qualifier.jar" id="edu.tamu.tcat.trc.sdk.feature" version="1.2.0.qualifier">
+      <category name="edu.tamu.tcat.trc"/>
    </feature>
-   <category-def name="edu.tamu.tcat.oss" label="TCAT OSS">
+   <category-def name="edu.tamu.tcat.trc" label="Thematic Research Collections">
       <description>
-         TCAT Open Source Software.
+         TCAT Thematic Research Collections framework, core services and entry types.
       </description>
    </category-def>
 </site>
