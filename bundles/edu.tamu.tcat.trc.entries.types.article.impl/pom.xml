@@ -11,8 +11,8 @@
   </parent>
 
   <groupId>edu.tamu.tcat.trc</groupId>
-  <artifactId>edu.tamu.tcat.trc.entries.types.article.postgres</artifactId>
+  <artifactId>edu.tamu.tcat.trc.entries.types.article.impl</artifactId>
   <packaging>eclipse-plugin</packaging>
-  <version>1.1.0-SNAPSHOT</version>
+  <version>1.2.0-SNAPSHOT</version>
 
 </project>
