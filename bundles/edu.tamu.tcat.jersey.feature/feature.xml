@@ -51,7 +51,7 @@ limitations under the License.
          id="com.eclipsesource.jaxrs.publisher"
          download-size="0"
          install-size="0"
-         version="5.3.0.201512270850"
+         version="5.3.1.201602281253"
          unpack="false"/>
 
    <plugin
