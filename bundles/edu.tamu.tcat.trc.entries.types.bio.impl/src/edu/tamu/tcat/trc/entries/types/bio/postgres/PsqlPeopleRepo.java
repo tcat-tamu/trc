@@ -31,6 +31,8 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.postgresql.util.PGobject;
 
@@ -65,6 +67,8 @@ import edu.tamu.tcat.trc.repo.postgres.NotifyingTaskFactory.ObservableTask;
  */
 public class PsqlPeopleRepo implements PeopleRepository
 {
+   private static final Logger logger = Logger.getLogger(PsqlPeopleRepo.class.getName());
+
    private final static String GET_PERSON_SQL = "SELECT historical_figure FROM people WHERE id = ?";
    private final static String GET_ALL_SQL = "SELECT historical_figure FROM people WHERE active = true";
    private static final String INSERT_SQL = "INSERT INTO people (historical_figure, id) VALUES(?, ?)";
@@ -104,16 +108,24 @@ public class PsqlPeopleRepo implements PeopleRepository
    // DS entry point
    public void activate()
    {
-      Objects.requireNonNull(exec);
-      Objects.requireNonNull(idFactory);
+      try
+      {
+         Objects.requireNonNull(exec, "No SQL executor available");
+         Objects.requireNonNull(idFactory, "No id factory available.");
 
-      mapper = new ObjectMapper();
-      mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+         mapper = new ObjectMapper();
+         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-      sqlTaskFactory = new NotifyingTaskFactory();
-      listeners = new EntryUpdateHelper<>();
+         sqlTaskFactory = new NotifyingTaskFactory();
+         listeners = new EntryUpdateHelper<>();
 
-      initCache();
+         initCache();
+      }
+      catch (Throwable ex)
+      {
+         logger.log(Level.SEVERE, "Failed to activate PsqlPeopleRepo", ex);
+         throw ex;
+      }
    }
 
    private void initCache()
