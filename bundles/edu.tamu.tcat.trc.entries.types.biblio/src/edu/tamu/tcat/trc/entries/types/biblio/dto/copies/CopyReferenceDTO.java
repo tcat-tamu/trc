@@ -50,7 +50,10 @@ public class CopyReferenceDTO
 
       dto.id = orig.id;
       dto.type = orig.type;
-      dto.properties = new HashMap<>(orig.properties);
+
+      if (orig.properties != null) {
+         dto.properties = new HashMap<>(orig.properties);
+      }
 
       dto.title = orig.title;
       dto.summary = orig.summary;
