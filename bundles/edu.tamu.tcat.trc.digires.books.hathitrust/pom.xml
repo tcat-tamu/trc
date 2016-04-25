@@ -13,6 +13,6 @@
   <groupId>edu.tamu.tcat.trc</groupId>
   <artifactId>edu.tamu.tcat.trc.digires.books.hathitrust</artifactId>
   <packaging>eclipse-plugin</packaging>
-  <version>1.2.0-SNAPSHOT</version>
+  <version>1.3.0-SNAPSHOT</version>
 
 </project>

@@ -2,17 +2,17 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: TRC Reference Management Implementation
 Bundle-SymbolicName: edu.tamu.tcat.trc.refman.postgres
-Bundle-Version: 1.2.0.qualifier
+Bundle-Version: 1.3.0.qualifier
 Bundle-Vendor: Texas A&M Center for Applied Technology
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: edu.tamu.tcat.account;version="1.0.0",
- edu.tamu.tcat.db.exec.sql;version="1.0.0",
- edu.tamu.tcat.osgi.config;version="1.1.0",
- edu.tamu.tcat.trc.refman,
- edu.tamu.tcat.trc.refman.dto,
- edu.tamu.tcat.trc.refman.search,
- edu.tamu.tcat.trc.refman.types,
- edu.tamu.tcat.trc.refman.types.zotero,
- edu.tamu.tcat.trc.repo;version="1.0.0",
- edu.tamu.tcat.trc.repo.postgres;version="1.0.0"
-Export-Package: edu.tamu.tcat.trc.refman.postgres
+Import-Package: edu.tamu.tcat.account;version="[1.0.0,2.0.0)",
+ edu.tamu.tcat.db.exec.sql;version="[1.0.0,2.0.0)",
+ edu.tamu.tcat.osgi.config;version="[1.1.0,2.0.0)",
+ edu.tamu.tcat.trc.refman;version="[1.3.0,2.0.0)",
+ edu.tamu.tcat.trc.refman.dto;version="[1.3.0,2.0.0)",
+ edu.tamu.tcat.trc.refman.search;version="[1.3.0,2.0.0)",
+ edu.tamu.tcat.trc.refman.types;version="[1.3.0,2.0.0)",
+ edu.tamu.tcat.trc.refman.types.zotero;version="[1.3.0,2.0.0)",
+ edu.tamu.tcat.trc.repo;version="[1.3.0,2.0.0)",
+ edu.tamu.tcat.trc.repo.postgres;version="[1.3.0,2.0.0)"
+Export-Package: edu.tamu.tcat.trc.refman.postgres;version="1.3.0"

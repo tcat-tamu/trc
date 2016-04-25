@@ -2,7 +2,7 @@
 <feature
       id="edu.tamu.tcat.trc.base.feature"
       label="Base TRC Feature"
-      version="1.2.0.qualifier"
+      version="1.3.0.qualifier"
       provider-name="Texas A&amp;M Engineering Experiment Station">
 
    <description url="http://www.example.com/description">
@@ -296,7 +296,7 @@ limitations under the License.
          id="com.google.guava"
          download-size="0"
          install-size="0"
-         version="10.0.1.v201203051515"
+         version="11.0.2.v201303041551"
          unpack="false"/>
 
    <plugin
@@ -380,14 +380,14 @@ limitations under the License.
          id="org.apache.httpcomponents.httpclient"
          download-size="0"
          install-size="0"
-         version="4.2.5.v201305222326"
+         version="4.3.6.v201411290715"
          unpack="false"/>
 
    <plugin
          id="org.apache.httpcomponents.httpcore"
          download-size="0"
          install-size="0"
-         version="4.2.5.v201311072007"
+         version="4.3.3.v201411290715"
          unpack="false"/>
 
    <plugin

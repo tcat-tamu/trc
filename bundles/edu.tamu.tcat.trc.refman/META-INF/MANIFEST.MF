@@ -2,12 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: TRC Reference Management Service
 Bundle-SymbolicName: edu.tamu.tcat.trc.refman
-Bundle-Version: 1.2.0.qualifier
+Bundle-Version: 1.3.0.qualifier
 Bundle-Vendor: Texas A&M Engineering Experiment Station
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: edu.tamu.tcat.trc.refman;version="1.2.0",
- edu.tamu.tcat.trc.refman.dto;version="1.2.0",
- edu.tamu.tcat.trc.refman.providers;version="1.2.0",
- edu.tamu.tcat.trc.refman.search;version="1.2.0",
- edu.tamu.tcat.trc.refman.types;version="1.2.0"
+Export-Package: edu.tamu.tcat.trc.refman;version="1.3.0",
+ edu.tamu.tcat.trc.refman.dto;version="1.3.0",
+ edu.tamu.tcat.trc.refman.providers;version="1.3.0",
+ edu.tamu.tcat.trc.refman.search;version="1.3.0",
+ edu.tamu.tcat.trc.refman.types;version="1.3.0"
 Import-Package: edu.tamu.tcat.account;version="[1.0.0,2.0.0)"

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/edu.tamu.tcat.trc.sdk.feature_1.2.0.qualifier.jar" id="edu.tamu.tcat.trc.sdk.feature" version="1.2.0.qualifier">
+   <feature url="features/edu.tamu.tcat.trc.sdk.feature_1.3.0.qualifier.jar" id="edu.tamu.tcat.trc.sdk.feature" version="1.3.0.qualifier">
       <category name="edu.tamu.tcat.trc"/>
    </feature>
    <category-def name="edu.tamu.tcat.trc" label="Thematic Research Collections">

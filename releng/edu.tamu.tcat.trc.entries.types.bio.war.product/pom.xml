@@ -30,7 +30,7 @@
   <groupId>edu.tamu.tcat</groupId>
   <artifactId>trc.biographical.war</artifactId>
   <packaging>eclipse-repository</packaging>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.3.0-SNAPSHOT</version>
 
   <properties>
     <war-filename>catalog</war-filename>

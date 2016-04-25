@@ -2,7 +2,7 @@
 <feature
       id="edu.tamu.tcat.trc.sdk.feature"
       label="TRC SDK Feature"
-      version="1.2.0.qualifier"
+      version="1.3.0.qualifier"
       provider-name="Texas A&amp;M Engineering Experiment Station">
 
    <description>
@@ -38,196 +38,196 @@ limitations under the License.
          id="edu.tamu.tcat.trc"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="1.3.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.source"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.search.solr"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="1.3.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.search.solr.source"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.digires"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="1.3.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.digires.source"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.digires.rest"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="1.3.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.digires.rest.source"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.digires.books.hathitrust"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="1.3.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.digires.books.hathitrust.source"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.core"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="1.3.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.core.source"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.biblio"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="1.3.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.biblio.source"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.biblio.impl"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="1.3.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.biblio.impl.source"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.bio"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="1.3.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.bio.source"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.bio.impl"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="1.3.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.bio.impl.source"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.reln"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="1.3.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.reln.source"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.reln.impl"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="1.3.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.reln.impl.source"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.article"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="1.3.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.article.source"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.article.impl"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="1.3.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="edu.tamu.tcat.trc.entries.types.article.impl.source"
          download-size="0"
          install-size="0"
-         version="1.2.0.qualifier"
+         version="0.0.0"
          unpack="false"/>
 
 </feature>

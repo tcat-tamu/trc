@@ -15,7 +15,7 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio;
 
-import edu.tamu.tcat.trc.entries.types.bio.Person;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
 
 /**
  * The bibliographic name of the creator or other contributor to a work along with the role
