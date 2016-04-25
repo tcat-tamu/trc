@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,6 +29,8 @@ import edu.tamu.tcat.trc.search.solr.impl.BasicFields;
 public class BiblioSolrConfig implements SolrIndexConfig
 {
    public static final SolrIndexField<String> ID = new BasicFields.BasicString("id");
+   @Deprecated // see note on Work#getType()
+   public static final SolrIndexField<String> TYPE = new BasicFields.BasicString("type");
    public static final BasicFields.SearchProxyField<BiblioSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<BiblioSearchProxy>("workInfo", BiblioSearchProxy.class);
    public static final SolrIndexField<String> AUTHOR_IDS = new BasicFields.BasicString("authorIds");
    public static final SolrIndexField<String> AUTHOR_NAMES = new BasicFields.BasicString("authorNames");
@@ -100,6 +102,7 @@ public class BiblioSolrConfig implements SolrIndexConfig
    public Collection<? extends SolrIndexField<?>> getIndexedFields()
    {
       return Arrays.asList(ID,
+                           TYPE,
                            AUTHOR_IDS,
                            AUTHOR_NAMES,
                            LANGUAGES,
@@ -124,6 +127,7 @@ public class BiblioSolrConfig implements SolrIndexConfig
    public Collection<? extends SolrIndexField<?>> getStoredFields()
    {
       return Arrays.asList(ID,
+                           TYPE,
                            SEARCH_PROXY,
                            AUTHOR_IDS,
                            AUTHOR_NAMES,

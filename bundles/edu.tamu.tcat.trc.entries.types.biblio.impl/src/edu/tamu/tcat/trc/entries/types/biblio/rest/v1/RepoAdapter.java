@@ -60,6 +60,8 @@ public class RepoAdapter
 
       dto.id = work.getId();
 
+      dto.type = work.getType();
+
       dto.authors = StreamSupport.stream(work.getAuthors().spliterator(), false)
             .map(RepoAdapter::toDTO)
             .collect(Collectors.toList());

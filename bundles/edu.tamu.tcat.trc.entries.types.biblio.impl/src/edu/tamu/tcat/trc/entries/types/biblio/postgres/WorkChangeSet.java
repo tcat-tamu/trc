@@ -15,6 +15,8 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.CopyReferenceDTO;
 public class WorkChangeSet
 {
    public String id;
+   @Deprecated
+   public String type;
    public List<AuthorReferenceDTO> authors = new ArrayList<>();
    public Collection<TitleDTO> titles = new ArrayList<>();
    public List<AuthorReferenceDTO> otherAuthors = new ArrayList<>();

@@ -48,6 +48,13 @@ public interface EditWorkCommand extends RecordEditCommand
    String getId();
 
    /**
+    *
+    * @param type
+    */
+   @Deprecated // see note on Work#getType()
+   void setType(String type);
+
+   /**
     * Updates the list of authors.
     * @param authors
     */

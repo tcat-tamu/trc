@@ -41,6 +41,8 @@ public class RestApiV1
    {
       // work id; used in URIs
       public String id;
+      @Deprecated // see note on Work#getType()
+      public String type;
       // relative uri to the work, e.g. /work/{id}
       public String uri;
       public List<AuthorRef> authors;
@@ -76,6 +78,8 @@ public class RestApiV1
    public static class Work
    {
       public String id;
+      @Deprecated // see note on Work#getType()
+      public String type;
       public List<AuthorRef> authors;
       public Collection<Title> titles;
       public List<AuthorRef> otherAuthors;

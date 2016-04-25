@@ -64,6 +64,7 @@ public class WorkCollectionResource
                @QueryParam(value = "t") List<String> titles,
                @QueryParam(value = "aid") List<String> authorIds, // specify same param with multiple values to get a list
                @QueryParam(value = "dr") List<RestApiV1.DateRangeParam> dateRanges,
+               @QueryParam(value = "type") String type,
                @QueryParam(value = "off") @DefaultValue("0")   int offset,
                @QueryParam(value = "max") @DefaultValue("100") int numResults)
    {
@@ -79,6 +80,11 @@ public class WorkCollectionResource
          if (query != null)
          {
             cmd.query(query);
+         }
+
+         if (type != null)
+         {
+            cmd.queryType(type);
          }
 
          for (String n : authorNames)
@@ -122,6 +128,7 @@ public class WorkCollectionResource
 
       // query parameters common to current/next/previous queries
       qsbCommon.add("q", query);
+      qsbCommon.add("type", type);
       authorNames.stream().forEach(name -> qsbCommon.add("a", name));
       titles.stream().forEach(title -> qsbCommon.add("t", title));
       authorIds.stream().forEach(authorId -> qsbCommon.add("aid", authorId));
@@ -318,7 +325,10 @@ public class WorkCollectionResource
        */
       public void add(String param, Object value)
       {
-         params.add(new BasicNameValuePair(param, String.valueOf(value)));
+         if (value != null)
+         {
+            params.add(new BasicNameValuePair(param, String.valueOf(value)));
+         }
       }
 
       /**

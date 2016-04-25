@@ -52,6 +52,7 @@ public class ModelAdapter
             .orElse(null);
 
       return new BasicWork(dto.id,
+            dto.type,
             new BasicAuthorList(authors),
             new BasicTitleDefinition(titles),
             new BasicAuthorList(otherAuthors),

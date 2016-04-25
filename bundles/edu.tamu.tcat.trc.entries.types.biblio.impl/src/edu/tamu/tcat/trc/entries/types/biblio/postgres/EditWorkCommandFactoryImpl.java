@@ -90,6 +90,13 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
       }
 
       @Override
+      @Deprecated
+      public void setType(String type)
+      {
+         changeSet.type = type;
+      }
+
+      @Override
       public void setAuthors(List<AuthorReferenceDTO> authors)
       {
          changeSet.authors = authors;
@@ -268,7 +275,10 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
 
          // HACK: This should be done asynchronously.
          Work work = ModelAdapter.adapt(data);
-         indexService.index(work);
+         if (indexService != null)
+         {
+            indexService.index(work);
+         }
 
          return future;
       }
@@ -283,6 +293,7 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
          }
 
          data.id = changeSet.id;
+         data.type = changeSet.type;
          data.authors = changeSet.authors;
          data.titles = changeSet.titles;
          data.otherAuthors = changeSet.otherAuthors;

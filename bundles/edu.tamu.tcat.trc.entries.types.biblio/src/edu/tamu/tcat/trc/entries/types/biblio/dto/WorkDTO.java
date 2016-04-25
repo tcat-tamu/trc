@@ -34,6 +34,8 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.CopyReferenceDTO;
 public class WorkDTO
 {
    public String id;
+   @Deprecated // see note on Work#getType()
+   public String type;
    public List<AuthorReferenceDTO> authors = new ArrayList<>();
    public Collection<TitleDTO> titles = new ArrayList<>();
    public List<AuthorReferenceDTO> otherAuthors = new ArrayList<>();
@@ -53,6 +55,8 @@ public class WorkDTO
       }
 
       dto.id = work.getId();
+
+      dto.type = work.getType();
 
       dto.authors = StreamSupport.stream(work.getAuthors().spliterator(), false)
             .map(AuthorReferenceDTO::create)

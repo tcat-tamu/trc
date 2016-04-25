@@ -16,6 +16,8 @@ import edu.tamu.tcat.trc.entries.types.biblio.Work;
 public class BasicWork implements Work
 {
    private final String id;
+   @Deprecated // see note on Work#getType()
+   private final String type;
    private final AuthorList authors;
    private final TitleDefinition title;
    private final AuthorList otherAuthors;
@@ -35,7 +37,33 @@ public class BasicWork implements Work
                     CopyReference defaultCopyReference,
                     Set<CopyReference> copyReferences)
    {
+      this(id,
+           null,
+           authors,
+           title,
+           otherAuthors,
+           editions,
+           series,
+           summary,
+           defaultCopyReference,
+           copyReferences);
+   }
+
+   @Deprecated // see note on Work#getType()
+   public BasicWork(String id,
+                    String type,
+                    AuthorList authors,
+                    TitleDefinition title,
+                    AuthorList otherAuthors,
+                    List<Edition> editions,
+                    String series,
+                    String summary,
+                    CopyReference defaultCopyReference,
+                    Set<CopyReference> copyReferences)
+   {
       this.id = id;
+
+      this.type = type;
 
       // TODO: should copies be created of aggregate types?
       this.authors = authors;
@@ -56,6 +84,13 @@ public class BasicWork implements Work
    public String getId()
    {
       return id;
+   }
+
+   @Override
+   @Deprecated
+   public String getType()
+   {
+      return type;
    }
 
    @Override

@@ -65,6 +65,8 @@ public class WorkRepositoryImpl implements WorkRepository
    /**
     * Bind method for search index service dependency (usually called by dependency injection layer)
     *
+    * Note that this is an optional dependency.
+    *
     * @param workIndexService
     */
    public void setIndexService(WorkIndexService workIndexService)
@@ -79,7 +81,6 @@ public class WorkRepositoryImpl implements WorkRepository
    public void activate()
    {
       Objects.requireNonNull(sqlExecutor, "No SQL Executor provided.");
-      Objects.requireNonNull(indexService, "No Indexing service provided.");
 
       repoBackend = buildDocumentRepository();
       idFactory = idFactoryProvider.getIdFactory(ID_CONTEXT_WORKS);
@@ -194,7 +195,7 @@ public class WorkRepositoryImpl implements WorkRepository
          throw new IllegalStateException("Encountered an unexpected error while trying to delete work with id {" + workId + "}.", e);
       }
 
-      if (result)
+      if (result && indexService != null)
       {
          indexService.remove(workId);
       }

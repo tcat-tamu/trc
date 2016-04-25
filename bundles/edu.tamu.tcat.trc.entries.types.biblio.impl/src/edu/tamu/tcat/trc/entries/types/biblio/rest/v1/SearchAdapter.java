@@ -37,6 +37,7 @@ public class SearchAdapter
       {
          RestApiV1.WorkSearchResult dto = new RestApiV1.WorkSearchResult();
          dto.id = orig.id;
+         dto.type = orig.type;
          dto.label = orig.label;
          dto.title = orig.title;
          dto.uri = orig.uri;

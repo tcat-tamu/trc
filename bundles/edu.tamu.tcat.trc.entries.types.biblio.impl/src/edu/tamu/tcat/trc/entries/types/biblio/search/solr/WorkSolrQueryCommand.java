@@ -118,6 +118,14 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
    }
 
    @Override
+   @Deprecated
+   public void queryType(String type) throws SearchException
+   {
+      // Add quotes so each term acts as a literal
+      qb.query(BiblioSolrConfig.TYPE, '"' + type + '"');
+   }
+
+   @Override
    public void queryTitle(String title) throws SearchException
    {
       // Add quotes so each term acts as a literal
