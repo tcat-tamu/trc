@@ -247,7 +247,7 @@ public class WorkCollectionResource
          {
             // wrap all other exceptions in a server error
             String message = "Encountered an unexpected error while updating work {" + id + "}.";
-            logger.log(Level.SEVERE, message);
+            logger.log(Level.SEVERE, message, e);
             throw new InternalServerErrorException(message, e);
          }
 
