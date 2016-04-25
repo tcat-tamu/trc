@@ -487,16 +487,17 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
             int ct = ps.executeUpdate();
             if (ct != 1)
                throw new IllegalStateException("Failed to update record for id [" + id + "]. Unexpected number of rows updates [" + ct + "]");
+
+            cache.invalidate(id);
+
+            return id;
          }
          catch (IOException e)
          {
             throw new IllegalArgumentException("Failed to serialize the supplied record [" + record + "]", e);
          }
-
-         return id;
       });
 
-      task.afterExecution(recordId -> cache.invalidate(recordId));
 //      TODO add notifications
 //      task.afterExecution(recordId -> notifyPersonUpdate(UpdateEvent.UpdateAction.UPDATE, id));
 
