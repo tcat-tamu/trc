@@ -397,4 +397,11 @@ limitations under the License.
          version="1.0.1.20150728-2137"
          unpack="false"/>
 
+   <plugin
+         id="org.apache.servicemix.bundles.noggit"
+         download-size="0"
+         install-size="0"
+         version="0.7.0.1"
+         unpack="false"/>
+
 </feature>
