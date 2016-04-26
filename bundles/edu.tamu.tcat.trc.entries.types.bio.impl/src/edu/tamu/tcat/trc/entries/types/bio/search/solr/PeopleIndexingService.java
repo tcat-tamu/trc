@@ -16,7 +16,10 @@
 package edu.tamu.tcat.trc.entries.types.bio.search.solr;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
@@ -37,9 +40,13 @@ import edu.tamu.tcat.trc.entries.types.bio.search.PeopleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleSearchService;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
+import opennlp.tools.sentdetect.SentenceDetectorME;
+import opennlp.tools.sentdetect.SentenceModel;
 
 public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleSearchService
 {
+   private static final String OPENNLP_MODELS_SENTENCE_PATH = "opennlp.models.sentence.path";
+
    private final static Logger logger = Logger.getLogger(PeopleIndexingService.class.getName());
 
    /** Configuration property key that defines the URI for the Solr server. */
@@ -161,7 +168,7 @@ public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleS
       Collection<SolrInputDocument> solrDocs = new ArrayList<>();
       try
       {
-         BioDocument doc = BioDocument.create(person);
+         BioDocument doc = BioDocument.create(person, this::extractFirstSentence);
          solrDocs.add(doc.getDocument());
       }
       catch (Exception e)
@@ -186,7 +193,7 @@ public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleS
       Collection<SolrInputDocument> solrDocs = new ArrayList<>();
       try
       {
-         BioDocument doc = BioDocument.create(person);
+         BioDocument doc = BioDocument.create(person, this::extractFirstSentence);
          solrDocs.add(doc.getDocument());
       }
       catch (Exception e)
@@ -218,5 +225,46 @@ public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleS
       {
          logger.log(Level.SEVERE, "Failed to delete the person id: [" + id + "] from the SOLR server. " + e);
       }
+   }
+
+   /**
+    * Gets the first sentence from a string of English text,
+    * or {@code null} if the string cannot be parsed.
+    *
+    * @param text
+    * @return
+    */
+   private String extractFirstSentence(String text)
+   {
+      if (text == null || text.trim().isEmpty())
+         return "";
+
+      Path sentenceModelPath = null;
+      try {
+         sentenceModelPath = config.getPropertyValue(OPENNLP_MODELS_SENTENCE_PATH, Path.class);
+      } catch (Exception ex) {
+         // do nothing
+      }
+
+      if (sentenceModelPath != null)
+      {
+         try (InputStream modelInput = Files.newInputStream(sentenceModelPath))
+         {
+            SentenceModel sentenceModel = new SentenceModel(modelInput);
+            SentenceDetectorME detector = new SentenceDetectorME(sentenceModel);
+            String[] summarySentences = detector.sentDetect(text);
+            return (summarySentences.length == 0) ? null : summarySentences[0];
+         }
+         catch (IOException e)
+         {
+            logger.log(Level.SEVERE, "Unable to open sentence detect model input file", e);
+         }
+      }
+
+      int ix = text.indexOf(".");
+      if (ix < 0)
+         ix = text.length();
+
+      return text.substring(0, Math.min(ix, 140));
    }
 }
