@@ -1,5 +1,7 @@
 package edu.tamu.tcat.trc.entries.types.bio.postgres.model;
 
+import java.util.Objects;
+
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
 
@@ -58,5 +60,34 @@ public class PersonNameImpl implements PersonName
    public String getDisplayName()
    {
       return displayName;
+   }
+
+   @Override
+   public boolean equals(Object obj)
+   {
+      if (!PersonName.class.isInstance(obj))
+         return false;
+
+      PersonName other = (PersonName)obj;
+      return Objects.equals(title, other.getTitle())
+          && Objects.equals(givenName, other.getGivenName())
+          && Objects.equals(middleName, other.getMiddleName())
+          && Objects.equals(familyName, other.getFamilyName())
+          && Objects.equals(suffix, other.getSuffix())
+          && Objects.equals(displayName, other.getDisplayName());
+   }
+
+   @Override
+   public int hashCode()
+   {
+      int result = 17;
+      result = 31 * result + title.hashCode();
+      result = 31 * result + givenName.hashCode();
+      result = 31 * result + middleName.hashCode();
+      result = 31 * result + familyName.hashCode();
+      result = 31 * result + suffix.hashCode();
+      result = 31 * result + displayName.hashCode();
+
+      return result;
    }
 }
