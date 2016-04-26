@@ -18,7 +18,6 @@ package edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.RestApiV1;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
 
@@ -32,6 +31,7 @@ public class SearchAdapter
    {
       if (origList == null)
          return null;
+
       List<RestApiV1.SimplePerson> dtoList = new ArrayList<>();
       for (BioSearchProxy orig : origList)
       {
@@ -47,18 +47,16 @@ public class SearchAdapter
       return dtoList;
    }
 
-   private static RestApiV1.PersonName toDTO(PersonNameDTO orig)
+   private static RestApiV1.PersonName toDTO(BioSearchProxy.PersonNameDTO orig)
    {
       if (orig == null)
          return null;
-      RestApiV1.PersonName dto = new RestApiV1.PersonName();
-      dto.title = orig.title;
-      dto.givenName = orig.givenName;
-      dto.middleName = orig.middleName;
-      dto.familyName = orig.familyName;
-      dto.suffix = orig.suffix;
 
-      dto.label = orig.displayName;
+      RestApiV1.PersonName dto = new RestApiV1.PersonName();
+      dto.givenName = orig.given;
+      dto.familyName = orig.family;
+      dto.label = orig.display;
+
       return dto;
    }
 }
