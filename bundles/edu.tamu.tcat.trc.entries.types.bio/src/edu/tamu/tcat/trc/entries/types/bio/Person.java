@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,6 +15,9 @@
  */
 package edu.tamu.tcat.trc.entries.types.bio;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
@@ -39,10 +42,26 @@ public interface Person
    PersonName getCanonicalName();
 
    /**
-    * @return a set of alternative names for this person.
+    * @return a set of alternative names for this person. Note that the canonical name is not a
+    *       member of this set.
     * @see #getCanonicalName()
     */
-   Set<? extends PersonName> getAlternativeNames();
+   Set<PersonName> getAlternativeNames();    // FIXME PersonName does not implement notion of equality. Set is not an appropriate data type
+
+   /**
+    * @return All names associated with this person, including the person's canonical name.
+    */
+   default Collection<PersonName> getNames()
+   {
+      List<PersonName> result = new ArrayList<>();
+      PersonName cname = getCanonicalName();
+      if (cname != null)
+         result.add(cname);
+
+      result.addAll(getAlternativeNames());
+
+      return result;
+   }
 
    /**
     * @return The date of this person's birth. NOTE that this API is provisional and will likely change
