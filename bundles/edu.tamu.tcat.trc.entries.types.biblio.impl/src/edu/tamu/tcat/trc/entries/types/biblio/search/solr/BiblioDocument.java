@@ -296,17 +296,23 @@ public class BiblioDocument
          indexDocument.set(BiblioSolrConfig.PUBLISHER, publication.publisher);
       else
          indexDocument.set(BiblioSolrConfig.PUBLISHER, "");
+
       if (publication.place != null)
          indexDocument.set(BiblioSolrConfig.PUBLISHER_LOCATION, publication.place);
       else
          indexDocument.set(BiblioSolrConfig.PUBLISHER_LOCATION, "");
 
       DateDescriptionDTO dateDescription = publication.date;
-      indexDocument.set(BiblioSolrConfig.PUBLICATION_DATE_STRING, dateDescription.description);
+      if (dateDescription != null)
+      {
+         String description = dateDescription.description;
+         if (description != null)
+            indexDocument.set(BiblioSolrConfig.PUBLICATION_DATE_STRING, description);
 
-      LocalDate pubDate = extractDate(dateDescription.calendar);
-      if (pubDate != null)
-         indexDocument.set(BiblioSolrConfig.PUBLICATION_DATE, pubDate);
+         LocalDate pubDate = extractDate(dateDescription.calendar);
+         if (pubDate != null)
+            indexDocument.set(BiblioSolrConfig.PUBLICATION_DATE, pubDate);
+      }
    }
 
    private LocalDate extractDate(String calendar)
@@ -332,18 +338,23 @@ public class BiblioDocument
          indexDocument.update(BiblioSolrConfig.PUBLISHER, publication.publisher);
       else
          indexDocument.update(BiblioSolrConfig.PUBLISHER, "");
+
       if (publication.place != null)
          indexDocument.update(BiblioSolrConfig.PUBLISHER_LOCATION, publication.place);
       else
          indexDocument.update(BiblioSolrConfig.PUBLISHER_LOCATION, "");
 
       DateDescriptionDTO dateDescription = publication.date;
-      indexDocument.update(BiblioSolrConfig.PUBLICATION_DATE_STRING, dateDescription.description);
+      if (dateDescription != null)
+      {
+          String description = dateDescription.description;
+          if (description != null)
+              indexDocument.update(BiblioSolrConfig.PUBLICATION_DATE_STRING, description);
 
-      LocalDate pubDate = extractDate(dateDescription.calendar);
-      // TODO if null, we need to remove it from the index
-      if (pubDate != null)
-         indexDocument.update(BiblioSolrConfig.PUBLICATION_DATE, pubDate);
-
+          LocalDate pubDate = extractDate(dateDescription.calendar);
+          // TODO if null, we need to remove it from the index
+          if (pubDate != null)
+             indexDocument.update(BiblioSolrConfig.PUBLICATION_DATE, pubDate);
+       }
    }
 }
