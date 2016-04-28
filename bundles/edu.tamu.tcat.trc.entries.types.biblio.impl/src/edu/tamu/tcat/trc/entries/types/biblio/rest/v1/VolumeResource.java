@@ -65,7 +65,7 @@ public class VolumeResource
    @PUT
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public void updateVolume(RestApiV1.Volume volume)
+   public RestApiV1.Volume updateVolume(RestApiV1.Volume volume)
    {
       volumePersistenceAdapter.edit(mutator -> {
          if (!Objects.equals(volume.id, mutator.getId()))
@@ -75,6 +75,9 @@ public class VolumeResource
 
          RepoAdapter.apply(volume, mutator);
       });
+
+      // HACK rely on synchronous behavior of above method
+      return getVolume();
    }
 
    @DELETE

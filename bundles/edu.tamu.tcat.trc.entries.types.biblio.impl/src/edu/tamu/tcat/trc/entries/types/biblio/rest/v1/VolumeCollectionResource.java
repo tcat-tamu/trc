@@ -47,11 +47,11 @@ public class VolumeCollectionResource
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.VolumeId createVolume(RestApiV1.Volume volume)
+   public RestApiV1.Volume createVolume(RestApiV1.Volume volume)
    {
-      RestApiV1.VolumeId vid = new RestApiV1.VolumeId();
-      vid.id = repoHelper.create(mutator -> RepoAdapter.apply(volume, mutator));
-      return vid;
+      String id = repoHelper.create(mutator -> RepoAdapter.apply(volume, mutator));
+      Volume createdVolume = repoHelper.get(id).get();
+      return RepoAdapter.toDTO(createdVolume);
    }
 
    /**
