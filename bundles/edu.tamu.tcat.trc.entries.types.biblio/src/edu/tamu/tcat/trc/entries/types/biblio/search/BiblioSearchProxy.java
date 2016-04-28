@@ -19,11 +19,14 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
+import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.types.biblio.AuthorList;
 import edu.tamu.tcat.trc.entries.types.biblio.AuthorReference;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
+import edu.tamu.tcat.trc.entries.types.biblio.PublicationInfo;
 import edu.tamu.tcat.trc.entries.types.biblio.Title;
 import edu.tamu.tcat.trc.entries.types.biblio.TitleDefinition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
@@ -58,10 +61,9 @@ public class BiblioSearchProxy
       TitleDefinition titleDefn = w.getTitle();
       Set<Title> titles = titleDefn.get();
       LocalDate d = w.getEditions().stream()
-            .map(ed ->
-            ed.getPublicationInfo().getPublicationDate().getCalendar())
-            .filter(pubDate ->
-            pubDate != null)
+            .map(Edition::getPublicationInfo).filter(Objects::nonNull)
+            .map(PublicationInfo::getPublicationDate).filter(Objects::nonNull)
+            .map(DateDescription::getCalendar).filter(Objects::nonNull)
             .min(LocalDate::compareTo)
             .orElse(null);
 
@@ -93,10 +95,9 @@ public class BiblioSearchProxy
 
       Set<Title> titleSet = new HashSet<>(e.getTitles());
       LocalDate d = e.getVolumes().stream()
-            .map(ed ->
-            ed.getPublicationInfo().getPublicationDate().getCalendar())
-            .filter(pubDate ->
-            pubDate != null)
+            .map(Volume::getPublicationInfo).filter(Objects::nonNull)
+            .map(PublicationInfo::getPublicationDate).filter(Objects::nonNull)
+            .map(DateDescription::getCalendar).filter(Objects::nonNull)
             .min(LocalDate::compareTo)
             .orElse(null);
 
@@ -122,21 +123,35 @@ public class BiblioSearchProxy
    public static BiblioSearchProxy create(String workId, String editionId, Volume v)
    {
       BiblioSearchProxy result = new BiblioSearchProxy();
-      Set<Title> titleSet = new HashSet<>(v.getTitles());
-      LocalDate localDate = v.getPublicationInfo().getPublicationDate().getCalendar();
-      String pubYear = getNormalizedYear(localDate);
-      List<AuthorReference> authors = v.getAuthors();
-      String name = getAuthorName(authors);
-
 
       result.id = v.getId();
       result.uri = "works/" + workId + "/editions/" + editionId + "/volumes/" + v.getId();
+
+      Set<Title> titleSet = new HashSet<>(v.getTitles());
       result.title = getEntityTitle(titleSet);
-      result.label = constructLabel(titleSet, name, pubYear);
+
+      String pubYear = null;
+      PublicationInfo publicationInfo = v.getPublicationInfo();
+      if (publicationInfo != null)
+      {
+         DateDescription publicationDate = publicationInfo.getPublicationDate();
+         if (publicationDate != null)
+         {
+            LocalDate localDate = publicationDate.getCalendar();
+            pubYear = getNormalizedYear(localDate);
+         }
+      }
+
       result.pubYear = pubYear;
-      result.summary = v.getSummary();
+
+      List<AuthorReference> authors = v.getAuthors();
+
+      String name = getAuthorName(authors);
+      result.label = constructLabel(titleSet, name, pubYear);
 
       authors.forEach(author -> result.authors.add(AuthorReferenceDTO.create(author)));
+
+      result.summary = v.getSummary();
 
       return result;
 
