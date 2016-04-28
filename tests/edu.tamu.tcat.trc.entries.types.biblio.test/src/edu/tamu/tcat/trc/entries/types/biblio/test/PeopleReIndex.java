@@ -124,7 +124,8 @@ public class PeopleReIndex
          while (people.hasNext())
          {
             Person person = people.next();
-            BioDocument peopleProxy = BioDocument.create(person);
+            // HACK second argument should ideally be first sentence extractor
+            BioDocument peopleProxy = BioDocument.create(person, s -> s);
             solrDocs.add(peopleProxy.getDocument());
          }
       }
