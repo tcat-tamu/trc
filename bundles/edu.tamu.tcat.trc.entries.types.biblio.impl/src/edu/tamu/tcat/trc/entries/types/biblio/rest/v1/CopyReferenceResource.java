@@ -42,7 +42,7 @@ public class CopyReferenceResource
    @PUT
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public void updateCopyReference(RestApiV1.CopyReference updatedCopyReference)
+   public RestApiV1.CopyReference updateCopyReference(RestApiV1.CopyReference updatedCopyReference)
    {
       repoHelper.edit(mutator -> {
          if (updatedCopyReference.id != mutator.getId())
@@ -52,6 +52,9 @@ public class CopyReferenceResource
 
          RepoAdapter.apply(updatedCopyReference, mutator);
       });
+
+      // HACK rely on synchronous behavior of above method
+      return getCopyReference();
    }
 
    /**

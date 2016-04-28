@@ -65,11 +65,11 @@ public class CopyReferenceCollectionResource
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.CopyReferenceId createCopyReference(RestApiV1.CopyReference dto)
+   public RestApiV1.CopyReference createCopyReference(RestApiV1.CopyReference dto)
    {
-      RestApiV1.CopyReferenceId copyReferenceId = new RestApiV1.CopyReferenceId();
-      copyReferenceId.id = repoHelper.create(mutator -> RepoAdapter.apply(dto, mutator));
-      return copyReferenceId;
+      String id = repoHelper.create(mutator -> RepoAdapter.apply(dto, mutator));
+      CopyReference copyReference = repoHelper.get(id).get();
+      return RepoAdapter.toDTO(copyReference);
    }
 
 
