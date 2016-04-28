@@ -77,7 +77,13 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
 
             if (changeSet.original != null)
             {
+               changeSet.authors = changeSet.original.authors;
+               changeSet.titles = changeSet.original.titles;
+               changeSet.otherAuthors = changeSet.original.otherAuthors;
                changeSet.editions = changeSet.original.editions;
+               changeSet.series = changeSet.original.series;
+               changeSet.summary = changeSet.original.summary;
+               changeSet.defaultCopyReferenceId = changeSet.original.defaultCopyReferenceId;
             }
          }
 
