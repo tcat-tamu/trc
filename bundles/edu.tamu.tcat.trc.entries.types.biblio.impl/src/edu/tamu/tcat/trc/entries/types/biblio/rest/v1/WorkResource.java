@@ -61,7 +61,7 @@ public class WorkResource
    @PUT
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public void updateWork(RestApiV1.Work updatedWork)
+   public RestApiV1.Work updateWork(RestApiV1.Work updatedWork)
    {
       workPersistenceAdapter.edit(command -> {
          if (!Objects.equals(updatedWork.id, command.getId()))
@@ -71,6 +71,10 @@ public class WorkResource
 
          RepoAdapter.apply(updatedWork, command);
       });
+
+      // HACK rely on synchronous behavior of above method
+      // return updated work to client
+      return getWork();
    }
 
    /**

@@ -165,16 +165,16 @@ public class WorkCollectionResource
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.WorkId createWork(RestApiV1.Work work)
+   public RestApiV1.Work createWork(RestApiV1.Work work)
    {
       EditWorkCommand command = repo.createWork();
       RepoAdapter.apply(work, command);
 
       try
       {
-         RestApiV1.WorkId wid = new RestApiV1.WorkId();
-         wid.id = command.execute().get();
-         return wid;
+         String id = command.execute().get();
+         Work createdWork = repo.getWork(id);
+         return RepoAdapter.toDTO(createdWork);
       }
       catch (Exception e)
       {
