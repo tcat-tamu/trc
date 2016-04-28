@@ -46,11 +46,11 @@ public class EditionCollectionResource
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.EditionId createEdition(RestApiV1.Edition edition)
+   public RestApiV1.Edition createEdition(RestApiV1.Edition edition)
    {
-      RestApiV1.EditionId eid = new RestApiV1.EditionId();
-      eid.id = collectionPersistenceAdapter.create(mutator -> RepoAdapter.apply(edition, mutator));
-      return eid;
+      String id = collectionPersistenceAdapter.create(mutator -> RepoAdapter.apply(edition, mutator));
+      Edition createdEdition = collectionPersistenceAdapter.get(id).get();
+      return RepoAdapter.toDTO(createdEdition);
    }
 
    /**

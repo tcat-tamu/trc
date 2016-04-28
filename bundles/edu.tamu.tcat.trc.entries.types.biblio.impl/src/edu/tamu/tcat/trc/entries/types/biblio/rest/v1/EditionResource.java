@@ -76,7 +76,7 @@ public class EditionResource
     */
    @PUT
    @Produces(MediaType.APPLICATION_JSON)
-   public void updateEdition(RestApiV1.Edition edition)
+   public RestApiV1.Edition updateEdition(RestApiV1.Edition edition)
    {
       editionPersistenceAdapter.edit(mutator -> {
          if (!Objects.equals(edition.id, mutator.getId()))
@@ -86,6 +86,9 @@ public class EditionResource
 
          RepoAdapter.apply(edition, mutator);
       });
+
+      // HACK rely on synchronous behavior of above method
+      return getEdition();
    }
 
    /**
