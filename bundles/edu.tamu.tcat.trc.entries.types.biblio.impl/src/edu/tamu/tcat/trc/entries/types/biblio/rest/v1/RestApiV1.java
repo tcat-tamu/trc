@@ -60,21 +60,6 @@ public class RestApiV1
       public String role;
    }
 
-   public static class WorkId
-   {
-      public String id;
-   }
-
-   public static class EditionId
-   {
-      public String id;
-   }
-
-   public static class VolumeId
-   {
-      public String id;
-   }
-
    public static class Work
    {
       public String id;
@@ -179,11 +164,6 @@ public class RestApiV1
       {
          return start+".."+end;
       }
-   }
-
-   public static class CopyReferenceId
-   {
-      public String id;
    }
 
    public static class CopyReference
