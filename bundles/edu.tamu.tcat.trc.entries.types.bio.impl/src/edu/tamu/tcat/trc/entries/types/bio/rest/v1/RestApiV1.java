@@ -16,6 +16,7 @@
 package edu.tamu.tcat.trc.entries.types.bio.rest.v1;
 
 import java.net.URI;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -97,7 +98,7 @@ public class RestApiV1
        *  language variants and more. This field is intended to document key names by which
        *  this person is known other than the person's primary name.
        */
-      public Set<PersonName> altNames;
+      public Set<PersonName> altNames = new HashSet<>();
 
       // TODO simplify? Use links to historical events separately? Might have more than one
       //      (e.g., for contested/uncertain dates). Need to think through this a bit.
@@ -207,12 +208,12 @@ public class RestApiV1
       public int hashCode()
       {
          int result = 17;
-         result = 31 * result + ((label == null) ? label.hashCode() : 0);
-         result = 31 * result + ((title == null) ? title.hashCode() : 0);
-         result = 31 * result + ((givenName == null) ? givenName.hashCode() : 0);
-         result = 31 * result + ((middleName == null) ? middleName.hashCode() : 0);
-         result = 31 * result + ((familyName == null) ? familyName.hashCode() : 0);
-         result = 31 * result + ((suffix == null) ? suffix.hashCode() : 0);
+         result = 31 * result + ((label == null) ? 0 : label.hashCode());
+         result = 31 * result + ((title == null) ? 0 : title.hashCode());
+         result = 31 * result + ((givenName == null) ? 0 : givenName.hashCode());
+         result = 31 * result + ((middleName == null) ? 0 : middleName.hashCode());
+         result = 31 * result + ((familyName == null) ? 0 : familyName.hashCode());
+         result = 31 * result + ((suffix == null) ? 0 : suffix.hashCode());
 
          return result;
       }
