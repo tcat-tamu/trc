@@ -203,8 +203,13 @@ public class SolrDocAdapter implements Function<Person, SolrInputDocument>
    {
       // remove HTML tags for sentence extraction
       String summary = person.getSummary();
-      String summaryStripped = summary.replaceAll("<[^>]+>", "");
 
+      if (summary == null)
+      {
+         return "";
+      }
+
+      String summaryStripped = summary.replaceAll("<[^>]+>", "");
       return sentenceParser.apply(summaryStripped);
    }
 
