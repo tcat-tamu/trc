@@ -10,149 +10,47 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Future;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.Futures;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
-import edu.tamu.tcat.trc.repo.DocumentRepository;
-import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.RepositoryException;
 import edu.tamu.tcat.trc.repo.RepositorySchema;
 
-/**
- *  Constructs {@link DocumentRepository} instances that are connected to a PostgreSQL database
- *  and store their data as JSON. Framework clients are expected to instantiate a builder
- *  directly to configure and build a repository instance. Once built, the returned repository
- *  will be connected to the database and the builder should be disposed.
- *
- *  @implNote
- *  Uses Jackson internally to convert POJO data transfer objects into serialized JSON for
- *  for persistence. Instances of {@code StorageType} must be serializable using the default
- *  Jackson {@link ObjectMapper}. Please consult the Jackson documentation
- *  {@link https://github.com/FasterXML/jackson }for additional  detail.
- *
- *  <p>
- *  The {@link DocumentRepository} implementation returned by this factory caches results in
- *  order to improve performance. Consequently, it is critical that applications close the
- *  returned repository once it is no longer needed.
- *
- * @param <RecordType> The type of records to be provided by the created document repository.
- * @param <EditCmdType> The type of the edit command returned by the the created repository
- *       for use in updating records.
- * @param <StorageType> The internal data storage type. This type is not visible through the
- *       repository API. It is used by the {@link EditCommandFactory} and the data adapter
- *       function for data editing and transformation.
- */
-public class PsqlJacksonRepoBuilder<RecordType, EditCmdType, StorageType>
+public class DatabaseSchemaManager
 {
-   private static final Logger logger = Logger.getLogger(PsqlJacksonRepoBuilder.class.getName());
+   private static final Logger logger = Logger.getLogger(DatabaseSchemaManager.class.getName());
 
-   private SqlExecutor exec;
-   private boolean enableCreation = false;
+   private final SqlExecutor exec;
+   private final String tablename;
+   private final RepositorySchema schema;
 
-   private String tablename;
-   private RepositorySchema schema;
-   private Function<StorageType, RecordType> adapter;
-   private EditCommandFactory<StorageType, EditCmdType> cmdFactory;
-   private Class<StorageType> storageType;
-
-
-   public PsqlJacksonRepoBuilder()
+   public DatabaseSchemaManager(String table, RepositorySchema schema, SqlExecutor exec)
    {
-   }
-
-
-   /**
-    * @param value Indicates whether the builder should create the backing database table
-    *       if it does not exist. This is {@code false} by default.
-    */
-   public void setEnableCreation(boolean value)
-   {
-      this.enableCreation = value;
-   }
-
-   /**
-    * @param exec The database executor to use.
-    */
-   public void setDbExecutor(SqlExecutor exec)
-   {
+      this.tablename = table;
+      this.schema = schema;
       this.exec = exec;
    }
 
-   /**
-    * @param schema Defines the columns to be used to store data. Note that if no remove field
-    *       is supplied, removal will result in the deletion of the record from the database.
-    */
-   public void setSchema(RepositorySchema schema) {
-      this.schema = schema;
-   }
-
-   /**
-    * @param tablename The name of the database table to be used to store records for this
-    *       repository.
-    */
-   public void setTableName(String tablename)
-   {
-      this.tablename = tablename;
-   }
-
-   /**
-    * @param type A type token for the data storage POJO. Used by Jackson for JSON databinding.
-    */
-   public void setStorageType(Class<StorageType> type)
-   {
-      this.storageType = type;
-   }
-
-   /**
-    * @param adapter A {@link Function} that will convert instances of the internal data storage
-    *    type into instances of the public data model to be produced by the repository.
-    */
-   public void setDataAdapter(Function<StorageType, RecordType> adapter)
-   {
-      this.adapter = adapter;
-   }
-
-   /**
-    * @param cmdFactory A factory for use in generating edit commands.
-    */
-   public void setEditCommandFactory(EditCommandFactory<StorageType, EditCmdType> cmdFactory)
-   {
-      this.cmdFactory = cmdFactory;
-   }
-
-   /**
-    * @return The built document repository.
-    * @throws RepositoryException
-    */
-   public DocumentRepository<RecordType, EditCmdType> build() throws RepositoryException
-   {
-      if (!this.exists() && enableCreation)
-         this.create();
-
-      PsqlJacksonRepo<RecordType, StorageType, EditCmdType> repo = new PsqlJacksonRepo<>();
-      repo.setSqlExecutor(exec);
-      repo.setTableName(tablename);
-      repo.setSchema(schema);
-      repo.setCommandFactory(cmdFactory);
-      repo.setAdapter(adapter);
-      repo.setStorageType(storageType);
-
-      repo.activate();
-
-      return repo;
-   }
-
-   private boolean exists() throws RepositoryException
+   public boolean exists() throws RepositoryException
    {
       Future<Boolean> result = exec.submit(conn -> {
          return Boolean.valueOf(tableExists(conn, tablename) && checkColumnsMatch(schema, conn));
       });
 
+      return Futures.get(result, RepositoryException.class);
+   }
+
+   public boolean create() throws RepositoryException
+   {
+
+      if (exists())
+         return false;
+
+      String sql = buildCreateSql();
+      Future<Boolean> result = exec.submit((conn) -> createTable(conn, sql));
       return Futures.get(result, RepositoryException.class);
    }
 
@@ -198,7 +96,6 @@ public class PsqlJacksonRepoBuilder<RecordType, EditCmdType, StorageType>
               && matchColumType(definedColumns, schema.getCreatedField(), "^time.+")
               && matchColumType(definedColumns, schema.getModifiedField(), "^time.+")
               &&  matchColumType(definedColumns, schema.getRemovedField(), "^time.+");
-
    }
 
    private boolean matchColumType(Map<String, ColumnDef> definedColumns, String fname, String regex)
@@ -234,17 +131,6 @@ public class PsqlJacksonRepoBuilder<RecordType, EditCmdType, StorageType>
          rs.next();
          return Boolean.valueOf(rs.getBoolean(1));
       }
-   }
-
-   private boolean create() throws RepositoryException
-   {
-
-      if (exists())
-         return false;
-
-      String sql = buildCreateSql();
-      Future<Boolean> result = exec.submit((conn) -> createTable(conn, sql));
-      return Futures.get(result, RepositoryException.class);
    }
 
    // TODO truncate, drop?
@@ -296,5 +182,4 @@ public class PsqlJacksonRepoBuilder<RecordType, EditCmdType, StorageType>
 
       return Boolean.valueOf(true);
    }
-
 }

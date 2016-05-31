@@ -16,8 +16,10 @@ package edu.tamu.tcat.trc.repo;
  */
 public interface RepositorySchema
 {
+   // TODO make this more generic - should allow custom fields
+
    /**
-    * @return A unigue identifier for this schema. Allows client applications to identify,
+    * @return A unique identifier for this schema. Allows client applications to identify,
     *       register and discover various data storage schemas. Note that, in general, this will
     *       not correspond to a property in the data storage layer (for example, this typically
     *       should not be interpreted as a table name in a database).
