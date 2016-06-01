@@ -75,7 +75,17 @@ public class TrcQueryBuilder implements SolrQueryBuilder
       if (max < 0)
          throw new IllegalArgumentException("Facet limit cannot be negative");
       params.setFacetLimit(max);
+   }
 
+   /**
+    * Enables or disables hit-highlighting on the returned results. Note that this is
+    * used to override default behavior of the underlying SOLR core.
+    *
+    * @param enable Indicates if hitHighlighting should be enabled.
+    */
+   public void hitHighlight(boolean enable)
+   {
+      params.set("hl", enable);
    }
 
    /**
@@ -94,9 +104,7 @@ public class TrcQueryBuilder implements SolrQueryBuilder
     * @throws SearchException
     */
    public <T,F extends BasicFields.SearchProxyField<T>>
-   List<T>
-   unpack(SolrDocumentList docs,
-          F searchProxyField)
+   List<T> unpack(SolrDocumentList docs, F searchProxyField)
    throws SearchException
    {
       List<T> rv = new ArrayList<>();
