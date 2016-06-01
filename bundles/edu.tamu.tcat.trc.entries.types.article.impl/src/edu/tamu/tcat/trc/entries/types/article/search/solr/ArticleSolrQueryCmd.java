@@ -25,8 +25,6 @@ public class ArticleSolrQueryCmd implements ArticleQueryCommand
    private final SolrClient solr;
    private final TrcQueryBuilder qb;
 
-
-
    public ArticleSolrQueryCmd(SolrClient solr, ArticleQuery query, TrcQueryBuilder qb)
    {
       this.query = query;
@@ -35,6 +33,7 @@ public class ArticleSolrQueryCmd implements ArticleQueryCommand
 
       this.query.max = DEFAULT_MAX_RESULTS;
 
+      qb.hitHighlight(query.highlighting);
       qb.max(DEFAULT_MAX_RESULTS);
    }
 
@@ -43,7 +42,6 @@ public class ArticleSolrQueryCmd implements ArticleQueryCommand
    {
       this.query.q = q;
    }
-
 
    @Override
    public void setOffset(int start)
@@ -71,6 +69,12 @@ public class ArticleSolrQueryCmd implements ArticleQueryCommand
          QueryResponse response = solr.query(qb.get());
 
          SolrDocumentList results = response.getResults();
+
+         // TODO need to parse the highlighted results into something more meaningful.
+         //      should add to article proxy.
+
+         // HACK what is this structure - presumably it is field/document id or vice/versa, but this
+         //      isn't clear.
          Map<String, Map<String, List<String>>> highlighting = response.getHighlighting();
          List<ArticleSearchProxy> articles = qb.unpack(results, ArticleSolrConfig.SEARCH_PROXY);
          return new SolrArticleResults(query, articles, highlighting, results.getNumFound());

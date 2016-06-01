@@ -119,6 +119,7 @@ public class TrcQueryBuilder implements SolrQueryBuilder
          }
          catch (Exception e)
          {
+            // TODO gather all errors and report rather than fail outright.
             throw new SearchException("Failed to parse search proxy: [" + workInfo + "]", e);
          }
       }

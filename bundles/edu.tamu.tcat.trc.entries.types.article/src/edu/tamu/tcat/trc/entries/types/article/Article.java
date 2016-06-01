@@ -15,12 +15,8 @@
  */
 package edu.tamu.tcat.trc.entries.types.article;
 
-import java.net.URI;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-
-import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
 
 /**
  *  A long-form article that provides discursive treatment of a topic within a thematic
@@ -46,66 +42,84 @@ public interface Article
     * @return A unique identifier for this article.
     */
    UUID getId();
-   
+
    /**
     * @return The type of content for the article. Currently we anticipate only
     *    text or HTML articles but applications may provide support for other data types
     *    (e.g. Markdown, XML, SVG, etc) provided that they can be represented as contents
     *    of a JSON document.
     */
+   @Deprecated
    String getType();
+
+   /**
+    * @return The type of content for the article. Currently we anticipate only
+    *    text or HTML articles but applications may provide support for other data types
+    *    (e.g. Markdown, XML, SVG, etc) provided that they can be represented as contents
+    *    of a JSON document.
+    */
+   default String getContentType()
+   {
+      return getType();
+   }
+
+   default String getArticleType()
+   {
+      return "Article";
+   }
+
 
    /**
     * @return String representation of the title of the article.
     */
    String getTitle();
-   
+
    ArticlePublication getPublicationInfo();
-     
+
    /**
-    * 
+    *
     * @return List of Authors that have contributed to the article.
     */
    List<ArticleAuthor> getAuthors();
-   
+
    /**
-    * 
+    *
     * @return String representation of the summary of the article.
     */
    String getAbstract();
-   
+
    /**
-    * 
+    *
     * @return The main ideas and thoughts that represent the article.
     */
    String getBody();
-   
+
    /**
-    * 
+    *
     * @return A list of footnotes from the article.
     */
    List<Footnote> getFootnotes();
-   
+
    /**
-    * 
+    *
     * @return A list of citations used to format the bibliographies
     */
    List<Citation> getCitations();
-   
+
    /**
-    * 
+    *
     * @return A list of bibliographies referenced throughout the article.
     */
    List<Bibliography> getBibliographies();
-   
+
    /**
-    * 
+    *
     * @return Links that are related to the article.
     */
    List<ArticleLink> getLinks();
-   
+
    /**
-    * 
+    *
     * @return The theme that has been designated for this article.
     */
    Theme getTheme();
