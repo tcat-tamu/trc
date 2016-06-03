@@ -19,22 +19,30 @@ public interface ArticleAuthor
    String getName();
 
    /**
-    * 
     * @return The affiliation of the author
     */
    String getAffiliation();
-   
+
    /**
-    * 
-    * @return The email address of the author
+    * @return Structured contact information for this author.
     */
-   
    ContactInfo getContactInfo();
-   
+
    public interface ContactInfo
    {
+
+      // NOTE using an object to support future expansion.
+      //      May use Map<String, String> instead.
+      /**
+       * @return Email for this author if available.
+       *    May be {@code null} or empty string.
+       */
       String getEmail();
-      
+
+      /**
+       * @return phone number for this author if available.
+       *    May be {@code null} or empty string.
+       */
       String getPhone();
    }
 }

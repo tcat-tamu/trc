@@ -44,25 +44,28 @@ public interface Article
    UUID getId();
 
    /**
-    * @return The type of content for the article. Currently we anticipate only
-    *    text or HTML articles but applications may provide support for other data types
-    *    (e.g. Markdown, XML, SVG, etc) provided that they can be represented as contents
-    *    of a JSON document.
+    * @return delegates to getContentType.
+    * @deprecated This method name is confusing and hence deprecated. It will be
+    *       removed for version 2.0
     */
    @Deprecated
-   String getType();
-
-   /**
-    * @return The type of content for the article. Currently we anticipate only
-    *    text or HTML articles but applications may provide support for other data types
-    *    (e.g. Markdown, XML, SVG, etc) provided that they can be represented as contents
-    *    of a JSON document.
-    */
-   default String getContentType()
+   default String getType()
    {
-      return getType();
+      return getContentType();
    }
 
+//   Currently we anticipate only text or HTML articles but applications may provide
+//   support for other data types (e.g. Markdown, XML, SVG, etc) provided that they
+//   can be represented as contents of a JSON document.
+
+   /**
+    * @return The MIME type of content for the article.
+    */
+   String getContentType();
+
+   /**
+    * @return An application-defined semantic type for this article.
+    */
    default String getArticleType()
    {
       return "Article";

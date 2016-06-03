@@ -561,7 +561,7 @@ public class PsqlArticleRepo implements ArticleRepository
       }
 
       @Override
-      public String getType()
+      public String getContentType()
       {
          return this.type;
       }
