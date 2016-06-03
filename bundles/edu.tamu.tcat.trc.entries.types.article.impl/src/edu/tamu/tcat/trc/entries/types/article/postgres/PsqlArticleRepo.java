@@ -51,7 +51,6 @@ import edu.tamu.tcat.trc.entries.types.article.ArticlePublication;
 import edu.tamu.tcat.trc.entries.types.article.Bibliography;
 import edu.tamu.tcat.trc.entries.types.article.Citation;
 import edu.tamu.tcat.trc.entries.types.article.Footnote;
-import edu.tamu.tcat.trc.entries.types.article.Theme;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO;
@@ -59,7 +58,6 @@ import edu.tamu.tcat.trc.entries.types.article.dto.CitationDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.FootnoteDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.LinkDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.PublicationDTO;
-import edu.tamu.tcat.trc.entries.types.article.dto.ThemeDTO;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleChangeEvent;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
@@ -225,7 +223,7 @@ public class PsqlArticleRepo implements ArticleRepository
       return new PsqlArticle(article.id, article.title, article.type,
                              article.authors, article.info, article.articleAbstract,
                              article.body, article.citation, article.footnotes,
-                             article.bibliographies, article.links, article.theme );
+                             article.bibliographies, article.links);
    }
 
    @Override
@@ -445,12 +443,11 @@ public class PsqlArticleRepo implements ArticleRepository
       private final List<Footnote> footnotes;
       private final List<Bibliography> bibliographies;
       private final List<ArticleLink> links;
-      private final Theme theme;
 
       public PsqlArticle(UUID id, String title, String type, List<ArticleAuthorDTO> authors,
                          PublicationDTO info, String articleAbstract, String body,
                          List<CitationDTO> citation, List<FootnoteDTO> footnotes,
-                         List<BibliographyDTO> bibliographies, List<LinkDTO> links, ThemeDTO theme)
+                         List<BibliographyDTO> bibliographies, List<LinkDTO> links)
       {
          this.id = id;
          this.title = title;
@@ -463,7 +460,6 @@ public class PsqlArticleRepo implements ArticleRepository
          this.footnotes = getFootnotes(footnotes);
          this.bibliographies = getBiblios(bibliographies);
          this.links = getLinks(links);
-         this.theme = getTheme(theme);
       }
 
       private List<Bibliography> getBiblios(List<BibliographyDTO> bibliographies)
@@ -512,11 +508,6 @@ public class PsqlArticleRepo implements ArticleRepository
          });
 
          return articleLinks;
-      }
-
-      private Theme getTheme(ThemeDTO theme)
-      {
-         return new PsqlTheme(theme.title, theme.themeAbstract, theme.articleRefsDTO);
       }
 
       private List<ArticleAuthor> getAuthors(List<ArticleAuthorDTO> authors)
@@ -609,12 +600,6 @@ public class PsqlArticleRepo implements ArticleRepository
       public List<ArticleLink> getLinks()
       {
          return this.links;
-      }
-
-      @Override
-      public Theme getTheme()
-      {
-         return this.theme;
       }
    }
 

@@ -34,7 +34,6 @@ public class ArticleDTO
    public List<FootnoteDTO> footnotes;
    public List<BibliographyDTO> bibliographies;
    public List<LinkDTO> links;
-   public ThemeDTO theme;
 
    public static ArticleDTO create(Article article)
    {
@@ -45,40 +44,39 @@ public class ArticleDTO
       dto.type = article.getType();
       dto.articleAbstract = article.getAbstract();
       dto.body = article.getBody();
-      
+
       dto.info = PublicationDTO.create(article.getPublicationInfo());
-      dto.theme = ThemeDTO.create(article.getTheme());
-      
+
       List<ArticleAuthorDTO> authDTO = new ArrayList<>();
       article.getAuthors().forEach((a) ->{
          authDTO.add(ArticleAuthorDTO.create(a));
       });
       dto.authors = authDTO;
-      
+
       List<CitationDTO> citations = new ArrayList<>();
       article.getCitations().forEach((c) ->{
          citations.add(CitationDTO.create(c));
       });
       dto.citation = citations;
-      
+
       List<FootnoteDTO> ftnotes = new ArrayList<>();
       article.getFootnotes().forEach((f) -> {
          ftnotes.add(FootnoteDTO.create(f));
       });
       dto.footnotes = ftnotes;
-      
+
       List<BibliographyDTO> biblios = new ArrayList<>();
       article.getBibliographies().forEach((b)->{
         biblios.add(BibliographyDTO.create(b));
       });
       dto.bibliographies = biblios;
-      
+
       List<LinkDTO> links = new ArrayList<>();
       article.getLinks().forEach((l) -> {
          links.add(LinkDTO.create(l));
       });
       dto.links = links;
-      
+
       return dto;
    }
 
@@ -92,7 +90,6 @@ public class ArticleDTO
       dto.articleAbstract = orig.articleAbstract;
       dto.body = orig.body;
       dto.info = orig.info;
-      dto.theme = orig.theme;
       dto.authors = new ArrayList<>(orig.authors);
       dto.citation = new ArrayList<>(orig.citation);
       dto.footnotes = new ArrayList<>(orig.footnotes);

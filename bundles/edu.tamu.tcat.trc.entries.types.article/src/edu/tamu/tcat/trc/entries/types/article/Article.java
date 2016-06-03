@@ -119,12 +119,6 @@ public interface Article
    List<ArticleLink> getLinks();
 
    /**
-    *
-    * @return The theme that has been designated for this article.
-    */
-   Theme getTheme();
-
-   /**
     *  Has not been implemented.
     * @return The representation of the title
     */

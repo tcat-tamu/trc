@@ -60,8 +60,6 @@ import edu.tamu.tcat.trc.entries.types.article.dto.CitationItemDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.FootnoteDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.LinkDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.PublicationDTO;
-import edu.tamu.tcat.trc.entries.types.article.dto.ThemeDTO;
-import edu.tamu.tcat.trc.entries.types.article.dto.ThemeDTO.ArticleRefDTO;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditAuthorCommand;
@@ -73,7 +71,6 @@ import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Citation;
 import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.FootNote;
 import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Issued;
 import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Publication;
-import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Theme;
 import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Translator;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
@@ -103,7 +100,7 @@ public class ArticleResource
    {
        this.authorRepo = authorManager.getAuthorRepo();
    }
-   
+
    public void setArticleService(ArticleSearchService service)
    {
       this.articleSearchService = service;
@@ -308,7 +305,6 @@ public class ArticleResource
       editCmd.setCitations(getCitations(article.citations));
       editCmd.setBibliography(getBibliographies(article.bibliography));
       editCmd.setLinks(getLinks(article.links));
-      editCmd.setTheme(getTheme(article.theme));
    }
 
    private PublicationDTO getPublication(Publication pubInfo)
@@ -334,32 +330,8 @@ public class ArticleResource
             authorDTO.add(authDto);
          });
       }
-      
-      return authorDTO;
-   }
 
-   private ThemeDTO getTheme(Theme theme)
-   {
-      ThemeDTO dto = new ThemeDTO();
-      List<ArticleRefDTO> trtDTO = new ArrayList<>();
-      if (theme == null)
-      {
-         dto.articleRefsDTO = new ArrayList<>(trtDTO);
-         return dto;
-      }
-      dto.themeAbstract = theme.themeAbstract;
-      dto.title = theme.title;
-      
-      theme.articles.forEach((a) ->
-      {
-         ArticleRefDTO articleRefDTO = new ArticleRefDTO();
-         articleRefDTO.id = a.id;
-         articleRefDTO.type = a.type;
-         articleRefDTO.uri = a.uri;
-         trtDTO.add(articleRefDTO);
-      });
-      dto.articleRefsDTO = new ArrayList<>(trtDTO);
-      return dto;
+      return authorDTO;
    }
 
    private List<LinkDTO> getLinks(List<ArticleLink> links)
@@ -397,15 +369,15 @@ public class ArticleResource
             dto.publisherPlace = bib.publisherPlace;
             dto.containerTitle = bib.containerTitle;
             dto.url = bib.URL;
-            
+
             dto.author = getAuthor(bib.author);
             dto.translator = getTranslator(bib.translator);
             dto.issued = getIssued(bib.issued);
-            
+
             bibDTOs.add(dto);
          });
       }
-      
+
       return bibDTOs;
    }
 
@@ -413,9 +385,9 @@ public class ArticleResource
    {
       IssuedBiblioDTO dto = new IssuedBiblioDTO();
       if (issued == null)
-         dto.dateParts = new ArrayList<List<String>>();
+         dto.dateParts = new ArrayList<>();
       else
-         dto.dateParts = new ArrayList<List<String>>(issued.dateParts);
+         dto.dateParts = new ArrayList<>(issued.dateParts);
       return dto;
    }
 
@@ -433,7 +405,7 @@ public class ArticleResource
             transDTOs.add(dto);
          });
       }
-      
+
       return transDTOs;
    }
 
@@ -488,7 +460,7 @@ public class ArticleResource
             FootnoteDTO dto = new FootnoteDTO();
             dto.id = ftn.id;
             dto.text = ftn.text;
-            
+
             footnoteDTOs.add(dto);
          });
       }

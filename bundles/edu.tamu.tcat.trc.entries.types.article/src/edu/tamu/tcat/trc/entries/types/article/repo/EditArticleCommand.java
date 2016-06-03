@@ -26,7 +26,6 @@ import edu.tamu.tcat.trc.entries.types.article.dto.CitationDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.FootnoteDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.LinkDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.PublicationDTO;
-import edu.tamu.tcat.trc.entries.types.article.dto.ThemeDTO;
 
 /**
  *  Used to update properties of an article.
@@ -50,55 +49,52 @@ public interface EditArticleCommand
     * @param mimeType The mime type of the content supplied for this article.
     */
    void setType(String Type);
-   
+
    /**
     * @param title The title of the article.
     */
    void setTitle(String title);
-   
+
    /**
-    * 
+    *
     * @param pubData The publication and modification dates of the article
     */
    void setPublicationInfo(PublicationDTO pubData );
 
    /**
-    * 
+    *
     * @param authors The author(s) of the article.
     */
    void setAuthors(List<ArticleAuthorDTO> authors);
-   
+
    /**
-    * 
+    *
     * @param abs The abstract of the article.
     */
    void setAbstract(String abs);
-   
+
    /**
-    * 
+    *
     * @param body The main text of the article.
     */
    void setBody(String body);
-   
+
    /**
-    * 
+    *
     * @param ftNotes Footnotes added to the article
     */
    void setFootnotes(List<FootnoteDTO> ftNotes);
-   
+
    void setCitations(List<CitationDTO> citations);
-   
+
    /**
-    * 
+    *
     * @param bibliographies Articles or books referenced in the article
     */
    void setBibliography(List<BibliographyDTO> bibliographies);
-   
-   
-   void setLinks(List<LinkDTO> links);
-   
-   void setTheme(ThemeDTO theme);
 
+
+   void setLinks(List<LinkDTO> links);
 
    /**
     * Executes these updates within the repository.

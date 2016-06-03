@@ -18,7 +18,6 @@ import edu.tamu.tcat.trc.entries.types.article.Bibliography;
 import edu.tamu.tcat.trc.entries.types.article.Bibliography.IssuedDate;
 import edu.tamu.tcat.trc.entries.types.article.Citation;
 import edu.tamu.tcat.trc.entries.types.article.Footnote;
-import edu.tamu.tcat.trc.entries.types.article.Theme;
 import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Link;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQuery;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy;
@@ -42,7 +41,7 @@ public class ArticleSearchAdapter
       List<RestApiV1.ArticleSearchResult> compiledResults = proxies.stream()
                     .map(ArticleSearchAdapter::toArticleDTO)
                     .collect(Collectors.toList());
-      
+
       compiledResults.forEach((article)->
       {
          if (hits.containsKey(article.id))
@@ -52,7 +51,7 @@ public class ArticleSearchAdapter
             article.contentHL = map.get("article_content");
          }
       });
-      
+
       return compiledResults;
    }
 
@@ -62,7 +61,7 @@ public class ArticleSearchAdapter
       dto.id = article.id;
       dto.title = article.title;
       dto.pubInfo = convertPubInfo(article.info);
-      
+
       List<RestApiV1.ArticleAuthor> authors = new ArrayList<>();
       article.authors.forEach((auth)->
       {
@@ -145,11 +144,10 @@ public class ArticleSearchAdapter
       dto.citations = convertCitations(article.getCitations());
       dto.bibliography = convertBiblios(article.getBibliographies());
       dto.links = convertLinks(article.getLinks());
-      dto.theme = convertTheme(article.getTheme());
 
       return dto;
    }
-   
+
    private static RestApiV1.Publication convertPubInfo(ArticlePublication pubInfo)
    {
       RestApiV1.Publication pub = new RestApiV1.Publication();
@@ -157,31 +155,13 @@ public class ArticleSearchAdapter
       pub.dateModified = pubInfo.getModified();
       return pub;
    }
-   
+
    private static RestApiV1.Publication convertPubInfo(PublicationRef pubInfo)
    {
       RestApiV1.Publication pub = new RestApiV1.Publication();
       pub.dateCreated = pubInfo.created;
       pub.dateModified = pubInfo.modified;
       return pub;
-   }
-
-   private static RestApiV1.Theme convertTheme(Theme theme)
-   {
-      RestApiV1.Theme t = new RestApiV1.Theme();
-      List<RestApiV1.Articles> articleList = new ArrayList<>();
-      t.title = theme.getTitle();
-      t.themeAbstract = theme.getAbstract();
-      theme.getArticleRefs().forEach((treat)->
-      {
-         RestApiV1.Articles article = new RestApiV1.Articles();
-         article.id = treat.getId();
-         article.type = treat.getType();
-         article.uri = treat.getURI();
-         articleList.add(article);
-      });
-      t.articles = new ArrayList<>(articleList);
-      return t;
    }
 
    private static List<RestApiV1.ArticleLink> convertLinks(List<ArticleLink> links)
@@ -214,12 +194,12 @@ public class ArticleSearchAdapter
          biblio.containerTitle = bib.getContainerTitle();
          biblio.type = bib.getType();
          biblio.URL = bib.getUrl();
-         
+
          IssuedDate issuedDate = bib.getIssuedDate();
          RestApiV1.Issued issued = new RestApiV1.Issued();
          issued.dateParts = new ArrayList<>(issuedDate.getDateParts());
          biblio.issued = issued;
-         
+
          List<RestApiV1.Author> authors = new ArrayList<>();
          bib.getAuthors().forEach((a)->
          {
@@ -229,7 +209,7 @@ public class ArticleSearchAdapter
             authors.add(author);
          });
          biblio.author = new ArrayList<>(authors);
-         
+
          List<RestApiV1.Translator> translators = new ArrayList<>();
          bib.getTranslators().forEach((t)->
          {
@@ -264,9 +244,9 @@ public class ArticleSearchAdapter
                cItem.locator = i.getLocator();
                cItem.suppressAuthor = i.getSuppressAuthor();
                dto.citationItems.add(cItem);
-               
+
             });
-         
+
             citeDTOs.add(dto);
          });
       }
@@ -284,7 +264,7 @@ public class ArticleSearchAdapter
             RestApiV1.FootNote dto = new RestApiV1.FootNote();
             dto.id = ftn.getId();
             dto.text = ftn.getText();
-            
+
             footnoteDTOs.add(dto);
          });
       }
@@ -294,7 +274,7 @@ public class ArticleSearchAdapter
    private static List<RestApiV1.ArticleAuthor> convertAuthors(List<ArticleAuthor> authors)
    {
       List<RestApiV1.ArticleAuthor> auths = new ArrayList<>();
-      
+
       authors.forEach((a) ->
       {
          RestApiV1.ArticleAuthor authDto = new RestApiV1.ArticleAuthor();
@@ -308,7 +288,7 @@ public class ArticleSearchAdapter
          authDto.contact = contact;
          auths.add(authDto);
       });
-      
+
       return auths;
    }
 
@@ -324,7 +304,7 @@ public class ArticleSearchAdapter
       contact.email = contactInfo.email;
       contact.phone = contactInfo.phone;
       authDto.contact = contact;
-      
+
       return authDto;
    }
 }
