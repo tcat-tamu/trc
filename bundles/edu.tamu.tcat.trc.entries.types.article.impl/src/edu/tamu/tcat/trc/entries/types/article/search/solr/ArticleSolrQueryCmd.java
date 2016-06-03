@@ -2,6 +2,7 @@ package edu.tamu.tcat.trc.entries.types.article.search.solr;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -10,6 +11,7 @@ import org.apache.solr.common.SolrDocumentList;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQuery;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy;
+import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult.FacetValueList;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
@@ -76,13 +78,21 @@ public class ArticleSolrQueryCmd implements ArticleQueryCommand
          // HACK what is this structure - presumably it is field/document id or vice/versa, but this
          //      isn't clear.
          Map<String, Map<String, List<String>>> highlighting = response.getHighlighting();
+         List<FacetValueList> facets = response.getFacetFields().stream()
+               .map(SolrArticleResults::adapt)
+               .collect(Collectors.toList());
+
          List<ArticleSearchProxy> articles = qb.unpack(results, ArticleSolrConfig.SEARCH_PROXY);
-         return new SolrArticleResults(query, articles, highlighting, results.getNumFound());
+         return new SolrArticleResults(query, articles, highlighting, facets, results.getNumFound());
       }
       catch (Exception e)
       {
          throw new SearchException("An error occurred while querying the article core: " + e, e);
       }
    }
+
+
+
+
 
 }

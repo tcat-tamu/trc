@@ -40,6 +40,8 @@ public class ArticleSolrConfig implements SolrIndexConfig
    public static final SolrIndexField<String> ARTICLE_ABSTRACT = new BasicFields.BasicString("article_abstract");
    public static final SolrIndexField<LocalDate>   PUBLISHED = new BasicFields.BasicDate("published");
 
+   public static final String CATCH_ALL_NAMES = "catchAllNames";
+
    public static final BasicFields.SearchProxyField<ArticleSearchProxy> SEARCH_PROXY =
          new BasicFields.SearchProxyField<>("article_dto", ArticleSearchProxy.class);
 
@@ -55,8 +57,15 @@ public class ArticleSolrConfig implements SolrIndexConfig
        */
       params.set("defType", "edismax");
       params.set("qf",TITLE.getName(), AUTHOR_NAMES.getName(), ARTICLE_CONTENT.getName(), ARTICLE_ABSTRACT.getName());
+      params.set("qf",TITLE.getName(), CATCH_ALL_NAMES, ARTICLE_CONTENT.getName(), ARTICLE_ABSTRACT.getName());
+
       params.set("hl", "true");
       params.set("hl.fl", ARTICLE_ABSTRACT.getName(), ARTICLE_CONTENT.getName());
+
+      // TODO refactor, enable more general configuration tooling
+      params.set("facet", "true");
+      params.set("facet.field", AUTHOR_NAMES.getName());
+      params.set("facet.mincount", "1");
    }
 
    /**
