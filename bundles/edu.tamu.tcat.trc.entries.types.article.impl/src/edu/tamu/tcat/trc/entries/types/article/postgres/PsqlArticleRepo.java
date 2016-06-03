@@ -156,7 +156,7 @@ public class PsqlArticleRepo implements ArticleRepository
                List<Article> articles = new ArrayList<>();
                while (rs.next())
                {
-                  PGobject pgo = (PGobject)rs.getObject("note");
+                  PGobject pgo = (PGobject)rs.getObject("article");
                   ArticleDTO article = parseCopyRefJson(pgo.toString());
                   Article n = adapt(article);
                   articles.add(n);
