@@ -23,7 +23,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -36,7 +35,6 @@ import org.postgresql.util.PGobject;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.notification.BaseUpdateEvent;
@@ -70,7 +68,11 @@ public class PsqlArticleRepo implements ArticleRepository
 {
    private static final Logger logger = Logger.getLogger(PsqlArticleRepo.class.getName());
 
-   private static final String SQL_GET_ALL =
+   private static final String SQL_GET_ALL_ARTICLES =
+         "SELECT article "
+        +  "FROM articles ";
+
+   private static final String SQL_GET_ALL_BY_ENTRY =
          "SELECT article "
         +  "FROM articles "
         + "WHERE reference->>'associatedEntry' LIKE ? AND active = true "
@@ -148,7 +150,9 @@ public class PsqlArticleRepo implements ArticleRepository
    public List<Article> getArticles(URI entityURI) throws NoSuchCatalogRecordException
    {
       Future<List<Article>> results = exec.submit(conn -> {
-         try (PreparedStatement ps = conn.prepareStatement(SQL_GET_ALL))
+         // FIXME is this right - should articles have associated entries embedded?
+         //       See feature: https://issues.citd.tamu.edu/browse/TRC-111
+         try (PreparedStatement ps = conn.prepareStatement(SQL_GET_ALL_BY_ENTRY))
          {
             ps.setString(1, entityURI.toString() + "%");
             try (ResultSet rs = ps.executeQuery())
@@ -181,6 +185,41 @@ public class PsqlArticleRepo implements ArticleRepository
       }
    }
 
+   public List<Article> listAll()
+   {
+      // HACK: should provide iterable with internal paging and more minimal data load requirements.
+      Future<List<Article>> results = exec.submit(conn -> {
+         try (PreparedStatement ps = conn.prepareStatement(SQL_GET_ALL_ARTICLES))
+         {
+            try (ResultSet rs = ps.executeQuery())
+            {
+               List<Article> articles = new ArrayList<>();
+               while (rs.next())
+               {
+                  PGobject pgo = (PGobject)rs.getObject("article");
+                  ArticleDTO article = parseCopyRefJson(pgo.toString());
+                  Article n = adapt(article);
+                  articles.add(n);
+               }
+
+               return articles;
+            }
+         }
+         catch(SQLException e)
+         {
+            throw new IllegalStateException("Failed to retrive article. ", e);
+         }
+      });
+
+      try
+      {
+         return unwrapGetResults(results, null);
+      }
+      catch (NoSuchCatalogRecordException e)
+      {
+         throw new IllegalStateException("Unexpected internal error", e);
+      }
+   }
    private static Article adapt(ArticleDTO article)
    {
       return new PsqlArticle(article.id, article.title, article.type,
@@ -198,7 +237,7 @@ public class PsqlArticleRepo implements ArticleRepository
       PostgresEditArticleCmd cmd = new PostgresEditArticleCmd(article);
       cmd.setCommitHook((n) -> {
          ArticleChangeNotifier notifier = new ArticleChangeNotifier(UpdateEvent.UpdateAction.CREATE);
-         return exec.submit(new ObservableTaskWrapper<UUID>(makeSaveTask(n, CREATE_SQL), notifier));
+         return exec.submit(new ObservableTaskWrapper<>(makeSaveTask(n, CREATE_SQL), notifier));
       });
 
       return cmd;
@@ -212,7 +251,7 @@ public class PsqlArticleRepo implements ArticleRepository
       PostgresEditArticleCmd cmd = new PostgresEditArticleCmd(article);
       cmd.setCommitHook((n) -> {
          ArticleChangeNotifier notifier = new ArticleChangeNotifier(UpdateEvent.UpdateAction.UPDATE);
-         return exec.submit(new ObservableTaskWrapper<UUID>(makeSaveTask(n, UPDATE_SQL), notifier));
+         return exec.submit(new ObservableTaskWrapper<>(makeSaveTask(n, UPDATE_SQL), notifier));
       });
 
       return cmd;
@@ -222,7 +261,7 @@ public class PsqlArticleRepo implements ArticleRepository
    public Future<Boolean> remove(UUID articleId)
    {
       ArticleChangeEvent evt = new ArticleChangeEventImpl(articleId, UpdateEvent.UpdateAction.DELETE);
-      return exec.submit(new ObservableTaskWrapper<Boolean>(
+      return exec.submit(new ObservableTaskWrapper<>(
             makeRemoveTask(articleId),
             new DataUpdateObserverAdapter<Boolean>()
             {
@@ -392,7 +431,7 @@ public class PsqlArticleRepo implements ArticleRepository
          return "Article Change " + super.toString();
       }
    }
-   
+
    private static class PsqlArticle implements Article
    {
       private final UUID id;
@@ -430,48 +469,48 @@ public class PsqlArticleRepo implements ArticleRepository
       private List<Bibliography> getBiblios(List<BibliographyDTO> bibliographies)
       {
          List<Bibliography> biblios = new ArrayList<>();
-         
+
          bibliographies.forEach((bib) ->
          {
             biblios.add(new PsqlBibliography(bib.id, bib.type, bib.title, bib.edition, bib.author, bib.translator, bib.publisher, bib.publisherPlace, bib.containerTitle, bib.url, bib.issued));
          });
-         
+
          return biblios;
       }
 
       private List<Footnote> getFootnotes(List<FootnoteDTO> footnotes)
       {
          List<Footnote> ftnotes = new ArrayList<>();
-         
+
          footnotes.forEach((fn) ->
          {
             ftnotes.add(new PsqlFootnote(fn.id, fn.text));
          });
-         
+
          return ftnotes;
       }
 
       private List<Citation> getCitations(List<CitationDTO> citations)
       {
          List<Citation> cites = new ArrayList<>();
-         
+
          citations.forEach((c) ->
          {
             cites.add(new PsqlCitation(c.id, c.citationItems));
          });
-         
+
          return cites;
       }
 
       private List<ArticleLink> getLinks(List<LinkDTO> links)
       {
          List<ArticleLink> articleLinks = new ArrayList<>();
-         
+
          links.forEach((l) ->
          {
             articleLinks.add(new PsqlArticleLink(l.id, l.title, l.type, l.uri, l.rel));
          });
-         
+
          return articleLinks;
       }
 
@@ -483,18 +522,18 @@ public class PsqlArticleRepo implements ArticleRepository
       private List<ArticleAuthor> getAuthors(List<ArticleAuthorDTO> authors)
       {
          List<ArticleAuthor> auths = new ArrayList<>();
-         
+
          if(authors == null)
             return auths;
-         
+
          authors.forEach((a) ->
          {
             auths.add(new PsqlArticleAuthor(a.id, a.name, a.affiliation, a.contact));
          });
-         
+
          return auths;
       }
-      
+
       private ArticlePublication getPublication(PublicationDTO pub)
       {
          return new BasicPublication(pub.dateCreated, pub.dateModified);
@@ -578,14 +617,14 @@ public class PsqlArticleRepo implements ArticleRepository
          return this.theme;
       }
    }
-   
+
    private static class PsqlArticleAuthor implements ArticleAuthor
    {
       private final String id;
       private final String name;
       private final String affiliation;
       private final ContactInfo contactInfo;
-      
+
       public PsqlArticleAuthor(String id, String name, String affiliation, ArticleAuthorDTO.ContactInfoDTO info)
       {
          this.id = id;
@@ -593,7 +632,7 @@ public class PsqlArticleRepo implements ArticleRepository
          this.affiliation = affiliation;
          this.contactInfo = new PsqlContactInfo(info.email, info.phone);
       }
-      
+
       @Override
       public String getId()
       {
@@ -618,7 +657,7 @@ public class PsqlArticleRepo implements ArticleRepository
          // TODO Auto-generated method stub
          return this.contactInfo;
       }
-      
+
       private static class PsqlContactInfo implements ContactInfo
       {
          private String email;
@@ -628,7 +667,7 @@ public class PsqlArticleRepo implements ArticleRepository
          {
             this.email = email;
             this.phone = phone;
-            
+
          }
 
          @Override
@@ -642,7 +681,7 @@ public class PsqlArticleRepo implements ArticleRepository
          {
             return phone;
          }
-         
+
       }
 
    }
