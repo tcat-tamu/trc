@@ -193,13 +193,13 @@ public class BiblioSearchProxy
       if (!titles.isEmpty())
       {
          Title title = titles.parallelStream()
-                                  .filter(t -> t.getType().equalsIgnoreCase("short"))
+                                  .filter(t -> "short".equalsIgnoreCase(t.getType()))
                                   .findAny()
                                   .orElse(null);
 
          if (title == null)
             title = titles.parallelStream()
-                              .filter(t -> t.getType().equalsIgnoreCase("canonical"))
+                              .filter(t -> "canonical".equalsIgnoreCase(t.getType()))
                               .findAny()
                               .orElse(titles.iterator().next());
 
