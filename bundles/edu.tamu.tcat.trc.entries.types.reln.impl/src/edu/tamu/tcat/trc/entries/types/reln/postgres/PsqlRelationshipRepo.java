@@ -16,6 +16,7 @@
 package edu.tamu.tcat.trc.entries.types.reln.postgres;
 
 import java.time.Instant;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -119,6 +120,28 @@ public class PsqlRelationshipRepo implements RelationshipRepository
          } catch (Exception e) {
             logger.log(Level.SEVERE, "An error occurred attempting to forcibly shutdown executor service", e);
          }
+      }
+   }
+
+   @Override
+   public Iterator<Relationship> getAllRelationships()
+   {
+      PsqlGetAllRelationshipsTask task = new PsqlGetAllRelationshipsTask(mapper, typeReg);
+      try
+      {
+         List<Relationship> relationships = exec.submit(task).get();
+         return relationships.iterator();
+      }
+      catch (ExecutionException e)
+      {
+         Throwable cause = e.getCause();
+         if (cause instanceof RuntimeException)
+            throw (RuntimeException)cause;
+
+         throw new IllegalStateException("Unexpected problems while attempting to retrieve relationships" , e);
+      }
+      catch (InterruptedException e) {
+         throw new IllegalStateException("Falied to retrieve relationship entries", e);
       }
    }
 
