@@ -38,12 +38,11 @@ import java.util.function.Supplier;
  *
  *
  */
-public interface DocumentRepository<RecordType, EditCommandType>
+public interface DocumentRepository<RecordType, StorageType, EditCommandType>
 {
+   // TODO StorageType should probably not leak through the API.
    // TODO provide access to a more richly structured PagedResult API.
-
    // TODO support notifications
-
    // TODO use MD5 or SHA256 hashes to ensure data integrity, add crytography, etc. Use Jackson's SMILE format.
 
    /**
@@ -78,6 +77,30 @@ public interface DocumentRepository<RecordType, EditCommandType>
     * @throws RepositoryException
     */
    Collection<RecordType> get(String... ids) throws RepositoryException;
+
+   /**
+    * Registers a task to be invoked before an entry is modified. These tasks
+    * are parameterized by the internal storage type of the document repository.
+    * Primarily intended to support logging.
+    *
+    * @param preCommitTask Invoked prior to modifying an entry (creation, update,
+    *    or deletion). If the tasks throws an exception, the update will be
+    *    cancelled.
+    * @return A registration handle for use in removing this observer.
+    */
+   Runnable beforeUpdate(EntryUpdateObserver<StorageType> preCommitTask);
+
+   /**
+    * Registers a task to be invoked after an entry is modified. These tasks
+    * are parameterized by the internal storage type of the document repository.
+    * This i
+    *
+    * @param preCommitTask Invoked prior to modifying an entry (creation, update,
+    *    or deletion). If the tasks throws an exception, the update will be
+    *    cancelled.
+    * @return A registration handle for use in removing this observer.
+    */
+   Runnable afterUpdate(EntryUpdateObserver<StorageType> postCommitTask);
 
    /**
     * Constructs a {@link RecordEditCommand} for use to create a new entry in this
@@ -196,15 +219,6 @@ public interface DocumentRepository<RecordType, EditCommandType>
          throw new RepositoryException(msg, e);
       }
    }
-//   /**
-//    * Add listener to be notified whenever a biography has been modified (created, updated or deleted).
-//    * Note that this will be fired after the change has taken place and the attached listener will not
-//    * be able affect or modify the update action.
-//    *
-//    * @param ears The listener to be added.
-//    * @return A registration handle that allows the listener to be removed.
-//    */
-//   AutoCloseable addUpdateListener(UpdateListener<PersonChangeEvent> ears);
 
 
 }

@@ -48,7 +48,7 @@ import edu.tamu.tcat.trc.repo.RepositoryException;
 import edu.tamu.tcat.trc.repo.RepositorySchema;
 import edu.tamu.tcat.trc.repo.UpdateContext;
 
-public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements DocumentRepository<RecordType, EditCommandType>
+public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements DocumentRepository<RecordType, DTO, EditCommandType>
 {
    private static final Logger logger = Logger.getLogger(PsqlJacksonRepo.class.getName());
 
@@ -302,6 +302,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       return updater.update(dto -> null).thenApply(dto -> true);
    }
 
+   @Override
    public Runnable beforeUpdate(EntryUpdateObserver<DTO> preCommitTask)
    {
       // TODO may need to provide access to id
@@ -311,6 +312,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       return () -> preCommitTasks.remove(taskId);
    }
 
+   @Override
    public Runnable afterUpdate(EntryUpdateObserver<DTO> postCommitTask)
    {
       // TODO may need to provide access to id
@@ -528,23 +530,23 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       @Override
       public CompletableFuture<DTO> update(Function<UpdateContext<DTO>, DTO> generator)
       {
-         // TODO support cancellation
+         // TODO Support cancellation
+         //      return UpdateContext with notion of data availability and commit stage
+         //      Add monitor support to UpdateContext
+         DTO dto = generator.apply(context);
+         context.modified.complete(dto);
+
          preCommitTasks.entrySet().parallelStream()
             .forEach(entry -> firePreCommitTask(entry.getKey(), entry.getValue()));
 
-         DTO dto = generator.apply(context);
          CompletableFuture<DTO> result = updateAction.apply(dto);
 
          // fire post-commit hooks
-         return result.thenApply(this::postUpdate);
-      }
-
-      private DTO postUpdate(DTO dto)
-      {
-         context.modified.complete(dto);
-         postCommitTasks.entrySet().parallelStream()
-                        .forEach(entry -> firePostCommitTask(entry.getKey(), entry.getValue()));
-         return dto;
+         return result.thenApply((ignored) -> {
+            postCommitTasks.entrySet().parallelStream()
+                           .forEach(entry -> firePostCommitTask(entry.getKey(), entry.getValue()));
+            return dto;
+         });
       }
 
       private void firePreCommitTask(UUID taskId, EntryUpdateObserver<DTO> task)
@@ -558,7 +560,6 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          // TODO fire block exceptions, add to monitor
          task.notify(context);
       }
-
    }
 
    private class UpdateContextImpl implements UpdateContext<DTO>
