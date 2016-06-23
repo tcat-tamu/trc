@@ -102,5 +102,5 @@ public interface EditArticleCommand
     * @return The id of the resulting article. If the underlying update fails, the
     *       {@link Future#get()} method will propagate that exception.
     */
-   Future<UUID> execute();
+   Future<String> execute();
 }
