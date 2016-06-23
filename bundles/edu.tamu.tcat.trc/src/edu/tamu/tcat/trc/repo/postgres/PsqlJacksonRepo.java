@@ -43,7 +43,7 @@ import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.EditCommandFactory.UpdateStrategy;
-import edu.tamu.tcat.trc.repo.EntryUpdateTask;
+import edu.tamu.tcat.trc.repo.EntryUpdateObserver;
 import edu.tamu.tcat.trc.repo.RepositoryException;
 import edu.tamu.tcat.trc.repo.RepositorySchema;
 import edu.tamu.tcat.trc.repo.UpdateContext;
@@ -67,8 +67,8 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    private String updateRecordSql;
    private String removeRecordSql;
 
-   private final Map<UUID, EntryUpdateTask<DTO>> preCommitTasks = new ConcurrentHashMap<>();
-   private final Map<UUID, EntryUpdateTask<DTO>> postCommitTasks = new ConcurrentHashMap<>();
+   private final Map<UUID, EntryUpdateObserver<DTO>> preCommitTasks = new ConcurrentHashMap<>();
+   private final Map<UUID, EntryUpdateObserver<DTO>> postCommitTasks = new ConcurrentHashMap<>();
 
    private LoadingCache<String, RecordType> cache;
 
@@ -302,7 +302,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       return updater.update(dto -> null).thenApply(dto -> true);
    }
 
-   public Runnable beforeUpdate(EntryUpdateTask<DTO> preCommitTask)
+   public Runnable beforeUpdate(EntryUpdateObserver<DTO> preCommitTask)
    {
       // TODO may need to provide access to id
       UUID taskId = UUID.randomUUID();
@@ -311,7 +311,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       return () -> preCommitTasks.remove(taskId);
    }
 
-   public Runnable afterUpdate(EntryUpdateTask<DTO> postCommitTask)
+   public Runnable afterUpdate(EntryUpdateObserver<DTO> postCommitTask)
    {
       // TODO may need to provide access to id
       UUID taskId = UUID.randomUUID();
@@ -547,13 +547,13 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          return dto;
       }
 
-      private void firePreCommitTask(UUID taskId, EntryUpdateTask<DTO> task)
+      private void firePreCommitTask(UUID taskId, EntryUpdateObserver<DTO> task)
       {
          // ON EXCEPTION CANCEL
          task.notify(context);
       }
 
-      private void firePostCommitTask(UUID taskId, EntryUpdateTask<DTO> task)
+      private void firePostCommitTask(UUID taskId, EntryUpdateObserver<DTO> task)
       {
          // TODO fire block exceptions, add to monitor
          task.notify(context);
