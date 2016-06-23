@@ -1,6 +1,6 @@
 package edu.tamu.tcat.trc.repo;
 
-public class RepositoryException extends Exception
+public class RepositoryException extends RuntimeException
 {
 
    public RepositoryException()
