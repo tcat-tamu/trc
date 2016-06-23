@@ -15,6 +15,8 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln.rest.v1;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -83,6 +85,7 @@ public class RestApiV1
 
    public static class Anchor
    {
+      public String label;
       public Set<String> entryUris;
    }
 
@@ -152,5 +155,40 @@ public class RestApiV1
       public Provenance provenance;
       public Set<Anchor> relatedEntities;
       public Set<Anchor> targetEntities;
+   }
+
+   /**
+    * Given a referent entry, this result set will contain all corresponding relationships grouped
+    * by type and further by the directionality relative to the referent entry.
+    */
+   public static class GroupedSearchResultSet
+   {
+      public String referent;
+      public List<RelationshipTypeGroup> types = new ArrayList<>();
+   }
+
+   /**
+    * Represents a collection of relationships of a certain type.
+    * If the type is directed, then {@code out} and {@code in} will contain all of the referent's
+    * outgoing and incoming relationships, respectively.
+    * If the type is undirected, then {@code none} will contain all of the referent's relationships.
+    */
+   public static class RelationshipTypeGroup
+   {
+      public String id;
+      public String description;
+      public boolean directed;
+      public DirectionalRelationshipGroup out;
+      public DirectionalRelationshipGroup in;
+      public DirectionalRelationshipGroup none;
+   }
+
+   /**
+    * Labeled container for a collection of relationships grouped by type and potentially direction.
+    */
+   public static class DirectionalRelationshipGroup
+   {
+      public String label;
+      public Set<RelationshipSearchResult> relationships = new HashSet<>();
    }
 }
