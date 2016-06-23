@@ -27,6 +27,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.postgresql.util.PGobject;
@@ -517,7 +518,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
       /**
        *
-       * @param id The id of the object being updated.
+       * @param entryId The id of the object being updated.
        * @param updateAction The persistence action to invoke (typically create, update or delete)
        *       on the DTO object submitted by the edit command.
        */
@@ -536,8 +537,23 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          DTO dto = generator.apply(context);
          context.modified.complete(dto);
 
-         preCommitTasks.entrySet().parallelStream()
-            .forEach(entry -> firePreCommitTask(entry.getKey(), entry.getValue()));
+         try
+         {
+            preCommitTasks.entrySet().parallelStream()
+               .forEach(entry -> firePreCommitTask(entry.getKey(), entry.getValue()));
+         }
+         catch (Exception ex)
+         {
+            // TODO better logging -- include info about which pre-commit task failed.
+            // what is the appropriate log level here.
+            String template = "Aborting update for entry {0}. Update id: {1}\n\tReason: {2}";
+            Supplier<String> msgSupplier = () -> format(template, context.getId(), context.getUpdateId(), ex.getMessage());
+            logger.log(Level.WARNING, ex, msgSupplier);
+
+            CompletableFuture<DTO> failure = new CompletableFuture<>();
+            failure.completeExceptionally(ex);
+            return failure;
+         }
 
          CompletableFuture<DTO> result = updateAction.apply(dto);
 
@@ -551,20 +567,29 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
       private void firePreCommitTask(UUID taskId, EntryUpdateObserver<DTO> task)
       {
-         // ON EXCEPTION CANCEL
          task.notify(context);
       }
 
       private void firePostCommitTask(UUID taskId, EntryUpdateObserver<DTO> task)
       {
-         // TODO fire block exceptions, add to monitor
-         task.notify(context);
+         try
+         {
+            task.notify(context);
+         }
+         catch (Exception ex)
+         {
+            // TODO what is the appropriate log level here.
+            String template = "Post-commit task failed while following update of entry {0}. Update id: {1}\n\tReason: {2}";
+            Supplier<String> msgSupplier = () -> format(template, context.getId(), context.getUpdateId(), ex.getMessage());
+            logger.log(Level.WARNING, ex, msgSupplier);
+         }
       }
    }
 
    private class UpdateContextImpl implements UpdateContext<DTO>
    {
-      private String id;
+      private UUID updateId = UUID.randomUUID();
+      private String entryId;
       private String action;
       private Account actor;
       private Supplier<DTO> supplier;
@@ -575,16 +600,21 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
       UpdateContextImpl(String id, String action, Account actor, Supplier<DTO> supplier)
       {
-         this.id = id;
+         this.entryId = id;
          this.action = action;
          this.actor = actor;
          this.supplier = supplier;
       }
 
+      public UUID getUpdateId()
+      {
+         return updateId;
+      }
+
       @Override
       public String getId()
       {
-         return id;
+         return entryId;
       }
 
       @Override
@@ -624,12 +654,12 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          catch (InterruptedException e)
          {
             String ERR_CANCELLED = "Retreival of original entry {0} was cancelled";
-            throw new RepositoryException(format(ERR_CANCELLED, id), e);
+            throw new RepositoryException(format(ERR_CANCELLED, entryId), e);
          }
          catch (TimeoutException e)
          {
             String ERR_TIMEOUT = "Failed to retrieve original entry {0} in a timely fashion";
-            throw new RepositoryException(format(ERR_TIMEOUT, id), e);
+            throw new RepositoryException(format(ERR_TIMEOUT, entryId), e);
          }
          catch (ExecutionException e)
          {
@@ -640,7 +670,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
                throw (Error)cause;
 
             String ERR_FAILED = "Failed to retrieve original entry {0}";
-            throw new RepositoryException(format(ERR_FAILED, id), e);
+            throw new RepositoryException(format(ERR_FAILED, entryId), e);
          }
       }
 
@@ -660,12 +690,12 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          catch (InterruptedException e)
          {
             String ERR_CANCELLED = "Retreival of modified entry {0} was cancelled";
-            throw new RepositoryException(format(ERR_CANCELLED, id), e);
+            throw new RepositoryException(format(ERR_CANCELLED, entryId), e);
          }
          catch (TimeoutException e)
          {
             String ERR_TIMEOUT = "Failed to retrieve modified {0} in a timely fashion";
-            throw new RepositoryException(format(ERR_TIMEOUT, id), e);
+            throw new RepositoryException(format(ERR_TIMEOUT, entryId), e);
          }
          catch (ExecutionException e)
          {
@@ -676,7 +706,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
                throw (Error)cause;
 
             String ERR_FAILED = "Failed to obtain modified entry {0}";
-            throw new RepositoryException(format(ERR_FAILED, id), e);
+            throw new RepositoryException(format(ERR_FAILED, entryId), e);
          }
       }
    }
