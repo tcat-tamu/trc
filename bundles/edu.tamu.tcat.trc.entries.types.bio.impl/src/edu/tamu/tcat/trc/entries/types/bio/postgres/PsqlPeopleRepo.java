@@ -15,6 +15,9 @@
  */
 package edu.tamu.tcat.trc.entries.types.bio.postgres;
 
+import static edu.tamu.tcat.trc.repo.DocumentRepository.unwrap;
+import static java.text.MessageFormat.format;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -41,7 +44,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.util.concurrent.Futures;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.notification.BaseUpdateEvent;
@@ -203,13 +205,13 @@ public class PsqlPeopleRepo implements PeopleRepository
          }
       });
 
-      return Futures.get(future, NoSuchCatalogRecordException.class);
+      return unwrap(future, () -> format("Failed to restore bibliographic record for id={0}.", personId));
    }
 
    @Override
    public Iterator<Person> listAll() throws CatalogRepoException
    {
-      return new PagedItemIterator<Person>(this::getPersonBlock, this::parse, 100);
+      return new PagedItemIterator<>(this::getPersonBlock, this::parse, 100);
    }
 
 

@@ -4,6 +4,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 
 /**
  *  A simple, document-oriented data store that performs basic CRUD operations over NoSQL-like
@@ -147,6 +150,52 @@ public interface DocumentRepository<RecordType, EditCommandType>
     */
    Future<Boolean> delete(String id) throws UnsupportedOperationException;
 
+   /**
+    * Convenience method to unwrap a {@link Future} and return the result or
+    * package the underlying exception in a {@link RepositoryException}.
+    *
+    * @param result The future to be unwrapped.
+    * @param message A message to supply if an exception was thrown by the future.
+    *
+    * @return The object returned by the future.
+    *
+    * @throws IllegalStateException If an {@link InterruptedException} or
+    *       {@link TimeoutException} occurs while waiting on the supplied future.
+    *       To avoid blocked threads, this will wait 10 minutes for the future to
+    *       complete. For tasks that require longer execution, this method is not
+    *       appropriate.
+    * @throws RuntimeException If the future throws an {@link ExecutionException}
+    *    whose cause is an unchecked exception, this method will propagate that
+    *    exception directly.
+    * @throws RepositoryException If the future throws an {@link ExecutionException}
+    *    whose cause is a checked exception, this will wrap the checked exception in
+    *    an unchecked {@link RepositoryException}.
+    */
+   public static <X> X unwrap(Future<X> result, Supplier<String> message)
+      throws IllegalStateException, RepositoryException, RuntimeException
+   {
+      // HACK: ridiculously long timeout is better than nothing.
+      try
+      {
+         return result.get(10, TimeUnit.MINUTES);
+      }
+      catch (InterruptedException | TimeoutException e)
+      {
+         String msg = message.get();
+         throw new IllegalStateException(msg + " Failed to obtain result in a timely manner.", e);
+      }
+      catch (ExecutionException e)
+      {
+         Throwable cause = e.getCause();
+         if (cause instanceof RuntimeException)
+            throw (RuntimeException)cause;
+         if (cause instanceof Error)
+            throw (Error)cause;
+
+         String msg = message.get();
+         throw new RepositoryException(msg, e);
+      }
+   }
 //   /**
 //    * Add listener to be notified whenever a biography has been modified (created, updated or deleted).
 //    * Note that this will be fired after the change has taken place and the attached listener will not

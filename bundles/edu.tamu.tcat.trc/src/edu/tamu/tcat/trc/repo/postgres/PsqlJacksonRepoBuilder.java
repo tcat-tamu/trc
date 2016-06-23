@@ -1,5 +1,8 @@
 package edu.tamu.tcat.trc.repo.postgres;
 
+import static edu.tamu.tcat.trc.repo.DocumentRepository.unwrap;
+import static java.text.MessageFormat.format;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,7 +18,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.util.concurrent.Futures;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
@@ -149,11 +151,12 @@ public class PsqlJacksonRepoBuilder<RecordType, EditCmdType, StorageType>
 
    private boolean exists() throws RepositoryException
    {
+      // TODO this duplicates method in DatabaseSchemaManager
       Future<Boolean> result = exec.submit(conn -> {
          return Boolean.valueOf(tableExists(conn, tablename) && checkColumnsMatch(schema, conn));
       });
 
-      return Futures.get(result, RepositoryException.class);
+      return unwrap(result, () -> format("Failed to determine whether table {0} exists.", tablename));
    }
 
    private boolean checkColumnsMatch(RepositorySchema schema, Connection conn) throws SQLException
@@ -238,13 +241,13 @@ public class PsqlJacksonRepoBuilder<RecordType, EditCmdType, StorageType>
 
    private boolean create() throws RepositoryException
    {
-
+      // TODO this duplicates method in DatabaseSchemaManager
       if (exists())
          return false;
 
       String sql = buildCreateSql();
       Future<Boolean> result = exec.submit((conn) -> createTable(conn, sql));
-      return Futures.get(result, RepositoryException.class);
+      return unwrap(result, () -> format("Failed to create database table\n{0}", sql));
    }
 
    // TODO truncate, drop?
