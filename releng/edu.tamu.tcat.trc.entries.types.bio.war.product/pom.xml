@@ -27,13 +27,13 @@
     <version>1</version>
   </parent>
 
-  <groupId>edu.tamu.tcat</groupId>
-  <artifactId>trc.biographical.war</artifactId>
+  <groupId>edu.tamu.tcat.trc.entries</groupId>
+  <artifactId>biographical.war</artifactId>
   <packaging>eclipse-repository</packaging>
   <version>1.3.0-SNAPSHOT</version>
 
   <properties>
-    <war-filename>catalog</war-filename>
+    <war-filename>biographical-entries</war-filename>
   </properties>
 
   <build>
