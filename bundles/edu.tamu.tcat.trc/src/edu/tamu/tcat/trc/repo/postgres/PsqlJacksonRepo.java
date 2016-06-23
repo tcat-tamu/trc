@@ -1,43 +1,52 @@
 package edu.tamu.tcat.trc.repo.postgres;
 
+import static edu.tamu.tcat.trc.repo.DocumentRepository.unwrap;
+import static java.text.MessageFormat.format;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.postgresql.util.PGobject;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.util.concurrent.Futures;
 
+import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
+import edu.tamu.tcat.trc.repo.EditCommandFactory.UpdateStrategy;
+import edu.tamu.tcat.trc.repo.EntryUpdateTask;
 import edu.tamu.tcat.trc.repo.RepositoryException;
 import edu.tamu.tcat.trc.repo.RepositorySchema;
-import edu.tamu.tcat.trc.repo.postgres.NotifyingTaskFactory.ObservableTask;
+import edu.tamu.tcat.trc.repo.UpdateContext;
 
 public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements DocumentRepository<RecordType, EditCommandType>
 {
@@ -50,6 +59,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    private RepositorySchema schema;
    private Function<DTO, RecordType> adapter;
    private Class<DTO> storageType;
+
    private EditCommandFactory<DTO, EditCommandType> cmdFactory;
 
    private String getRecordSql;
@@ -57,59 +67,57 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    private String updateRecordSql;
    private String removeRecordSql;
 
-   private NotifyingTaskFactory sqlTaskFactory;
+   private final Map<UUID, EntryUpdateTask<DTO>> preCommitTasks = new ConcurrentHashMap<>();
+   private final Map<UUID, EntryUpdateTask<DTO>> postCommitTasks = new ConcurrentHashMap<>();
+
    private LoadingCache<String, RecordType> cache;
 
-
-   public PsqlJacksonRepo()
+   PsqlJacksonRepo()
    {
    }
 
-   public void setSqlExecutor(SqlExecutor exec)
+   void setSqlExecutor(SqlExecutor exec)
    {
       this.exec = exec;
    }
 
-   public void setIdFactory(Supplier<String> idFactory)
+   void setIdFactory(Supplier<String> idFactory)
    {
       this.idFactory = idFactory;
    }
 
-   public void setTableName(String tablename)
+   void setTableName(String tablename)
    {
       this.tablename = tablename;
    }
 
 
-   public void setSchema(RepositorySchema schema)
+   void setSchema(RepositorySchema schema)
    {
       this.schema = schema;
    }
 
-   public void setCommandFactory(EditCommandFactory<DTO, EditCommandType> cmdFactory)
+   void setCommandFactory(EditCommandFactory<DTO, EditCommandType> cmdFactory)
    {
       this.cmdFactory = cmdFactory;
    }
 
-   public void setAdapter(Function<DTO, RecordType> adapter)
+   void setAdapter(Function<DTO, RecordType> adapter)
    {
       this.adapter = adapter;
    }
 
-
-   public void setStorageType(Class<DTO> storageType)
+   void setStorageType(Class<DTO> storageType)
    {
       this.storageType = storageType;
    }
 
-   public void activate()
+   void activate()
    {
       // TODO initialize event notification tools
       // default to UUID-based ids
       if (idFactory == null)
-      {
          idFactory = () -> UUID.randomUUID().toString();
-      }
 
       Objects.requireNonNull(exec, "The SQL executor has not bee supplied");
       Objects.requireNonNull(tablename, "The tablename has not bee supplied");
@@ -121,12 +129,12 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       Objects.requireNonNull(adapter, "The data adapter has not bee supplied");
       Objects.requireNonNull(storageType, "The storage type has not bee supplied");
 
+      logger.info(format("Initializing document repository for schema {0} using table {0}", schema.getId(), tablename));
+
       this.getRecordSql = prepareGetSql();
       this.createRecordSql = prepareInsertSql();
       this.updateRecordSql = prepareUpdateSql();
       this.removeRecordSql = prepareRemoveSql();
-
-      this.sqlTaskFactory = new NotifyingTaskFactory();
 
       this.initCache();
    }
@@ -136,9 +144,6 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    {
       this.cache.invalidateAll();
       this.cache = null;
-
-      this.sqlTaskFactory.close();
-      this.sqlTaskFactory = null;
    }
 
    private void initCache()
@@ -167,17 +172,17 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
       String removedField = schema.getRemovedField();
       String isNotRemoved = (removedField != null)
-                  ? MessageFormat.format("AND {0} IS NULL", removedField)
+                  ? format("AND {0} IS NULL", removedField)
                   : "";
 
-      return MessageFormat.format(GET_RECORD_SQL, schema.getDataField(), tablename, schema.getIdField(), isNotRemoved);
+      return format(GET_RECORD_SQL, schema.getDataField(), tablename, schema.getIdField(), isNotRemoved);
    }
 
    private String prepareInsertSql()
    {
       String INSERT_SQL = "INSERT INTO {0} ({1}, {2}) VALUES(?, ?)";
 
-      return MessageFormat.format(INSERT_SQL, tablename, schema.getDataField(), schema.getIdField());
+      return format(INSERT_SQL, tablename, schema.getDataField(), schema.getIdField());
    }
 
    private String prepareUpdateSql()
@@ -188,7 +193,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       String dataCol = schema.getDataField();
       String modifiedCol = schema.getModifiedField();
       String dateModClause = hasDateModifiedField() ? ", " + modifiedCol + " = now()": "";
-      return MessageFormat.format(UPDATE_SQL, tablename, dataCol, dateModClause, idCol);
+      return format(UPDATE_SQL, tablename, dataCol, dateModClause, idCol);
    }
 
    private String prepareRemoveSql()
@@ -202,11 +207,11 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       {
          String modifiedField = schema.getModifiedField();
          String dateModClause = hasDateModifiedField() ? ", " + modifiedField + " = now()": "";
-         return MessageFormat.format(MARK_REMOVED_SQL, tablename, removedField, dateModClause, idField);
+         return format(MARK_REMOVED_SQL, tablename, removedField, dateModClause, idField);
       }
       else
       {
-         return MessageFormat.format(DELETE_SQL, tablename, idField);
+         return format(DELETE_SQL, tablename, idField);
       }
 
    }
@@ -220,60 +225,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    @Override
    public Iterator<RecordType> listAll()
    {
-      return new PagedRecordIterator<RecordType>(this::getPersonBlock, this::parse, 100);
-   }
-
-   public RecordType parse(String json)
-   {
-      try
-      {
-         ObjectMapper mapper = getObjectMapper();
-
-         DTO dto = mapper.readValue(json, storageType);
-         return adapter.apply(dto);
-      }
-      catch (IOException ex)
-      {
-         String message = MessageFormat.format("Failed to parse stored record data.\n\t{0}", json);
-         throw new IllegalStateException(message, ex);
-      }
-   }
-
-   private Future<List<String>> getPersonBlock(int offset, int limit)
-   {
-
-      return exec.submit((conn) -> getPageBlock(conn, offset, limit));
-   }
-
-   private List<String> getPageBlock(Connection conn, int offset, int limit) throws InterruptedException
-   {
-      if (Thread.interrupted())
-         throw new InterruptedException();
-
-      String template = "SELECT {0} FROM {1} ORDER BY {2} LIMIT {3} OFFSET {4}";
-      String sql = MessageFormat.format(template, schema.getDataField(), tablename,
-            schema.getIdField(), Integer.toString(limit), Integer.toString(offset));
-
-      List<String> jsonData = new ArrayList<>();
-      try (Statement stmt = conn.createStatement())
-      {
-         ResultSet rs = stmt.executeQuery(sql);
-         while (rs.next())
-         {
-            if (Thread.interrupted())
-               throw new InterruptedException();
-
-            PGobject pgo = (PGobject)rs.getObject(schema.getDataField());
-            String json = pgo.toString();
-            jsonData.add(json);
-         }
-
-         return jsonData;
-      }
-      catch (SQLException e)
-      {
-         throw new IllegalStateException("Faield to retrieve person.", e);
-      }
+      return new PagedRecordIterator<>(this::getPersonBlock, this::parse, 100);
    }
 
    @Override
@@ -314,6 +266,113 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       return Collections.unmodifiableCollection(results.values());
    }
 
+   @Override
+   public EditCommandType create()
+   {
+      String id = idFactory != null
+            ? idFactory.get()
+            : UUID.randomUUID().toString();
+      return create(id);
+   }
+
+   @Override
+   public EditCommandType create(String id) throws UnsupportedOperationException
+   {
+      UpdateContextImpl context = new UpdateContextImpl(id, "CREATE", null, () -> null);
+      UpdateStrategyImpl updater = new UpdateStrategyImpl(context, (dto) -> doCreate(id, dto));
+
+      return this.cmdFactory.edit(id, updater);
+   }
+
+   @Override
+   public EditCommandType edit(String id) throws RepositoryException
+   {
+      UpdateContextImpl context = new UpdateContextImpl(id, "EDIT", null, () -> loadStoredRecord(id));
+      UpdateStrategyImpl updater = new UpdateStrategyImpl(context, (dto) -> doEdit(id, dto));
+
+      return this.cmdFactory.edit(id, updater);
+   }
+
+   @Override
+   public CompletableFuture<Boolean> delete(String id) throws UnsupportedOperationException
+   {
+      UpdateContextImpl context = new UpdateContextImpl(id, "DELETE", null, () -> null);
+      UpdateStrategyImpl updater = new UpdateStrategyImpl(context, (dto) -> doDelete(id));
+
+      return updater.update(dto -> null).thenApply(dto -> true);
+   }
+
+   public Runnable beforeUpdate(EntryUpdateTask<DTO> preCommitTask)
+   {
+      // TODO may need to provide access to id
+      UUID taskId = UUID.randomUUID();
+      preCommitTasks.put(taskId, preCommitTask);
+
+      return () -> preCommitTasks.remove(taskId);
+   }
+
+   public Runnable afterUpdate(EntryUpdateTask<DTO> postCommitTask)
+   {
+      // TODO may need to provide access to id
+      UUID taskId = UUID.randomUUID();
+      postCommitTasks.put(taskId, postCommitTask);
+
+      return () -> postCommitTasks.remove(taskId);
+   }
+
+   private RecordType parse(String json)
+   {
+      try
+      {
+         ObjectMapper mapper = getObjectMapper();
+
+         DTO dto = mapper.readValue(json, storageType);
+         return adapter.apply(dto);
+      }
+      catch (IOException ex)
+      {
+         String message = format("Failed to parse stored record data.\n\t{0}", json);
+         throw new IllegalStateException(message, ex);
+      }
+   }
+
+   private Future<List<String>> getPersonBlock(int offset, int limit)
+   {
+
+      return exec.submit((conn) -> getPageBlock(conn, offset, limit));
+   }
+
+   private List<String> getPageBlock(Connection conn, int offset, int limit) throws InterruptedException
+   {
+      if (Thread.interrupted())
+         throw new InterruptedException();
+
+      String template = "SELECT {0} FROM {1} ORDER BY {2} LIMIT {3} OFFSET {4}";
+      String sql = format(template, schema.getDataField(), tablename,
+            schema.getIdField(), Integer.toString(limit), Integer.toString(offset));
+
+      List<String> jsonData = new ArrayList<>();
+      try (Statement stmt = conn.createStatement())
+      {
+         ResultSet rs = stmt.executeQuery(sql);
+         while (rs.next())
+         {
+            if (Thread.interrupted())
+               throw new InterruptedException();
+
+            PGobject pgo = (PGobject)rs.getObject(schema.getDataField());
+            String json = pgo.toString();
+            jsonData.add(json);
+         }
+
+         return jsonData;
+      }
+      catch (SQLException e)
+      {
+         throw new IllegalStateException("Faield to retrieve person.", e);
+      }
+   }
+
    /**
     * @return the JSON representation associated with this id.
     */
@@ -329,7 +388,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          return mapper.readValue(json, storageType);
       });
 
-      return Futures.get(future, RepositoryException.class);
+      return unwrap(future, () -> format("Failed to load DTO for entry with id={0}", id));
    }
 
    /**
@@ -362,78 +421,12 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       }
    }
 
-   @Override
-   public EditCommandType create()
+   private CompletableFuture<DTO> doCreate(String id, DTO record)
    {
-      return create(idFactory.get());
-   }
-
-   @Override
-   public EditCommandType create(String id) throws UnsupportedOperationException
-   {
-      return this.cmdFactory.edit(id,
-            () -> null,
-            (dto, changeSet) -> doCreate(id, dto, changeSet));
-   }
-
-   @Override
-   public EditCommandType edit(String id) throws RepositoryException
-   {
-      return this.cmdFactory.edit(id,
-            () -> loadStoredRecordUnchecked(id),
-            (dto, changeSet) -> doEdit(id, dto, changeSet));
-   }
-
-   @Override
-   public Future<Boolean> delete(String id) throws UnsupportedOperationException
-   {
-      ObservableTask<Boolean> task = sqlTaskFactory.wrap((conn) -> {
-         try (PreparedStatement ps = conn.prepareStatement(removeRecordSql))
-         {
-            ps.setString(1, id);
-            int ct = ps.executeUpdate();
-            return Boolean.valueOf(ct == 1);
-         }
-         catch (SQLException e)
-         {
-            String message = MessageFormat.format("Failed to mark record as deleted. Record id: {0}", id);
-            throw new IllegalStateException(message, e);
-         }
-      });
-
-      task.afterExecution(recordId -> cache.invalidate(recordId));
-
-      // TODO fire notification
-      return exec.submit(task);
-   }
-
-   private DTO loadStoredRecordUnchecked(String id)
-   {
-      // TODO (REVIEW) is this a good idea or should we throw an unchecked exception.
-      //      Need to document decision on the commit hook
-      try
-      {
-         return loadStoredRecord(id);
-      }
-      catch (RepositoryException ex)
-      {
-         String msg = MessageFormat.format("Failed to load stored record for {0}", id);
-         logger.log(Level.WARNING, msg, ex);
-         return null;
-      }
-   }
-
-   private Future<String> doCreate(String id, DTO record, Object changeSet)
-   {
-
-      ObservableTask<String> task = sqlTaskFactory.wrap((conn) -> {
+      return exec.submit((conn) -> {
          try (PreparedStatement ps = conn.prepareStatement(createRecordSql))
          {
-            ObjectMapper mapper = getObjectMapper();
-
-            PGobject json = new PGobject();
-            json.setType("json");
-            json.setValue(mapper.writeValueAsString(record));
+            PGobject json = asJson(record);
 
             ps.setObject(1, json);
             ps.setString(2, id);
@@ -441,47 +434,46 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
             int ct = ps.executeUpdate();
             if (ct != 1)
                throw new IllegalStateException("Failed to create record for id [" + id + "]. Unexpected number of rows updates [" + ct + "]");
+
+            cache.invalidate(id);
          }
          catch (IOException e)
          {
             // NOTE this is an internal configuration error. The JsonMapper should be configured to
             //      serialize HistoricalFigureDV instances correctly.
-            throw new IllegalArgumentException("Failed to serialize the supplied record [" + record + "]", e);
+            throw new IllegalStateException("Failed to serialize the supplied record [" + record + "]", e);
          }
 
-         return id;
+         return record;
       });
-
-      // We must invalidate the cache after execution has completed to ensure that a call
-      // to #get() will not reload the stale data after the cache has been invalidated but
-      // before the DB task executes. This would result in persistently stale data loaded into
-      // the cache.
-      //
-      // Note that this allows clients to see stale data if they call get after the DB
-      // changes but before the cache is invalidated.
-      //
-      // Note that a call to #get following a call to create or edit is not guaranteed to
-      // see the results of the record update.
-      task.afterExecution(recordId -> cache.invalidate(recordId));
-//    TODO add notifications
-
-//      task.afterExecution(id -> notifyPersonUpdate(UpdateEvent.UpdateAction.UPDATE, id));
-
-      return exec.submit(task);
    }
 
-   private Future<String> doEdit(String id, DTO record, Object changeSet)
+   private CompletableFuture<DTO> doDelete(String id)
    {
-      ObservableTask<String> task = sqlTaskFactory.wrap((conn) -> {
+      return exec.submit((conn) -> {
+         try (PreparedStatement ps = conn.prepareStatement(removeRecordSql))
+         {
+            ps.setString(1, id);
+            ps.executeUpdate();
+            cache.invalidate(id);
+            // boolean removed = Boolean.valueOf(ct == 1);
+
+            return null;
+         }
+         catch (SQLException e)
+         {
+            String message = format("Failed to mark record as deleted. Record id: {0}", id);
+            throw new IllegalStateException(message, e);
+         }
+      });
+   }
+
+   private CompletableFuture<DTO> doEdit(String id, DTO record)
+   {
+      return exec.submit((conn) -> {
          try (PreparedStatement ps = conn.prepareStatement(updateRecordSql))
          {
-            ObjectMapper mapper = getObjectMapper();
-
-            PGobject json = new PGobject();
-            json.setType("json");
-            json.setValue(mapper.writeValueAsString(record));
-
-            ps.setObject(1, json);
+            ps.setObject(1, asJson(record));
             ps.setString(2, id);
 
             int ct = ps.executeUpdate();
@@ -489,19 +481,24 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
                throw new IllegalStateException("Failed to update record for id [" + id + "]. Unexpected number of rows updates [" + ct + "]");
 
             cache.invalidate(id);
-
-            return id;
+            return record;
          }
          catch (IOException e)
          {
-            throw new IllegalArgumentException("Failed to serialize the supplied record [" + record + "]", e);
+            throw new IllegalStateException("Failed to serialize the supplied record [" + record + "]", e);
          }
       });
+   }
 
-//      TODO add notifications
-//      task.afterExecution(recordId -> notifyPersonUpdate(UpdateEvent.UpdateAction.UPDATE, id));
+   private PGobject asJson(DTO record) throws JsonProcessingException, SQLException
+   {
+      ObjectMapper mapper = getObjectMapper();
+      String entryJson = mapper.writeValueAsString(record);
 
-      return exec.submit(task);
+      PGobject json = new PGobject();
+      json.setType("json");
+      json.setValue(entryJson);
+      return json;
    }
 
    private ObjectMapper getObjectMapper()
@@ -509,5 +506,177 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       ObjectMapper mapper = new ObjectMapper();
       mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
       return mapper;
+   }
+
+   private class UpdateStrategyImpl implements UpdateStrategy<DTO>
+   {
+      private final UpdateContextImpl context;
+      private final Function<DTO, CompletableFuture<DTO>> updateAction;
+
+      /**
+       *
+       * @param id The id of the object being updated.
+       * @param updateAction The persistence action to invoke (typically create, update or delete)
+       *       on the DTO object submitted by the edit command.
+       */
+      UpdateStrategyImpl(UpdateContextImpl context, Function<DTO, CompletableFuture<DTO>> updateAction)
+      {
+         this.context = context;
+         this.updateAction = updateAction;
+      }
+
+      @Override
+      public CompletableFuture<DTO> update(Function<UpdateContext<DTO>, DTO> generator)
+      {
+         // TODO support cancellation
+         preCommitTasks.entrySet().parallelStream()
+            .forEach(entry -> firePreCommitTask(entry.getKey(), entry.getValue()));
+
+         DTO dto = generator.apply(context);
+         CompletableFuture<DTO> result = updateAction.apply(dto);
+
+         // fire post-commit hooks
+         return result.thenApply(this::postUpdate);
+      }
+
+      private DTO postUpdate(DTO dto)
+      {
+         context.modified.complete(dto);
+         postCommitTasks.entrySet().parallelStream()
+                        .forEach(entry -> firePostCommitTask(entry.getKey(), entry.getValue()));
+         return dto;
+      }
+
+      private void firePreCommitTask(UUID taskId, EntryUpdateTask<DTO> task)
+      {
+         // ON EXCEPTION CANCEL
+         task.notify(context);
+      }
+
+      private void firePostCommitTask(UUID taskId, EntryUpdateTask<DTO> task)
+      {
+         // TODO fire block exceptions, add to monitor
+         task.notify(context);
+      }
+
+   }
+
+   private class UpdateContextImpl implements UpdateContext<DTO>
+   {
+      private String id;
+      private String action;
+      private Account actor;
+      private Supplier<DTO> supplier;
+      private AtomicBoolean loading = new AtomicBoolean(false);
+
+      private CompletableFuture<DTO> original = new CompletableFuture<>();
+      private CompletableFuture<DTO> modified = new CompletableFuture<>();
+
+      UpdateContextImpl(String id, String action, Account actor, Supplier<DTO> supplier)
+      {
+         this.id = id;
+         this.action = action;
+         this.actor = actor;
+         this.supplier = supplier;
+      }
+
+      @Override
+      public String getId()
+      {
+         return id;
+      }
+
+      @Override
+      public String getActionType()
+      {
+         return action;
+      }
+
+      @Override
+      public Account getActor()
+      {
+         return actor;
+      }
+
+      @Override
+      public DTO getOriginal()
+      {
+         // HACK wait arbitrary time to prevent waiting forever
+         return getOriginal(1, TimeUnit.MINUTES);
+      }
+
+      public DTO getOriginal(long time, TimeUnit units)
+      {
+         if (loading.compareAndSet(false, true))
+         {
+            try {
+               original.complete(supplier.get());
+            } catch (Exception ex) {
+               original.completeExceptionally(ex);
+            }
+         }
+
+         try
+         {
+            return original.get(time, units);
+         }
+         catch (InterruptedException e)
+         {
+            String ERR_CANCELLED = "Retreival of original entry {0} was cancelled";
+            throw new RepositoryException(format(ERR_CANCELLED, id), e);
+         }
+         catch (TimeoutException e)
+         {
+            String ERR_TIMEOUT = "Failed to retrieve original entry {0} in a timely fashion";
+            throw new RepositoryException(format(ERR_TIMEOUT, id), e);
+         }
+         catch (ExecutionException e)
+         {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException)
+               throw (RuntimeException)cause;
+            if (cause instanceof Error)
+               throw (Error)cause;
+
+            String ERR_FAILED = "Failed to retrieve original entry {0}";
+            throw new RepositoryException(format(ERR_FAILED, id), e);
+         }
+      }
+
+      @Override
+      public DTO getModified()
+      {
+         // HACK wait arbitrary time to prevent waiting forever
+         return getModified(5, TimeUnit.MINUTES);
+      }
+
+      public DTO getModified(long time, TimeUnit units)
+      {
+         try
+         {
+            return modified.get(time, units);
+         }
+         catch (InterruptedException e)
+         {
+            String ERR_CANCELLED = "Retreival of modified entry {0} was cancelled";
+            throw new RepositoryException(format(ERR_CANCELLED, id), e);
+         }
+         catch (TimeoutException e)
+         {
+            String ERR_TIMEOUT = "Failed to retrieve modified {0} in a timely fashion";
+            throw new RepositoryException(format(ERR_TIMEOUT, id), e);
+         }
+         catch (ExecutionException e)
+         {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException)
+               throw (RuntimeException)cause;
+            if (cause instanceof Error)
+               throw (Error)cause;
+
+            String ERR_FAILED = "Failed to obtain modified entry {0}";
+            throw new RepositoryException(format(ERR_FAILED, id), e);
+         }
+      }
    }
 }
