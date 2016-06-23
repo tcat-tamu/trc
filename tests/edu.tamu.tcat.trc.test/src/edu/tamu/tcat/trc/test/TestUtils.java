@@ -2,7 +2,7 @@ package edu.tamu.tcat.trc.test;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
@@ -33,7 +33,7 @@ public class TestUtils
          }
 
          @Override
-         public <X> Future<X> submit(ExecutorTask<X> task)
+         public <X> CompletableFuture<X> submit(ExecutorTask<X> task)
          {
             return exec.submit(task);
          }
