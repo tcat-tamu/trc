@@ -19,12 +19,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.CopyReferenceDTO;
 
 public class VolumeDTO
 {
@@ -39,6 +39,25 @@ public class VolumeDTO
    public String summary;
    public String defaultCopyReferenceId;
    public Set<CopyReferenceDTO> copyReferences = new HashSet<>();
+
+   public VolumeDTO()
+   {
+
+   }
+
+   public VolumeDTO(VolumeDTO orig)
+   {
+      this.id = orig.id;
+      this.volumeNumber = orig.volumeNumber;
+      this.publicationInfo = new PublicationInfoDTO(orig.publicationInfo);
+      this.authors = orig.authors.stream().map(AuthorReferenceDTO::new).collect(Collectors.toList());
+      this.titles = orig.titles.stream().map(TitleDTO::new).collect(Collectors.toList());
+
+      this.series = orig.series;
+      this.summary = orig.summary;
+      this.defaultCopyReferenceId = orig.defaultCopyReferenceId;
+      this.copyReferences = orig.copyReferences.stream().map(CopyReferenceDTO::new).collect(Collectors.toSet());
+   }
 
    public static VolumeDTO create(Volume volume)
    {

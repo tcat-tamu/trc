@@ -25,7 +25,6 @@ import java.util.stream.StreamSupport;
 
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.CopyReferenceDTO;
 
 
 /**
@@ -38,6 +37,7 @@ public class WorkDTO
    public String type;
    public List<AuthorReferenceDTO> authors = new ArrayList<>();
    public Collection<TitleDTO> titles = new ArrayList<>();
+   @Deprecated
    public List<AuthorReferenceDTO> otherAuthors = new ArrayList<>();
    public List<EditionDTO> editions = new ArrayList<>();
    public String series;
@@ -45,6 +45,28 @@ public class WorkDTO
    public String defaultCopyReferenceId;
    public Set<CopyReferenceDTO> copyReferences = new HashSet<>();
 
+   public WorkDTO()
+   {
+
+   }
+
+   public WorkDTO(WorkDTO orig)
+   {
+      this.id = orig.id;
+      this.type = orig.type;
+      this.authors = orig.authors.stream().map(AuthorReferenceDTO::new).collect(Collectors.toList());
+      this.titles = orig.titles.stream().map(TitleDTO::new).collect(Collectors.toList());
+
+      // TODO clone editions
+      this.editions = orig.editions.stream().map(EditionDTO::new).collect(Collectors.toList());
+
+      this.series = orig.series;
+      this.summary = orig.summary;
+      this.defaultCopyReferenceId = orig.defaultCopyReferenceId;
+      this.copyReferences = orig.copyReferences.stream().map(CopyReferenceDTO::new).collect(Collectors.toSet());
+   }
+
+   // TODO move to model adapter
    public static WorkDTO create(Work work)
    {
       WorkDTO dto = new WorkDTO();

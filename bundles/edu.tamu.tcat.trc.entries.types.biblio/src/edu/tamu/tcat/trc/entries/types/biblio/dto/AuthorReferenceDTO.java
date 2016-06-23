@@ -24,6 +24,19 @@ public class AuthorReferenceDTO
    public String lastName;
    public String role;
 
+   public AuthorReferenceDTO()
+   {
+
+   }
+
+   public AuthorReferenceDTO(AuthorReferenceDTO orig)
+   {
+      this.authorId = orig.authorId;
+      this.firstName = orig.firstName;
+      this.lastName = orig.lastName;
+      this.role = orig.role;
+   }
+
    public static AuthorReferenceDTO create(AuthorReference authorReference)
    {
       AuthorReferenceDTO dto = new AuthorReferenceDTO();

@@ -24,6 +24,19 @@ public class TitleDTO
    public String subtitle;
    public String lg;
 
+   public TitleDTO()
+   {
+
+   }
+
+   public TitleDTO(TitleDTO orig)
+   {
+      this.type = orig.type;
+      this.title = orig.title;
+      this.subtitle = orig.subtitle;
+      this.lg = orig.lg;
+   }
+
    public static TitleDTO create(Title title)
    {
       TitleDTO dto = new TitleDTO();

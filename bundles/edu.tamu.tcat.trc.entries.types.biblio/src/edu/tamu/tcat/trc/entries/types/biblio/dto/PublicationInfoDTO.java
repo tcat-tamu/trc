@@ -26,6 +26,18 @@ public class PublicationInfoDTO
    // TODO: should default date description be null or empty object?
    public DateDescriptionDTO date;
 
+   public PublicationInfoDTO()
+   {
+
+   }
+
+   public PublicationInfoDTO(PublicationInfoDTO orig)
+   {
+      this.place = orig.place;
+      this.publisher = orig.publisher;
+      this.date = new DateDescriptionDTO(orig.date);
+   }
+
    public static PublicationInfoDTO create(PublicationInfo pubInfo)
    {
       PublicationInfoDTO dto = new PublicationInfoDTO();

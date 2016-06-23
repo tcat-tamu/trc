@@ -38,6 +38,17 @@ public class DateDescriptionDTO
    /** A human readable description of this date. */
    public String description;     // NOTE use this to capture intended degree of precision
 
+   public DateDescriptionDTO()
+   {
+
+   }
+
+   public DateDescriptionDTO(DateDescriptionDTO orig)
+   {
+      this.calendar = orig.calendar;
+      this.description = orig.description;
+   }
+
    public static DateDescriptionDTO create(String description, LocalDate calendar)
    {
       DateDescriptionDTO dto = new DateDescriptionDTO();

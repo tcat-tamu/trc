@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.copies.CopyReferenceDTO;
 
 public class EditionDTO
 {
@@ -37,9 +36,29 @@ public class EditionDTO
    public List<AuthorReferenceDTO> otherAuthors = new ArrayList<>();
    public String series;
    public String summary;
-   public List<VolumeDTO> volumes = new ArrayList<VolumeDTO>();
+   public List<VolumeDTO> volumes = new ArrayList<>();
    public String defaultCopyReferenceId;
    public Set<CopyReferenceDTO> copyReferences = new HashSet<>();
+
+   public EditionDTO()
+   {
+
+   }
+
+   public EditionDTO(EditionDTO orig)
+   {
+      this.id = orig.id;
+      this.editionName = orig.editionName;
+      this.publicationInfo = new PublicationInfoDTO(orig.publicationInfo);
+      this.authors = orig.authors.stream().map(AuthorReferenceDTO::new).collect(Collectors.toList());
+      this.titles = orig.titles.stream().map(TitleDTO::new).collect(Collectors.toList());
+
+      this.volumes = orig.volumes.stream().map(VolumeDTO::new).collect(Collectors.toList());
+      this.series = orig.series;
+      this.summary = orig.summary;
+      this.defaultCopyReferenceId = orig.defaultCopyReferenceId;
+      this.copyReferences = orig.copyReferences.stream().map(CopyReferenceDTO::new).collect(Collectors.toSet());
+   }
 
    public static EditionDTO create(Edition edition)
    {
