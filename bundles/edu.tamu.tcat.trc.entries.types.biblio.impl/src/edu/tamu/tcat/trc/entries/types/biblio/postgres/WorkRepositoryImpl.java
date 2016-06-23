@@ -35,7 +35,7 @@ public class WorkRepositoryImpl implements WorkRepository
    private static final String SCHEMA_ID = "trcWork";
    private static final String SCHEMA_DATA_FIELD = "work";
 
-   private DocumentRepository<Work, EditWorkCommand> repoBackend;
+   private DocumentRepository<Work, WorkDTO, EditWorkCommand> repoBackend;
    private SqlExecutor sqlExecutor;
    private IdFactoryProvider idFactoryProvider;
    private WorkIndexService indexService;
@@ -98,7 +98,7 @@ public class WorkRepositoryImpl implements WorkRepository
    /**
     * @return A new document repository instance for persisting and retrieving works
     */
-   private DocumentRepository<Work, EditWorkCommand> buildDocumentRepository()
+   private DocumentRepository<Work, WorkDTO, EditWorkCommand> buildDocumentRepository()
    {
       PsqlJacksonRepoBuilder<Work, EditWorkCommand, WorkDTO> repoBuilder = new PsqlJacksonRepoBuilder<>();
 

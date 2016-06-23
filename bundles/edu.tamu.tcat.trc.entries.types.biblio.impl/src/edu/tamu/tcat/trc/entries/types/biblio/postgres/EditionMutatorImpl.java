@@ -15,12 +15,12 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio.postgres;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
@@ -32,178 +32,185 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.CopyReferenceMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.VolumeMutator;
+import edu.tamu.tcat.trc.repo.ChangeSet;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 
 public class EditionMutatorImpl implements EditionMutator
 {
-   private final EditionDTO edition;
+   // private final EditionDTO edition;
    private final IdFactoryProvider idFactoryProvider;
-   private final IdFactory volumeIdFactory;
-   private final IdFactory copyReferenceIdFactory;
+   private final IdFactory volumeIds;
+   private final IdFactory copyRefIds;
 
+   private final ChangeSet<EditionDTO> changes;
+   private String id;
 
-   /**
-    * @param edition
-    * @param volumeIdSupplier Supplier to generate IDs for volumes.
-    */
-   EditionMutatorImpl(EditionDTO edition, IdFactoryProvider idFactoryProvider)
+   public EditionMutatorImpl(String id, ChangeSet<EditionDTO> edChanges, IdFactoryProvider idFactoryProvider)
    {
-      this.edition = edition;
+      this.id = id;
+      this.changes = edChanges;
+
       this.idFactoryProvider = idFactoryProvider;
-      this.volumeIdFactory = idFactoryProvider.getIdFactory(WorkRepositoryImpl.ID_CONTEXT_VOLUMES);
-      this.copyReferenceIdFactory = idFactoryProvider.getIdFactory(WorkRepositoryImpl.ID_CONTEXT_COPIES);
+      this.volumeIds = idFactoryProvider.getIdFactory(WorkRepositoryImpl.ID_CONTEXT_VOLUMES);
+      this.copyRefIds = idFactoryProvider.getIdFactory(WorkRepositoryImpl.ID_CONTEXT_COPIES);
    }
 
+   private Function<EditionDTO, CopyReferenceDTO> makeCopySelector(String id)
+   {
+      return (dto) -> dto.copyReferences.stream()
+            .filter(ref -> Objects.equals(id, ref.id))
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("Cannot find copy reference with id {" + id + "}."));
+   }
+
+   private Function<EditionDTO, VolumeDTO> makeVolumeSelector(String id)
+   {
+      return (dto) -> dto.volumes.stream()
+            .filter(vol -> Objects.equals(id, vol.id))
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("Cannot find volume with id {" + id + "}."));
+   }
 
    @Override
    public String getId()
    {
-      return edition.id;
+      return id;
    }
 
    @Override
    public void setAuthors(List<AuthorReferenceDTO> authors)
    {
-      edition.authors = new ArrayList<>(authors);
+      List<AuthorReferenceDTO> copied = authors.stream().map(AuthorReferenceDTO::new).collect(Collectors.toList());
+      changes.add("authors", dto -> dto.authors = copied);
    }
 
    @Override
    public void setTitles(Collection<TitleDTO> titles)
    {
-      edition.titles = new HashSet<>(titles);
+      List<TitleDTO> copied = titles.stream().map(TitleDTO::new).collect(Collectors.toList());
+      changes.add("titles", dto -> dto.titles = copied);
    }
 
    @Override
    public void setOtherAuthors(List<AuthorReferenceDTO> otherAuthors)
    {
-      edition.otherAuthors = new ArrayList<>(otherAuthors);
+      throw new UnsupportedOperationException();
    }
 
    @Override
    public void setEditionName(String editionName)
    {
-      this.edition.editionName = editionName;
+      changes.add("name", dto -> dto.editionName = editionName);
    }
 
    @Override
    public void setPublicationInfo(PublicationInfoDTO pubInfo)
    {
-      edition.publicationInfo = pubInfo;
+      changes.add("pubInfo", dto -> dto.publicationInfo = new PublicationInfoDTO(pubInfo));
    }
 
    @Override
    public void setSummary(String summary)
    {
-      edition.summary = summary;
+      changes.add("summary", dto -> dto.summary = summary);
    }
 
    @Override
    public void setSeries(String series)
    {
-      edition.series = series;
-   }
-
-   @Override
-   public VolumeMutator createVolume()
-   {
-      VolumeDTO volume = new VolumeDTO();
-      volume.id = volumeIdFactory.get();
-      edition.volumes.add(volume);
-      return new VolumeMutatorImpl(volume, idFactoryProvider);
+      changes.add("series", dto -> dto.series = series);
    }
 
    @Override
    public VolumeMutator editVolume(String id)
    {
-      VolumeDTO volume = edition.volumes.stream()
-            .filter(vol -> Objects.equals(vol.id, id))
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Unable to find volume with id [" + id + "]."));
-
-      return new VolumeMutatorImpl(volume, idFactoryProvider);
+      ChangeSet<VolumeDTO> edChanges = changes.partial("volume." + id, makeVolumeSelector(id));
+      return new VolumeMutatorImpl(id, edChanges, idFactoryProvider);
    }
 
+   @Override
+   public VolumeMutator createVolume()
+   {
+      String id = volumeIds.get();
+      changes.add("volume." + id + "[create]", dto -> {
+         VolumeDTO volume = new VolumeDTO();
+         volume.id = id;
+         dto.volumes.add(volume);
+      });
+
+      ChangeSet<VolumeDTO> volChanges = changes.partial("volume." + id, makeVolumeSelector(id));
+      return new VolumeMutatorImpl(id, volChanges, idFactoryProvider);
+   }
 
    @Override
    public void removeVolume(String volumeId)
    {
-      edition.volumes.removeIf(volume -> Objects.equals(volume.id, volumeId));
+      changes.add("volume [remove]", dto ->
+         dto.volumes.removeIf(volume -> Objects.equals(volume.id, volumeId))
+      );
    }
 
    @Override
-   public Set<String> retainAllVolumes(Set<String> volumeIds)
+   public Set<String> retainAllVolumes(Set<String> editionIds)
    {
-      Objects.requireNonNull(volumeIds);
+      Objects.requireNonNull(editionIds);
 
-      Set<String> existingIds = edition.volumes.stream()
-            .map(cr -> cr.id)
-            .collect(Collectors.toSet());
+      changes.add("volume [retain some]", dto -> {
+         dto.volumes.removeIf(edition -> !editionIds.contains(edition.id));
+      });
 
-      Set<String> notFound = volumeIds.stream()
-         .filter(id -> !existingIds.contains(id))
-         .collect(Collectors.toSet());
-
-      edition.volumes.removeIf(volume -> !volumeIds.contains(volume.id));
-
-      return notFound;
-   }
-
-   @Override
-   public void setDefaultCopyReference(String defaultCopyReferenceId)
-   {
-      boolean found = edition.copyReferences.stream()
-            .anyMatch(cr -> Objects.equals(cr.id, defaultCopyReferenceId));
-
-      if (!found)
-      {
-         throw new IllegalArgumentException("Cannot find copy reference with id {" + defaultCopyReferenceId + "}.");
-      }
-
-      edition.defaultCopyReferenceId = defaultCopyReferenceId;
+      // FIXME violates contract. Need to rethink API
+      return Collections.emptySet();
    }
 
    @Override
    public CopyReferenceMutator createCopyReference()
    {
-      CopyReferenceDTO copyReference = new CopyReferenceDTO();
-      copyReference.id = copyReferenceIdFactory.get();
-      edition.copyReferences.add(copyReference);
-      return new CopyReferenceMutatorImpl(copyReference);
+      String refId = copyRefIds.get();
+      changes.add("copy." + refId + " [create]", dto -> {
+         CopyReferenceDTO ref = new CopyReferenceDTO();
+         ref.id = refId;
+         dto.copyReferences.add(ref);
+      });
+
+      ChangeSet<CopyReferenceDTO> refChanges = changes.partial("copy." + refId, makeCopySelector(refId));
+      return new CopyReferenceMutatorImpl(refId, refChanges);
    }
 
    @Override
    public CopyReferenceMutator editCopyReference(String id)
    {
-      CopyReferenceDTO copyReference = edition.copyReferences.stream()
-            .filter(ref -> Objects.equals(id, ref.id))
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Cannot find copy reference with id {" + id + "}."));
-
-      return new CopyReferenceMutatorImpl(copyReference);
+      ChangeSet<CopyReferenceDTO> refChanges = changes.partial("copy." + id, makeCopySelector(id));
+      return new CopyReferenceMutatorImpl(id, refChanges);
    }
 
    @Override
    public void removeCopyReference(String id)
    {
-      edition.copyReferences.removeIf(cr -> Objects.equals(cr.id, id));
+      Objects.requireNonNull(id, "Must supply non-null id");
+
+      changes.add("copy." + id + " [remove]", dto -> {
+         dto.copyReferences.removeIf(ref -> !id.equals(ref.id));
+      });
    }
 
    @Override
    public Set<String> retainAllCopyReferences(Set<String> copyReferenceIds)
    {
-      Objects.requireNonNull(copyReferenceIds);
+      changes.add("copy" + "[retain some]", dto -> {
+         dto.copyReferences.removeIf(ref -> copyReferenceIds.contains(ref.id));
+      });
 
-      Set<String> existingIds = edition.copyReferences.stream()
-            .map(cr -> cr.id)
-            .collect(Collectors.toSet());
+      // TODO remove this and update API
+      return Collections.emptySet();
+   }
 
-      Set<String> notFound = copyReferenceIds.stream()
-         .filter(id -> !existingIds.contains(id))
-         .collect(Collectors.toSet());
-
-      edition.copyReferences.removeIf(cr -> !copyReferenceIds.contains(cr.id));
-
-      return notFound;
+   @Override
+   public void setDefaultCopyReference(String refId)
+   {
+      changes.add("defaultCopy", dto -> {
+         dto.defaultCopyReferenceId = refId;
+      });
    }
 }

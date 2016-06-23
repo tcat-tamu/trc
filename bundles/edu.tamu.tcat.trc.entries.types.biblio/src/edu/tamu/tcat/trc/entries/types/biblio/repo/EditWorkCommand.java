@@ -18,13 +18,13 @@ package edu.tamu.tcat.trc.entries.types.biblio.repo;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
-import edu.tamu.tcat.trc.repo.RecordEditCommand;
 
 /**
  * Used to edit a {@link Work}. This class allows clients to make updates to a {@link Work}
@@ -37,7 +37,7 @@ import edu.tamu.tcat.trc.repo.RecordEditCommand;
  * @see WorkRepository#create()
  * @see WorkRepository#edit(String)
  */
-public interface EditWorkCommand extends RecordEditCommand
+public interface EditWorkCommand
 {
    // TODO: Any field that is a collection of models should eventually use mutators.
 
@@ -69,6 +69,7 @@ public interface EditWorkCommand extends RecordEditCommand
     *
     * @param authors
     */
+   @Deprecated
    void setOtherAuthors(List<AuthorReferenceDTO> authors);
 
    /**
@@ -147,4 +148,6 @@ public interface EditWorkCommand extends RecordEditCommand
     * @return IDs that were not found
     */
    Set<String> retainAllCopyReferences(Set<String> copyReferenceIds);
+
+   Future<String> execute();
 }
