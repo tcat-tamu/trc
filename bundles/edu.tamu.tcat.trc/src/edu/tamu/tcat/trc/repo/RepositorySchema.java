@@ -12,7 +12,7 @@ package edu.tamu.tcat.trc.repo;
  *  Consequently the schema should be understood as a tool that hints at the intended structure
  *  of the underlying data storage mechanisms and, where supported, to allow access with
  *  existing data structures that may have been created (and may be used) externally to the
- *  data store API. I
+ *  data store API.
  */
 public interface RepositorySchema
 {

@@ -241,6 +241,7 @@ public class DbBackedObfuscatingIdFactoryProvider implements IdFactoryProvider
    private static class IdGrant
    {
       /** The context for this grant. */
+      @SuppressWarnings("unused")
       public final String context;
 
       /** The first ID authorized to be returned. */
