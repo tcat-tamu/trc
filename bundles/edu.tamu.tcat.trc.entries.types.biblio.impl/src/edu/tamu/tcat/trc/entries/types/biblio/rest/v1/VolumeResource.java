@@ -38,8 +38,8 @@ import javax.ws.rs.core.MediaType;
 
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.CopyReferenceMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.VolumeMutator;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.copies.CopyReferenceMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityCollectionPersistenceAdapter;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityPersistenceAdapter;
 
