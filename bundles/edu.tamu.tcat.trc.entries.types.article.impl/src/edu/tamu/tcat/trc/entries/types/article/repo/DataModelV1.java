@@ -17,7 +17,6 @@ public abstract class DataModelV1
          article.body = original.body;
 
          return article;
-
       }
 
       public String id;
