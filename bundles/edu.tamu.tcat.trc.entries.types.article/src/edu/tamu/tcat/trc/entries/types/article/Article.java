@@ -16,7 +16,6 @@
 package edu.tamu.tcat.trc.entries.types.article;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  *  A long-form article that provides discursive treatment of a topic within a thematic
@@ -41,18 +40,7 @@ public interface Article
    /**
     * @return A unique identifier for this article.
     */
-   UUID getId();
-
-   /**
-    * @return delegates to getContentType.
-    * @deprecated This method name is confusing and hence deprecated. It will be
-    *       removed for version 2.0
-    */
-   @Deprecated
-   default String getType()
-   {
-      return getContentType();
-   }
+   String getId();
 
 //   Currently we anticipate only text or HTML articles but applications may provide
 //   support for other data types (e.g. Markdown, XML, SVG, etc) provided that they
@@ -66,11 +54,7 @@ public interface Article
    /**
     * @return An application-defined semantic type for this article.
     */
-   default String getArticleType()
-   {
-      return "Article";
-   }
-
+   String getArticleType();
 
    /**
     * @return String representation of the title of the article.
