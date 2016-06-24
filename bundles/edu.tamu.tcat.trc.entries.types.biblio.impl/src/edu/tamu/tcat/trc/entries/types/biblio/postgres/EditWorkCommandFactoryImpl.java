@@ -20,6 +20,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkIndexService;
 import edu.tamu.tcat.trc.repo.BasicChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet;
+import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
@@ -59,7 +60,7 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
       EditCommandFactory.UpdateStrategy<WorkDTO> context;
 
       private final String workId;
-      private final ChangeSet<WorkDTO> changes = new BasicChangeSet<>();
+      private final ApplicableChangeSet<WorkDTO> changes = new BasicChangeSet<>();
 
       public EditWorkCommandImpl(String id, EditCommandFactory.UpdateStrategy<WorkDTO> context)
       {
@@ -72,7 +73,7 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
          return (dto) -> dto.copyReferences.stream()
                .filter(ref -> Objects.equals(id, ref.id))
                .findFirst()
-               .orElseThrow(() -> new IllegalStateException("Cannot find copy reference with id {" + id + "}."));
+               .orElseThrow(() -> new IllegalStateException("Cannot find copy reference with id {" + id + "} on work {" + workId + "}."));
       }
 
       private Function<WorkDTO, EditionDTO> makeEditionSelector(String id)
@@ -80,7 +81,7 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
          return (dto) -> dto.editions.stream()
                .filter(ed -> Objects.equals(id, ed.id))
                .findFirst()
-               .orElseThrow(() -> new IllegalStateException("Cannot find editon with id {" + id + "}."));
+               .orElseThrow(() -> new IllegalStateException("Cannot find editon with id {" + id + "} on work {" + workId + "}."));
       }
 
       @Override
@@ -129,6 +130,9 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
       @Override
       public EditionMutator editEdition(String id)
       {
+         // NOTE if the edition does not exist, this will fail at execution time.
+         //      It would be nice to fail fast, but we don't have a copy of the object
+         //      we are editing.
          ChangeSet<EditionDTO> edChanges = changes.partial("edition." + id, makeEditionSelector(id));
          return new EditionMutatorImpl(id, edChanges, idFactoryProvider);
       }
@@ -233,17 +237,13 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
 
       private WorkDTO prepModifiedData(UpdateContext<WorkDTO> ctx)
       {
-         WorkDTO dto = null;
          WorkDTO original = ctx.getOriginal();
-         if (original == null)
-         {
-            dto = new WorkDTO();
-            dto.id = this.workId;
-         }
-         else
-         {
-            dto = new WorkDTO(original);
-         }
+         if (original != null)
+            return new WorkDTO(original);
+
+         WorkDTO dto = new WorkDTO();
+         dto.id = this.workId;
+
          return dto;
       }
 
