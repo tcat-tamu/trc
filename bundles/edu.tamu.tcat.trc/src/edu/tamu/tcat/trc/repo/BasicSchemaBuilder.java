@@ -5,6 +5,25 @@ import java.util.Objects;
 
 public class BasicSchemaBuilder implements SchemaBuilder
 {
+   private static final String SCHEMA_ID = "trc.entries.default";
+   private static final String SCHEMA_DATA_FIELD = "data";
+
+   /**
+    * Constructs a default schema for use with TRC repostiories.
+    *
+    * @return The repository schema
+    */
+   public static RepositorySchema buildDefaultSchema()
+   {
+//    HACK This doesn't seem like the right place. We need a better
+//         place for this, but the intention is that schemas can be
+//         reused in different tables.
+      SchemaBuilder schemaBuilder = new BasicSchemaBuilder();
+      schemaBuilder.setId(SCHEMA_ID);
+      schemaBuilder.setDataField(SCHEMA_DATA_FIELD);
+      return schemaBuilder.build();
+   }
+
 
    /* SQL identifiers and key words must begin with a letter (a-z, but also letters with
     * diacritical marks and non-Latin letters) or an underscore (_). Subsequent characters in
