@@ -52,7 +52,7 @@ public interface EditCommandFactory<StorageType, EditCmdType>
        * <p>
        * While there are many options for implementing edit commands and generator
        * functions, this is designed to be easy to use in combination with the {@link ChangeSet}
-       * APi. To do this, the generator function should create a new DTO instance based
+       * API. To do this, the generator function should create a new DTO instance based
        * the original (pre-commit) DTO value supplied by the {@link UpdateContext}. Note
        * that this instance MUST be copied such that changes to the new DTO do not
        * accidentally modify the original DTO. Once the new DTO instance has been created
