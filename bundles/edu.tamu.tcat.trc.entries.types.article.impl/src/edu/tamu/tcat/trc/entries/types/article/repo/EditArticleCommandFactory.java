@@ -63,9 +63,15 @@ public class EditArticleCommandFactory implements EditCommandFactory<DataModelV1
       }
 
       @Override
-      public void setType(String type)
+      public void setContentType(String type)
       {
-         changes.add("type", article -> article.type = type);
+         changes.add("contentType", article -> article.contentType = type);
+      }
+
+      @Override
+      public void setArticleType(String type)
+      {
+         changes.add("articleType", article -> article.articleType = type);
       }
 
       @Override

@@ -47,7 +47,12 @@ public interface EditArticleCommand
    /**
     * @param mimeType The mime type of the content supplied for this article.
     */
-   void setType(String Type);
+   void setContentType(String mimeType);
+
+   /**
+    * @param type An application defined type for this article.
+    */
+   void setArticleType(String type);
 
    /**
     * @param title The title of the article.
@@ -102,4 +107,7 @@ public interface EditArticleCommand
     *       {@link Future#get()} method will propagate that exception.
     */
    Future<String> execute();
+
+
+
 }

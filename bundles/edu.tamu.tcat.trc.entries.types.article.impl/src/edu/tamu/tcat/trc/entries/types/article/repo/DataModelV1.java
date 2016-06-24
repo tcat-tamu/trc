@@ -12,7 +12,8 @@ public abstract class DataModelV1
          Article article = new Article();
          article.id = original.id;
          article.title = original.title;
-         article.type = original.type;
+         article.contentType = original.contentType;
+         article.articleType = original.articleType;
          article.articleAbstract = original.articleAbstract;
          article.body = original.body;
 
@@ -21,7 +22,8 @@ public abstract class DataModelV1
 
       public String id;
       public String title;
-      public String type;
+      public String contentType;
+      public String articleType;
 
       @JsonProperty("abstract")
       public String articleAbstract;
