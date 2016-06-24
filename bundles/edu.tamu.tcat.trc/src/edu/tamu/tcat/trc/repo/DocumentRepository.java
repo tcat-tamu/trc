@@ -2,6 +2,7 @@ package edu.tamu.tcat.trc.repo;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -171,7 +172,7 @@ public interface DocumentRepository<RecordType, StorageType, EditCommandType>
     *       repository. This may reflect an inherent limitation of the repository or the way
     *       in which the {@link RepositorySchema} was configured.
     */
-   Future<Boolean> delete(String id) throws UnsupportedOperationException;
+   CompletableFuture<Boolean> delete(String id) throws UnsupportedOperationException;
 
    /**
     * Convenience method to unwrap a {@link Future} and return the result or
