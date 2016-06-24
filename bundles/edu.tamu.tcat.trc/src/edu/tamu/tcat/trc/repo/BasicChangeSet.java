@@ -1,13 +1,20 @@
 package edu.tamu.tcat.trc.repo;
 
+import static java.text.MessageFormat.format;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class BasicChangeSet<Type> implements ChangeSet<Type>
+import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
+
+public class BasicChangeSet<Type> implements ApplicableChangeSet<Type>
 {
+   private final static Logger logger = Logger.getLogger(BasicChangeSet.class.getName());
    private final List<BasicChangeSet.BasicChangeAction<Type>> changes = new ArrayList<>();
 
    @Override
@@ -47,16 +54,42 @@ public class BasicChangeSet<Type> implements ChangeSet<Type>
          this.selector = selector;
       }
 
+      private void applyChange(ParentType dto, String prop, Consumer<SubType> mutatorFn)
+      {
+         SubType relDto = null;
+         try
+         {
+            relDto = selector.apply(dto);
+         }
+         catch (RuntimeException ex)
+         {
+            String msg = "Failed to apply update changes to {0}. Sub-property selector failed.";
+            logger.log(Level.SEVERE, ex, () -> format(msg, prop));
+
+            // TODO should we rethrow? may want to apply the changes that we are able to
+            throw ex;
+         }
+
+         try
+         {
+            if (relDto != null)
+               mutatorFn.accept(relDto);
+         }
+         catch (RuntimeException ex)
+         {
+            String msg = "Failed to apply update changes to {0}. Property mutator failed.";
+            logger.log(Level.SEVERE, ex, () -> format(msg, prop));
+
+            // TODO should we rethrow? may want to apply the changes that we are able to
+            throw ex;
+         }
+      }
+
       @Override
       public ChangeAction add(String property, Consumer<SubType> mutatorFn)
       {
          String prop = parentProperty + "." + property;
-
-         return delegate.add(prop, dto -> {
-            SubType relDto = selector.apply(dto);
-            if (relDto != null)
-               mutatorFn.accept(relDto);
-         });
+         return delegate.add(prop, dto -> applyChange(dto, prop, mutatorFn));
       }
 
       @Override
@@ -65,13 +98,6 @@ public class BasicChangeSet<Type> implements ChangeSet<Type>
          String prop = parentProperty + "." + property;
          return new PartialChangeSet<>(this, prop, selector);
       }
-
-      @Override
-      public SubType apply(SubType dto)
-      {
-         throw new UnsupportedOperationException("Cannot apply partial change sets");
-      }
-
    }
 
    private static class BasicChangeAction<Type> implements ChangeAction
@@ -98,7 +124,7 @@ public class BasicChangeSet<Type> implements ChangeSet<Type>
       }
 
       @Override
-      public String getProperty()
+      public String getMessage()
       {
          return property;
       }
