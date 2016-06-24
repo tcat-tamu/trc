@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 
+@Deprecated // SQL Executor now returns CompletableFutures which should be used instead
 public class NotifyingTaskFactory implements AutoCloseable
 {
    // TODO replace with Guava ListenableFutures?
@@ -62,7 +63,7 @@ public class NotifyingTaskFactory implements AutoCloseable
          throw new IllegalStateException("Task factory has been closed.");
 
       // TODO keep track of tasks and pause closing untill all have been completed or timeout reached
-      return new TaskWrapper<X>(task);
+      return new TaskWrapper<>(task);
    }
 
 
@@ -76,6 +77,7 @@ public class NotifyingTaskFactory implements AutoCloseable
       };
    }
 
+   @Deprecated // SQL Executor now returns CompletableFutures which should be used instead
    public interface ObservableTask<T> extends SqlExecutor.ExecutorTask<T>
    {
       AutoCloseable afterExecution(TaskObserver<T> ears);
