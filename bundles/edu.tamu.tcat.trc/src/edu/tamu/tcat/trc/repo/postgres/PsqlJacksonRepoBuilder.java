@@ -49,7 +49,7 @@ import edu.tamu.tcat.trc.repo.RepositorySchema;
  *       repository API. It is used by the {@link EditCommandFactory} and the data adapter
  *       function for data editing and transformation.
  */
-public class PsqlJacksonRepoBuilder<RecordType, EditCmdType, StorageType>
+public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType>
 {
    private static final Logger logger = Logger.getLogger(PsqlJacksonRepoBuilder.class.getName());
 

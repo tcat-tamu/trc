@@ -100,7 +100,7 @@ public class WorkRepositoryImpl implements WorkRepository
     */
    private DocumentRepository<Work, WorkDTO, EditWorkCommand> buildDocumentRepository()
    {
-      PsqlJacksonRepoBuilder<Work, EditWorkCommand, WorkDTO> repoBuilder = new PsqlJacksonRepoBuilder<>();
+      PsqlJacksonRepoBuilder<Work, WorkDTO, EditWorkCommand> repoBuilder = new PsqlJacksonRepoBuilder<>();
 
       repoBuilder.setDbExecutor(sqlExecutor);
       repoBuilder.setTableName(TABLE_NAME);
