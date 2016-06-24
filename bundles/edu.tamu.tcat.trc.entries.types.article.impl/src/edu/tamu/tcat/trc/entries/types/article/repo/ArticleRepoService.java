@@ -3,6 +3,7 @@ package edu.tamu.tcat.trc.entries.types.article.repo;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -169,23 +170,14 @@ public class ArticleRepoService
       @Override
       public Future<Boolean> remove(String articleId)
       {
-         boolean result;
-         try {
-            result = repoBackend.delete(articleId).get();
-         }
-         catch (Exception e) {
-            throw new IllegalStateException("Encountered an unexpected error while trying to delete article with id {" + articleId + "}.", e);
-         }
-
-         if (result && indexSvc != null)
-         {
-            // TODO handle in listener rather than here.
-            indexSvc.remove(articleId);
-         }
-         else
-         {
-            throw new IllegalArgumentException("Unable to find article with id {" + articleId + "}.");
-         }
+         CompletableFuture<Boolean> result = repoBackend.delete(articleId);
+         
+         result.thenRun(() -> {
+               if (indexSvc != null)
+                  indexSvc.remove(articleId);
+            });
+         
+         return result;
       }
 
       @Override

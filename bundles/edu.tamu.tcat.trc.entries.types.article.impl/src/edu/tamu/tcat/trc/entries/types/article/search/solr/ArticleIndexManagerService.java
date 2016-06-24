@@ -15,11 +15,12 @@
  */
 package edu.tamu.tcat.trc.entries.types.article.search.solr;
 
+import static java.text.MessageFormat.format;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -78,7 +79,8 @@ public class ArticleIndexManagerService implements ArticleSearchService
 
    public void activate()
    {
-      listenerReg = repo.register(this::onArticleChange);
+      // DON'T auto-listen. The the repo stitch in the service if configured.
+      // listenerReg = repo.register(this::onArticleChange);
 
       // construct Solr core
       URI solrBaseUri = config.getPropertyValue(SOLR_API_ENDPOINT, URI.class);
@@ -124,16 +126,15 @@ public class ArticleIndexManagerService implements ArticleSearchService
          switch (evt.getUpdateAction())
          {
             case CREATE:
-               article = repo.get(UUID.fromString(articleId));
+               article = repo.get(articleId);
                postDocument(ArticleDocument.create(article));
                break;
             case UPDATE:
-               article = repo.get(UUID.fromString(articleId));
+               article = repo.get(articleId);
                postDocument(ArticleDocument.update(article));
                break;
             case DELETE:
-               solr.deleteById(articleId);
-               solr.commit();
+               remove(articleId);
                break;
             default:
                logger.log(Level.INFO, "Unexpected article change event " + evt);
@@ -142,6 +143,19 @@ public class ArticleIndexManagerService implements ArticleSearchService
       catch (Exception ex)
       {
          logger.log(Level.SEVERE, "Failed to update search indices following a change to article: " + articleId, ex);
+      }
+   }
+
+
+   public void remove(String articleId)
+   {
+      try {
+         solr.deleteById(articleId);
+         solr.commit();
+      }
+      catch (Exception ex)
+      {
+         logger.log(Level.SEVERE, ex, () -> format("Failed to remove article {0}", articleId));
       }
    }
 
