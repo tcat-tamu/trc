@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,10 +17,9 @@ package edu.tamu.tcat.trc.entries.types.article.repo;
 
 import java.net.URI;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
 
-import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 
@@ -34,7 +33,7 @@ public interface ArticleRepository
     * @return The identified article.
     * @throws NoSuchCatalogRecordException If the requested article does not exist.
     */
-   Article get(UUID articleId) throws NoSuchCatalogRecordException;
+   Article get(String articleId) throws NoSuchCatalogRecordException;
 
    /**
     * Retrieves a list of {@link Article} associated with a particular URI.
@@ -46,21 +45,32 @@ public interface ArticleRepository
    List<Article> getArticles(URI entityURI) throws NoSuchCatalogRecordException;
 
    /**
-    * Builds a new {@link ArticleNoteCommand} to create a new {@link Article}.
+    * Builds a new {@link EditArticleCommand} to create a new {@link Article}.
     * @return
     */
    EditArticleCommand create();
 
    /**
+    * Constructs an {@link EditArticleCommand} to create a new article with the
+    * specified id. It is the responsibility of the caller to ensure the uniqueness
+    * of the id. If the id is not unique, the execution of the command will fail.
+    *
+    * @param id The id of the article to create.
+    * @return A command to edit the article. Note the article will not be created
+    *    until the returned command is executed.
+    */
+   EditArticleCommand create(String id);
+
+   /**
     * Modifies a {@link ArticleNoteCommand} to allow editing a {@link Article}.
     * @return
     */
-   EditArticleCommand edit(UUID articleId) throws NoSuchCatalogRecordException;
+   EditArticleCommand edit(String articleId) throws NoSuchCatalogRecordException;
 
    /**
     * Removes a {@link Article} entry from the database.
     */
-   Future<Boolean> remove(UUID articleId);
+   Future<Boolean> remove(String articleId);
 
    /**
     * Register a listener that will be notified when an article changes.
@@ -69,5 +79,7 @@ public interface ArticleRepository
     * @return A registration that allows the client to stop listening for changes. The returned
     *       registration <em>must</em> be closed by the caller.
     */
-   AutoCloseable register(UpdateListener<ArticleChangeEvent> ears);
+   public Runnable register(Consumer<Article> ears);
+
+
 }

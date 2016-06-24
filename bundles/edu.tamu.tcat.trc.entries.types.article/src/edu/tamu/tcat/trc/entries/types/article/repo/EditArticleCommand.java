@@ -16,7 +16,6 @@
 package edu.tamu.tcat.trc.entries.types.article.repo;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.Future;
 
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
@@ -35,7 +34,7 @@ public interface EditArticleCommand
    /**
     * @return The unique id for the article that is being edited. Will not be {@code null}
     */
-   UUID getId();
+   String getId();
 
 
    /**
