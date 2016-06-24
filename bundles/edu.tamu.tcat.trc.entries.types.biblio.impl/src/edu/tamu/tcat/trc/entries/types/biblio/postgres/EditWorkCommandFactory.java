@@ -26,7 +26,7 @@ import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.repo.UpdateContext;
 
-public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, EditWorkCommand>
+public class EditWorkCommandFactory implements EditCommandFactory<WorkDTO, EditWorkCommand>
 {
    private final IdFactoryProvider idFactoryProvider;
    private final WorkIndexService indexService;
@@ -34,7 +34,7 @@ public class EditWorkCommandFactoryImpl implements EditCommandFactory<WorkDTO, E
    private final IdFactory copyRefIds;
    private final IdFactory editionIds;
 
-   public EditWorkCommandFactoryImpl(IdFactoryProvider idFactoryProvider, WorkIndexService indexService)
+   public EditWorkCommandFactory(IdFactoryProvider idFactoryProvider, WorkIndexService indexService)
    {
       this.idFactoryProvider = idFactoryProvider;
       this.indexService = indexService;

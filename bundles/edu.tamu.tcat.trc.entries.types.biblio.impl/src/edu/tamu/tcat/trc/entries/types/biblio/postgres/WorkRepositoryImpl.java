@@ -104,7 +104,7 @@ public class WorkRepositoryImpl implements WorkRepository
 
       repoBuilder.setDbExecutor(sqlExecutor);
       repoBuilder.setTableName(TABLE_NAME);
-      repoBuilder.setEditCommandFactory(new EditWorkCommandFactoryImpl(idFactoryProvider, indexService));
+      repoBuilder.setEditCommandFactory(new EditWorkCommandFactory(idFactoryProvider, indexService));
       repoBuilder.setDataAdapter(ModelAdapter::adapt);
       repoBuilder.setSchema(buildSchema());
       repoBuilder.setStorageType(WorkDTO.class);

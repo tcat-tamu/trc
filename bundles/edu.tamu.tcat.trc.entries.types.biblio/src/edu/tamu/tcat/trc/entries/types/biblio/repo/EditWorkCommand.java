@@ -149,5 +149,9 @@ public interface EditWorkCommand
     */
    Set<String> retainAllCopyReferences(Set<String> copyReferenceIds);
 
+   /**
+    * Execute this command.
+    * @return A future that resolves to the id of the updated entry.
+    */
    Future<String> execute();
 }
