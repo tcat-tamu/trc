@@ -19,11 +19,13 @@ import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchService;
 import edu.tamu.tcat.trc.search.SearchException;
 
 /**
- * A REST endpoint designed to be tacked onto the end of an existing entry resource, providing a
- * stortcut by which to query all relationships for that entry.
+ * Sub-resource to obtain relationships associated with a given entry (the referent entity).
+ * For example, to obtain all relationships associated with a given book, person or event.
  */
 public class RelationshipsEntryResource
 {
+   // TODO extend to allow filtering by relationship type, type of entry referenced by the relationship, etc.
+
    private static final Logger logger = Logger.getLogger(RelationshipsEntryResource.class.getName());
    /**
     * URI of the entry to which this resource has been attached.
@@ -51,6 +53,9 @@ public class RelationshipsEntryResource
          RelationshipQueryCommand command = searchService.createQueryCommand();
          command.forEntity(baseEntryUri, RelationshipDirection.any);
          RelationshipSearchResult result = command.execute();
+
+         // TODO simply apply groupByType adapter -- this is a fundamentally different concept than a
+         //      general search.
          List<RestApiV1.RelationshipSearchResult> dtos = SearchAdapter.toDTO(result.get());
 
          return SearchAdapter.groupByType(baseEntryUri, dtos, this::lookupRelnTypeById);
