@@ -24,7 +24,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -534,6 +533,9 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          // TODO Support cancellation
          //      return UpdateContext with notion of data availability and commit stage
          //      Add monitor support to UpdateContext
+
+         context.start();
+
          DTO dto = generator.apply(context);
          context.modified.complete(dto);
 
@@ -550,6 +552,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
             Supplier<String> msgSupplier = () -> format(template, context.getId(), context.getUpdateId(), ex.getMessage());
             logger.log(Level.WARNING, ex, msgSupplier);
 
+            // TODO log in UpdateContext
             CompletableFuture<DTO> failure = new CompletableFuture<>();
             failure.completeExceptionally(ex);
             return failure;
@@ -558,11 +561,12 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          CompletableFuture<DTO> result = updateAction.apply(dto);
 
          // fire post-commit hooks
-         return result.thenApply((ignored) -> {
+         result.thenRunAsync(() -> {
             postCommitTasks.entrySet().parallelStream()
                            .forEach(entry -> firePostCommitTask(entry.getKey(), entry.getValue()));
-            return dto;
-         });
+         }).thenRun(() -> context.finish());
+
+         return result;
       }
 
       private void firePreCommitTask(UUID taskId, EntryUpdateObserver<DTO> task)
@@ -593,9 +597,8 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       private String action;
       private Account actor;
       private Supplier<DTO> supplier;
-      private AtomicBoolean loading = new AtomicBoolean(false);
 
-      private CompletableFuture<DTO> original = new CompletableFuture<>();
+      private CompletableFuture<DTO> original;
       private CompletableFuture<DTO> modified = new CompletableFuture<>();
 
       UpdateContextImpl(String id, String action, Account actor, Supplier<DTO> supplier)
@@ -606,6 +609,26 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          this.supplier = supplier;
       }
 
+      private void start()
+      {
+         synchronized (this)
+         {
+            if (original != null)
+               throw new IllegalStateException("Update context has already been initialized");
+
+            try {
+               // NOTE could block forever depending on supplier impl.
+               original.complete(supplier.get());
+            } catch (Exception ex) {
+               original.completeExceptionally(ex);
+            }
+         }
+      }
+
+      private void finish()
+      {
+         // no-op -- reserved for future use
+      }
       public UUID getUpdateId()
       {
          return updateId;
@@ -638,13 +661,11 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
       public DTO getOriginal(long time, TimeUnit units)
       {
-         if (loading.compareAndSet(false, true))
+         synchronized (this)
          {
-            try {
-               original.complete(supplier.get());
-            } catch (Exception ex) {
-               original.completeExceptionally(ex);
-            }
+            if (original == null)
+               throw new IllegalStateException(
+                     "The original representation of this entry is not available. The update has not yet started.");
          }
 
          try

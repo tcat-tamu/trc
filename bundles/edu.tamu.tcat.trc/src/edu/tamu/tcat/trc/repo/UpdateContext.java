@@ -45,8 +45,10 @@ public interface UpdateContext<StorageType>
    // TODO return entry reference
 
    /**
-    * @return The original representation of the entry prior to being modified. This is
-    *    loaded during update execution and must not be modified by the caller.
+    * @return The pre-commit representation of the entry prior to being modified. Note that
+    *    this may be <code>null</code> if, for example, the updates apply to a newly
+    *    created entry. This instance is loaded during the update execution stage before
+    *    any other actions are applied. The returned object MUST NOT be modified by the caller.
     */
    StorageType getOriginal();
 
