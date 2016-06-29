@@ -50,8 +50,6 @@ import edu.tamu.tcat.trc.entries.notification.BaseUpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
-import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
 import edu.tamu.tcat.trc.entries.types.bio.postgres.model.PersonImpl;
@@ -61,6 +59,8 @@ import edu.tamu.tcat.trc.entries.types.bio.repo.PersonChangeEvent;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNotAvailableException;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
+import edu.tamu.tcat.trc.repo.NoSuchEntryException;
+import edu.tamu.tcat.trc.repo.RepositoryException;
 import edu.tamu.tcat.trc.repo.postgres.NotifyingTaskFactory;
 import edu.tamu.tcat.trc.repo.postgres.NotifyingTaskFactory.ObservableTask;
 
@@ -160,7 +160,7 @@ public class PsqlPeopleRepo implements PeopleRepository
    }
 
    @Override
-   public Person get(String personId) throws NoSuchCatalogRecordException
+   public Person get(String personId) throws NoSuchEntryException
    {
       try
       {
@@ -169,8 +169,8 @@ public class PsqlPeopleRepo implements PeopleRepository
       catch (ExecutionException ex)
       {
          Throwable cause = ex.getCause();
-         if (cause instanceof NoSuchCatalogRecordException)
-            throw (NoSuchCatalogRecordException)cause;
+         if (cause instanceof NoSuchEntryException)
+            throw (NoSuchEntryException)cause;
          if (cause instanceof RuntimeException)
             throw (RuntimeException)cause;
 
@@ -181,7 +181,7 @@ public class PsqlPeopleRepo implements PeopleRepository
    /**
     * @return the JSON representation associated with this id.
     */
-   private String loadJson(String personId) throws NoSuchCatalogRecordException
+   private String loadJson(String personId) throws NoSuchEntryException
    {
       Future<String> future = exec.submit((conn) -> {
          if (Thread.interrupted())
@@ -193,7 +193,7 @@ public class PsqlPeopleRepo implements PeopleRepository
             try (ResultSet rs = ps.executeQuery())
             {
                if (!rs.next())
-                  throw new NoSuchCatalogRecordException("Could not find record for person [" + personId + "]");
+                  throw new NoSuchEntryException("Could not find record for person [" + personId + "]");
 
                PGobject pgo = (PGobject)rs.getObject("historical_figure");
                return pgo.toString();
@@ -209,7 +209,7 @@ public class PsqlPeopleRepo implements PeopleRepository
    }
 
    @Override
-   public Iterator<Person> listAll() throws CatalogRepoException
+   public Iterator<Person> listAll() throws RepositoryException
    {
       return new PagedItemIterator<>(this::getPersonBlock, this::parse, 100);
    }
@@ -307,7 +307,7 @@ public class PsqlPeopleRepo implements PeopleRepository
    }
 
    @Override
-   public EditPersonCommand update(String personId) throws NoSuchCatalogRecordException
+   public EditPersonCommand update(String personId) throws NoSuchEntryException
    {
       PersonDTO dto = parseJson(loadJson(personId), personId);
       EditPeopleCommandImpl command = new EditPeopleCommandImpl(dto);
@@ -347,7 +347,7 @@ public class PsqlPeopleRepo implements PeopleRepository
    }
 
    @Override
-   public Future<Boolean> delete(final String personId) throws NoSuchCatalogRecordException
+   public Future<Boolean> delete(final String personId) throws NoSuchEntryException
    {
       ObservableTask<Boolean> task = sqlTaskFactory.wrap((conn) -> {
          try (PreparedStatement ps = conn.prepareStatement(DELETE_SQL))

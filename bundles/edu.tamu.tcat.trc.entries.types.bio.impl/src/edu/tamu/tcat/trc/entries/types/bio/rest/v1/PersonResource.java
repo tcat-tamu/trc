@@ -15,11 +15,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RepoAdapter;
+import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 
 public class PersonResource
 {
@@ -41,7 +41,7 @@ public class PersonResource
          Person figure = repo.get(personId);
          return RepoAdapter.toDTO(figure);
       }
-      catch (NoSuchCatalogRecordException e)
+      catch (NoSuchEntryException e)
       {
          throw new NotFoundException("No biographical entry is available " + personId);
       }
@@ -68,7 +68,7 @@ public class PersonResource
          result.id = person.id;
          return result;
       }
-      catch (NoSuchCatalogRecordException ex)
+      catch (NoSuchEntryException ex)
       {
          throw new NotFoundException(
                MessageFormat.format("Cannot update person {0}. There is no record for this id.", personId));
@@ -87,7 +87,7 @@ public class PersonResource
       {
          repo.delete(personId);
       }
-      catch (NoSuchCatalogRecordException ex)
+      catch (NoSuchEntryException ex)
       {
          // no-op.
       }

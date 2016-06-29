@@ -38,7 +38,6 @@ import edu.tamu.tcat.trc.entries.notification.BaseUpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.DataUpdateObserverAdapter;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
-import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
@@ -48,6 +47,7 @@ import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
+import edu.tamu.tcat.trc.repo.RepositoryException;
 
 public class PsqlRelationshipRepo implements RelationshipRepository
 {
@@ -146,7 +146,7 @@ public class PsqlRelationshipRepo implements RelationshipRepository
    }
 
    @Override
-   public Relationship get(String id) throws CatalogRepoException
+   public Relationship get(String id) throws RepositoryException
    {
       PsqlGetRelationshipTask task = new PsqlGetRelationshipTask(id, mapper, typeReg);
       try
@@ -158,8 +158,8 @@ public class PsqlRelationshipRepo implements RelationshipRepository
          Throwable cause = e.getCause();
          if (cause instanceof RelationshipPersistenceException)
             throw (RelationshipPersistenceException)cause;
-         if (cause instanceof CatalogRepoException)
-            throw (CatalogRepoException)cause;
+         if (cause instanceof RepositoryException)
+            throw (RepositoryException)cause;
          if (cause instanceof RuntimeException)
             throw (RuntimeException)cause;
 
@@ -171,7 +171,7 @@ public class PsqlRelationshipRepo implements RelationshipRepository
    }
 
    @Override
-   public EditRelationshipCommand create() throws CatalogRepoException
+   public EditRelationshipCommand create() throws RepositoryException
    {
       RelationshipDTO relationship = new RelationshipDTO();
       relationship.id = idFactory.get();
@@ -181,7 +181,7 @@ public class PsqlRelationshipRepo implements RelationshipRepository
          PsqlCreateRelationshipTask task = new PsqlCreateRelationshipTask(r, mapper);
 
          RelnChangeNotifier<String> workChangeNotifier = new RelnChangeNotifier<>(r.id, UpdateEvent.UpdateAction.CREATE);
-         ObservableTaskWrapper<String> wrappedTask = new ObservableTaskWrapper<String>(task, workChangeNotifier);
+         ObservableTaskWrapper<String> wrappedTask = new ObservableTaskWrapper<>(task, workChangeNotifier);
 
          Future<String> future = exec.submit(wrappedTask);
          return future;
@@ -190,14 +190,14 @@ public class PsqlRelationshipRepo implements RelationshipRepository
    }
 
    @Override
-   public EditRelationshipCommand edit(final String id) throws CatalogRepoException
+   public EditRelationshipCommand edit(final String id) throws RepositoryException
    {
       EditRelationshipCommandImpl command = new EditRelationshipCommandImpl(RelationshipDTO.create(get(id)) , idFactory);
       command.setCommitHook((r) -> {
          PsqlUpdateRelationshipTask task = new PsqlUpdateRelationshipTask(r, mapper);
 
          RelnChangeNotifier<String> workChangeNotifier = new RelnChangeNotifier<>(id, UpdateEvent.UpdateAction.UPDATE);
-         ObservableTaskWrapper<String> wrappedTask = new ObservableTaskWrapper<String>(task, workChangeNotifier);
+         ObservableTaskWrapper<String> wrappedTask = new ObservableTaskWrapper<>(task, workChangeNotifier);
 
          Future<String> future = exec.submit(wrappedTask);
          return future;
@@ -206,7 +206,7 @@ public class PsqlRelationshipRepo implements RelationshipRepository
    }
 
    @Override
-   public void delete(String id) throws CatalogRepoException
+   public void delete(String id) throws RepositoryException
    {
       PsqlDeleteRelationshipTask deleteTask = new PsqlDeleteRelationshipTask(id);
       RelnChangeNotifier<Void> workChangeNotifier = new RelnChangeNotifier<>(id, UpdateEvent.UpdateAction.DELETE);

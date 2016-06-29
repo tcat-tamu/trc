@@ -16,8 +16,8 @@
 package edu.tamu.tcat.trc.entries.types.biblio.search.solr.copies;
 
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
-import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
+import edu.tamu.tcat.trc.repo.RepositoryException;
 
 // This is here to prevent compile errors (unimplemented) pending a reworking
 // of the full-text search capabilities for digital copies. It should be replaced by a more
@@ -31,16 +31,16 @@ public interface CopyChangeEvent extends UpdateEvent
     * a copy of the element in the state it was immediately after the change occurred.
     *
     * @return the element that was changed.
-    * @throws CatalogRepoException If the element cannot be retrieved. This is expected
+    * @throws RepositoryException If the element cannot be retrieved. This is expected
     *    in the case of {@link UpdateAction#DELETED} events. In other cases, this is not
     *    expected but due to an internal error.
     */
    /*
     * See the note on RelationshipChangeEvent
     */
-   CopyReference get() throws CatalogRepoException;
+   CopyReference get() throws RepositoryException;
 
-   CopyReference getOriginal() throws CatalogRepoException;
+   CopyReference getOriginal() throws RepositoryException;
 
    String getAssociatedEntry();
 }

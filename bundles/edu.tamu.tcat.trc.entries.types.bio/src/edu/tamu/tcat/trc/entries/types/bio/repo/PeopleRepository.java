@@ -20,9 +20,9 @@ import java.util.concurrent.Future;
 
 import edu.tamu.tcat.trc.entries.notification.DataUpdateObserver;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
-import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
+import edu.tamu.tcat.trc.repo.NoSuchEntryException;
+import edu.tamu.tcat.trc.repo.RepositoryException;
 
 /**
  *
@@ -35,12 +35,12 @@ public interface PeopleRepository
     * @param personId
     * @return
     */
-   Person get(String personId) throws NoSuchCatalogRecordException;
+   Person get(String personId) throws NoSuchEntryException;
 
    /**
     * @since 1.1
     */
-   Iterator<Person> listAll() throws CatalogRepoException;
+   Iterator<Person> listAll() throws RepositoryException;
 
    /**
     * Creates a new entry for the supplied historical figure. Note that no de-duplication will
@@ -78,9 +78,9 @@ public interface PeopleRepository
     * @param histFigure A data vehicle containing the information for the person to update.
     * @param observer An optional observer that will be notified upon success or failure of
     *       this operation.
-    * @throws NoSuchCatalogRecordException
+    * @throws NoSuchEntryException
     */
-   EditPersonCommand update(String personId) throws NoSuchCatalogRecordException;
+   EditPersonCommand update(String personId) throws NoSuchEntryException;
 
    /**
     * Marks the entry for the identified person as having been deleted. References to this
@@ -93,10 +93,10 @@ public interface PeopleRepository
     *       exception, while successful deletion will be indicated by a call to
     *       {@link DataUpdateObserver#finish(Object)} with a {@code null} result object.
     * @return
-    * @throws NoSuchCatalogRecordException
+    * @throws NoSuchEntryException
     * @since 1.1
     */
-   Future<Boolean> delete(String personId) throws NoSuchCatalogRecordException;
+   Future<Boolean> delete(String personId) throws NoSuchEntryException;
 
    /**
     * Add listener to be notified whenever a biography has been modified (created, updated or deleted).

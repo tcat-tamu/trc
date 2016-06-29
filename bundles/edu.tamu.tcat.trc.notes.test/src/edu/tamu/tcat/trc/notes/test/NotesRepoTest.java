@@ -33,11 +33,11 @@ import org.junit.Test;
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.dto.NoteDTO;
 import edu.tamu.tcat.trc.notes.postgres.PsqlNotesRepo;
 import edu.tamu.tcat.trc.notes.repo.EditNoteCommand;
+import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 import edu.tamu.tcat.trc.repo.postgres.PostgresDataSourceProvider;
 
 public class NotesRepoTest
@@ -100,7 +100,7 @@ public class NotesRepoTest
    }
 
    @Test
-   public void createNote() throws InterruptedException, ExecutionException, NoSuchCatalogRecordException
+   public void createNote() throws Exception
    {
       NoteDTO note = createNoteDTO();
       EditNoteCommand command = repo.create();
@@ -119,7 +119,7 @@ public class NotesRepoTest
    }
 
    @Test
-   public void updateNote() throws InterruptedException, ExecutionException, NoSuchCatalogRecordException
+   public void updateNote() throws Exception
    {
       NoteDTO note = createNoteDTO();
       EditNoteCommand command = repo.create();
@@ -161,7 +161,7 @@ public class NotesRepoTest
          repo.get(note.id);
          Assert.fail();
       }
-      catch(NoSuchCatalogRecordException e)
+      catch(NoSuchEntryException e)
       {
          Assert.assertTrue("Article has been removed", true);
       }

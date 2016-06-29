@@ -16,7 +16,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleAuthorRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
@@ -27,6 +26,7 @@ import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
+import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 import edu.tamu.tcat.trc.repo.RepositoryException;
 import edu.tamu.tcat.trc.repo.UpdateContext;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
@@ -208,7 +208,7 @@ public class ArticleRepoService
       }
 
       @Override
-      public List<Article> getArticles(URI entityURI) throws NoSuchCatalogRecordException
+      public List<Article> getArticles(URI entityURI) throws NoSuchEntryException
       {
          // This seems like a query rather than part of the article repo impl.
          throw new UnsupportedOperationException();
@@ -228,7 +228,7 @@ public class ArticleRepoService
       }
 
       @Override
-      public EditArticleCommand edit(String articleId) throws NoSuchCatalogRecordException
+      public EditArticleCommand edit(String articleId) throws NoSuchEntryException
       {
          try
          {

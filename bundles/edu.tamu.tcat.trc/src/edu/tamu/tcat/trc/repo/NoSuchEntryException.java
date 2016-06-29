@@ -13,38 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.repo;
+package edu.tamu.tcat.trc.repo;
 
 /**
- * Indicates problems accessing resources within a catalog repository.
- * @deprecated use trc.repo.RepositoryException instead
+ * Indicates that a TRC entry (such as a bibliographic entry or biographical
+ * details) does not exist. Typically thrown when attempting to access an entry by
+ * a unique identifier.
  */
-@Deprecated  // to be renamed/moved
-public class CatalogRepoException extends Exception
+public class NoSuchEntryException extends RepositoryException
 {
-
-   public CatalogRepoException()
+   public NoSuchEntryException()
    {
    }
 
-   public CatalogRepoException(String message)
+   public NoSuchEntryException(String message)
    {
       super(message);
    }
 
-   public CatalogRepoException(Throwable cause)
+   public NoSuchEntryException(Throwable cause)
    {
       super(cause);
    }
 
-   public CatalogRepoException(String message, Throwable cause)
+   public NoSuchEntryException(String message, Throwable cause)
    {
       super(message, cause);
    }
 
-   public CatalogRepoException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
+   public NoSuchEntryException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
    {
       super(message, cause, enableSuppression, writableStackTrace);
    }
-
 }

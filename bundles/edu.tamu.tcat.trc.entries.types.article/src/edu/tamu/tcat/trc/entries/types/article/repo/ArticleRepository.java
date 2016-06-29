@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
+import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 
 
 public interface ArticleRepository
@@ -31,9 +31,9 @@ public interface ArticleRepository
     *
     * @param articleId The id of the Article to retrieve
     * @return The identified article.
-    * @throws NoSuchCatalogRecordException If the requested article does not exist.
+    * @throws NoSuchEntryException If the requested article does not exist.
     */
-   Article get(String articleId) throws NoSuchCatalogRecordException;
+   Article get(String articleId) throws NoSuchEntryException;
 
    /**
     * Retrieves a list of {@link Article} associated with a particular URI.
@@ -42,7 +42,7 @@ public interface ArticleRepository
     * @return Collection of Articles
     */
    // NOTE that this should, perhaps, be done through the search API.
-   List<Article> getArticles(URI entityURI) throws NoSuchCatalogRecordException;
+   List<Article> getArticles(URI entityURI) throws NoSuchEntryException;
 
    /**
     * Builds a new {@link EditArticleCommand} to create a new {@link Article}.
@@ -65,7 +65,7 @@ public interface ArticleRepository
     * Modifies a {@link ArticleNoteCommand} to allow editing a {@link Article}.
     * @return
     */
-   EditArticleCommand edit(String articleId) throws NoSuchCatalogRecordException;
+   EditArticleCommand edit(String articleId) throws NoSuchEntryException;
 
    /**
     * Removes a {@link Article} entry from the database.

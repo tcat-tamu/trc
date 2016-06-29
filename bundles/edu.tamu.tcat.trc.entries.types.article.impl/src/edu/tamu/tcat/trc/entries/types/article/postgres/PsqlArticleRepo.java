@@ -43,7 +43,6 @@ import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
 import edu.tamu.tcat.trc.entries.types.article.ArticleLink;
@@ -61,6 +60,7 @@ import edu.tamu.tcat.trc.entries.types.article.dto.PublicationDTO;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleChangeEvent;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
+import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 
 public class PsqlArticleRepo implements ArticleRepository
 {
@@ -139,13 +139,13 @@ public class PsqlArticleRepo implements ArticleRepository
    }
 
    @Override
-   public Article get(UUID articleId) throws NoSuchCatalogRecordException
+   public Article get(UUID articleId) throws NoSuchEntryException
    {
       return adapt(getArticleDTO(SQL_GET, articleId));
    }
 
    @Override
-   public List<Article> getArticles(URI entityURI) throws NoSuchCatalogRecordException
+   public List<Article> getArticles(URI entityURI) throws NoSuchEntryException
    {
       Future<List<Article>> results = exec.submit(conn -> {
          // FIXME is this right - should articles have associated entries embedded?
@@ -177,7 +177,7 @@ public class PsqlArticleRepo implements ArticleRepository
       {
          return unwrapGetResults(results, entityURI.toString());
       }
-      catch (NoSuchCatalogRecordException e)
+      catch (NoSuchEntryException e)
       {
          throw new IllegalStateException("Unexpected internal error", e);
       }
@@ -213,7 +213,7 @@ public class PsqlArticleRepo implements ArticleRepository
       {
          return unwrapGetResults(results, null);
       }
-      catch (NoSuchCatalogRecordException e)
+      catch (NoSuchEntryException e)
       {
          throw new IllegalStateException("Unexpected internal error", e);
       }
@@ -242,7 +242,7 @@ public class PsqlArticleRepo implements ArticleRepository
    }
 
    @Override
-   public EditArticleCommand edit(UUID articleId) throws NoSuchCatalogRecordException
+   public EditArticleCommand edit(UUID articleId) throws NoSuchEntryException
    {
       ArticleDTO article = getArticleDTO(SQL_GET, articleId);
 
@@ -342,7 +342,7 @@ public class PsqlArticleRepo implements ArticleRepository
       }
    }
 
-   private ArticleDTO getArticleDTO(String sql, UUID id) throws NoSuchCatalogRecordException
+   private ArticleDTO getArticleDTO(String sql, UUID id) throws NoSuchEntryException
    {
       Future<ArticleDTO> result = exec.submit((conn) -> executeGetQuery(sql, conn, id));
       return unwrapGetResults(result, id.toString());
@@ -353,9 +353,9 @@ public class PsqlArticleRepo implements ArticleRepository
     * @param result The future to unwrap
     * @param id For error messaging purposes
     * @return
-    * @throws NoSuchCatalogRecordException
+    * @throws NoSuchEntryException
     */
-   private <T> T unwrapGetResults(Future<T> result, String id) throws NoSuchCatalogRecordException
+   private <T> T unwrapGetResults(Future<T> result, String id) throws NoSuchEntryException
    {
       try
       {
@@ -369,8 +369,8 @@ public class PsqlArticleRepo implements ArticleRepository
       {
          // unwrap the execution exception that may be thrown from the executor
          Throwable cause = e.getCause();
-         if (cause instanceof NoSuchCatalogRecordException)
-            throw (NoSuchCatalogRecordException)cause;         // if not found
+         if (cause instanceof NoSuchEntryException)
+            throw (NoSuchEntryException)cause;         // if not found
          else if (cause instanceof RuntimeException)
             throw (RuntimeException)cause;                     // 'expected' internal errors - json parsing, db access, etc
          else if (cause instanceof Error)
@@ -380,7 +380,7 @@ public class PsqlArticleRepo implements ArticleRepository
       }
    }
 
-   private ArticleDTO executeGetQuery(String sql, Connection conn, UUID id) throws NoSuchCatalogRecordException
+   private ArticleDTO executeGetQuery(String sql, Connection conn, UUID id) throws NoSuchEntryException
    {
       try (PreparedStatement ps = conn.prepareStatement(sql))
       {
@@ -388,7 +388,7 @@ public class PsqlArticleRepo implements ArticleRepository
          try (ResultSet rs = ps.executeQuery())
          {
             if (!rs.next())
-               throw new NoSuchCatalogRecordException("No catalog record exists for article id=" + id);
+               throw new NoSuchEntryException("No catalog record exists for article id=" + id);
 
             PGobject pgo = (PGobject)rs.getObject("article");
             return parseCopyRefJson(pgo.toString());

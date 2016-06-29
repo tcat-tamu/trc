@@ -41,11 +41,11 @@ import javax.ws.rs.core.MediaType;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.dto.NoteDTO;
 import edu.tamu.tcat.trc.notes.repo.EditNoteCommand;
 import edu.tamu.tcat.trc.notes.repo.NotesRepository;
+import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 
 
 @Path("/notes")
@@ -85,7 +85,7 @@ public class NotesResource
          notes.forEach(n -> results.add(NoteDTO.create(n)));
          return results;
       }
-      catch (NoSuchCatalogRecordException e)
+      catch (NoSuchEntryException e)
       {
          logger.log(Level.SEVERE, MessageFormat.format("Failed to retrieve notes for {0}.", q), e);
          throw new InternalServerErrorException(MessageFormat.format("Failed to retrieve notes for {0}.", q));
@@ -125,7 +125,7 @@ public class NotesResource
    @Path("{noteid}")
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.NotesId update(@PathParam(value="noteid") String noteId, NoteDTO noteDTO) throws InterruptedException, ExecutionException, NoSuchCatalogRecordException
+   public RestApiV1.NotesId update(@PathParam(value="noteid") String noteId, NoteDTO noteDTO) throws InterruptedException, ExecutionException, NoSuchEntryException
    {
       try
       {
@@ -138,7 +138,7 @@ public class NotesResource
          result.id = id.toString();
          return result;
       }
-      catch (NoSuchCatalogRecordException noEx)
+      catch (NoSuchEntryException noEx)
       {
          String msg = MessageFormat.format("Could not edit note [{0}]. No such note exists.", noteId);
          logger.log(Level.WARNING, msg, noEx);

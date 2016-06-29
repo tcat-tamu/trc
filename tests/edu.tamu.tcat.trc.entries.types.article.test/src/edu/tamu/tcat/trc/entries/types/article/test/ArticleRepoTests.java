@@ -21,7 +21,6 @@ import static org.junit.Assert.assertFalse;
 import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.junit.After;
@@ -33,7 +32,6 @@ import org.junit.Test;
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.article.docrepo.ArticleRepoService;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.test.ClosableSqlExecutor;
@@ -98,19 +96,19 @@ public class ArticleRepoTests
    }
 
    @Test
-   public void createArticle() throws InterruptedException, ExecutionException, NoSuchCatalogRecordException
+   public void createArticle() throws Exception
    {
       assertFalse(true);
    }
 
    @Test
-   public void updateArticle() throws InterruptedException, ExecutionException, NoSuchCatalogRecordException
+   public void updateArticle() throws Exception
    {
       assertFalse(true);
    }
 
    @Test
-   public void deleteArticle() throws InterruptedException, ExecutionException
+   public void deleteArticle() throws Exception
    {
       assertFalse(true);
    }

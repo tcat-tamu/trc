@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,12 +30,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
-import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipPersistenceException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchService;
+import edu.tamu.tcat.trc.repo.RepositoryException;
 
 @Path("/relationships/{id}")
 public class RelationshipResource
@@ -77,7 +77,7 @@ public class RelationshipResource
          logger.log(Level.SEVERE, "Data access error trying to retrieve relationship [relationship/" + id + "]", perEx);
          throw new InternalServerErrorException("Failed to retrive relationship [relationship/" + id + "]");
       }
-      catch (CatalogRepoException nae)
+      catch (RepositoryException nae)
       {
          String msg = "Relationship not found [relationship/" + id + "]";
          logger.info(msg);
@@ -125,7 +125,7 @@ public class RelationshipResource
    }
 
    @DELETE
-   public void remove(@PathParam(value = "id") String id) throws CatalogRepoException
+   public void remove(@PathParam(value = "id") String id) throws RepositoryException
    {
       repo.delete(id);
    }

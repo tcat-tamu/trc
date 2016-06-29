@@ -19,11 +19,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
+import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 
 /**
  * Used to edit the properties of an {@link Edition}. A {@code EditionMutator} is created
@@ -89,7 +89,7 @@ public interface EditionMutator
     * Edit a volume associated with this edition.
     * @param id The id of the volume to edit.
     * @return A mutator to be used to edit the newly created volume.
-    * @throws NoSuchCatalogRecordException If the identified volume is not associated with this edition.
+    * @throws NoSuchEntryException If the identified volume is not associated with this edition.
     */
    VolumeMutator editVolume(String id);
 

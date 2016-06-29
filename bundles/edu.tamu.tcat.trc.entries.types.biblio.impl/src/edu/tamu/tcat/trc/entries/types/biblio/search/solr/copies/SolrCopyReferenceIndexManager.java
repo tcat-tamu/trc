@@ -36,11 +36,11 @@ import edu.tamu.tcat.hathitrust.htrc.features.simple.ExtractedFeatures;
 import edu.tamu.tcat.hathitrust.htrc.features.simple.impl.DefaultExtractedFeaturesProvider;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent.UpdateAction;
-import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.search.copies.FullTextSearchService;
 import edu.tamu.tcat.trc.entries.types.biblio.search.copies.PageSearchCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.search.copies.VolumeSearchCommand;
+import edu.tamu.tcat.trc.repo.RepositoryException;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
@@ -171,7 +171,7 @@ public class SolrCopyReferenceIndexManager implements FullTextSearchService
                break;
          }
       }
-      catch (CatalogRepoException e)
+      catch (RepositoryException e)
       {
          logger.log(Level.WARNING, "Failed to update full text index for digital copy '" + evt.getEntityId() + "' on update action " + action, e);
       }

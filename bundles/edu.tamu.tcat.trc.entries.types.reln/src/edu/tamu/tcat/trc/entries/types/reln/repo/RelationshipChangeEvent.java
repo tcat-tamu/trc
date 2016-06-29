@@ -16,8 +16,8 @@
 package edu.tamu.tcat.trc.entries.types.reln.repo;
 
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
-import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
+import edu.tamu.tcat.trc.repo.RepositoryException;
 
 public interface RelationshipChangeEvent extends UpdateEvent
 {
@@ -27,7 +27,7 @@ public interface RelationshipChangeEvent extends UpdateEvent
     * a copy of the element in the state it was immediately after the change occurred.
     *
     * @return the element that was changed.
-    * @throws CatalogRepoException If the element cannot be retrieved. This is expected
+    * @throws RepositoryException If the element cannot be retrieved. This is expected
     *    in the case of {@link UpdateAction#DELETED} events. In other cases, this is not
     *    expected but due to an internal error.
     * @deprecated This API is problematic.
@@ -40,7 +40,7 @@ public interface RelationshipChangeEvent extends UpdateEvent
     *    "properties" carries the entire object, the creation case may be reduced to it.
     */
    @Deprecated
-   default Relationship getRelationship() throws CatalogRepoException {
+   default Relationship getRelationship() throws RepositoryException {
       return null;
    }
 

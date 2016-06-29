@@ -47,7 +47,6 @@ import javax.ws.rs.core.UriInfo;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.docrepo.ArticleRepoService;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
@@ -66,6 +65,7 @@ import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchService;
+import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 import edu.tamu.tcat.trc.search.SearchException;
 
 
@@ -152,7 +152,7 @@ public class ArticleResource
          Article article = articleRepo.get(articleId);
          return ArticleSearchAdapter.adapt(article);
       }
-      catch (NoSuchCatalogRecordException e)
+      catch (NoSuchEntryException e)
       {
          // FIXME make sure we throw this
          throw new NotFoundException(MessageFormat.format("Could not find an article with the supplied id {0}", articleId));
@@ -213,7 +213,7 @@ public class ArticleResource
    @Path("{articleid}")
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.Article update(@PathParam(value="articleid") String articleId, RestApiV1.Article article) throws InterruptedException, ExecutionException, NoSuchCatalogRecordException
+   public RestApiV1.Article update(@PathParam(value="articleid") String articleId, RestApiV1.Article article) throws InterruptedException, ExecutionException, NoSuchEntryException
    {
       // TODO add support for partial updates
       ArticleRepository articleRepo = repo.getArticleRepo(null);
@@ -230,7 +230,7 @@ public class ArticleResource
          Article current = articleRepo.get(articleId);
          return ArticleSearchAdapter.adapt(current);
       }
-      catch (NoSuchCatalogRecordException noEx)
+      catch (NoSuchEntryException noEx)
       {
          String msg = MessageFormat.format("Could not edit article [{0}]. No such article exists.", articleId);
          logger.log(Level.WARNING, msg, noEx);

@@ -33,10 +33,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.repo.NoteChangeEvent;
 import edu.tamu.tcat.trc.notes.repo.NotesRepository;
+import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 
 public class NotesIndexManagerService
 {
@@ -138,7 +138,7 @@ public class NotesIndexManagerService
    }
 
    private void index(String id, Function<Note, NoteDocument> adapter)
-         throws SolrServerException, IOException, NoSuchCatalogRecordException
+         throws SolrServerException, IOException, NoSuchEntryException
    {
       UUID uuid = (id != null && !id.trim().isEmpty()) ? UUID.fromString(id) : null;
       Note note = repo.get(uuid);

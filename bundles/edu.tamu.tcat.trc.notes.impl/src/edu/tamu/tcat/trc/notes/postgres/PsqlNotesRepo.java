@@ -43,12 +43,12 @@ import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
-import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.dto.NoteDTO;
 import edu.tamu.tcat.trc.notes.repo.EditNoteCommand;
 import edu.tamu.tcat.trc.notes.repo.NoteChangeEvent;
 import edu.tamu.tcat.trc.notes.repo.NotesRepository;
+import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 
 public class PsqlNotesRepo implements NotesRepository
 {
@@ -123,13 +123,13 @@ public class PsqlNotesRepo implements NotesRepository
    }
 
    @Override
-   public Note get(UUID noteId) throws NoSuchCatalogRecordException
+   public Note get(UUID noteId) throws NoSuchEntryException
    {
       return adapt(getNotesDTO(SQL_GET, noteId));
    }
 
    @Override
-   public List<Note> getNotes(URI entityURI) throws NoSuchCatalogRecordException
+   public List<Note> getNotes(URI entityURI) throws NoSuchEntryException
    {
       Future<List<Note>> results = exec.submit(conn -> {
          try (PreparedStatement ps = conn.prepareStatement(SQL_GET_ALL))
@@ -159,7 +159,7 @@ public class PsqlNotesRepo implements NotesRepository
       {
          return unwrapGetResults(results, entityURI.toString());
       }
-      catch (NoSuchCatalogRecordException e)
+      catch (NoSuchEntryException e)
       {
          throw new IllegalStateException("Unexpected internal error", e);
       }
@@ -186,7 +186,7 @@ public class PsqlNotesRepo implements NotesRepository
    }
 
    @Override
-   public EditNoteCommand edit(UUID noteId) throws NoSuchCatalogRecordException
+   public EditNoteCommand edit(UUID noteId) throws NoSuchEntryException
    {
       NoteDTO note = getNotesDTO(SQL_GET, noteId);
 
@@ -286,7 +286,7 @@ public class PsqlNotesRepo implements NotesRepository
       }
    }
 
-   private NoteDTO getNotesDTO(String sql, UUID id) throws NoSuchCatalogRecordException
+   private NoteDTO getNotesDTO(String sql, UUID id) throws NoSuchEntryException
    {
       Future<NoteDTO> result = exec.submit((conn) -> executeGetQuery(sql, conn, id));
       return unwrapGetResults(result, id.toString());
@@ -297,9 +297,9 @@ public class PsqlNotesRepo implements NotesRepository
    * @param result The future to unwrap
    * @param id For error messaging purposes
    * @return
-   * @throws NoSuchCatalogRecordException
+   * @throws NoSuchEntryException
    */
-  private <T> T unwrapGetResults(Future<T> result, String id) throws NoSuchCatalogRecordException
+  private <T> T unwrapGetResults(Future<T> result, String id) throws NoSuchEntryException
   {
      try
      {
@@ -313,8 +313,8 @@ public class PsqlNotesRepo implements NotesRepository
      {
         // unwrap the execution exception that may be thrown from the executor
         Throwable cause = e.getCause();
-        if (cause instanceof NoSuchCatalogRecordException)
-           throw (NoSuchCatalogRecordException)cause;         // if not found
+        if (cause instanceof NoSuchEntryException)
+           throw (NoSuchEntryException)cause;         // if not found
         else if (cause instanceof RuntimeException)
            throw (RuntimeException)cause;                     // 'expected' internal errors - json parsing, db access, etc
         else if (cause instanceof Error)
@@ -324,7 +324,7 @@ public class PsqlNotesRepo implements NotesRepository
      }
   }
 
-  private NoteDTO executeGetQuery(String sql, Connection conn, UUID id) throws NoSuchCatalogRecordException
+  private NoteDTO executeGetQuery(String sql, Connection conn, UUID id) throws NoSuchEntryException
   {
      try (PreparedStatement ps = conn.prepareStatement(sql))
      {
@@ -332,7 +332,7 @@ public class PsqlNotesRepo implements NotesRepository
         try (ResultSet rs = ps.executeQuery())
         {
            if (!rs.next())
-              throw new NoSuchCatalogRecordException("No catalog record exists for work id=" + id);
+              throw new NoSuchEntryException("No catalog record exists for work id=" + id);
 
            PGobject pgo = (PGobject)rs.getObject("note");
            return parseCopyRefJson(pgo.toString());

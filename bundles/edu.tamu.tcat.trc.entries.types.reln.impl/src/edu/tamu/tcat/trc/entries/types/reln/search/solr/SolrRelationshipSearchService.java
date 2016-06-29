@@ -28,7 +28,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipChangeEvent;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
@@ -168,7 +167,7 @@ public class SolrRelationshipSearchService implements RelationshipSearchIndexMan
    }
 
    private void index(String id, Function<Relationship, RelnDocument> adapter)
-         throws CatalogRepoException, SolrServerException, IOException
+         throws SolrServerException, IOException
    {
       Relationship relationship = repo.get(id);
       Objects.requireNonNull(relationship,

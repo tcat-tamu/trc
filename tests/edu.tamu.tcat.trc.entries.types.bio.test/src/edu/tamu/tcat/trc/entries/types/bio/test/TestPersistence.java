@@ -28,7 +28,6 @@ import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
 import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
 import edu.tamu.tcat.trc.entries.common.dto.HistoricalEventDTO;
-import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
@@ -36,6 +35,7 @@ import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
 import edu.tamu.tcat.trc.entries.types.bio.postgres.PsqlPeopleRepo;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
+import edu.tamu.tcat.trc.repo.RepositoryException;
 import edu.tamu.tcat.trc.test.ClosableSqlExecutor;
 import edu.tamu.tcat.trc.test.TestUtils;
 
@@ -198,7 +198,7 @@ private void checkDate(HistoricalEvent death, HistoricalEventDTO dto)
    }
 
    @Test
-   public void testGetAll() throws CatalogRepoException, JsonProcessingException
+   public void testGetAll() throws RepositoryException, JsonProcessingException
    {
       Iterator<Person> peopleIterator = repo.listAll();
       while (peopleIterator.hasNext())
