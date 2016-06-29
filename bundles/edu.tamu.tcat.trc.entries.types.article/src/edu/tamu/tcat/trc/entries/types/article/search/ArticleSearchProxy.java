@@ -29,7 +29,7 @@ public class ArticleSearchProxy
    // Returns a light weight article for search results
    public String id;
    public String title;
-   public String type;
+   public String articleType;
    public List<AuthorRef> authors;
    public PublicationRef info;
 
@@ -41,7 +41,7 @@ public class ArticleSearchProxy
    {
       this.id = article.getId().toString();
       this.title = article.getTitle();
-      this.type = article.getType();
+      this.articleType = article.getArticleType();
 
       this.authors = article.getAuthors().stream()
             .map(AuthorRef::new)
