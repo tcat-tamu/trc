@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
-import edu.tamu.tcat.trc.entries.types.article.dto.ArticleDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.CitationDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.FootnoteDTO;
@@ -35,14 +34,6 @@ public interface EditArticleCommand
     * @return The unique id for the article that is being edited. Will not be {@code null}
     */
    String getId();
-
-
-   /**
-    * Applies all values from a supplied data vehicle to the article being edited.
-    *
-    * @param article The changes to apply.
-    */
-   void setAll(ArticleDTO article);
 
    /**
     * @param mimeType The mime type of the content supplied for this article.

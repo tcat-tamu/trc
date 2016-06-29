@@ -6,14 +6,12 @@ import java.util.concurrent.Future;
 
 import edu.tamu.tcat.trc.entries.types.article.docrepo.DataModelV1.Article;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
-import edu.tamu.tcat.trc.entries.types.article.dto.ArticleDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.CitationDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.FootnoteDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.LinkDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.PublicationDTO;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
-import edu.tamu.tcat.trc.entries.types.article.search.solr.ArticleIndexManagerService;
 import edu.tamu.tcat.trc.repo.BasicChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
@@ -22,7 +20,7 @@ import edu.tamu.tcat.trc.repo.UpdateContext;
 public class EditArticleCommandFactory implements EditCommandFactory<DataModelV1.Article, EditArticleCommand>
 {
 
-   public EditArticleCommandFactory(ArticleIndexManagerService indexService)
+   public EditArticleCommandFactory()
    {
       // TODO Auto-generated constructor stub
    }
@@ -55,12 +53,6 @@ public class EditArticleCommandFactory implements EditCommandFactory<DataModelV1
       public String getId()
       {
          return id;
-      }
-
-      @Override
-      public void setAll(ArticleDTO article)
-      {
-         throw new UnsupportedOperationException();
       }
 
       @Override
