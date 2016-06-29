@@ -1,6 +1,7 @@
 package edu.tamu.tcat.trc.repo;
 
-import java.text.MessageFormat;
+import static java.text.MessageFormat.format;
+
 import java.util.Objects;
 
 public class BasicSchemaBuilder implements SchemaBuilder
@@ -94,16 +95,16 @@ public class BasicSchemaBuilder implements SchemaBuilder
       if (built)
          throw new IllegalStateException("This schema has already been built.");
 
-      if (required && (value == null || value.isEmpty()))
-         throw new IllegalArgumentException(
-               MessageFormat.format("A value is required for the {0}", fieldName));
-
       if (value.isEmpty())
          value = null;
 
+      if (required && value == null)
+         throw new IllegalArgumentException(
+               format("A value is required for the {0}", fieldName));
+
       if (value != null && !value.matches(VALID_NAME_REGEX))
          throw new IllegalArgumentException(
-               MessageFormat.format("The supplied value {0} is not a valid field identifier", value));
+               format("The supplied value {0} is not a valid field identifier", value));
 
       return value;
    }
@@ -111,7 +112,7 @@ public class BasicSchemaBuilder implements SchemaBuilder
    @Override
    public SchemaBuilder setId(String id)
    {
-      schema.id = checkValue(id, "schema id", true);
+      schema.id = id;
       return this;
    }
 
