@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.article.repo;
+package edu.tamu.tcat.trc.entries.types.article.docrepo;
 
 import static java.text.MessageFormat.format;
 
@@ -17,6 +17,9 @@ import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
+import edu.tamu.tcat.trc.entries.types.article.repo.ArticleAuthorRepository;
+import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
+import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.solr.ArticleDocument;
 import edu.tamu.tcat.trc.entries.types.article.search.solr.ArticleIndexManagerService;
 import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;

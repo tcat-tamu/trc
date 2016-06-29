@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.article.repo;
+package edu.tamu.tcat.trc.entries.types.article.docrepo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

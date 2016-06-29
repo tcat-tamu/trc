@@ -49,6 +49,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
+import edu.tamu.tcat.trc.entries.types.article.docrepo.ArticleRepoService;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO.BibAuthorDTO;
@@ -60,7 +61,6 @@ import edu.tamu.tcat.trc.entries.types.article.dto.CitationItemDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.FootnoteDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.LinkDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.PublicationDTO;
-import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepoService;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
