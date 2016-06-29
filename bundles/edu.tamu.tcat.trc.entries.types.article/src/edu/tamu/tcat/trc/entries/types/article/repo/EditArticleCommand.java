@@ -60,6 +60,11 @@ public interface EditArticleCommand
    void setTitle(String title);
 
    /**
+    * @param slug the slug for this article. Note that slugs must be unique.
+    */
+   void setSlug(String slug);
+
+   /**
     *
     * @param pubData The publication and modification dates of the article
     */
@@ -107,7 +112,5 @@ public interface EditArticleCommand
     *       {@link Future#get()} method will propagate that exception.
     */
    Future<String> execute();
-
-
 
 }

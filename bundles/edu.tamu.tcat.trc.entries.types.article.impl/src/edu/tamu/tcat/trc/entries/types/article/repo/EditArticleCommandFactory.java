@@ -81,6 +81,16 @@ public class EditArticleCommandFactory implements EditCommandFactory<DataModelV1
       }
 
       @Override
+      public void setSlug(String slug)
+      {
+         // TODO verify that the slug is unique at creation time.
+         //      Provide REPO API to allow the repo to determine if an article exists
+         //      with this slug
+         //      lookup articles by slug.
+         changes.add("slug", article -> article.slug = slug);
+      }
+
+      @Override
       public void setAbstract(String abs)
       {
          changes.add("abstract", article -> article.articleAbstract = abs);
