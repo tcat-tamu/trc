@@ -21,7 +21,7 @@
 <booleanAttribute key="includeOptional" value="true"/>
 <stringAttribute key="location" value="${workspace_loc}/../junit-workspace"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/edu.tamu.tcat.trc.entries.types.article.test/src/edu/tamu/tcat/trc/entries/types/article/test/ArticleRepoTest.java"/>
+<listEntry value="/edu.tamu.tcat.trc.entries.types.article.test/src/edu/tamu/tcat/trc/entries/types/article/test/ArticleRepoTests.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
@@ -31,16 +31,19 @@
 <stringAttribute key="org.eclipse.jdt.junit.TESTNAME" value=""/>
 <stringAttribute key="org.eclipse.jdt.junit.TEST_KIND" value="org.eclipse.jdt.junit.loader.junit4"/>
 <stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="edu.tamu.tcat.trc.entries.types.article.test.ArticleRepoTest"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="edu.tamu.tcat.trc.entries.types.article.test.ArticleRepoTests"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-os ${target.os} -ws ${target.ws} -arch ${target.arch} -nl ${target.nl} -consoleLog -console"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="edu.tamu.tcat.trc.entries.types.article.test"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dconfig.path=${workspace_loc:/sda.deploy}/catalog_war/config.properties"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dxeclipse.ignoreApp=true&#13;&#10;-Dxosgi.noShutdown=true&#13;&#10;-Djava.util.logging.config.file=${workspace_loc:edu.tamu.tcat.trc.entries.types.article.test}/res/logging.properties&#13;&#10;-Dconfig.path=${workspace_loc:edu.tamu.tcat.trc.entries.types.article.test}/res/config.properties&#13;&#10;&#10;-Dlogback.configurationFile=${workspace_loc:edu.tamu.tcat.trc.entries.types.article.test}/res/logback.xml"/>
 <stringAttribute key="pde.version" value="3.3"/>
 <stringAttribute key="product" value="org.eclipse.birt.report.engine.ReportEngineSDK"/>
 <booleanAttribute key="run_in_ui_thread" value="true"/>
-<setAttribute key="selected_features"/>
-<booleanAttribute key="show_selected_only" value="false"/>
+<setAttribute key="selected_features">
+<setEntry value="edu.tamu.tcat.trc.base.feature:default"/>
+<setEntry value="edu.tamu.tcat.trc.entries.types.article.feature.test:default"/>
+</setAttribute>
+<booleanAttribute key="show_selected_only" value="true"/>
 <booleanAttribute key="tracing" value="false"/>
 <booleanAttribute key="useCustomFeatures" value="true"/>
 <booleanAttribute key="useDefaultConfig" value="true"/>
