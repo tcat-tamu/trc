@@ -617,6 +617,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
             if (original != null)
                throw new IllegalStateException("Update context has already been initialized");
 
+            original = new CompletableFuture<>();
             try {
                // NOTE could block forever depending on supplier impl.
                original.complete(supplier.get());
