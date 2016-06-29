@@ -17,15 +17,16 @@ package edu.tamu.tcat.trc.entries.types.article.dto;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import edu.tamu.tcat.trc.entries.types.article.Article;
 
+@Deprecated // this should be an implementation detail
 public class ArticleDTO
 {
-   public UUID id;
+   public String id;
    public String title;
-   public String type;
+   public String articleType;
+   public String contentType;
    public List<ArticleAuthorDTO> authors;
    public PublicationDTO info;
    public String articleAbstract;
@@ -41,7 +42,8 @@ public class ArticleDTO
 
       dto.id = article.getId();
       dto.title = article.getTitle();
-      dto.type = article.getType();
+      dto.contentType = article.getContentType();
+      dto.articleType = article.getArticleType();
       dto.articleAbstract = article.getAbstract();
       dto.body = article.getBody();
 
@@ -86,7 +88,8 @@ public class ArticleDTO
 
       dto.id = orig.id;
       dto.title = orig.title;
-      dto.type = orig.type;
+      dto.articleType = orig.articleType;
+      dto.contentType = orig.contentType;
       dto.articleAbstract = orig.articleAbstract;
       dto.body = orig.body;
       dto.info = orig.info;
