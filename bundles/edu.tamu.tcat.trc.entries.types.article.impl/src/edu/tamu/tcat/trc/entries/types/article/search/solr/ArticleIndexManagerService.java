@@ -159,7 +159,7 @@ public class ArticleIndexManagerService implements ArticleSearchService
       }
    }
 
-   private void postDocument(ArticleDocument doc) throws SolrServerException, IOException
+   public void postDocument(ArticleDocument doc) throws SolrServerException, IOException
    {
       Collection<SolrInputDocument> solrDocs = new ArrayList<>();
       solrDocs.add(doc.getDocument());

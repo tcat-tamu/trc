@@ -1,5 +1,7 @@
 package edu.tamu.tcat.trc.entries.types.article.repo;
 
+import static java.text.MessageFormat.format;
+
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
@@ -9,25 +11,29 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
-import edu.tamu.tcat.trc.entries.types.article.rest.v1.ModelAdapter;
+import edu.tamu.tcat.trc.entries.types.article.search.solr.ArticleDocument;
 import edu.tamu.tcat.trc.entries.types.article.search.solr.ArticleIndexManagerService;
 import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.repo.RepositoryException;
+import edu.tamu.tcat.trc.repo.UpdateContext;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
+import edu.tamu.tcat.trc.search.SearchException;
 
 public class ArticleRepoService
 {
    private final static Logger logger = Logger.getLogger(ArticleRepoService.class.getName());
    private static final String ID_CONTEXT_ARTICLES = "trc.articles";
 
-   private DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> repoBackend;
+   private DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> articleBackend;
 
    private SqlExecutor sqlExecutor;
    private IdFactoryProvider idFactoryProvider;
@@ -69,10 +75,20 @@ public class ArticleRepoService
     */
    public void activate()
    {
-      Objects.requireNonNull(sqlExecutor, "No SQL Executor provided.");
+      try
+      {
+         Objects.requireNonNull(sqlExecutor, "No SQL Executor provided.");
 
-      repoBackend = buildDocumentRepository();
-      idFactory = idFactoryProvider.getIdFactory(ID_CONTEXT_ARTICLES);
+         articleBackend = buildDocumentRepository();
+         configureIndexing(articleBackend);
+         configureVersioning(articleBackend);
+         idFactory = idFactoryProvider.getIdFactory(ID_CONTEXT_ARTICLES);
+      }
+      catch (Exception e)
+      {
+         logger.log(Level.SEVERE, "Failed to construct articles repository instance.", e);
+         throw e;
+      }
    }
 
    /**
@@ -82,25 +98,67 @@ public class ArticleRepoService
    {
       PsqlJacksonRepoBuilder<Article, DataModelV1.Article, EditArticleCommand> repoBuilder = new PsqlJacksonRepoBuilder<>();
 
+      // TODO register index service as post commit hook
+
       repoBuilder.setDbExecutor(sqlExecutor);
       repoBuilder.setTableName(TABLE_NAME);
-      // TODO register service as post commit hook
       repoBuilder.setEditCommandFactory(new EditArticleCommandFactory(indexSvc));
-      repoBuilder.setDataAdapter(ModelAdapter::adapt);
+      repoBuilder.setDataAdapter(dto -> new ArticleImpl(dto));
       repoBuilder.setSchema(BasicSchemaBuilder.buildDefaultSchema());
       repoBuilder.setStorageType(DataModelV1.Article.class);
       repoBuilder.setEnableCreation(true);
 
+      return repoBuilder.build();
+   }
+
+   private void configureIndexing(DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> repo)
+   {
+      if (indexSvc == null)
+         logger.info("No search index has been configured for articles.");
+
+      repo.afterUpdate(this::index);
+      // TODO Auto-generated method stub
+
+   }
+
+   private void index(UpdateContext<DataModelV1.Article> ctx)
+   {
+      if (indexSvc == null)
+         logger.info(() -> format("Not indexing article {0}. No search index is available.", ctx.getId()));
+
       try
       {
-         return repoBuilder.build();
+         // TODO should be able to generalize this.
+         switch(ctx.getActionType())
+         {
+            case CREATE:
+               indexSvc.postDocument(getSolrDoc(ctx));
+               break;
+            case EDIT:
+               indexSvc.postDocument(getSolrDoc(ctx));
+               break;
+            case REMOVE:
+               indexSvc.remove(ctx.getId());
+               break;
+         }
       }
-      catch (RepositoryException e)
+      catch (Exception ex)
       {
-         logger.log(Level.SEVERE, "Failed to construct articles repository instance.", e);
+         logger.log(Level.SEVERE, ex, () -> "Failed to index article {0}: " + ex.getMessage());
       }
-      return null;
    }
+
+   private ArticleDocument getSolrDoc(UpdateContext<DataModelV1.Article> ctx) throws JsonProcessingException, SearchException
+   {
+      DataModelV1.Article dto = ctx.getModified();
+      return ArticleDocument.create(new ArticleImpl(dto));
+   }
+
+   private void configureVersioning(DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> repo)
+   {
+      // TODO Auto-generated method stub
+   }
+
 
    /**
     * Lifecycle management method (usually called by framework service layer)
@@ -111,12 +169,20 @@ public class ArticleRepoService
       sqlExecutor = null;
    }
 
-   public ArticleRepository getRepository(Account account)
+   public ArticleRepository getArticleRepo(Account account)
    {
       return new ArticleRepoImpl(account);
    }
 
+   public ArticleAuthorRepository getAuthorRepo(Account account)
+   {
+      return new ArticleAuthorRepoImpl();
+   }
 
+   public class ArticleAuthorRepoImpl implements ArticleAuthorRepository
+   {
+
+   }
    public class ArticleRepoImpl implements ArticleRepository
    {
 
@@ -131,7 +197,7 @@ public class ArticleRepoService
       @Override
       public Article get(String articleId)
       {
-         return repoBackend.get(articleId);
+         return articleBackend.get(articleId);
       }
 
       @Override
@@ -151,7 +217,7 @@ public class ArticleRepoService
       @Override
       public EditArticleCommand create(String id)
       {
-         return repoBackend.create(id);
+         return articleBackend.create(id);
       }
 
       @Override
@@ -159,7 +225,7 @@ public class ArticleRepoService
       {
          try
          {
-            return repoBackend.edit(articleId);
+            return articleBackend.edit(articleId);
          }
          catch (RepositoryException e)
          {
@@ -170,20 +236,20 @@ public class ArticleRepoService
       @Override
       public Future<Boolean> remove(String articleId)
       {
-         CompletableFuture<Boolean> result = repoBackend.delete(articleId);
-         
+         CompletableFuture<Boolean> result = articleBackend.delete(articleId);
+
          result.thenRun(() -> {
                if (indexSvc != null)
                   indexSvc.remove(articleId);
             });
-         
+
          return result;
       }
 
       @Override
       public Runnable register(Consumer<Article> ears)
       {
-         return repoBackend.afterUpdate((dto) -> {
+         return articleBackend.afterUpdate((dto) -> {
             // TODO adapt dto to Article
             ears.accept(null);
          });
