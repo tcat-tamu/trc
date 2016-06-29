@@ -15,9 +15,12 @@
  */
 package edu.tamu.tcat.trc.entries.types.article.test;
 
+import static java.text.MessageFormat.format;
+import static org.junit.Assert.assertFalse;
+
 import java.sql.PreparedStatement;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -31,18 +34,18 @@ import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
-import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
-import edu.tamu.tcat.trc.entries.types.article.dto.ArticleDTO;
-import edu.tamu.tcat.trc.entries.types.article.postgres.PsqlArticleRepo;
+import edu.tamu.tcat.trc.entries.types.article.docrepo.ArticleRepoService;
+import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.test.ClosableSqlExecutor;
 import edu.tamu.tcat.trc.test.TestUtils;
 
-public class ArticleRepoTest
+public class ArticleRepoTests
 {
 
+   private static final String TBL_NAME = "test_articles";
    private ClosableSqlExecutor exec;
    private ConfigurationProperties config;
-   private PsqlArticleRepo repo;
+   private ArticleRepoService svc;
 
    @BeforeClass
    public static void setUp()
@@ -61,16 +64,23 @@ public class ArticleRepoTest
    {
       config = TestUtils.loadConfigFile();
       exec = TestUtils.initPostgreSqlExecutor(config);
+      IdFactoryProvider idProvider = TestUtils.makeIdFactoryProvider();
 
-      repo = new PsqlArticleRepo();
-      repo.setDatabaseExecutor(exec);
-      repo.activate();
+      svc = new ArticleRepoService();
+      svc.setSqlExecutor(exec);
+      svc.setIdFactory(idProvider);
+      // TODO configure search
+
+      Map<String, Object> props = new HashMap<>();
+      props.put(ArticleRepoService.PARAM_ID_CTX, "trc.articles");
+      props.put(ArticleRepoService.PARAM_TABLE_NAME, TBL_NAME);
+      svc.activate(props);
    }
 
    @After
    public void tearDownTest() throws Exception
    {
-      String sql = "DELETE FROM articles WHERE article->>'associatedEntity' LIKE 'articles/%'";
+      String sql = format("TRUNCATE {0}", TBL_NAME);
       Future<Void> future = exec.submit((conn) -> {
          try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.executeUpdate();
@@ -79,8 +89,8 @@ public class ArticleRepoTest
       });
 
       future.get();
-      repo.dispose();
 
+      svc.dispose();
       exec.close();
 
       if (config instanceof SimpleFileConfigurationProperties)
@@ -90,103 +100,18 @@ public class ArticleRepoTest
    @Test
    public void createArticle() throws InterruptedException, ExecutionException, NoSuchCatalogRecordException
    {
-//      ArticleDTO article = createArticleDTO();
-//      EditArticleCommand command = repo.create();
-//      command.setAll(article);
-//      article.id = command.execute().get();
-//
-//
-//      Article article2 = repo.get(article.id);
-//      ArticleDTO articleDTO = ArticleDTO.create(article2);
-//
-//      Assert.assertEquals("Articles do not match", article.id, articleDTO.id);
-//      Assert.assertEquals("Articles do not match", article.title, articleDTO.title);
-//      Assert.assertEquals("Articles do not match", article.associatedEntity, articleDTO.associatedEntity);
-//      Assert.assertEquals("Articles do not match", article.authorId, articleDTO.authorId);
-//      Assert.assertEquals("Articles do not match", article.mimeType, articleDTO.mimeType);
-//      Assert.assertEquals("Articles do not match", article.content, articleDTO.content);
+      assertFalse(true);
    }
 
    @Test
    public void updateArticle() throws InterruptedException, ExecutionException, NoSuchCatalogRecordException
    {
-//      ArticleDTO article = createArticleDTO();
-//      EditArticleCommand command = repo.create();
-//      command.setAll(article);
-//      article.id = command.execute().get();
-////      article.lastModified = new Date();
-//      article.title = "The New & Everlasting Title";
-////      article.content = "<H1>The New and Everlasting Title<H1> <p>As time passes so do many articles. In this" +
-////                  "particular case, this article will not be passed on. It will forever be made available" +
-////                  "through this testing process. </p> " +
-////                  " <p> To change the article, we need to provide some type of update to it.</p>";
-//
-//      EditArticleCommand updateCommand = repo.edit(article.id);
-//      updateCommand.setAll(article);
-//      updateCommand.execute();
-//
-//      Article article2 = repo.get(article.id);
-//      ArticleDTO articleDTO = ArticleDTO.create(article2);
-//
-//      Assert.assertEquals("Articles do not match", article.id, articleDTO.id);
-//      Assert.assertEquals("Articles do not match", article.title, articleDTO.title);
-//      Assert.assertEquals("Articles do not match", article.associatedEntity, articleDTO.associatedEntity);
-//      Assert.assertEquals("Articles do not match", article.authorId, articleDTO.authorId);
-//      Assert.assertEquals("Articles do not match", article.mimeType, articleDTO.mimeType);
-//      Assert.assertEquals("Articles do not match", article.content, articleDTO.content);
-
+      assertFalse(true);
    }
 
    @Test
    public void deleteArticle() throws InterruptedException, ExecutionException
    {
-//      ArticleDTO article = createArticleDTO();
-//      EditArticleCommand command = repo.create();
-//      command.setAll(article);
-//      article.id = command.execute().get();
-//
-//      Boolean removed = repo.remove(article.id).get();
-//      Assert.assertEquals("Article was not removed", Boolean.TRUE, removed);
-//      try
-//      {
-//         repo.get(article.id);
-//         Assert.fail();
-//      }
-//      catch(NoSuchCatalogRecordException e)
-//      {
-//         Assert.assertTrue("Article has been removed", true);
-//      }
-
+      assertFalse(true);
    }
-
-   private ArticleDTO createArticleDTO()
-   {
-      ArticleDTO article = new ArticleDTO();
-      List<ArticleAuthorDTO> authors = new ArrayList<>();
-
-      ArticleAuthorDTO author1 = new ArticleAuthorDTO();
-      author1.id = "n_audenaert";
-      author1.name = "Neal Audenaert";
-      authors.add(author1);
-
-      ArticleAuthorDTO author2 = new ArticleAuthorDTO();
-      author1.id = "j_mitchell";
-      author1.name = "Jesse Mitchell";
-      authors.add(author2);
-
-
-      article.title = "The New and Everlasting Title";
-//      article.associatedEntity = URI.create("articles/1");
-      article.authors = authors;
-      article.articleAbstract = "The abstract of this article.";
-//      article.publication = new Date();
-//      article.authorId = "d25d7b89-6634-4895-89c1-7024fc3d5396";
-//      article.mimeType = "HTML";
-//      article.content = "<H1>The New and Everlasting Title<H1> <p>As time passes so do many articles. In this" +
-//                        "particular case, this article will not be passed on. It will forever be made available" +
-//                        "through this testing process. </p>";
-
-      return article;
-   }
-
 }
