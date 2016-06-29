@@ -47,6 +47,7 @@ import edu.tamu.tcat.trc.repo.EntryUpdateObserver;
 import edu.tamu.tcat.trc.repo.RepositoryException;
 import edu.tamu.tcat.trc.repo.RepositorySchema;
 import edu.tamu.tcat.trc.repo.UpdateContext;
+import edu.tamu.tcat.trc.repo.UpdateContext.ActionType;
 
 public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements DocumentRepository<RecordType, DTO, EditCommandType>
 {
@@ -278,7 +279,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    @Override
    public EditCommandType create(String id) throws UnsupportedOperationException
    {
-      UpdateContextImpl context = new UpdateContextImpl(id, "CREATE", null, () -> null);
+      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.CREATE, null, () -> null);
       UpdateStrategyImpl updater = new UpdateStrategyImpl(context, (dto) -> doCreate(id, dto));
 
       return this.cmdFactory.edit(id, updater);
@@ -287,7 +288,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    @Override
    public EditCommandType edit(String id) throws RepositoryException
    {
-      UpdateContextImpl context = new UpdateContextImpl(id, "EDIT", null, () -> loadStoredRecord(id));
+      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.EDIT, null, () -> loadStoredRecord(id));
       UpdateStrategyImpl updater = new UpdateStrategyImpl(context, (dto) -> doEdit(id, dto));
 
       return this.cmdFactory.edit(id, updater);
@@ -296,7 +297,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    @Override
    public CompletableFuture<Boolean> delete(String id) throws UnsupportedOperationException
    {
-      UpdateContextImpl context = new UpdateContextImpl(id, "DELETE", null, () -> null);
+      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.REMOVE, null, () -> null);
       UpdateStrategyImpl updater = new UpdateStrategyImpl(context, (dto) -> doDelete(id));
 
       return updater.update(dto -> null).thenApply(dto -> true);
@@ -594,14 +595,14 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    {
       private UUID updateId = UUID.randomUUID();
       private String entryId;
-      private String action;
+      private ActionType action;
       private Account actor;
       private Supplier<DTO> supplier;
 
       private CompletableFuture<DTO> original;
       private CompletableFuture<DTO> modified = new CompletableFuture<>();
 
-      UpdateContextImpl(String id, String action, Account actor, Supplier<DTO> supplier)
+      UpdateContextImpl(String id, ActionType action, Account actor, Supplier<DTO> supplier)
       {
          this.entryId = id;
          this.action = action;
@@ -641,7 +642,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       }
 
       @Override
-      public String getActionType()
+      public ActionType getActionType()
       {
          return action;
       }

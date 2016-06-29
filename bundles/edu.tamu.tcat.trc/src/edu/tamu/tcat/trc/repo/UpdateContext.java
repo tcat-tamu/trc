@@ -18,6 +18,11 @@ import edu.tamu.tcat.account.Account;
  */
 public interface UpdateContext<StorageType>
 {
+   /** Defines the class of update action performed. */
+   public enum ActionType
+   {
+      CREATE, EDIT, REMOVE;
+   }
 //   TODO
 //   * Allow pre-commit and post commit actions to log status (make into a monitor
 //       and support notification)
@@ -35,7 +40,7 @@ public interface UpdateContext<StorageType>
    /**
     * @return The type of update action. Typically, CREATE, EDIT, REMOVE
     */
-   String getActionType();
+   ActionType getActionType();
 
    /**
     * @return The account of the individual responsible for making these changes.
