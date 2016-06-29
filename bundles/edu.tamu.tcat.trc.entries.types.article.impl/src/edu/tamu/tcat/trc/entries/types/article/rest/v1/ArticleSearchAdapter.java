@@ -127,11 +127,11 @@ public class ArticleSearchAdapter
       return link;
    }
 
-   public static RestApiV1.Article toDTO(Article article)
+   public static RestApiV1.Article adapt(Article article)
    {
       RestApiV1.Article dto = new RestApiV1.Article();
       dto.id = article.getId().toString();
-      dto.type = article.getType();
+      dto.articleType = article.getType();
       dto.title = article.getTitle();
       dto.pubInfo = convertPubInfo(article.getPublicationInfo());
       dto.authors = convertAuthors(article.getAuthors());

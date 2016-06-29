@@ -67,10 +67,12 @@ public class RestApiV1
        *  article. Reserved for future use. */
       public int version;
 
-      // FIXME this is inconsistent with the documentation on the API.
       /** An application defined type for this article. For example, an application may wish
        *  to distinguish between editorials, book reviews, and research papers. */
-      public String type;
+      public String articleType;
+
+      /** The mime-type of the article's body content. */
+      public String contentType;
 
       /** The MIME type of the body content. */
       public String mimeType;

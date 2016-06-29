@@ -15,17 +15,17 @@
  */
 package edu.tamu.tcat.trc.entries.types.article.rest.v1;
 
+import static java.text.MessageFormat.format;
+
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -48,7 +48,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.trc.entries.repo.NoSuchCatalogRecordException;
-import edu.tamu.tcat.trc.entries.types.article.AuthorManager;
+import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO.BibAuthorDTO;
@@ -60,13 +60,12 @@ import edu.tamu.tcat.trc.entries.types.article.dto.CitationItemDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.FootnoteDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.LinkDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.PublicationDTO;
+import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepoService;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
-import edu.tamu.tcat.trc.entries.types.article.repo.EditAuthorCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchService;
-import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.search.SearchException;
 
 
@@ -75,26 +74,21 @@ public class ArticleResource
 {
    private final static Logger logger = Logger.getLogger(ArticleResource.class.getName());
 
-   private ArticleRepository repo;
+   private ArticleRepoService repo;
    private ObjectMapper mapper;
 
-   private ArticleSearchService articleSearchService;
+   private ArticleSearchService searchSvc;
 
-   private DocumentRepository<edu.tamu.tcat.trc.entries.types.article.ArticleAuthor, EditAuthorCommand>  authorRepo;
-
-   public void setRepository(ArticleRepository repo)
+   // called by OSGi
+   public void setRepository(ArticleRepoService repo)
    {
       this.repo = repo;
    }
 
-   public void setAuthorRepository(AuthorManager authorManager)
-   {
-       this.authorRepo = authorManager.getAuthorRepo();
-   }
-
+   // called by OSGi
    public void setArticleService(ArticleSearchService service)
    {
-      this.articleSearchService = service;
+      this.searchSvc = service;
    }
 
    public void activate()
@@ -107,6 +101,7 @@ public class ArticleResource
    public void dispose()
    {
       repo = null;
+      searchSvc = null;
       mapper = null;
    }
 
@@ -119,10 +114,9 @@ public class ArticleResource
           @QueryParam(value = "max") @DefaultValue("100") int numResults)
    throws SearchException
    {
-
       try
       {
-         ArticleQueryCommand articleQryCmd = articleSearchService.createQuery();
+         ArticleQueryCommand articleQryCmd = searchSvc.createQuery();
 
          if (q != null && !q.trim().isEmpty())
             articleQryCmd.setQuery(q);
@@ -152,22 +146,15 @@ public class ArticleResource
    @Produces(MediaType.APPLICATION_JSON)
    public RestApiV1.Article get(@PathParam(value="articleid") String articleId)
    {
-      UUID id = null;
       try
       {
-         id = UUID.fromString(articleId);
-      }
-      catch (Exception ex)
-      {
-         throw new BadRequestException(MessageFormat.format("Invalid article id {0}. Expected valid UUID.", articleId));
-      }
-
-      try
-      {
-         return ArticleSearchAdapter.toDTO(repo.get(id));
+         ArticleRepository articleRepo = repo.getArticleRepo(null);
+         Article article = articleRepo.get(articleId);
+         return ArticleSearchAdapter.adapt(article);
       }
       catch (NoSuchCatalogRecordException e)
       {
+         // FIXME make sure we throw this
          throw new NotFoundException(MessageFormat.format("Could not find an article with the supplied id {0}", articleId));
       }
       catch (Exception ex)
@@ -181,47 +168,23 @@ public class ArticleResource
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.ArticleId create(@Context UriInfo uriInfo, RestApiV1.Article article)
+   public Response create(@Context UriInfo uriInfo, RestApiV1.Article article)
    {
       // TODO need to asses and fix error handling.
+      ArticleRepository articleRepo = repo.getArticleRepo(null);
       try
       {
-         EditArticleCommand editCmd = repo.create();
-         article.authors.forEach((auth) ->
-         {
-            EditAuthorCommand authorCmd = authorRepo.create();
-            authorCmd.setName(auth.name);
-            authorCmd.setAffiliation(auth.affiliation);
-            try
-            {
-               auth.id = authorCmd.execute().get();
-            }
-            catch (Exception e)
-            {
-               logger.log(Level.SEVERE, "Failed to update the supplied author.", e);
-               throw new InternalServerErrorException("Failed to update the supplied author.");
-            }
-         });
+         EditArticleCommand editCmd = articleRepo.create();
          apply(editCmd, article);
 
-         UUID id = editCmd.execute().get();
-         URI uri = uriInfo.getAbsolutePathBuilder().path(id.toString()).build();
+         article.id = editCmd.execute().get();
 
-         RestApiV1.ArticleId articleId = new RestApiV1.ArticleId();
-         articleId.id = id.toString();
-         articleId.uri = uri.toString();
-
-         Link.Builder linkBuilder = Link.fromUri(uri);
-         linkBuilder.rel("self");
-         linkBuilder.title(article.title);
-         Response.ok(article).links(linkBuilder.build());
-
-         return articleId;
+         return buildResponse(article, uriInfo);
       }
       catch (ExecutionException ex)
       {
          // TODO what about client supplied errors? Surely these aren't all internal (e.g., no title supplied).
-         logger.log(Level.SEVERE, "Failed to update the supplied article.", ex);
+         logger.log(Level.SEVERE, format("Failed to create the supplied article {0}.", article.title), ex);
          throw new InternalServerErrorException("Failed to update the supplied article.");
       }
       catch (Exception ie)
@@ -231,37 +194,41 @@ public class ArticleResource
       }
    }
 
+   private Response buildResponse(RestApiV1.Article article, UriInfo uriInfo)
+   {
+      // TODO this is not correct - internally we don't know what our URL is.
+      URI uri = uriInfo.getAbsolutePathBuilder().path(article.id).build();
+
+      Link.Builder linkBuilder = Link.fromUri(uri);
+      linkBuilder.rel("self");
+      linkBuilder.title(article.title);
+      Link link = linkBuilder.build();
+
+      // might be created on creation, but I think it is good to return the created article
+      // rather than just the ID
+      return Response.ok(article).links(link).build();
+   }
+
    @PUT
    @Path("{articleid}")
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.ArticleId update(@PathParam(value="articleid") String articleId, RestApiV1.Article article) throws InterruptedException, ExecutionException, NoSuchCatalogRecordException
+   public RestApiV1.Article update(@PathParam(value="articleid") String articleId, RestApiV1.Article article) throws InterruptedException, ExecutionException, NoSuchCatalogRecordException
    {
+      // TODO add support for partial updates
+      ArticleRepository articleRepo = repo.getArticleRepo(null);
       try
       {
-         EditArticleCommand editCmd = repo.edit(UUID.fromString(articleId));
-         article.authors.forEach((auth) ->
-         {
-            try
-            {
-               EditAuthorCommand authorCmd = authorRepo.edit(auth.id);
-               authorCmd.setName(auth.name);
-               authorCmd.setAffiliation(auth.affiliation);
-               authorCmd.execute().get();
-            }
-            catch (Exception e)
-            {
-               logger.log(Level.SEVERE, "Failed to update the supplied author.", e);
-               throw new InternalServerErrorException("Failed to update the supplied author.");
-            }
-         });
+         EditArticleCommand editCmd = articleRepo.edit(articleId);
+
          apply(editCmd, article);
+         String id = editCmd.execute().get();
 
-         UUID id = editCmd.execute().get();
-
-         RestApiV1.ArticleId result = new RestApiV1.ArticleId();
-         result.id = id.toString();
-         return result;
+         // we get the current version from the repo in order to ensure that we have
+         // both the changes that were applied in this update (already present in article)
+         // and any changes that may have been applied prior to this.
+         Article current = articleRepo.get(articleId);
+         return ArticleSearchAdapter.adapt(current);
       }
       catch (NoSuchCatalogRecordException noEx)
       {
@@ -277,16 +244,24 @@ public class ArticleResource
    }
 
    @DELETE
-   @Path("{articleid}")
-   public void delete(@PathParam(value="articleid") String articleId)
+   @Path("{id}")
+   public void delete(@PathParam(value="id") String articleId)
    {
-      // TODO send appropriate response.
-      repo.remove(UUID.fromString(articleId));
+      ArticleRepository articleRepo = repo.getArticleRepo(null);
+      try
+      {
+         // TODO send appropriate response.
+         articleRepo.remove(articleId).get();
+      }
+      catch (Exception e) {
+         // TODO: handle exception
+      }
    }
 
    private void apply(EditArticleCommand editCmd, RestApiV1.Article article)
    {
-      editCmd.setType(article.type);
+      editCmd.setContentType(article.contentType);
+      editCmd.setArticleType(article.articleType);
       editCmd.setTitle(article.title);
       editCmd.setPublicationInfo(getPublication(article.pubInfo));
       editCmd.setAuthors(getAuthors(article.authors));
