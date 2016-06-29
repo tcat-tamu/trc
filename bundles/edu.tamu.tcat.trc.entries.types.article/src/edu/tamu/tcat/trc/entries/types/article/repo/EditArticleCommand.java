@@ -16,6 +16,7 @@
 package edu.tamu.tcat.trc.entries.types.article.repo;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
@@ -23,7 +24,6 @@ import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.CitationDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.FootnoteDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.LinkDTO;
-import edu.tamu.tcat.trc.entries.types.article.dto.PublicationDTO;
 
 /**
  *  Used to update properties of an article.
@@ -59,7 +59,7 @@ public interface EditArticleCommand
     *
     * @param pubData The publication and modification dates of the article
     */
-   void setPublicationInfo(PublicationDTO pubData );
+//   void setPublicationInfo(PublicationDTO pubData );
 
    /**
     *
@@ -102,6 +102,6 @@ public interface EditArticleCommand
     * @return The id of the resulting article. If the underlying update fails, the
     *       {@link Future#get()} method will propagate that exception.
     */
-   Future<String> execute();
+   CompletableFuture<String> execute();
 
 }

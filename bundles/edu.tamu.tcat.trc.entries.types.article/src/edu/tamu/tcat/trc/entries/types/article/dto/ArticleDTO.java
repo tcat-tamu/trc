@@ -28,7 +28,7 @@ public class ArticleDTO
    public String articleType;
    public String contentType;
    public List<ArticleAuthorDTO> authors;
-   public PublicationDTO info;
+//   public PublicationDTO info;
    public String articleAbstract;
    public String body;
    public List<CitationDTO> citation;
@@ -47,7 +47,7 @@ public class ArticleDTO
       dto.articleAbstract = article.getAbstract();
       dto.body = article.getBody();
 
-      dto.info = PublicationDTO.create(article.getPublicationInfo());
+//      dto.info = PublicationDTO.create(article.getPublicationInfo());
 
       List<ArticleAuthorDTO> authDTO = new ArrayList<>();
       article.getAuthors().forEach((a) ->{
@@ -92,7 +92,7 @@ public class ArticleDTO
       dto.contentType = orig.contentType;
       dto.articleAbstract = orig.articleAbstract;
       dto.body = orig.body;
-      dto.info = orig.info;
+//      dto.info = orig.info;
       dto.authors = new ArrayList<>(orig.authors);
       dto.citation = new ArrayList<>(orig.citation);
       dto.footnotes = new ArrayList<>(orig.footnotes);

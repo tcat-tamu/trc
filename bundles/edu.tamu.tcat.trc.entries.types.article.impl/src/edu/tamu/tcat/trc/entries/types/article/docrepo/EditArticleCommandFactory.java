@@ -96,13 +96,6 @@ public class EditArticleCommandFactory implements EditCommandFactory<DataModelV1
          changes.add("body", article -> article.body = body);
       }
 
-
-      @Override
-      public void setPublicationInfo(PublicationDTO pubData)
-      {
-         throw new UnsupportedOperationException();
-      }
-
       @Override
       public void setAuthors(List<ArticleAuthorDTO> authors)
       {

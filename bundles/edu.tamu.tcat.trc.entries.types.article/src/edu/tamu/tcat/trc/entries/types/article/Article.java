@@ -61,8 +61,6 @@ public interface Article
     */
    String getTitle();
 
-   ArticlePublication getPublicationInfo();
-
    /**
     *
     * @return List of Authors that have contributed to the article.

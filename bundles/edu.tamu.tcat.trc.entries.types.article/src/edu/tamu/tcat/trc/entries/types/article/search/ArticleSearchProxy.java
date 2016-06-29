@@ -15,14 +15,12 @@
  */
 package edu.tamu.tcat.trc.entries.types.article.search;
 
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
 import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor.ContactInfo;
-import edu.tamu.tcat.trc.entries.types.article.ArticlePublication;
 
 public class ArticleSearchProxy
 {
@@ -31,7 +29,7 @@ public class ArticleSearchProxy
    public String title;
    public String articleType;
    public List<AuthorRef> authors;
-   public PublicationRef info;
+//   public PublicationRef info;
 
    public ArticleSearchProxy()
    {
@@ -47,7 +45,6 @@ public class ArticleSearchProxy
             .map(AuthorRef::new)
             .collect(Collectors.toList());
 
-      this.info = new PublicationRef(article.getPublicationInfo());
    }
 
    public static class AuthorRef
@@ -82,17 +79,17 @@ public class ArticleSearchProxy
       }
    }
 
-   public static class PublicationRef
-   {
-      public Date created;
-      public Date modified;
-
-      public PublicationRef(){}
-
-      public PublicationRef(ArticlePublication pub)
-      {
-         this.created = pub.getCreated();
-         this.modified = pub.getModified();
-      }
-   }
+//   public static class PublicationRef
+//   {
+//      public Date created;
+//      public Date modified;
+//
+//      public PublicationRef(){}
+//
+//      public PublicationRef(ArticlePublication pub)
+//      {
+//         this.created = pub.getCreated();
+//         this.modified = pub.getModified();
+//      }
+//   }
 }
