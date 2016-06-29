@@ -4,6 +4,7 @@ import static java.text.MessageFormat.format;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -34,18 +35,20 @@ import edu.tamu.tcat.trc.search.SearchException;
 public class ArticleRepoService
 {
    private final static Logger logger = Logger.getLogger(ArticleRepoService.class.getName());
-   private static final String ID_CONTEXT_ARTICLES = "trc.articles";
 
-   private DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> articleBackend;
+   public static final String PARAM_TABLE_NAME = "trc.entries.articles.tablename";
+   public static final String PARAM_ID_CTX = "trc.entries.articles.id_context";
+
+   private static final String ID_CONTEXT_ARTICLES = "trc.articles";
+   private static final String TABLE_NAME = "articles";
 
    private SqlExecutor sqlExecutor;
    private IdFactoryProvider idFactoryProvider;
+   private ArticleIndexManagerService indexSvc;
 
-   private static final String TABLE_NAME = "articles";
 
    private IdFactory idFactory;
-
-   private ArticleIndexManagerService indexSvc;
+   private DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> articleBackend;
 
    /**
     * Bind method for SQL executor service dependency (usually called by dependency injection layer)
@@ -76,16 +79,19 @@ public class ArticleRepoService
     * Lifecycle management method (usually called by framework service layer)
     * Called when all dependencies have been provided and the service is ready to run.
     */
-   public void activate()
+   public void activate(Map<String, Object> properties)
    {
       try
       {
          Objects.requireNonNull(sqlExecutor, "No SQL Executor provided.");
 
-         articleBackend = buildDocumentRepository();
+         String tablename = (String)properties.getOrDefault(PARAM_TABLE_NAME, TABLE_NAME);
+         articleBackend = buildDocumentRepository(tablename);
          configureIndexing(articleBackend);
          configureVersioning(articleBackend);
-         idFactory = idFactoryProvider.getIdFactory(ID_CONTEXT_ARTICLES);
+
+         String idContext = (String)properties.getOrDefault(PARAM_ID_CTX, ID_CONTEXT_ARTICLES);
+         idFactory = idFactoryProvider.getIdFactory(idContext);
       }
       catch (Exception e)
       {
@@ -97,15 +103,13 @@ public class ArticleRepoService
    /**
     * @return A new document repository instance for persisting and retrieving works
     */
-   private DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> buildDocumentRepository()
+   private DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> buildDocumentRepository(String tablename)
    {
       PsqlJacksonRepoBuilder<Article, DataModelV1.Article, EditArticleCommand> repoBuilder = new PsqlJacksonRepoBuilder<>();
 
-      // TODO register index service as post commit hook
-
       repoBuilder.setDbExecutor(sqlExecutor);
-      repoBuilder.setTableName(TABLE_NAME);
-      repoBuilder.setEditCommandFactory(new EditArticleCommandFactory(indexSvc));
+      repoBuilder.setTableName(tablename);
+      repoBuilder.setEditCommandFactory(new EditArticleCommandFactory());
       repoBuilder.setDataAdapter(dto -> new ArticleImpl(dto));
       repoBuilder.setSchema(BasicSchemaBuilder.buildDefaultSchema());
       repoBuilder.setStorageType(DataModelV1.Article.class);
