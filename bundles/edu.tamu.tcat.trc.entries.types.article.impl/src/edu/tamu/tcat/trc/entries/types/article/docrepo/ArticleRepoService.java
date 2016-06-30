@@ -121,7 +121,7 @@ public class ArticleRepoService
    private void configureIndexing(DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> repo)
    {
       if (indexSvc == null)
-         logger.info("No search index has been configured for articles.");
+         logger.warning("No search index has been configured for articles.");
 
       repo.afterUpdate(this::index);
       // TODO Auto-generated method stub
@@ -131,7 +131,10 @@ public class ArticleRepoService
    private void index(UpdateContext<DataModelV1.Article> ctx)
    {
       if (indexSvc == null)
+      {
          logger.info(() -> format("Not indexing article {0}. No search index is available.", ctx.getId()));
+         return;
+      }
 
       try
       {
