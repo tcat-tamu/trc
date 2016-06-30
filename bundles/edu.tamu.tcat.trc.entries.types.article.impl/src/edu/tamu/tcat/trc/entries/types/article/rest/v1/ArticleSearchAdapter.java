@@ -13,14 +13,12 @@ import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
 import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor.ContactInfo;
 import edu.tamu.tcat.trc.entries.types.article.ArticleLink;
-import edu.tamu.tcat.trc.entries.types.article.ArticlePublication;
 import edu.tamu.tcat.trc.entries.types.article.Footnote;
 import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Link;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQuery;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy.AuthorRef;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy.ContactInfoRef;
-import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy.PublicationRef;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
 
 /**
@@ -57,7 +55,7 @@ public class ArticleSearchAdapter
       RestApiV1.ArticleSearchResult dto = new RestApiV1.ArticleSearchResult();
       dto.id = article.id;
       dto.title = article.title;
-      dto.pubInfo = convertPubInfo(article.info);
+//      dto.pubInfo = convertPubInfo(article.info);
 
       List<RestApiV1.ArticleAuthor> authors = new ArrayList<>();
       article.authors.forEach((auth)->
@@ -131,9 +129,8 @@ public class ArticleSearchAdapter
    {
       RestApiV1.Article dto = new RestApiV1.Article();
       dto.id = article.getId().toString();
-      dto.articleType = article.getType();
+      dto.articleType = article.getArticleType();
       dto.title = article.getTitle();
-      dto.pubInfo = convertPubInfo(article.getPublicationInfo());
       dto.authors = convertAuthors(article.getAuthors());
       dto.articleAbstract = article.getAbstract();
       dto.body = article.getBody();
@@ -143,22 +140,6 @@ public class ArticleSearchAdapter
       dto.links = convertLinks(article.getLinks());
 
       return dto;
-   }
-
-   private static RestApiV1.Publication convertPubInfo(ArticlePublication pubInfo)
-   {
-      RestApiV1.Publication pub = new RestApiV1.Publication();
-      pub.dateCreated = pubInfo.getCreated();
-      pub.dateModified = pubInfo.getModified();
-      return pub;
-   }
-
-   private static RestApiV1.Publication convertPubInfo(PublicationRef pubInfo)
-   {
-      RestApiV1.Publication pub = new RestApiV1.Publication();
-      pub.dateCreated = pubInfo.created;
-      pub.dateModified = pubInfo.modified;
-      return pub;
    }
 
    private static List<RestApiV1.LinkedResource> convertLinks(List<ArticleLink> links)

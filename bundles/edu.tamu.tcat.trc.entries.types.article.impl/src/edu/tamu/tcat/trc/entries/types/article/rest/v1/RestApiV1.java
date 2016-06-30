@@ -22,7 +22,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 
-public class RestApiV1
+public abstract class RestApiV1
 {
 
    /**
@@ -74,9 +74,6 @@ public class RestApiV1
       /** The mime-type of the article's body content. */
       public String contentType;
 
-      /** The MIME type of the body content. */
-      public String mimeType;
-
       /** The title of the document for display. */
       public String title;
 
@@ -127,7 +124,6 @@ public class RestApiV1
 
    public static class Citation
    {
-
       public String citationID;
       public List<CitationItem> citationItems;
       public ArticleProperties properties;
