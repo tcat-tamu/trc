@@ -12,25 +12,23 @@ import edu.tamu.tcat.trc.entries.types.article.dto.CitationDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.CitationItemDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.FootnoteDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.LinkDTO;
-import edu.tamu.tcat.trc.entries.types.article.dto.PublicationDTO;
 import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.ArticleAuthor;
 import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Author;
 import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Bibliography;
 import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Citation;
 import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Issued;
-import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Publication;
 import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Translator;
 
 public class ModelAdapter
 {
 
-   public static PublicationDTO getPublication(Publication pubInfo)
-   {
-      PublicationDTO pubDTO = new PublicationDTO();
-      pubDTO.dateCreated = pubInfo.dateCreated;
-      pubDTO.dateModified = pubInfo.dateModified;
-      return pubDTO;
-   }
+//   public static PublicationDTO getPublication(Publication pubInfo)
+//   {
+//      PublicationDTO pubDTO = new PublicationDTO();
+//      pubDTO.dateCreated = pubInfo.dateCreated;
+//      pubDTO.dateModified = pubInfo.dateModified;
+//      return pubDTO;
+//   }
 
    public static List<ArticleAuthorDTO> getAuthors(List<ArticleAuthor> authors)
    {
