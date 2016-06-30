@@ -37,6 +37,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
@@ -44,6 +45,7 @@ import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.EditCommandFactory.UpdateStrategy;
 import edu.tamu.tcat.trc.repo.EntryUpdateObserver;
+import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 import edu.tamu.tcat.trc.repo.RepositoryException;
 import edu.tamu.tcat.trc.repo.RepositorySchema;
 import edu.tamu.tcat.trc.repo.UpdateContext;
@@ -236,9 +238,11 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       {
          return cache.get(id);
       }
-      catch (ExecutionException ex)
+      catch (ExecutionException | UncheckedExecutionException ex)
       {
          Throwable cause = ex.getCause();
+         if (cause instanceof NoSuchEntryException)
+            throw (NoSuchEntryException)cause;
          if (cause instanceof RepositoryException)
             throw (RepositoryException)cause;
          if (cause instanceof RuntimeException)
@@ -401,10 +405,14 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
     * @param conn
     * @param id
     * @return
-    * @throws RepositoryException
-    * @throws InterruptedException
+    *
+    * @throws NoSuchEntryException If there is no entry for the supplied id
+    *       or if that entry has been flagged as removed.
+    * @throws RepositoryException If an unknown internal error occurred.
+    * @throws InterruptedException If the execution was interrupted
     */
-   private String loadJson(Connection conn, String id) throws RepositoryException
+   private String loadJson(Connection conn, String id)
+         throws NoSuchEntryException, RepositoryException
    {
       try (PreparedStatement ps = conn.prepareStatement(getRecordSql))
       {
@@ -412,7 +420,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          try (ResultSet rs = ps.executeQuery())
          {
             if (!rs.next())
-               throw new RepositoryException("Could not find record for id = '" + id + "'");
+               throw new NoSuchEntryException("Could not find record for id = '" + id + "'");
 
             PGobject pgo = (PGobject)rs.getObject(schema.getDataField());
             return pgo.toString();
@@ -420,7 +428,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       }
       catch (SQLException e)
       {
-         throw new IllegalStateException("Faield to retrieve the record.", e);
+         throw new RepositoryException("Faield to retrieve the record.", e);
       }
    }
 
