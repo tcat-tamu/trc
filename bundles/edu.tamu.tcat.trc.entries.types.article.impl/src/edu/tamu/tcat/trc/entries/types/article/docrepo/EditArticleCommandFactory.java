@@ -2,7 +2,6 @@ package edu.tamu.tcat.trc.entries.types.article.docrepo;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
 import edu.tamu.tcat.trc.entries.types.article.docrepo.DataModelV1.Article;
 import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
@@ -10,7 +9,6 @@ import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.CitationDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.FootnoteDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.LinkDTO;
-import edu.tamu.tcat.trc.entries.types.article.dto.PublicationDTO;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.repo.BasicChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
@@ -127,7 +125,7 @@ public class EditArticleCommandFactory implements EditCommandFactory<DataModelV1
       }
 
       @Override
-      public Future<String> execute()
+      public CompletableFuture<String> execute()
       {
          CompletableFuture<DataModelV1.Article> modified = exec.update(ctx -> {
             DataModelV1.Article dto = prepModifiedData(ctx);
