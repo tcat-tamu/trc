@@ -59,7 +59,6 @@ import edu.tamu.tcat.trc.entries.types.article.dto.CitationItemDTO;
 //import edu.tamu.tcat.trc.entries.types.article.dto.CitationDTO.CitationPropertiesDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.FootnoteDTO;
 import edu.tamu.tcat.trc.entries.types.article.dto.LinkDTO;
-import edu.tamu.tcat.trc.entries.types.article.dto.PublicationDTO;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
@@ -263,7 +262,7 @@ public class ArticleResource
       editCmd.setContentType(article.contentType);
       editCmd.setArticleType(article.articleType);
       editCmd.setTitle(article.title);
-      editCmd.setPublicationInfo(getPublication(article.pubInfo));
+//      editCmd.setPublicationInfo(getPublication(article.pubInfo));
       editCmd.setAuthors(getAuthors(article.authors));
       editCmd.setAbstract(article.articleAbstract);
       editCmd.setBody(article.body);
@@ -273,13 +272,13 @@ public class ArticleResource
       editCmd.setLinks(getLinks(article.links));
    }
 
-   private PublicationDTO getPublication(RestApiV1.Publication pubInfo)
-   {
-      PublicationDTO pubDTO = new PublicationDTO();
-      pubDTO.dateCreated = pubInfo.dateCreated;
-      pubDTO.dateModified = pubInfo.dateModified;
-      return pubDTO;
-   }
+//   private PublicationDTO getPublication(RestApiV1.Publication pubInfo)
+//   {
+//      PublicationDTO pubDTO = new PublicationDTO();
+//      pubDTO.dateCreated = pubInfo.dateCreated;
+//      pubDTO.dateModified = pubInfo.dateModified;
+//      return pubDTO;
+//   }
 
    private List<ArticleAuthorDTO> getAuthors(List<RestApiV1.ArticleAuthor> authors)
    {
