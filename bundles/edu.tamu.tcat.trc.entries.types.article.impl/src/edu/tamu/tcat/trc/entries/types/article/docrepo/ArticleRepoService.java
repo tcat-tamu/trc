@@ -20,6 +20,7 @@ import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleAuthorRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
+import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchService;
 import edu.tamu.tcat.trc.entries.types.article.search.solr.ArticleDocument;
 import edu.tamu.tcat.trc.entries.types.article.search.solr.ArticleIndexManagerService;
 import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
@@ -179,6 +180,10 @@ public class ArticleRepoService
       sqlExecutor = null;
    }
 
+   /**
+    * @param account The account to be used with this repository.
+    * @return Obtains an {@code ArticleRepository} scoped to a particular user account.
+    */
    public ArticleRepository getArticleRepo(Account account)
    {
       return new ArticleRepoImpl(account);
@@ -187,6 +192,15 @@ public class ArticleRepoService
    public ArticleAuthorRepository getAuthorRepo(Account account)
    {
       return new ArticleAuthorRepoImpl();
+   }
+
+   /**
+    * @return The article search service associated with this repository.
+    *       Note that this may be {@code null} if no search service has been configured.
+    */
+   public ArticleSearchService getSearchService()
+   {
+      return indexSvc;
    }
 
    public class ArticleAuthorRepoImpl implements ArticleAuthorRepository
