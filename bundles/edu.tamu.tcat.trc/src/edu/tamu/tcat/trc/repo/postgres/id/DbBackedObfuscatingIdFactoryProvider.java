@@ -1,11 +1,15 @@
 package edu.tamu.tcat.trc.repo.postgres.id;
 
+import static java.text.MessageFormat.format;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
@@ -16,23 +20,22 @@ public class DbBackedObfuscatingIdFactoryProvider implements IdFactoryProvider
 {
    private final static Logger logger = Logger.getLogger(DbBackedObfuscatingIdFactoryProvider.class.getName());
 
-   private SqlExecutor exec;
+   public final static String PROP_GRANT_SIZE = "grant_size";
+
+   public final static String PROP_ENABLE_OBFUSCATION = "obfuscate";
+   public final static String PROP_ALPHABET = "alphabet";
+   public final static String PROP_BLOCK_SIZE = "block_size";
+   public final static String PROP_MIN_LENGTH = "min_length";
+
    private final ConcurrentHashMap<String, IdGenerator> generators = new ConcurrentHashMap<>();
+
+   private SqlExecutor exec;
    private IdObfuscator obfuscator;
+   private int grantSize;
 
    public DbBackedObfuscatingIdFactoryProvider()
    {
       // TODO the default will eventually become true
-      this(false);
-   }
-
-   public DbBackedObfuscatingIdFactoryProvider(boolean obfuscate)
-   {
-      if (obfuscate)
-      {
-         // HACK: don't know of any better alphabet/blockSize/minLength values to use... --matthew.barry
-         obfuscator = new IdObfuscator(IdObfuscator.ALPHABET, IdObfuscator.BLOCK_SIZE, IdObfuscator.MIN_LENGTH);
-      }
    }
 
    public void setDatabaseExecutor(SqlExecutor exec)
@@ -40,21 +43,62 @@ public class DbBackedObfuscatingIdFactoryProvider implements IdFactoryProvider
       this.exec = exec;
    }
 
-   public void activate()
+   @SuppressWarnings("unchecked") // hoping the caller knows what they're doing.
+   private <X> X getProperty(Map<String, Object> props, String prop, X defaultValue)
    {
-      logger.info("Activating Id factory");
+      if (!props.containsKey(prop))
+         return defaultValue;
+
+      return (X)props.get(prop);
+   }
+
+   public void activate(Map<String, Object> props)
+   {
+      try
+      {
+         doActivation(props);
+      }
+      catch (Exception ex)
+      {
+         logger.log(Level.SEVERE, "Failed to activate id factory provider.", ex);
+         throw ex;
+      }
+   }
+
+   private void doActivation(Map<String, Object> props)
+   {
+      String INFO_OBFUSCATOR_CFG = "Initializing id obfuscator:"
+            + "\n\tAlphabet: {0}"
+            + "\n\tBlock Size: {1}"
+            + "\n\tMin Length: {2}";
+
+      logger.info("Activating obfucating id factory");
       Objects.requireNonNull(exec, "SqlExecutor not available.");
+
+      grantSize = getProperty(props, PROP_GRANT_SIZE, 20);
+
+      boolean obfuscate = getProperty(props, PROP_ENABLE_OBFUSCATION, false);
+      if (obfuscate)
+      {
+         String alphabet = getProperty(props, PROP_ALPHABET, IdObfuscator.ALPHABET);
+         int blockSize = getProperty(props, PROP_BLOCK_SIZE, IdObfuscator.BLOCK_SIZE);
+         int minLength = getProperty(props, PROP_MIN_LENGTH, IdObfuscator.MIN_LENGTH);
+
+         logger.info(() -> format(INFO_OBFUSCATOR_CFG, alphabet, blockSize, minLength));
+         obfuscator = new IdObfuscator(alphabet, blockSize, minLength);
+      }
    }
 
    public void dispose()
    {
-      logger.info("Shuting down Id factory");
+      logger.info("Shuting down obfucating id factory");
       this.exec = null;
    }
 
    @Override
    public IdFactory getIdFactory(String context)
    {
+      logger.fine(() -> format("Retriving IdFactory for context '{0}'", context));
       return () ->
       {
          if (!generators.contains(context))
@@ -63,7 +107,10 @@ public class DbBackedObfuscatingIdFactoryProvider implements IdFactoryProvider
          }
 
          long id = generators.get(context).next();
-         return obfuscate(id);
+         String result = obfuscate(id);
+
+         logger.fine(() -> format("Genereated id '{0}' for context '{1}'", id, context));
+         return result;
       };
    }
 
@@ -75,19 +122,17 @@ public class DbBackedObfuscatingIdFactoryProvider implements IdFactoryProvider
    private final class GrantProvider
    {
       private final String context;
-      private final int grantSize;
 
-      public GrantProvider(String ctx, int size)
+      public GrantProvider(String ctx)
       {
          context = ctx;
-         this.grantSize = size;
       }
 
       public IdGrant requestIdGrant() // throws IdGrantCreationException
       {
          try
          {
-            GetIdGrantTask task = new GetIdGrantTask(context, grantSize);   // HACK: magic number
+            GetIdGrantTask task = new GetIdGrantTask(context, grantSize);
             IdGrant idGrant = exec.submit(task).get();
             return idGrant;
          }
@@ -107,7 +152,7 @@ public class DbBackedObfuscatingIdFactoryProvider implements IdFactoryProvider
 
       public IdGenerator(String context)
       {
-         grantProvider = new GrantProvider(context, 20);
+         grantProvider = new GrantProvider(context);
       }
 
       public synchronized long next()
