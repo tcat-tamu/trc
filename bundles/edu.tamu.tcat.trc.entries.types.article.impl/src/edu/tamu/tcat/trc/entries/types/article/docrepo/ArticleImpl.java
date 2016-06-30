@@ -1,17 +1,20 @@
 package edu.tamu.tcat.trc.entries.types.article.docrepo;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
 import edu.tamu.tcat.trc.entries.types.article.ArticleLink;
-import edu.tamu.tcat.trc.entries.types.article.ArticlePublication;
 import edu.tamu.tcat.trc.entries.types.article.Bibliography;
 import edu.tamu.tcat.trc.entries.types.article.Citation;
 import edu.tamu.tcat.trc.entries.types.article.Footnote;
 
 public class ArticleImpl implements Article
 {
+   private final static Logger logger = Logger.getLogger(ArticleImpl.class.getName());
+   
    private final String id;
    private final String articleType;
    private final String contentType;
@@ -61,16 +64,18 @@ public class ArticleImpl implements Article
       return slug;
    }
 
-   @Override
-   public ArticlePublication getPublicationInfo()
-   {
-      throw new UnsupportedOperationException();
-   }
+//   @Override
+//   public ArticlePublication getPublicationInfo()
+//   {
+//      logger.warning("Publication info is not currently supported");
+//      return null;
+//   }
 
    @Override
    public List<ArticleAuthor> getAuthors()
    {
-      throw new UnsupportedOperationException();
+      logger.warning("Authors are not currently supported");
+      return Collections.emptyList();
    }
 
    @Override
@@ -89,28 +94,32 @@ public class ArticleImpl implements Article
    public List<Footnote> getFootnotes()
    {
       // TODO Auto-generated method stub
-      throw new UnsupportedOperationException();
+      logger.warning("Footnotes are not currently supported");
+      return Collections.emptyList();
    }
 
    @Override
    public List<Citation> getCitations()
    {
       // TODO Auto-generated method stub
-      throw new UnsupportedOperationException();
+      logger.warning("Citations are not currently supported");
+      return Collections.emptyList();
    }
 
    @Override
    public List<Bibliography> getBibliographies()
    {
       // TODO Auto-generated method stub
-      throw new UnsupportedOperationException();
+      logger.warning("Bibliographies are not currently supported");
+      return Collections.emptyList();
    }
 
    @Override
    public List<ArticleLink> getLinks()
    {
       // TODO Auto-generated method stub
-      throw new UnsupportedOperationException();
+      logger.warning("Links are not currently supported");
+      return Collections.emptyList();
    }
 
 
