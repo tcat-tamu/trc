@@ -17,6 +17,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.types.article.Article;
+import edu.tamu.tcat.trc.entries.types.article.ArticleRepoFacade;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleAuthorRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
@@ -33,7 +34,7 @@ import edu.tamu.tcat.trc.repo.UpdateContext;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
 import edu.tamu.tcat.trc.search.SearchException;
 
-public class ArticleRepoService
+public class ArticleRepoService implements ArticleRepoFacade
 {
    private final static Logger logger = Logger.getLogger(ArticleRepoService.class.getName());
 
@@ -184,11 +185,13 @@ public class ArticleRepoService
     * @param account The account to be used with this repository.
     * @return Obtains an {@code ArticleRepository} scoped to a particular user account.
     */
+   @Override
    public ArticleRepository getArticleRepo(Account account)
    {
       return new ArticleRepoImpl(account);
    }
 
+   @Override
    public ArticleAuthorRepository getAuthorRepo(Account account)
    {
       return new ArticleAuthorRepoImpl();
@@ -198,6 +201,7 @@ public class ArticleRepoService
     * @return The article search service associated with this repository.
     *       Note that this may be {@code null} if no search service has been configured.
     */
+   @Override
    public ArticleSearchService getSearchService()
    {
       return indexSvc;
