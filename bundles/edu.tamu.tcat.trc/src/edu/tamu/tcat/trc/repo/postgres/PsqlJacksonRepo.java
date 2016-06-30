@@ -132,7 +132,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       Objects.requireNonNull(adapter, "The data adapter has not bee supplied");
       Objects.requireNonNull(storageType, "The storage type has not bee supplied");
 
-      logger.info(format("Initializing document repository for schema {0} using table {0}", schema.getId(), tablename));
+      logger.info(format("Initializing document repository for schema {0} using table {1}", schema.getId(), tablename));
 
       this.getRecordSql = prepareGetSql();
       this.createRecordSql = prepareInsertSql();
