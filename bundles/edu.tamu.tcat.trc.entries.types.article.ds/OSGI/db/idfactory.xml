@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="dispose" name="edu.tamu.tcat.sda.idfactory.db.postgres">
+   <implementation class="edu.tamu.tcat.trc.repo.postgres.id.DbBackedObfuscatingIdFactoryProvider"/>
+   <service>
+      <provide interface="edu.tamu.tcat.trc.repo.IdFactoryProvider"/>
+   </service>
+   <reference bind="setDatabaseExecutor" cardinality="1..1" interface="edu.tamu.tcat.db.exec.sql.SqlExecutor" name="SqlExecutor" policy="static"/>
+   <property name="grant_size" type="Integer" value="20"/>
+   <property name="obfuscate" type="Boolean" value="true"/>
+   <property name="alphabet" type="String" value="mn6j2c4rv8bpygw95z7hsdaetxuk3fq"/>
+   <property name="block_size" type="Integer" value="24"/>
+   <property name="min_length" type="Integer" value="5"/>>licylicy="static"/>
+</scr:component>
