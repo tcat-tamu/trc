@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="edu.tamu.tcat.trc.entries.types.article.articleRepoSvc">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" immediate="true" name="edu.tamu.tcat.trc.entries.types.article.articleRepoSvc">
    <implementation class="edu.tamu.tcat.trc.entries.types.article.docrepo.ArticleRepoService"/>
-   <reference bind="setSqlExecutor" cardinality="1..1" interface="edu.tamu.tcat.db.exec.sql.SqlExecutor" name="SqlExecutor" policy="static"/>
-   <reference bind="setIndexService" cardinality="0..1" interface="edu.tamu.tcat.trc.entries.types.article.search.solr.ArticleIndexManagerService" name="ArticleIndexManagerService" policy="static"/>
-   <reference bind="setIdFactory" cardinality="1..1" interface="edu.tamu.tcat.trc.repo.IdFactory" name="IdFactory" policy="static"/>
    <service>
       <provide interface="edu.tamu.tcat.trc.entries.types.article.docrepo.ArticleRepoService"/>
       <provide interface="edu.tamu.tcat.trc.entries.types.article.ArticleRepoFacade"/>
    </service>
+   <reference bind="setSqlExecutor" cardinality="1..1" interface="edu.tamu.tcat.db.exec.sql.SqlExecutor" name="SqlExecutor" policy="static"/>
+   <reference bind="setIdFactory" cardinality="1..1" interface="edu.tamu.tcat.trc.repo.IdFactoryProvider" name="IdFactoryProvider" policy="static"/>
 </scr:component>

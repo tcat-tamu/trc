@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" name="edu.tamu.tcat.trc.entries.types.article.rest_api">
+   <implementation class="edu.tamu.tcat.trc.entries.types.article.rest.RestApiService"/>
+   <service>
+      <provide interface="edu.tamu.tcat.trc.entries.types.article.rest.RestApiService"/>
+   </service>
+   <reference bind="bindArticleRepository" cardinality="1..1" interface="edu.tamu.tcat.trc.entries.types.article.docrepo.ArticleRepoService" name="ArticleRepoService" policy="static"/>
+   <reference bind="bindConfig" cardinality="1..1" interface="edu.tamu.tcat.osgi.config.ConfigurationProperties" name="ConfigurationProperties" policy="static"/>
+</scr:component>
