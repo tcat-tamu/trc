@@ -86,6 +86,7 @@ public class ArticleRepoService implements ArticleRepoFacade
       try
       {
          Objects.requireNonNull(sqlExecutor, "No SQL Executor provided.");
+         Objects.requireNonNull(idFactoryProvider, "No IdFactoryProvider provided.");
 
          String tablename = (String)properties.getOrDefault(PARAM_TABLE_NAME, TABLE_NAME);
          articleBackend = buildDocumentRepository(tablename);

@@ -101,7 +101,7 @@ public class ArticlesCollectionResource
    @Produces(MediaType.APPLICATION_JSON)
    public Response create(@Context UriInfo uriInfo, RestApiV1.Article article)
    {
-      // TODO need to asses and fix error handling.
+      // TODO need to assess and fix error handling.
       try
       {
          ArticleRepository articleRepo = repoSvc.getArticleRepo(null);
