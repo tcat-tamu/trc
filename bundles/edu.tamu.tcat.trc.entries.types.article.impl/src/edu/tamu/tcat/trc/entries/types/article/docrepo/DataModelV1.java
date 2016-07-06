@@ -1,5 +1,7 @@
 package edu.tamu.tcat.trc.entries.types.article.docrepo;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public abstract class DataModelV1
@@ -31,13 +33,49 @@ public abstract class DataModelV1
       public String articleAbstract;
       public String body;
 
-      // public List<ArticleAuthorDTO> authors;
+      public List<ArticleAuthor> authors;
       // public PublicationDTO info;
       // public List<CitationDTO> citation;
       // public List<FootnoteDTO> footnotes;
       // public List<BibliographyDTO> bibliographies;
       // public List<LinkDTO> links;
 
+   }
+
+   public static class ArticleAuthor
+   {
+      public String id;
+      public String first;
+      public String last;
+      public String affiliation;
+      public ContactInfo contact = new ContactInfo();
+
+      public static ArticleAuthor copy(ArticleAuthor orig)
+      {
+         ArticleAuthor author = new ArticleAuthor();
+         author.id = orig.id;
+         author.first = orig.first;
+         author.last = orig.last;
+         author.affiliation = orig.affiliation;
+         author.contact = ContactInfo.copy(orig.contact);
+
+         return author;
+      }
+   }
+
+   public static class ContactInfo
+   {
+      public String email;
+      public String phone;
+
+      public static ContactInfo copy(ContactInfo orig)
+      {
+         ContactInfo info = new ContactInfo();
+         info.email = orig.email;
+         info.phone = orig.phone;
+
+         return info;
+      }
    }
 
 }
