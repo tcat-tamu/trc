@@ -18,7 +18,6 @@ import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Link;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQuery;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy.AuthorRef;
-import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy.ContactInfoRef;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
 
 /**
@@ -251,23 +250,27 @@ public class ArticleSearchAdapter
 
    private static List<RestApiV1.ArticleAuthor> convertAuthors(List<ArticleAuthor> authors)
    {
-      List<RestApiV1.ArticleAuthor> auths = new ArrayList<>();
+      return authors.stream()
+            .map(ArticleSearchAdapter::adapt)
+            .collect(Collectors.toList());
+   }
 
-      authors.forEach((a) ->
-      {
-         RestApiV1.ArticleAuthor authDto = new RestApiV1.ArticleAuthor();
-         authDto.id = a.getId();
-         authDto.name = a.getName();
-         authDto.affiliation = a.getAffiliation();
-         ContactInfo contactInfo = a.getContactInfo();
-         RestApiV1.Contact contact = new RestApiV1.Contact();
-         contact.email = contactInfo.getEmail();
-         contact.phone = contactInfo.getPhone();
-         authDto.contact = contact;
-         auths.add(authDto);
-      });
+   private static RestApiV1.ArticleAuthor adapt(ArticleAuthor author)
+   {
+      RestApiV1.ArticleAuthor authDto = new RestApiV1.ArticleAuthor();
+      authDto.id = author.getId();
+      authDto.name = author.getName();
+      authDto.affiliation = author.getAffiliation();
+      authDto.contact = adapt(author.getContactInfo());
+      return authDto;
+   }
 
-      return auths;
+   private static RestApiV1.Contact adapt(ContactInfo contactInfo)
+   {
+      RestApiV1.Contact contact = new RestApiV1.Contact();
+      contact.email = contactInfo.getEmail();
+      contact.phone = contactInfo.getPhone();
+      return contact;
    }
 
    private static RestApiV1.ArticleAuthor convertAuthor(AuthorRef author)
@@ -276,12 +279,6 @@ public class ArticleSearchAdapter
       RestApiV1.ArticleAuthor authDto = new RestApiV1.ArticleAuthor();
       authDto.id = author.id;
       authDto.name = author.name;
-      authDto.affiliation = author.affiliation;
-      ContactInfoRef contactInfo = author.contactinfo;
-      RestApiV1.Contact contact = new RestApiV1.Contact();
-      contact.email = contactInfo.email;
-      contact.phone = contactInfo.phone;
-      authDto.contact = contact;
 
       return authDto;
    }
