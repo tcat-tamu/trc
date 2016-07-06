@@ -63,7 +63,7 @@ public interface Article
 
    /**
     *
-    * @return List of Authors that have contributed to the article.
+    * @return List of authors that have contributed to the article.
     */
    List<ArticleAuthor> getAuthors();
 

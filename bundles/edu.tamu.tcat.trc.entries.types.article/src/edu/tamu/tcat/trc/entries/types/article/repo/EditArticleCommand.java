@@ -62,10 +62,36 @@ public interface EditArticleCommand
 //   void setPublicationInfo(PublicationDTO pubData );
 
    /**
+    * Adds an author with the specified id to this article.
     *
-    * @param authors The author(s) of the article.
+    * @param authorId The id of the author to add.
+    * @return A mutator to be used to edit properties about this author.
     */
-   void setAuthors(List<ArticleAuthorDTO> authors);
+   AuthorMutator addAuthor(String authorId);
+
+   /**
+    * Edits an existing author.
+    *
+    * @param authorId The id of the author to edit.
+    * @return A mutator to be used to edit properties about this author.
+    */
+   AuthorMutator editAuthor(String authorId);
+
+   /**
+    * Moves the identified author to a position in front of the target author.
+    *
+    * @param authorId The id of the author to move.
+    * @param beforeId The id of the author to move in front of. If {@code null} or
+    *       not found the author will be moved to the end of the list.
+    */
+   void moveAuthor(String authorId, String beforeId);
+
+   /**
+    * Removes the indicated author.
+    * @param authorId The id of the author to remove.
+    */
+   void removeAuthor(String authorId);
+
 
    /**
     *
