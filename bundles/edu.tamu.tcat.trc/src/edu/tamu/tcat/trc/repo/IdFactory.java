@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 /**
  * A service for creating identifiers for catalog entries. Identifiers are guaranteed to be
  * unique within the scope of a named context, but may conflict across scopes. Contexts are
- * intended to be used to generate unique id sequences for diffrent types of catalog entries
+ * intended to be used to generate unique id sequences for different types of catalog entries
  * (e.g., bibliographic entries and biographical entries have their own sequence of
  * identifiers).
  *
