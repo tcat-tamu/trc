@@ -36,6 +36,13 @@ public interface ChangeSet<Type>
     */
    ChangeAction add(String message, Consumer<Type> mutatorFn);
 
+   default <X> ChangeAction add(String property, String action, X original, Function<Type, X> mutatorFn)
+   {
+      // TODO use ChangeActionContext type to supply original value, property, etc and to use to
+      //      set the updated and/or indicate if the change was not applied.
+      throw new UnsupportedOperationException();
+   }
+
    /**
     * Creates a change set that edits a sub-property of the parent entry, for example, an
     * address associated with a customer. Note that this allows for hierarchical combinations
