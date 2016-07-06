@@ -16,11 +16,6 @@
 package edu.tamu.tcat.trc.entries.types.article.search;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
-import edu.tamu.tcat.trc.entries.types.article.Article;
-import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
-import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor.ContactInfo;
 
 public class ArticleSearchProxy
 {
@@ -29,67 +24,10 @@ public class ArticleSearchProxy
    public String title;
    public String articleType;
    public List<AuthorRef> authors;
-//   public PublicationRef info;
-
-   public ArticleSearchProxy()
-   {
-   }
-
-   public ArticleSearchProxy(Article article)
-   {
-      this.id = article.getId().toString();
-      this.title = article.getTitle();
-      this.articleType = article.getArticleType();
-
-      this.authors = article.getAuthors().stream()
-            .map(AuthorRef::new)
-            .collect(Collectors.toList());
-
-   }
 
    public static class AuthorRef
    {
       public String id;
       public String name;
-      public String affiliation;
-      public ContactInfoRef contactinfo;
-
-      public AuthorRef(){}
-
-      public AuthorRef(ArticleAuthor auth)
-      {
-         this.id = auth.getId();
-         this.name = auth.getName();
-         this.affiliation = auth.getAffiliation();
-         this.contactinfo = new ContactInfoRef(auth.getContactInfo());
-      }
    }
-
-   public static class ContactInfoRef
-   {
-      public String email;
-      public String phone;
-
-      public ContactInfoRef(){}
-
-      public ContactInfoRef(ContactInfo info)
-      {
-         this.email = info.getEmail();
-         this.phone = info.getPhone();
-      }
-   }
-
-//   public static class PublicationRef
-//   {
-//      public Date created;
-//      public Date modified;
-//
-//      public PublicationRef(){}
-//
-//      public PublicationRef(ArticlePublication pub)
-//      {
-//         this.created = pub.getCreated();
-//         this.modified = pub.getModified();
-//      }
-//   }
 }

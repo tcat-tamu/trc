@@ -15,113 +15,133 @@
  */
 package edu.tamu.tcat.trc.entries.types.article.search.solr;
 
-import java.util.List;
-
-import org.apache.solr.common.SolrInputDocument;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import edu.tamu.tcat.trc.entries.types.article.Article;
-import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
-import edu.tamu.tcat.trc.entries.types.article.dto.ArticleDTO;
+import edu.tamu.tcat.trc.entries.types.article.docrepo.DataModelV1;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy;
-import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 
 
 public class ArticleDocument
 {
-   private TrcDocument indexDoc;
 
-   public ArticleDocument()
+
+   public static TrcDocument adapt(DataModelV1.Article dto)
    {
-      indexDoc = new TrcDocument(new ArticleSolrConfig());
-   }
-
-   public SolrInputDocument getDocument()
-   {
-      return indexDoc.getSolrDocument();
-   }
-
-   public static ArticleDocument create(Article article) throws JsonProcessingException, SearchException
-   {
-      ArticleDocument doc = new ArticleDocument();
-
-      ArticleDTO dto = ArticleDTO.create(article);
+      TrcDocument doc = new TrcDocument(new ArticleSolrConfig());
 
       try
       {
-         doc.indexDoc.set(ArticleSolrConfig.SEARCH_PROXY, new ArticleSearchProxy(article));
+         doc.set(ArticleSolrConfig.SEARCH_PROXY, makeSearchProxy(dto));
+
+         doc.set(ArticleSolrConfig.ID, dto.id.toString());
+         doc.set(ArticleSolrConfig.TITLE, guardNull(dto.title));
+         doc.set(ArticleSolrConfig.ARTICLE_ABSTRACT, guardNull(dto.articleAbstract));
+         doc.set(ArticleSolrConfig.ARTICLE_CONTENT, guardNull(dto.body));
+
+//      if (dto.authors != null || dto.authors.isEmpty())
+//         setAuthorNames(doc, dto.authors);
+
+         return doc;
       }
       catch (Exception e)
       {
          throw new IllegalStateException("Failed to serialize AritcleSearchProxy data", e);
       }
-
-      doc.indexDoc.set(ArticleSolrConfig.ID, dto.id.toString());
-      doc.indexDoc.set(ArticleSolrConfig.TITLE, guardNull(dto.title));
-      doc.indexDoc.set(ArticleSolrConfig.ARTICLE_ABSTRACT, guardNull(dto.articleAbstract));
-      doc.indexDoc.set(ArticleSolrConfig.ARTICLE_CONTENT, guardNull(dto.body));
-      if (dto.authors != null || dto.authors.isEmpty())
-         setAuthorNames(doc, dto.authors);
-
-      return doc;
    }
 
-   public static ArticleDocument update(Article article) throws SearchException
+   private static ArticleSearchProxy makeSearchProxy(DataModelV1.Article dto)
    {
-      // TODO use changeset, don't store proxy separately.
-      ArticleDocument doc = new ArticleDocument();
-      ArticleDTO dto = ArticleDTO.create(article);
+      ArticleSearchProxy proxy = new ArticleSearchProxy();
+      proxy.id = dto.id;
+      proxy.title = dto.title;
+      proxy.articleType = dto.articleType;
 
-      try
-      {
-         doc.indexDoc.update(ArticleSolrConfig.SEARCH_PROXY, new ArticleSearchProxy(article));
-      }
-      catch (Exception e)
-      {
-         throw new IllegalStateException("Failed to serialize NotesSearchProxy data", e);
-      }
+      // TODO add authors
+//      proxy.authors = article.getAuthors().stream()
+//            .map(AuthorRef::new)
+//            .collect(Collectors.toList());
 
-      doc.indexDoc.set(ArticleSolrConfig.ID, dto.id.toString());
-      doc.indexDoc.update(ArticleSolrConfig.TITLE, guardNull(dto.title));
-      doc.indexDoc.update(ArticleSolrConfig.ARTICLE_ABSTRACT, guardNull(dto.articleAbstract));
-      doc.indexDoc.update(ArticleSolrConfig.ARTICLE_CONTENT, guardNull(dto.body));
-      if (dto.authors == null || dto.authors.isEmpty())
-         updateAuthorNames(doc, dto.authors);
-
-      return doc;
+      return proxy;
    }
-
-   private static void setAuthorNames(ArticleDocument doc, List<ArticleAuthorDTO> authors)
-   {
-      authors.forEach((a) ->
-      {
-         try
-         {
-            doc.indexDoc.set(ArticleSolrConfig.AUTHOR_NAMES, a.name);
-         }
-         catch (Exception e)
-         {
-            throw new IllegalStateException("Failed to set author names", e);
-         }
-      });
-   }
-
-   private static void updateAuthorNames(ArticleDocument doc, List<ArticleAuthorDTO> authors)
-   {
-      authors.forEach((a) ->
-      {
-         try
-         {
-            doc.indexDoc.set(ArticleSolrConfig.AUTHOR_NAMES, a.name);
-         }
-         catch (Exception e)
-         {
-            throw new IllegalStateException("Failed to update author names", e);
-         }
-      });
-   }
+//
+//   public static ArticleDocument create(Article article) throws JsonProcessingException, SearchException
+//   {
+//      ArticleDocument doc = new ArticleDocument();
+//
+//      ArticleDTO dto = ArticleDTO.create(article);
+//
+//      try
+//      {
+//         doc.indexDoc.set(ArticleSolrConfig.SEARCH_PROXY, new ArticleSearchProxy(article));
+//      }
+//      catch (Exception e)
+//      {
+//         throw new IllegalStateException("Failed to serialize AritcleSearchProxy data", e);
+//      }
+//
+//      doc.indexDoc.set(ArticleSolrConfig.ID, dto.id.toString());
+//      doc.indexDoc.set(ArticleSolrConfig.TITLE, guardNull(dto.title));
+//      doc.indexDoc.set(ArticleSolrConfig.ARTICLE_ABSTRACT, guardNull(dto.articleAbstract));
+//      doc.indexDoc.set(ArticleSolrConfig.ARTICLE_CONTENT, guardNull(dto.body));
+//      if (dto.authors != null || dto.authors.isEmpty())
+//         setAuthorNames(doc, dto.authors);
+//
+//      return doc;
+//   }
+//
+//   public static ArticleDocument update(Article article) throws SearchException
+//   {
+//      // TODO use changeset, don't store proxy separately.
+//      ArticleDocument doc = new ArticleDocument();
+//      ArticleDTO dto = ArticleDTO.create(article);
+//
+//      try
+//      {
+//         doc.indexDoc.update(ArticleSolrConfig.SEARCH_PROXY, new ArticleSearchProxy(article));
+//      }
+//      catch (Exception e)
+//      {
+//         throw new IllegalStateException("Failed to serialize NotesSearchProxy data", e);
+//      }
+//
+//      doc.indexDoc.set(ArticleSolrConfig.ID, dto.id.toString());
+//      doc.indexDoc.update(ArticleSolrConfig.TITLE, guardNull(dto.title));
+//      doc.indexDoc.update(ArticleSolrConfig.ARTICLE_ABSTRACT, guardNull(dto.articleAbstract));
+//      doc.indexDoc.update(ArticleSolrConfig.ARTICLE_CONTENT, guardNull(dto.body));
+//      if (dto.authors == null || dto.authors.isEmpty())
+//         updateAuthorNames(doc, dto.authors);
+//
+//      return doc;
+//   }
+//
+//   private static void setAuthorNames(ArticleDocument doc, List<ArticleAuthorDTO> authors)
+//   {
+//      authors.forEach((a) ->
+//      {
+//         try
+//         {
+//            doc.indexDoc.set(ArticleSolrConfig.AUTHOR_NAMES, a.name);
+//         }
+//         catch (Exception e)
+//         {
+//            throw new IllegalStateException("Failed to set author names", e);
+//         }
+//      });
+//   }
+//
+//   private static void updateAuthorNames(ArticleDocument doc, List<ArticleAuthorDTO> authors)
+//   {
+//      authors.forEach((a) ->
+//      {
+//         try
+//         {
+//            doc.indexDoc.set(ArticleSolrConfig.AUTHOR_NAMES, a.name);
+//         }
+//         catch (Exception e)
+//         {
+//            throw new IllegalStateException("Failed to update author names", e);
+//         }
+//      });
+//   }
 
    private static String guardNull(String value)
    {

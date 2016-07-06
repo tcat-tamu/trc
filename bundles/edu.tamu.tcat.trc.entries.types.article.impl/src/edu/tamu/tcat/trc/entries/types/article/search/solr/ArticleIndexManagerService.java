@@ -19,28 +19,21 @@ import static java.text.MessageFormat.format;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.apache.solr.common.SolrInputDocument;
-
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.types.article.Article;
-import edu.tamu.tcat.trc.entries.types.article.repo.ArticleChangeEvent;
-import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQuery;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchService;
 import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
 
@@ -53,24 +46,10 @@ public class ArticleIndexManagerService implements ArticleSearchService
 
    public static final String SOLR_CORE = "trc.articles.solr.core";
 
-   static final ObjectMapper mapper;
-   static
-   {
-      mapper = new ObjectMapper();
-      mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-   }
-
-   private ArticleRepository repo;
-
+   // TODO wrap this in a solr core config an inject via DS
    private SolrClient solr;
    private ConfigurationProperties config;
 
-   private AutoCloseable listenerReg;
-
-   public void setArticleRepo(ArticleRepository repo)
-   {
-      this.repo = repo;
-   }
 
    public void setConfiguration(ConfigurationProperties config)
    {
@@ -79,9 +58,6 @@ public class ArticleIndexManagerService implements ArticleSearchService
 
    public void activate()
    {
-      // DON'T auto-listen. The the repo stitch in the service if configured.
-      // listenerReg = repo.register(this::onArticleChange);
-
       // construct Solr core
       URI solrBaseUri = config.getPropertyValue(SOLR_API_ENDPOINT, URI.class);
       String solrCore = config.getPropertyValue(SOLR_CORE, String.class);
@@ -94,17 +70,6 @@ public class ArticleIndexManagerService implements ArticleSearchService
 
    public void dispose()
    {
-      try
-      {
-         if (listenerReg != null)
-            listenerReg.close();
-      }
-      catch (Exception ex)
-      {
-         logger.log(Level.WARNING, "Failed to unregisters article repository listener.", ex);
-      }
-
-      listenerReg = null;
 
       try
       {
@@ -115,37 +80,6 @@ public class ArticleIndexManagerService implements ArticleSearchService
          logger.log(Level.WARNING, "Failed to shutdown solr server client for article index manager", ex);
       }
    }
-
-   private void onArticleChange(ArticleChangeEvent evt)
-   {
-      String articleId = evt.getEntityId();
-
-      try
-      {
-         Article article;
-         switch (evt.getUpdateAction())
-         {
-            case CREATE:
-               article = repo.get(articleId);
-               postDocument(ArticleDocument.create(article));
-               break;
-            case UPDATE:
-               article = repo.get(articleId);
-               postDocument(ArticleDocument.update(article));
-               break;
-            case DELETE:
-               remove(articleId);
-               break;
-            default:
-               logger.log(Level.INFO, "Unexpected article change event " + evt);
-         }
-      }
-      catch (Exception ex)
-      {
-         logger.log(Level.SEVERE, "Failed to update search indices following a change to article: " + articleId, ex);
-      }
-   }
-
 
    public void remove(String articleId)
    {
@@ -159,11 +93,10 @@ public class ArticleIndexManagerService implements ArticleSearchService
       }
    }
 
-   public void postDocument(ArticleDocument doc) throws SolrServerException, IOException
+   public void postDocument(TrcDocument doc) throws SolrServerException, IOException
    {
-      Collection<SolrInputDocument> solrDocs = new ArrayList<>();
-      solrDocs.add(doc.getDocument());
-      solr.add(solrDocs);
+      // TODO be careful how frequently we commit
+      solr.add(Arrays.asList(doc.getSolrDocument()));
       solr.commit();
    }
 

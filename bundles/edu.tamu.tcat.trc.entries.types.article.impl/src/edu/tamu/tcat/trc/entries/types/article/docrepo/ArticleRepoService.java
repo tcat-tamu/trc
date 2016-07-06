@@ -12,13 +12,10 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.ArticleRepoFacade;
-import edu.tamu.tcat.trc.entries.types.article.repo.ArticleAuthorRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchService;
@@ -32,7 +29,7 @@ import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 import edu.tamu.tcat.trc.repo.RepositoryException;
 import edu.tamu.tcat.trc.repo.UpdateContext;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
-import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 
 public class ArticleRepoService implements ArticleRepoFacade
 {
@@ -127,8 +124,6 @@ public class ArticleRepoService implements ArticleRepoFacade
          logger.warning("No search index has been configured for articles.");
 
       repo.afterUpdate(this::index);
-      // TODO Auto-generated method stub
-
    }
 
    private void index(UpdateContext<DataModelV1.Article> ctx)
@@ -142,13 +137,16 @@ public class ArticleRepoService implements ArticleRepoFacade
       try
       {
          // TODO should be able to generalize this.
+         TrcDocument doc;
          switch(ctx.getActionType())
          {
             case CREATE:
-               indexSvc.postDocument(getSolrDoc(ctx));
+               doc = ArticleDocument.adapt(ctx.getModified());
+               indexSvc.postDocument(doc);
                break;
             case EDIT:
-               indexSvc.postDocument(getSolrDoc(ctx));
+               doc = ArticleDocument.adapt(ctx.getModified());
+               indexSvc.postDocument(doc);
                break;
             case REMOVE:
                indexSvc.remove(ctx.getId());
@@ -159,12 +157,6 @@ public class ArticleRepoService implements ArticleRepoFacade
       {
          logger.log(Level.SEVERE, ex, () -> "Failed to index article {0}: " + ex.getMessage());
       }
-   }
-
-   private ArticleDocument getSolrDoc(UpdateContext<DataModelV1.Article> ctx) throws JsonProcessingException, SearchException
-   {
-      DataModelV1.Article dto = ctx.getModified();
-      return ArticleDocument.create(new ArticleImpl(dto));
    }
 
    private void configureVersioning(DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> repo)
@@ -192,12 +184,6 @@ public class ArticleRepoService implements ArticleRepoFacade
       return new ArticleRepoImpl(account);
    }
 
-   @Override
-   public ArticleAuthorRepository getAuthorRepo(Account account)
-   {
-      return new ArticleAuthorRepoImpl();
-   }
-
    /**
     * @return The article search service associated with this repository.
     *       Note that this may be {@code null} if no search service has been configured.
@@ -208,10 +194,6 @@ public class ArticleRepoService implements ArticleRepoFacade
       return indexSvc;
    }
 
-   public class ArticleAuthorRepoImpl implements ArticleAuthorRepository
-   {
-
-   }
    public class ArticleRepoImpl implements ArticleRepository
    {
 
