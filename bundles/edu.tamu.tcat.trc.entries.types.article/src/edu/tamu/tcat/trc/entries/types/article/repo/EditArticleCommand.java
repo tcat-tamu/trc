@@ -15,15 +15,8 @@
  */
 package edu.tamu.tcat.trc.entries.types.article.repo;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
-
-import edu.tamu.tcat.trc.entries.types.article.dto.ArticleAuthorDTO;
-import edu.tamu.tcat.trc.entries.types.article.dto.BibliographyDTO;
-import edu.tamu.tcat.trc.entries.types.article.dto.CitationDTO;
-import edu.tamu.tcat.trc.entries.types.article.dto.FootnoteDTO;
-import edu.tamu.tcat.trc.entries.types.article.dto.LinkDTO;
 
 /**
  *  Used to update properties of an article.
@@ -92,7 +85,6 @@ public interface EditArticleCommand
     */
    void removeAuthor(String authorId);
 
-
    /**
     *
     * @param abs The abstract of the article.
@@ -105,22 +97,22 @@ public interface EditArticleCommand
     */
    void setBody(String body);
 
-   /**
-    *
-    * @param ftNotes Footnotes added to the article
-    */
-   void setFootnotes(List<FootnoteDTO> ftNotes);
-
-   void setCitations(List<CitationDTO> citations);
-
-   /**
-    *
-    * @param bibliographies Articles or books referenced in the article
-    */
-   void setBibliography(List<BibliographyDTO> bibliographies);
-
-
-   void setLinks(List<LinkDTO> links);
+//   /**
+//    *
+//    * @param ftNotes Footnotes added to the article
+//    */
+//   void setFootnotes(List<FootnoteDTO> ftNotes);
+//
+//   void setCitations(List<CitationDTO> citations);
+//
+//   /**
+//    *
+//    * @param bibliographies Articles or books referenced in the article
+//    */
+//   void setBibliography(List<BibliographyDTO> bibliographies);
+//
+//
+//   void setLinks(List<LinkDTO> links);
 
    /**
     * Executes these updates within the repository.
@@ -129,5 +121,7 @@ public interface EditArticleCommand
     *       {@link Future#get()} method will propagate that exception.
     */
    CompletableFuture<String> execute();
+
+
 
 }
