@@ -45,8 +45,10 @@ public class DateDescriptionDTO
 
    public DateDescriptionDTO(DateDescriptionDTO orig)
    {
-      this.calendar = orig.calendar;
-      this.description = orig.description;
+      if (orig != null) {
+         this.calendar = orig.calendar;
+         this.description = orig.description;
+      }
    }
 
    public static DateDescriptionDTO create(String description, LocalDate calendar)

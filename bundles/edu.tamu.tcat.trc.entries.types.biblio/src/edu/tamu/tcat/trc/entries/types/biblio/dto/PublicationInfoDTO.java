@@ -33,9 +33,12 @@ public class PublicationInfoDTO
 
    public PublicationInfoDTO(PublicationInfoDTO orig)
    {
-      this.place = orig.place;
-      this.publisher = orig.publisher;
-      this.date = new DateDescriptionDTO(orig.date);
+      if (orig != null)
+      {
+         this.place = orig.place;
+         this.publisher = orig.publisher;
+         this.date = new DateDescriptionDTO(orig.date);
+      }
    }
 
    public static PublicationInfoDTO create(PublicationInfo pubInfo)
