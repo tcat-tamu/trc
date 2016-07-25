@@ -286,7 +286,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       UpdateContextImpl context = new UpdateContextImpl(id, ActionType.CREATE, null, () -> null);
       UpdateStrategyImpl updater = new UpdateStrategyImpl(context, (dto) -> doCreate(id, dto));
 
-      return this.cmdFactory.edit(id, updater);
+      return this.cmdFactory.create(id, updater);
    }
 
    @Override
