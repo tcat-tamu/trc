@@ -61,6 +61,7 @@ public interface VolumeMutator
     * @param otherAuthors The list of other authors who contributed to the creation of this
     *       volume.
     */
+   @Deprecated
    void setOtherAuthors(List<AuthorReferenceDTO> otherAuthors);
 
    /**

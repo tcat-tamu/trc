@@ -335,13 +335,7 @@ public class RepoAdapter
             .collect(Collectors.toList());
       command.setTitles(titles);
 
-      List<AuthorReferenceDTO> otherAuthors = work.otherAuthors.stream()
-            .map(RepoAdapter::toRepo)
-            .collect(Collectors.toList());
-      command.setOtherAuthors(otherAuthors);
-
       command.setSeries(work.series);
-
       command.setSummary(work.summary);
 
       Set<String> editionIds = work.editions.stream()
@@ -408,11 +402,6 @@ public class RepoAdapter
             .map(RepoAdapter::toRepo)
             .collect(Collectors.toList());
       mutator.setTitles(titles);
-
-      List<AuthorReferenceDTO> otherAuthors = edition.otherAuthors.stream()
-            .map(RepoAdapter::toRepo)
-            .collect(Collectors.toList());
-      mutator.setOtherAuthors(otherAuthors);
 
       mutator.setSeries(edition.series);
 
@@ -482,11 +471,6 @@ public class RepoAdapter
             .map(RepoAdapter::toRepo)
             .collect(Collectors.toList());
       mutator.setTitles(titles);
-
-      List<AuthorReferenceDTO> otherAuthors = volume.otherAuthors.stream()
-            .map(RepoAdapter::toRepo)
-            .collect(Collectors.toList());
-      mutator.setOtherAuthors(otherAuthors);
 
       mutator.setSeries(volume.series);
 

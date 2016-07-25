@@ -110,9 +110,9 @@ public class EditWorkCommandFactory implements EditCommandFactory<WorkDTO, EditW
       }
 
       @Override
-      public void setOtherAuthors(List<AuthorReferenceDTO> authors)
+      public void setOtherAuthors(List<AuthorReferenceDTO> otherAuthors)
       {
-         throw new UnsupportedOperationException();
+         changes.add("otherAuthors", dto-> dto.otherAuthors = otherAuthors);
       }
 
       @Override
@@ -215,7 +215,7 @@ public class EditWorkCommandFactory implements EditCommandFactory<WorkDTO, EditW
       public Set<String> retainAllCopyReferences(Set<String> copyReferenceIds)
       {
          changes.add("copy" + "[retain some]", dto -> {
-            dto.copyReferences.removeIf(ref -> copyReferenceIds.contains(ref.id));
+            dto.copyReferences.removeIf(ref -> !copyReferenceIds.contains(ref.id));
          });
 
          // TODO remove this and update API

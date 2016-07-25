@@ -56,6 +56,7 @@ public interface EditionMutator
    /**
     * @param otherAuthors The other authors for this edition.
     */
+   @Deprecated
    void setOtherAuthors(List<AuthorReferenceDTO> otherAuthors);
 
    /**

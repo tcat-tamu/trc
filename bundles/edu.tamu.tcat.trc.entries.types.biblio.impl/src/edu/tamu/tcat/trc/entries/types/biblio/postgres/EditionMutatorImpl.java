@@ -95,7 +95,8 @@ public class EditionMutatorImpl implements EditionMutator
    @Override
    public void setOtherAuthors(List<AuthorReferenceDTO> otherAuthors)
    {
-      throw new UnsupportedOperationException();
+      List<AuthorReferenceDTO> copied = otherAuthors.stream().map(AuthorReferenceDTO::new).collect(Collectors.toList());
+      changes.add("otherAuthors", dto -> dto.otherAuthors = copied);
    }
 
    @Override
@@ -199,7 +200,7 @@ public class EditionMutatorImpl implements EditionMutator
    public Set<String> retainAllCopyReferences(Set<String> copyReferenceIds)
    {
       changes.add("copy" + "[retain some]", dto -> {
-         dto.copyReferences.removeIf(ref -> copyReferenceIds.contains(ref.id));
+         dto.copyReferences.removeIf(ref -> !copyReferenceIds.contains(ref.id));
       });
 
       // TODO remove this and update API
