@@ -304,7 +304,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       UpdateContextImpl context = new UpdateContextImpl(id, ActionType.REMOVE, null, () -> null);
       UpdateStrategyImpl updater = new UpdateStrategyImpl(context, (dto) -> doDelete(id));
 
-      return updater.update(dto -> null).thenApply(dto -> true);
+      return updater.update(dto -> null).thenApply(dto -> Boolean.TRUE);
    }
 
    @Override

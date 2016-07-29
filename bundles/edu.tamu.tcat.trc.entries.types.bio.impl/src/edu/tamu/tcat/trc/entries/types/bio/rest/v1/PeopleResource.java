@@ -93,13 +93,13 @@ public class PeopleResource
          String linktemplate = "off={0}&max={1}&q={2}";
          String query = q != null ? URLEncoder.encode(q, "UTF-8") : "";
 
-         rs.qs = MessageFormat.format(linktemplate, offset, numResults, query);
-         rs.qsNext = MessageFormat.format(linktemplate, (offset + numResults), numResults, query);
+         rs.qs = MessageFormat.format(linktemplate, Integer.valueOf(offset), Integer.valueOf(numResults), query);
+         rs.qsNext = MessageFormat.format(linktemplate, Integer.valueOf(offset + numResults), Integer.valueOf(numResults), query);
          if (offset >= numResults)
-            rs.qsPrev = MessageFormat.format(linktemplate, (offset - numResults), numResults, query);
+            rs.qsPrev = MessageFormat.format(linktemplate, Integer.valueOf(offset - numResults), Integer.valueOf(numResults), query);
          // first page got off; reset to zero offset
          else if (offset > 0 && offset < numResults)
-            rs.qsPrev = MessageFormat.format(linktemplate, 0, numResults, query);
+            rs.qsPrev = MessageFormat.format(linktemplate, Integer.valueOf(0), Integer.valueOf(numResults), query);
       }
       catch (Exception e)
       {

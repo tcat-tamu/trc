@@ -133,16 +133,16 @@ public class WorkCollectionResource
       titles.stream().forEach(title -> qsbCommon.add("t", title));
       authorIds.stream().forEach(authorId -> qsbCommon.add("aid", authorId));
       dateRanges.stream().forEach(dateRange -> qsbCommon.add("dr", dateRange.toValue()));
-      qsbCommon.add("max", numResults);
+      qsbCommon.add("max", Integer.valueOf(numResults));
 
       // query parameters specific to the current query
       QueryStringBuilder qsbCurrent = new QueryStringBuilder(qsbCommon);
-      qsbCurrent.add("off", offset);
+      qsbCurrent.add("off", Integer.valueOf(offset));
       resultSet.qs = qsbCurrent.toString();
 
       // query parameters specific to the next query
       QueryStringBuilder qsbNext = new QueryStringBuilder(qsbCommon);
-      qsbNext.add("off", offset + numResults);
+      qsbNext.add("off", Integer.valueOf(offset + numResults));
       resultSet.qsNext = qsbNext.toString();
 
       // query parameters specific to the previous query
@@ -150,7 +150,7 @@ public class WorkCollectionResource
       if (offset > 0)
       {
          QueryStringBuilder qsbPrev = new QueryStringBuilder(qsbCommon);
-         qsbPrev.add("off", Math.max(0, offset - numResults));
+         qsbPrev.add("off", Integer.valueOf(Math.max(0, offset - numResults)));
          resultSet.qsPrev = qsbPrev.toString();
       }
 

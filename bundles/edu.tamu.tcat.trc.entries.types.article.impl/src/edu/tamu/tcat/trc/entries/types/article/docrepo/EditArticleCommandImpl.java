@@ -123,7 +123,7 @@ public class EditArticleCommandImpl implements EditArticleCommand
 
          int authorIx = ids.indexOf(authorId);
          if (authorIx < 0)
-            throw new IllegalStateException(format("Cannot move author {0}. No author with this id was found.", authorIx));
+            throw new IllegalStateException(format("Cannot move author {0}. No author with this id was found.", Integer.valueOf(authorIx)));
 
          ids.remove(authorIx);
          DataModelV1.ArticleAuthor author = article.authors.remove(authorIx);

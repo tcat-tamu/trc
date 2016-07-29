@@ -17,7 +17,7 @@ public class InvalidReferenceException extends RuntimeException
 
    public InvalidReferenceException(EntryReference ref, String msg)
    {
-      super(format(ERR_BAD_REFERENCE, ref.id, ref.version, msg));
+      super(format(ERR_BAD_REFERENCE, ref.id, Long.valueOf(ref.version), msg));
 
       this.msg = msg;
       this.ref = ref;

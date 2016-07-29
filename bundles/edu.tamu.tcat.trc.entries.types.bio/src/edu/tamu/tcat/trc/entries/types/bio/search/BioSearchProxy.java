@@ -15,8 +15,6 @@
  */
 package edu.tamu.tcat.trc.entries.types.bio.search;
 
-import java.util.logging.Logger;
-
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 
 /**

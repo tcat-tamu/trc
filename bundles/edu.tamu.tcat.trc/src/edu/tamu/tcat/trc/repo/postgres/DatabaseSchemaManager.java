@@ -41,7 +41,7 @@ public class DatabaseSchemaManager
          return Boolean.valueOf(tableExists(conn, tablename) && checkColumnsMatch(schema, conn));
       });
 
-      return unwrap(result, () -> format("Failed to determine whether table {0} exists.", tablename));
+      return unwrap(result, () -> format("Failed to determine whether table {0} exists.", tablename)).booleanValue();
    }
 
    public boolean create() throws RepositoryException
@@ -51,7 +51,7 @@ public class DatabaseSchemaManager
 
       String sql = buildCreateSql();
       Future<Boolean> result = exec.submit((conn) -> createTable(conn, sql));
-      return unwrap(result, () -> format("Failed to create database table\n{0}", sql));
+      return unwrap(result, () -> format("Failed to create database table\n{0}", sql)).booleanValue();
    }
 
    private boolean checkColumnsMatch(RepositorySchema schema, Connection conn) throws SQLException
@@ -129,7 +129,7 @@ public class DatabaseSchemaManager
 
          ResultSet rs = stmt.executeQuery();
          rs.next();
-         return Boolean.valueOf(rs.getBoolean(1));
+         return rs.getBoolean(1);
       }
    }
 
@@ -180,6 +180,6 @@ public class DatabaseSchemaManager
          stmt.executeUpdate(sql);
       }
 
-      return Boolean.valueOf(true);
+      return Boolean.TRUE;
    }
 }

@@ -187,7 +187,7 @@ public class WorkRepositoryImpl implements WorkRepository
    @Override
    public void deleteWork(String workId)
    {
-      boolean result;
+      Boolean result;
       try {
          result = repoBackend.delete(workId).get();
       }
@@ -195,7 +195,7 @@ public class WorkRepositoryImpl implements WorkRepository
          throw new IllegalStateException("Encountered an unexpected error while trying to delete work with id {" + workId + "}.", e);
       }
 
-      if (result && indexService != null)
+      if (result != null && result.booleanValue() && indexService != null)
       {
          indexService.remove(workId);
       }

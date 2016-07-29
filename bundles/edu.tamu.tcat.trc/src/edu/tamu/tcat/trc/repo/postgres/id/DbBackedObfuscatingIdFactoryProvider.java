@@ -75,16 +75,16 @@ public class DbBackedObfuscatingIdFactoryProvider implements IdFactoryProvider
       logger.info("Activating obfucating id factory");
       Objects.requireNonNull(exec, "SqlExecutor not available.");
 
-      grantSize = getProperty(props, PROP_GRANT_SIZE, 20);
+      grantSize = getProperty(props, PROP_GRANT_SIZE, Integer.valueOf(20)).intValue();
 
-      boolean obfuscate = getProperty(props, PROP_ENABLE_OBFUSCATION, false);
+      boolean obfuscate = getProperty(props, PROP_ENABLE_OBFUSCATION, Boolean.FALSE).booleanValue();
       if (obfuscate)
       {
          String alphabet = getProperty(props, PROP_ALPHABET, IdObfuscator.ALPHABET);
-         int blockSize = getProperty(props, PROP_BLOCK_SIZE, IdObfuscator.BLOCK_SIZE);
-         int minLength = getProperty(props, PROP_MIN_LENGTH, IdObfuscator.MIN_LENGTH);
+         int blockSize = getProperty(props, PROP_BLOCK_SIZE, Integer.valueOf(IdObfuscator.BLOCK_SIZE)).intValue();
+         int minLength = getProperty(props, PROP_MIN_LENGTH, Integer.valueOf(IdObfuscator.MIN_LENGTH)).intValue();
 
-         logger.info(() -> format(INFO_OBFUSCATOR_CFG, alphabet, blockSize, minLength));
+         logger.info(() -> format(INFO_OBFUSCATOR_CFG, alphabet, Integer.valueOf(blockSize), Integer.valueOf(minLength)));
          obfuscator = new IdObfuscator(alphabet, blockSize, minLength);
       }
    }
@@ -109,7 +109,7 @@ public class DbBackedObfuscatingIdFactoryProvider implements IdFactoryProvider
          long id = generators.get(context).next();
          String result = obfuscate(id);
 
-         logger.fine(() -> format("Genereated id '{0}' for context '{1}'", id, context));
+         logger.fine(() -> format("Genereated id '{0}' for context '{1}'", Long.valueOf(id), context));
          return result;
       };
    }

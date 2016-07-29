@@ -179,7 +179,7 @@ public class PsqlNotesRepo implements NotesRepository
       PostgresEditNoteCmd cmd = new PostgresEditNoteCmd(note);
       cmd.setCommitHook((n) -> {
          NoteChangeNotifier notifier = new NoteChangeNotifier(UpdateEvent.UpdateAction.CREATE);
-         return exec.submit(new ObservableTaskWrapper<UUID>(makeSaveTask(n, CREATE_SQL), notifier));
+         return exec.submit(new ObservableTaskWrapper<>(makeSaveTask(n, CREATE_SQL), notifier));
       });
 
       return cmd;
@@ -193,7 +193,7 @@ public class PsqlNotesRepo implements NotesRepository
       PostgresEditNoteCmd cmd = new PostgresEditNoteCmd(note);
       cmd.setCommitHook((n) -> {
          NoteChangeNotifier notifier = new NoteChangeNotifier(UpdateEvent.UpdateAction.UPDATE);
-         return exec.submit(new ObservableTaskWrapper<UUID>(makeSaveTask(n, UPDATE_SQL), notifier));
+         return exec.submit(new ObservableTaskWrapper<>(makeSaveTask(n, UPDATE_SQL), notifier));
       });
 
       return cmd;
@@ -203,7 +203,7 @@ public class PsqlNotesRepo implements NotesRepository
    public Future<Boolean> remove(UUID noteId)
    {
       NoteChangeEvent evt = new NoteChangeEventImpl(noteId, UpdateEvent.UpdateAction.DELETE);
-      return exec.submit(new ObservableTaskWrapper<Boolean>(
+      return exec.submit(new ObservableTaskWrapper<>(
             makeRemoveTask(noteId),
             new DataUpdateObserverAdapter<Boolean>()
             {
@@ -232,10 +232,10 @@ public class PsqlNotesRepo implements NotesRepository
             if (ct == 0)
             {
                logger.log(Level.WARNING, "Failed to remove note  [" + id + "]. Reference may not exist.", id);
-               return Boolean.valueOf(false);
+               return Boolean.FALSE;
             }
 
-            return Boolean.valueOf(true);
+            return Boolean.TRUE;
          }
          catch(SQLException e)
          {
