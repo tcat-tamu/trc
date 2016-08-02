@@ -1,6 +1,6 @@
 package edu.tamu.tcat.trc.categorization;
 
-import edu.tamu.tcat.trc.repo.EntityReference;
+import edu.tamu.tcat.trc.entries.core.EntryReference;
 
 /**
  * Represents an individual entry within a categorization. The specific categorization
@@ -38,7 +38,7 @@ public interface CategorizationNode
    /**
     * @return The TRC entity referenced by this node. May be <code>null</code>.
     */
-   EntityReference getEntityRef();
+   EntryReference getEntityRef();
 
    /**
     * Resolves and returns the entry associated with this node. Note that if no

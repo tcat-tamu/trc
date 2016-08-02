@@ -1,6 +1,6 @@
 package edu.tamu.tcat.trc.categorization;
 
-import edu.tamu.tcat.trc.repo.EntityReference;
+import edu.tamu.tcat.trc.entries.core.EntryReference;
 
 /**
  *  Used to edit properties of a {@link CategorizationNode}. This will
@@ -23,6 +23,6 @@ public interface CategorizationNodeMutator
    /**
     * @param ref The entity reference to be associated with this node.
     */
-   void associateEntityRef(EntityReference ref);
+   void associateEntityRef(EntryReference ref);
 
 }
