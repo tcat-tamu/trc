@@ -4,7 +4,9 @@ package edu.tamu.tcat.trc.repo;
  * Holds a reference to a persisted entity
  *
  * @param <EntityType>
+ * @deprecated use EntryReference instead
  */
+@Deprecated
 public interface EntityReference
 {
    /**

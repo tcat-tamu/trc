@@ -2,7 +2,9 @@ package edu.tamu.tcat.trc.repo;
 
 /**
  * Fetches persisted entities as referenced by arbitrary {@link EntityReference}s.
+ * @deprecated use EntryReference instead
  */
+@Deprecated
 public interface EntityResolver
 {
    /**
