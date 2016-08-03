@@ -79,7 +79,7 @@ public interface CategorizationScheme
    /**
     * @return The title of the taxonomy.
     */
-   String getTitle();
+   String getLabel();
 
    /**
     * @return The description of the taxonomy.

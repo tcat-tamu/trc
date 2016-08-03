@@ -76,7 +76,7 @@ public class EditHeirarchyCommandFactory
    }
 
    public static class EditHierarchyCmdImpl
-         extends BaseEditCommandFactory<PersistenceModelV1.TreeCategorizationStrategy>
+         extends BaseEditCommand<PersistenceModelV1.TreeCategorizationStrategy>
          implements EditTreeCategorizationCommand
    {
 

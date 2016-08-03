@@ -5,6 +5,7 @@ import static java.text.MessageFormat.format;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
+import edu.tamu.tcat.trc.categorization.CategorizationScope;
 import edu.tamu.tcat.trc.categorization.EditCategorizationCommand;
 import edu.tamu.tcat.trc.repo.BasicChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
@@ -12,7 +13,8 @@ import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.UpdateContext;
 
-public abstract class BaseEditCommandFactory<StorageType extends PersistenceModelV1.CategorizationScheme> implements EditCategorizationCommand
+public abstract class BaseEditCommand<StorageType extends PersistenceModelV1.CategorizationScheme>
+implements EditCategorizationCommand
 {
    EditCommandFactory.UpdateStrategy<StorageType> context;
 
@@ -20,10 +22,10 @@ public abstract class BaseEditCommandFactory<StorageType extends PersistenceMode
    protected final IdFactory nodeIds;
    protected final ApplicableChangeSet<StorageType> changes = new BasicChangeSet<>();
 
-   protected String scopeId;
+   protected CategorizationScope scope;
 
 
-   public BaseEditCommandFactory(String id, IdFactory nodeIds, EditCommandFactory.UpdateStrategy<StorageType> context)
+   public BaseEditCommand(String id, IdFactory nodeIds, EditCommandFactory.UpdateStrategy<StorageType> context)
    {
       // Add root here
       this.categorizationId = id;
@@ -36,9 +38,9 @@ public abstract class BaseEditCommandFactory<StorageType extends PersistenceMode
       return categorizationId;
    }
 
-   public final void setScopeId(String scopeId)
+   public final void setScope(CategorizationScope scope)
    {
-      this.scopeId = scopeId;
+      this.scope = scope;
    }
 
    @Override
@@ -71,14 +73,14 @@ public abstract class BaseEditCommandFactory<StorageType extends PersistenceMode
       String ERR_UNDEFINED_SCOPE = "No categorization scope has been configured for this command.";
       String ERR_SCOPE_MISMATCH = "Scope id of categorization to be edited ({0} does not match the scope of the command ({1}).";
 
+      if (this.scope == null)
+         throw new IllegalStateException(ERR_UNDEFINED_SCOPE);
+
+      String scopeId = this.scope.getScopeId();
+
       StorageType data = prepareData(ctx);
       if (data.scopeId == null)
-      {
-         if (this.scopeId == null)
-            throw new IllegalStateException(ERR_UNDEFINED_SCOPE);
-
          data.scopeId = scopeId;
-      }
 
       if (!Objects.equals(scopeId, data.scopeId))
          throw new IllegalStateException(format(ERR_SCOPE_MISMATCH, data.scopeId, scopeId));

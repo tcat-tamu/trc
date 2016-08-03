@@ -26,6 +26,7 @@ import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
+import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 import edu.tamu.tcat.trc.repo.RepositorySchema;
 import edu.tamu.tcat.trc.repo.SchemaBuilder;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
@@ -263,8 +264,23 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
       @Override
       public CategorizationScheme getById(String id) throws IllegalArgumentException
       {
-         // TODO Auto-generated method stub
-         return null;
+         try
+         {
+            TreeCategorization scheme = treeRepo.get(id);
+            if (scheme.getScopeId().equals(this.scope.getScopeId()))
+            {
+               String msg = "The requested categorization scheme [{0}] is not accessible within from {1}";
+               throw new IllegalArgumentException(format(msg, id, scope));
+            }
+            // TODO verify that this is within the correct scope and that the
+            //      user is authorized to access it
+            return scheme;
+         }
+         catch (NoSuchEntryException ex)
+         {
+            String msg = "The requested categorization scheme [{0}] could not be found";
+            throw new IllegalArgumentException(format(msg, id), ex);
+         }
       }
 
       private CategorizationScheme.Strategy getStrategyForPrefix(char prefix)
@@ -287,7 +303,6 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
             case LIST: return "l";
             default:
                throw new IllegalArgumentException("Unsupported categorization strategy: " + strategy);
-
          }
       }
 
@@ -299,11 +314,13 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
          prefixes.put(CategorizationScheme.Strategy.TREE, "t");
          prefixes.get(strategy);
 
+         EditCategorizationCommand cmd = null;
          String id = getIdPrefix(strategy) + "_" + schemeIds.get();
          switch (strategy)
          {
             case TREE:
-               return treeRepo.create(id);
+               cmd = treeRepo.create(id);
+               break;
             case SET:
                throw new UnsupportedOperationException("Set categorizations are not yet supported");
             case LIST:
@@ -312,16 +329,22 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
                throw new IllegalArgumentException("Unsupported categorization strategy: " + strategy);
 
          }
+
+         ((BaseEditCommand<?>)cmd).setScope(scope);
+         cmd.setKey(key);
+         return cmd;
       }
 
       @Override
       public EditCategorizationCommand edit(String id)
       {
+         EditCategorizationCommand cmd = null;
          Strategy strategy = getStrategyForPrefix(id.charAt(0));
          switch (strategy)
          {
             case TREE:
-               return treeRepo.edit(id);
+               cmd = treeRepo.edit(id);
+               break;
             case SET:
                throw new UnsupportedOperationException("Set categorizations are not yet supported");
             case LIST:
@@ -329,13 +352,26 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
             default:
                throw new IllegalArgumentException("Unsupported categorization strategy: " + strategy);
          }
+
+         ((BaseEditCommand<?>)cmd).setScope(scope);
+         return cmd;
       }
 
       @Override
       public CompletableFuture<Boolean> remove(String id)
       {
-         // TODO Auto-generated method stub
-         return null;
+         Strategy strategy = getStrategyForPrefix(id.charAt(0));
+         switch (strategy)
+         {
+            case TREE:
+               return treeRepo.delete(id);
+            case SET:
+               throw new UnsupportedOperationException("Set categorizations are not yet supported");
+            case LIST:
+               throw new UnsupportedOperationException("List categorizations are not yet supported");
+            default:
+               throw new IllegalArgumentException("Unsupported categorization strategy: " + strategy);
+         }
       }
    }
 }

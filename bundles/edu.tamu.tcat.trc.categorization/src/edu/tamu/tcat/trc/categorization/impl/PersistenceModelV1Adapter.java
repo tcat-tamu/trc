@@ -82,7 +82,7 @@ public abstract class PersistenceModelV1Adapter
       }
 
       @Override
-      public final String getTitle()
+      public final String getLabel()
       {
          return title;
       }
