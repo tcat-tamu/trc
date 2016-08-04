@@ -51,7 +51,7 @@ public abstract class PersistenceModelV1Adapter
          this.id = scheme.id;
          this.scopeId = scheme.scopeId;
          this.key = scheme.key;
-         this.strategy = CategorizationScheme.Strategy.valueOf(scheme.type);
+         this.strategy = CategorizationScheme.Strategy.valueOf(scheme.strategy);
 
          this.title = scheme.title;
          this.description = scheme.description;

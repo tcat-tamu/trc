@@ -62,7 +62,7 @@ public class EditHeirarchyCommandFactory
       dto.id = original.id;
       dto.scopeId = original.scopeId;
       dto.key = original.key;
-      dto.type = original.type;     // this had better be TREE
+      dto.strategy = original.strategy;     // this had better be TREE
 
       dto.title = original.title;
       dto.description = original.description;
@@ -142,7 +142,7 @@ public class EditHeirarchyCommandFactory
       {
          PersistenceModelV1.TreeCategorizationStrategy dto = new PersistenceModelV1.TreeCategorizationStrategy();
          dto.id = this.categorizationId;
-         dto.type = CategorizationScheme.Strategy.TREE.name();
+         dto.strategy = CategorizationScheme.Strategy.TREE.name();
 
          PersistenceModelV1.TreeNode root = new PersistenceModelV1.TreeNode();
          root.id = nodeIds.get();

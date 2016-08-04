@@ -145,6 +145,28 @@ public abstract class CategorizationRepositoryTests
    }
 
    @Test
+   public void testGetByKey() throws Exception
+   {
+      CategorizationRepo repository = getDefaultRepo();
+
+      String key = "test";
+      String label = "Hierarchical Test Categorization";
+      String description = "A simple hierarchical categorization for unit testing purposes.";
+
+      EditCategorizationCommand cmd = repository.create(getStrategy(), key);
+      cmd.setLabel(label);
+      cmd.setDescription(description);
+
+      String id = cmd.execute().get(10, TimeUnit.SECONDS);
+
+      CategorizationScheme scheme = repository.get(key);
+      assertEquals(id, scheme.getId());
+      assertEquals(key, scheme.getKey());
+      assertEquals(label, scheme.getLabel());
+      assertEquals(description, scheme.getDescription());
+   }
+
+   @Test
    public void testEditCategorization() throws Exception
    {
       CategorizationRepo repository = getDefaultRepo();

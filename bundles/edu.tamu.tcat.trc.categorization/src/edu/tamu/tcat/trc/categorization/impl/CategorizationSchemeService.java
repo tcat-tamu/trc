@@ -2,21 +2,27 @@ package edu.tamu.tcat.trc.categorization.impl;
 
 import static java.text.MessageFormat.format;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.categorization.CategorizationRepo;
 import edu.tamu.tcat.trc.categorization.CategorizationRepoFactory;
 import edu.tamu.tcat.trc.categorization.CategorizationScheme;
-import edu.tamu.tcat.trc.categorization.CategorizationScheme.Strategy;
 import edu.tamu.tcat.trc.categorization.CategorizationScope;
 import edu.tamu.tcat.trc.categorization.EditCategorizationCommand;
 import edu.tamu.tcat.trc.categorization.strategies.tree.EditTreeCategorizationCommand;
@@ -44,7 +50,7 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
 
    private static final String TABLE_NAME = "categorizations";
    private static final String SCHEMA_ID = "taxonomy";
-   private static final String SCHEMA_DATA_FIELD = "hierarchy";
+   private static final String SCHEMA_DATA_FIELD = "doc";
 
    /**
     * The configuration properties key uses to supply an id factory context
@@ -74,6 +80,8 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
    private IdFactory schemeIds;
 
    private EntryResolverRegistry registry;
+
+   private String tableName;
 
 
    public void bindSqlExecutor(SqlExecutor sqlExecutor)
@@ -110,8 +118,8 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
 
          // TODO could add a mapping repo to track metadata about entries by id/scope/key/type, etc.
 
-         String tableName = (String)props.getOrDefault(PARAM_TABLE_NAME, TABLE_NAME);
-         buildTreeDocRepo(tableName);
+         tableName = (String)props.getOrDefault(PARAM_TABLE_NAME, TABLE_NAME);
+         buildTreeDocRepo();
 //         buildListDocRepo(tableName);
 //         buildSetDocRepo(tableName);
       }
@@ -127,7 +135,7 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
       sqlExecutor = null;
    }
 
-   private void buildTreeDocRepo(String tableName)
+   private void buildTreeDocRepo()
    {
       PsqlJacksonRepoBuilder<TreeCategorization,
                              PersistenceModelV1.TreeCategorizationStrategy,
@@ -256,9 +264,67 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
       @Override
       public CategorizationScheme get(String key) throws IllegalArgumentException
       {
-         // TODO figure out what type it is.
-         // TODO Auto-generated method stub
-         return null;
+         // paired single quotes ('') are required due to escaping performed by MessageFormat
+         String sqlTemplate = "SELECT {0} AS json, {0}->>''strategy'' AS strategy"
+                             + " FROM {1} "
+                             + "WHERE {0}->>''key'' = ? "
+                               + "AND {0}->>''scopeId'' = ?";
+
+         String sql = format(sqlTemplate, SCHEMA_DATA_FIELD, tableName);
+         Future<CategorizationScheme> future = sqlExecutor.submit((conn) -> {
+            return doGetByKey(key, sql, conn);
+         });
+
+         String scopeId = scope.getScopeId();
+         String err = "Failed to retrieve categorization scheme for key {0} within scope {1}";
+
+         return DocumentRepository.unwrap(future, () -> format(err, key, scopeId));
+      }
+
+      private CategorizationScheme doGetByKey(String key, String sql, Connection conn) throws SQLException
+      {
+         try (PreparedStatement ps = conn.prepareStatement(sql))
+         {
+            ps.setString(1, key);
+            ps.setString(2, scope.getScopeId());
+
+            ResultSet rs = ps.executeQuery();
+            if (!rs.next())
+               throw new NoSuchEntryException(format("No categorization scheme for key {0} within scope {1}", key, scope.getScopeId()));
+
+            String json = rs.getString("json");
+            String s = rs.getString("strategy");
+
+            return parseCategorizationScheme(json, s);
+         }
+      }
+
+      private CategorizationScheme parseCategorizationScheme(String json, String s)
+      {
+         try
+         {
+            ObjectMapper mapper = new ObjectMapper();
+            CategorizationScheme.Strategy strategy = CategorizationScheme.Strategy.valueOf(s);
+            switch (strategy)
+            {
+               case TREE:
+                  PersistenceModelV1.TreeCategorizationStrategy dto =
+                     mapper.readValue(json, PersistenceModelV1.TreeCategorizationStrategy.class);
+                  return PersistenceModelV1Adapter.toDomainModel(registry, dto);
+               case SET:
+                  // TODO add support for sets
+                  throw new UnsupportedOperationException("Set categorizations are not yet supported");
+               case LIST:
+                  // TODO add support for lists
+                  throw new UnsupportedOperationException("List categorizations are not yet supported");
+               default:
+                  throw new IllegalArgumentException("Unsupported categorization strategy: " + strategy);
+            }
+         }
+         catch (Exception ex)
+         {
+            throw new IllegalStateException("Failed to parse stored JSON data for categorition scheme: \n" + json , ex);
+         }
       }
 
       @Override
@@ -267,7 +333,7 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
          try
          {
             TreeCategorization scheme = treeRepo.get(id);
-            if (scheme.getScopeId().equals(this.scope.getScopeId()))
+            if (!scheme.getScopeId().equals(this.scope.getScopeId()))
             {
                String msg = "The requested categorization scheme [{0}] is not accessible within from {1}";
                throw new IllegalArgumentException(format(msg, id, scope));
@@ -322,8 +388,10 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
                cmd = treeRepo.create(id);
                break;
             case SET:
+               // TODO add support for sets
                throw new UnsupportedOperationException("Set categorizations are not yet supported");
             case LIST:
+               // TODO add support for lists
                throw new UnsupportedOperationException("List categorizations are not yet supported");
             default:
                throw new IllegalArgumentException("Unsupported categorization strategy: " + strategy);
@@ -339,15 +407,17 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
       public EditCategorizationCommand edit(String id)
       {
          EditCategorizationCommand cmd = null;
-         Strategy strategy = getStrategyForPrefix(id.charAt(0));
+         CategorizationScheme.Strategy strategy = getStrategyForPrefix(id.charAt(0));
          switch (strategy)
          {
             case TREE:
                cmd = treeRepo.edit(id);
                break;
             case SET:
+               // TODO add support for sets
                throw new UnsupportedOperationException("Set categorizations are not yet supported");
             case LIST:
+               // TODO add support for lists
                throw new UnsupportedOperationException("List categorizations are not yet supported");
             default:
                throw new IllegalArgumentException("Unsupported categorization strategy: " + strategy);
@@ -360,14 +430,16 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
       @Override
       public CompletableFuture<Boolean> remove(String id)
       {
-         Strategy strategy = getStrategyForPrefix(id.charAt(0));
+         CategorizationScheme.Strategy strategy = getStrategyForPrefix(id.charAt(0));
          switch (strategy)
          {
             case TREE:
                return treeRepo.delete(id);
             case SET:
+               // TODO add support for sets
                throw new UnsupportedOperationException("Set categorizations are not yet supported");
             case LIST:
+               // TODO add support for lists
                throw new UnsupportedOperationException("List categorizations are not yet supported");
             default:
                throw new IllegalArgumentException("Unsupported categorization strategy: " + strategy);

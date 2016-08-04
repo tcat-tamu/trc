@@ -17,7 +17,7 @@ public abstract class PersistenceModelV1
       public String id;
       public String scopeId;
       public String key;
-      public String type;
+      public String strategy;
       public String title;
       public String description;
    }
