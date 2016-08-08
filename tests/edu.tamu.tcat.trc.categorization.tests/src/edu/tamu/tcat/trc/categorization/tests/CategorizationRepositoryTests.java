@@ -4,13 +4,17 @@ import static java.text.MessageFormat.format;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.sql.PreparedStatement;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -28,6 +32,11 @@ import edu.tamu.tcat.trc.categorization.CategorizationScheme.Strategy;
 import edu.tamu.tcat.trc.categorization.CategorizationScope;
 import edu.tamu.tcat.trc.categorization.EditCategorizationCommand;
 import edu.tamu.tcat.trc.categorization.impl.CategorizationSchemeService;
+import edu.tamu.tcat.trc.categorization.strategies.tree.EditTreeCategorizationCommand;
+import edu.tamu.tcat.trc.categorization.strategies.tree.PreOrderTraversal;
+import edu.tamu.tcat.trc.categorization.strategies.tree.TreeCategorization;
+import edu.tamu.tcat.trc.categorization.strategies.tree.TreeNode;
+import edu.tamu.tcat.trc.categorization.strategies.tree.TreeNodeMutator;
 import edu.tamu.tcat.trc.entries.core.BasicResolverRegistry;
 import edu.tamu.tcat.trc.entries.core.EntryResolverRegistry;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
@@ -242,7 +251,7 @@ public abstract class CategorizationRepositoryTests
 
    protected abstract Strategy getStrategy();
 
-   private CategorizationRepo getDefaultRepo()
+   protected CategorizationRepo getDefaultRepo()
    {
       String scopeId = "test.categorizations";
       CategorizationScope scope = svc.createScope(account, scopeId);
@@ -252,11 +261,176 @@ public abstract class CategorizationRepositoryTests
 
    public static class TreeCategorizationRepoTests extends CategorizationRepositoryTests
    {
+      private static final String NODE_DESC = "Node {0} is a node within this tree";
+
       @Override
       protected Strategy getStrategy()
       {
          return CategorizationScheme.Strategy.TREE;
       }
+
+      private TreeCategorization getDefaultScheme(CategorizationRepo repository)
+      {
+         EditCategorizationCommand cmd = repository.create(getStrategy(), "test");
+         cmd.setLabel("Hierarchical Test Categorization");
+         cmd.setDescription("A simple hierarchical categorization for unit testing purposes.");
+
+         try
+         {
+            String id = cmd.execute().get(10, TimeUnit.SECONDS);
+            return (TreeCategorization)repository.getById(id);
+         }
+         catch (Exception ex)
+         {
+            throw new IllegalStateException("Failed to create default categorization scheme", ex);
+         }
+      }
+
+      @Test
+      public void testCreateNodes() throws Exception
+      {
+         CategorizationRepo repository = getDefaultRepo();
+         TreeCategorization scheme = getDefaultScheme(repository);
+         buildDefaultTree(repository, scheme);
+
+         String id = scheme.getId();
+         scheme = (TreeCategorization)repository.getById(id);
+         TreeNode root = scheme.getRootNode();
+
+         testChildren(root, "A");
+         testChildren(findByLabel(scheme, "A"), "B", "C");
+         testChildren(findByLabel(scheme, "B"), "D", "E", "F");
+         testChildren(findByLabel(scheme, "C"), "G", "H");
+         testChildren(findByLabel(scheme, "D"));
+         testChildren(findByLabel(scheme, "E"));
+         testChildren(findByLabel(scheme, "F"));
+         testChildren(findByLabel(scheme, "G"));
+         testChildren(findByLabel(scheme, "H"), "I");
+         testChildren(findByLabel(scheme, "I"));
+      }
+
+      @Test
+      public void testRemoveNode() throws Exception
+      {
+         CategorizationRepo repository = getDefaultRepo();
+         TreeCategorization scheme = getDefaultScheme(repository);
+         buildDefaultTree(repository, scheme);
+
+         String id = scheme.getId();
+         scheme = repository.getById(id, TreeCategorization.class);
+
+         String fId = findByLabel(scheme, "F").getId();
+         String hId = findByLabel(scheme, "H").getId();
+
+         EditTreeCategorizationCommand command = repository.edit(id, EditTreeCategorizationCommand.class);
+         command.remove(fId); // remove node F
+         command.remove(hId); // remove node H (and I as part of sub-tree)
+         command.execute().get(10, TimeUnit.SECONDS);
+
+         scheme = repository.getById(id, TreeCategorization.class);
+         assertNull(findByLabel(scheme, "F"));
+         assertNull(findByLabel(scheme, "H"));
+         assertNull(findByLabel(scheme, "I"));
+
+         testChildren(scheme.getRootNode(), "A");
+         testChildren(findByLabel(scheme, "A"), "B", "C");
+         testChildren(findByLabel(scheme, "B"), "D", "E");
+         testChildren(findByLabel(scheme, "C"), "G");
+         testChildren(findByLabel(scheme, "D"));
+         testChildren(findByLabel(scheme, "E"));
+         testChildren(findByLabel(scheme, "G"));
+      }
+
+      @Test
+      public void testMoveNode() throws Exception
+      {
+         CategorizationRepo repository = getDefaultRepo();
+         TreeCategorization scheme = getDefaultScheme(repository);
+         buildDefaultTree(repository, scheme);
+
+         String id = scheme.getId();
+         scheme = repository.getById(id, TreeCategorization.class);
+
+         String bId = findByLabel(scheme, "B").getId();
+         TreeNode cNode = findByLabel(scheme, "C");
+         TreeNode hNode = findByLabel(scheme, "H");
+         String cId = cNode.getId();
+         int ix = cNode.getChildren().indexOf(hNode);
+
+         // move B between G and H
+         EditTreeCategorizationCommand command = repository.edit(id, EditTreeCategorizationCommand.class);
+         command.move(bId, cId, ix);
+         command.execute().get(10, TimeUnit.SECONDS);
+
+         scheme = repository.getById(id, TreeCategorization.class);
+         testChildren(scheme.getRootNode(), "A");
+         testChildren(findByLabel(scheme, "A"), "C");
+         testChildren(findByLabel(scheme, "B"), "D", "E", "F");
+         testChildren(findByLabel(scheme, "C"), "G", "B", "H");
+         testChildren(findByLabel(scheme, "D"));
+         testChildren(findByLabel(scheme, "E"));
+         testChildren(findByLabel(scheme, "F"));
+         testChildren(findByLabel(scheme, "G"));
+         testChildren(findByLabel(scheme, "H"), "I");
+         testChildren(findByLabel(scheme, "I"));
+      }
+
+      //  Creates a default tree structer
+      //        A
+      //   B         C
+      // D E F     G   H
+      //               I
+      @SuppressWarnings("unused")
+      private void buildDefaultTree(CategorizationRepo repository, TreeCategorization scheme) throws InterruptedException, ExecutionException, TimeoutException
+      {
+         // TODO note that we shouldn't be able to edit various properties of the root node . . .
+         //      not sure how to handle this.
+         EditTreeCategorizationCommand command = (EditTreeCategorizationCommand)repository.edit(scheme.getId());
+         TreeNodeMutator rootMutator = command.edit(scheme.getId());
+
+         TreeNodeMutator a = createNode(rootMutator, "A");
+         TreeNodeMutator b = createNode(a, "B");
+         TreeNodeMutator c = createNode(a, "C");
+         TreeNodeMutator d = createNode(b, "D");
+         TreeNodeMutator e = createNode(b, "E");
+         TreeNodeMutator f = createNode(b, "F");
+         TreeNodeMutator g = createNode(c, "G");
+         TreeNodeMutator h = createNode(c, "H");
+         TreeNodeMutator i = createNode(h, "I");
+
+         command.execute().get(10, TimeUnit.SECONDS);
+      }
+
+      private TreeNode findByLabel(TreeCategorization scheme, String label)
+      {
+         PreOrderTraversal traversal = new PreOrderTraversal(n -> label.equals(n.getLabel()));
+         List<TreeNode> matches = traversal.apply(scheme);
+
+         // this is a unit test -- ignoring all manner of potential errors.
+         return !matches.isEmpty() ? matches.get(0) : null;
+      }
+
+      private void testChildren(TreeNode parent, String... labels)
+      {
+         List<TreeNode> children = parent.getChildren();
+
+         assertEquals("Unexpected number children for root", labels.length, children.size());
+         for (int ix = 0; ix < labels.length; ix++)
+         {
+            assertEquals("Incorrect Label", labels[ix], children.get(ix).getLabel());
+            assertEquals("Incorrect Label", format(NODE_DESC, labels[ix]), children.get(ix).getDescription());
+         }
+      }
+
+      private TreeNodeMutator createNode(TreeNodeMutator parent, String label)
+      {
+         TreeNodeMutator a = parent.add(label);
+         a.setDescription(format(NODE_DESC, label));
+         return a;
+      }
+
+      // TODO test associate entries with nodes
+      // TODO create TreeNodeVisitor (predicate)
 
       // TODO
       //       create on different scopes (same/different key)
@@ -294,6 +468,5 @@ public abstract class CategorizationRepositoryTests
       {
          return true;
       }
-
    }
 }

@@ -45,6 +45,12 @@ public abstract class PersistenceModelV1
       public String description = "";
 
       public EntryReference ref;
+
+      @Override
+      public String toString()
+      {
+         return "Node " + label;
+      }
    }
 
    public static class TreeNode extends CategorizationNode

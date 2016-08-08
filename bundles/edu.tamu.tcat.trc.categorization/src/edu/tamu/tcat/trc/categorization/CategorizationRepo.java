@@ -1,5 +1,7 @@
 package edu.tamu.tcat.trc.categorization;
 
+import static java.text.MessageFormat.format;
+
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -42,6 +44,25 @@ public interface CategorizationRepo
    CategorizationScheme getById(String id) throws IllegalArgumentException;
 
    /**
+    * Retrieves a {@link CategorizationScheme} using a persistent id.
+    *
+    * @param id The persistent identifier for the categorization.
+    * @param type The Java type of the anticipated scheme. Should be one of a limited
+    *       number of interfaces that define the various categorization strategies.
+    * @return The identified categorization
+    */
+   default <S extends CategorizationScheme> S getById(String id, Class<S> type)
+   {
+      String errmsg = "The categorization scheme {0} is not and instance of {1}";
+
+      CategorizationScheme cmd = getById(id);
+      if (!type.isInstance(cmd))
+         throw new IllegalArgumentException(format(errmsg, id, type));
+
+      return type.cast(cmd);
+   }
+
+   /**
     * Used to create a new categorization. Note that changes will not be applied
     * until the create method of the categorization command is executed.
     *
@@ -61,6 +82,24 @@ public interface CategorizationRepo
     * @return an edit command for making changed to an existing categorization.
     */
    EditCategorizationCommand edit(String id);
+
+   /**
+    * Edits an existing categorization.
+    *
+    * @param id The id of the categorization to edit
+    * @param type The Java type of the anticipated edit command
+    * @return an edit command for making changed to an existing categorization.
+    */
+   default <CMD extends EditCategorizationCommand> CMD edit(String id, Class<CMD> type)
+   {
+      String errmsg = "The categorization scheme {0} is not associated with the requested edit command {1}";
+
+      EditCategorizationCommand cmd = edit(id);
+      if (!type.isInstance(cmd))
+         throw new IllegalArgumentException(format(errmsg, id, type));
+
+      return type.cast(cmd);
+   }
 
    /**
     * Remove a categorization.

@@ -95,17 +95,27 @@ public class EditHeirarchyCommandFactory
       @Override
       public void move(String nodeId, String parentId, int index)
       {
+         // TODO this API is ugly and bittle to conflicting structural changes. Would be better to 'moveBefore' or 'moveUnder' or else
          changes.add("move node#" + nodeId, dto -> {
             PersistenceModelV1.TreeNode child = dto.nodes.get(nodeId);
-
             PersistenceModelV1.TreeNode oldParent = dto.nodes.get(child.parentId);
-            oldParent.children.remove(child.id);
-
             PersistenceModelV1.TreeNode newParent = dto.nodes.get(parentId);
-            newParent.children.add(index, nodeId);
-            child.parentId = parentId;
 
-            dto.nodes.put(nodeId, child);
+            // sanity checks
+            Objects.requireNonNull(child, format("Cannot move node {0}: No such node.", nodeId));
+            if (getDescendents(dto.nodes, nodeId).anyMatch(id -> parentId.equals(id)))
+            {
+               String msg = "Cannot move node {0} to be a child of its descendant node {1}";
+               throw new IllegalStateException(format(msg, nodeId, parentId));
+            }
+
+            oldParent.children.remove(child.id);
+            if (index < 0 || index >= newParent.children.size())
+               newParent.children.add(nodeId);
+            else
+               newParent.children.add(index, nodeId);
+
+            child.parentId = parentId;
          });
       }
 
@@ -120,13 +130,13 @@ public class EditHeirarchyCommandFactory
             Objects.requireNonNull(toRemove.parentId, "Cannot delete the root node of a TreeCategorization");
 
             PersistenceModelV1.TreeNode parent = nodes.get(toRemove.parentId);
-            Objects.requireNonNull(toRemove.parentId, () -> format(pattern, nodeId));
+            Objects.requireNonNull(parent, () -> format(pattern, nodeId));
 
             if (parent.children.remove(nodeId))
             {
                getDescendents(nodes, nodeId).forEach(nodes::remove);
                nodes.remove(nodeId);
-            }
+            } // TODO otherwise, something has gone horribly wrong
          });
       }
 
@@ -145,7 +155,7 @@ public class EditHeirarchyCommandFactory
          dto.strategy = CategorizationScheme.Strategy.TREE.name();
 
          PersistenceModelV1.TreeNode root = new PersistenceModelV1.TreeNode();
-         root.id = nodeIds.get();
+         root.id = this.categorizationId;
          root.parentId = null;
          root.label = "Root Node";
          root.description = "Root Node for " + dto.id;
