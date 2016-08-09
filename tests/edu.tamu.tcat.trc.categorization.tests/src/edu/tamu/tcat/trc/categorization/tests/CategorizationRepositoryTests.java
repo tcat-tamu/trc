@@ -437,36 +437,4 @@ public abstract class CategorizationRepositoryTests
       //       create on same scope (same/different key)
 
    }
-
-   private static class MockAccount implements Account
-   {
-
-      private final UUID id;
-      private final String displayName;
-
-      public MockAccount(UUID id, String displayName)
-      {
-         this.id = id;
-         this.displayName = displayName;
-
-      }
-
-      @Override
-      public UUID getId()
-      {
-         return id;
-      }
-
-      @Override
-      public String getDisplayName()
-      {
-         return displayName;
-      }
-
-      @Override
-      public boolean isActive()
-      {
-         return true;
-      }
-   }
 }
