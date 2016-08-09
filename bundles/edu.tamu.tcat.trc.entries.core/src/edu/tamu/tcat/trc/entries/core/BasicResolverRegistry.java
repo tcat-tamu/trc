@@ -39,7 +39,7 @@ public class BasicResolverRegistry implements EntryResolverRegistry
       return (EntryResolver<T>)resolvers.values().parallelStream()
             .filter(resolver -> resolver.accepts(entry))
             .findAny()
-            .orElseThrow(() -> new InvalidReferenceException(null, "No registered resolver accpets this entry"));
+            .orElseThrow(() -> new InvalidReferenceException((Object)null, "No registered resolver accpets this entry"));
    }
 
 }
