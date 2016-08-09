@@ -38,6 +38,7 @@ import edu.tamu.tcat.trc.categorization.strategies.tree.TreeCategorization;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeNode;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeNodeMutator;
 import edu.tamu.tcat.trc.entries.core.BasicResolverRegistry;
+import edu.tamu.tcat.trc.entries.core.EntryReference;
 import edu.tamu.tcat.trc.entries.core.EntryResolverRegistry;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.test.ClosableSqlExecutor;
@@ -54,6 +55,8 @@ public abstract class CategorizationRepositoryTests
    private EntryResolverRegistry registry;
 
    protected CategorizationSchemeService svc;
+
+   protected MockEntryResolver entryResolver;
 
    @BeforeClass
    public static void setUp()
@@ -73,6 +76,10 @@ public abstract class CategorizationRepositoryTests
       config = TestUtils.loadConfigFile();
       exec = TestUtils.initPostgreSqlExecutor(config);
       registry = new BasicResolverRegistry();
+
+      entryResolver = new MockEntryResolver();
+      registry.register(entryResolver);
+
       IdFactoryProvider idProvider = TestUtils.makeIdFactoryProvider();
 
       svc = new CategorizationSchemeService();
@@ -307,6 +314,41 @@ public abstract class CategorizationRepositoryTests
          testChildren(findByLabel(scheme, "G"));
          testChildren(findByLabel(scheme, "H"), "I");
          testChildren(findByLabel(scheme, "I"));
+      }
+
+      @Test
+      public void testAssociateEntry() throws Exception
+      {
+         String entryDesc = "mock entry description";
+         MockEntry mockEntry = entryResolver.create(entryDesc);
+         EntryReference mockRef = entryResolver.makeReference(mockEntry);
+
+         CategorizationRepo repository = getDefaultRepo();
+         TreeCategorization scheme = getDefaultScheme(repository);
+         buildDefaultTree(repository, scheme);
+
+         String id = scheme.getId();
+         scheme = repository.getById(id, TreeCategorization.class);
+
+         TreeNode nodeA = findByLabel(scheme, "A");
+
+         EditTreeCategorizationCommand command = repository.edit(id, EditTreeCategorizationCommand.class);
+         TreeNodeMutator mutator = command.edit(nodeA.getId());
+         mutator.associateEntryRef(mockRef);
+
+         command.execute().get(10, TimeUnit.SECONDS);
+
+         scheme = repository.getById(id, TreeCategorization.class);
+         nodeA = findByLabel(scheme, "A");
+         EntryReference ref = nodeA.getAssociatedEntryRef();
+         MockEntry entry = nodeA.getAssociatedEntry(MockEntry.class);
+
+         assertEquals(mockRef.id, ref.id);
+         assertEquals(mockRef.type, ref.type);
+         assertEquals(mockRef.version, ref.version);
+
+         assertEquals(mockEntry.getId(), entry.getId());
+         assertEquals(mockEntry.getDescription(), entry.getDescription());
       }
 
       @Test
