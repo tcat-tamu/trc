@@ -23,6 +23,6 @@ public interface CategorizationNodeMutator
    /**
     * @param ref The entity reference to be associated with this node.
     */
-   void associateEntityRef(EntryReference ref);
+   void associateEntryRef(EntryReference ref);
 
 }

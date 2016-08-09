@@ -38,7 +38,7 @@ public interface CategorizationNode
    /**
     * @return The TRC entity referenced by this node. May be <code>null</code>.
     */
-   EntryReference getEntityRef();
+   EntryReference getAssociatedEntryRef();
 
    /**
     * Resolves and returns the entry associated with this node. Note that if no
@@ -46,5 +46,5 @@ public interface CategorizationNode
     * @param type
     * @return
     */
-   <X> X getEntity(Class<X> type);
+   <X> X getAssociatedEntry(Class<X> type);
 }

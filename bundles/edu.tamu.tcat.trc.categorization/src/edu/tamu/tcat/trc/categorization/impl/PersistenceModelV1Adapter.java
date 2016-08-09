@@ -143,13 +143,13 @@ public abstract class PersistenceModelV1Adapter
       }
 
       @Override
-      public final EntryReference getEntityRef()
+      public final EntryReference getAssociatedEntryRef()
       {
          return ref;
       }
 
       @Override
-      public final <X> X getEntity(Class<X> type)
+      public final <X> X getAssociatedEntry(Class<X> type)
       {
          if (ref == null)
             return null;
