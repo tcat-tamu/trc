@@ -11,7 +11,10 @@ import java.util.concurrent.Future;
  * has been called, any future calls will throw an {@link IllegalStateException}.
  *
  * @param <StorageType> The internal data type used by the persistence layer.
+ *
+ * @deprecated Unused and should be removed. This API has been superseded
  */
+@Deprecated
 public interface CommitHook<StorageType>
 {
    /**
