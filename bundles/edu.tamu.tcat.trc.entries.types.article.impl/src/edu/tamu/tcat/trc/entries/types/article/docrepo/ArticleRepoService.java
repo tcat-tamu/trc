@@ -13,7 +13,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.db.exec.sql.SqlExecutor;
+import edu.tamu.tcat.osgi.config.ConfigurationProperties;
+import edu.tamu.tcat.trc.entries.core.EntryReference;
+import edu.tamu.tcat.trc.entries.core.EntryResolver;
+import edu.tamu.tcat.trc.entries.core.EntryResolverRegistry;
+import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
+import edu.tamu.tcat.trc.entries.core.db.DbEntryRepositoryContext;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.ArticleRepoFacade;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
@@ -21,14 +26,11 @@ import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchService;
 import edu.tamu.tcat.trc.entries.types.article.search.solr.ArticleDocument;
 import edu.tamu.tcat.trc.entries.types.article.search.solr.ArticleIndexManagerService;
-import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.IdFactory;
-import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 import edu.tamu.tcat.trc.repo.RepositoryException;
 import edu.tamu.tcat.trc.repo.UpdateContext;
-import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
 import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 
 public class ArticleRepoService implements ArticleRepoFacade
@@ -41,32 +43,16 @@ public class ArticleRepoService implements ArticleRepoFacade
    private static final String ID_CONTEXT_ARTICLES = "trc.articles";
    private static final String TABLE_NAME = "articles";
 
-   private SqlExecutor sqlExecutor;
-   private IdFactoryProvider idFactoryProvider;
    private ArticleIndexManagerService indexSvc;
-
+   private DbEntryRepositoryContext context;
 
    private IdFactory idFactory;
    private DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> articleBackend;
 
-   /**
-    * Bind method for SQL executor service dependency (usually called by dependency injection layer)
-    *
-    * @param sqlExecutor
-    */
-   public void setSqlExecutor(SqlExecutor sqlExecutor)
-   {
-      this.sqlExecutor = sqlExecutor;
-   }
 
-   /**
-    * Bind method for ID factory provider service dependency (usually called by dependency injection layer)
-    *
-    * @param idFactory
-    */
-   public void setIdFactory(IdFactoryProvider idFactoryProvider)
+   public void setRepoContext(DbEntryRepositoryContext context)
    {
-      this.idFactoryProvider = idFactoryProvider;
+      this.context = context;
    }
 
    public void setIndexService(ArticleIndexManagerService indexSvc)
@@ -82,40 +68,29 @@ public class ArticleRepoService implements ArticleRepoFacade
    {
       try
       {
-         Objects.requireNonNull(sqlExecutor, "No SQL Executor provided.");
-         Objects.requireNonNull(idFactoryProvider, "No IdFactoryProvider provided.");
-
+         Objects.requireNonNull(context, "EntryRepositoryContext is not abailable.");
          String tablename = (String)properties.getOrDefault(PARAM_TABLE_NAME, TABLE_NAME);
-         articleBackend = buildDocumentRepository(tablename);
+         articleBackend = context.buildDocumentRepo(
+               tablename,
+               new EditArticleCommandFactory(),
+               dto -> new ArticleImpl(dto),
+               DataModelV1.Article.class);
          configureIndexing(articleBackend);
          configureVersioning(articleBackend);
 
          String idContext = (String)properties.getOrDefault(PARAM_ID_CTX, ID_CONTEXT_ARTICLES);
-         idFactory = idFactoryProvider.getIdFactory(idContext);
+         idFactory = context.getIdFactory(idContext);
+         EntryResolverRegistry registry = context.getResolverRegistry();
+         if (registry != null)
+         {
+            registry.register(new ArticleResolver(this, context.getConfig()));
+         }
       }
       catch (Exception e)
       {
          logger.log(Level.SEVERE, "Failed to construct articles repository instance.", e);
          throw e;
       }
-   }
-
-   /**
-    * @return A new document repository instance for persisting and retrieving works
-    */
-   private DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> buildDocumentRepository(String tablename)
-   {
-      PsqlJacksonRepoBuilder<Article, DataModelV1.Article, EditArticleCommand> repoBuilder = new PsqlJacksonRepoBuilder<>();
-
-      repoBuilder.setDbExecutor(sqlExecutor);
-      repoBuilder.setTableName(tablename);
-      repoBuilder.setEditCommandFactory(new EditArticleCommandFactory());
-      repoBuilder.setDataAdapter(dto -> new ArticleImpl(dto));
-      repoBuilder.setSchema(BasicSchemaBuilder.buildDefaultSchema());
-      repoBuilder.setStorageType(DataModelV1.Article.class);
-      repoBuilder.setEnableCreation(true);
-
-      return repoBuilder.build();
    }
 
    private void configureIndexing(DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> repo)
@@ -171,7 +146,6 @@ public class ArticleRepoService implements ArticleRepoFacade
     */
    public void dispose()
    {
-      sqlExecutor = null;
    }
 
    /**
