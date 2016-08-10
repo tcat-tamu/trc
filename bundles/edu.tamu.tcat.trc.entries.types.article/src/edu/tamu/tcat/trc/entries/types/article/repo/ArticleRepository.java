@@ -26,6 +26,14 @@ import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 
 public interface ArticleRepository
 {
+
+   /** The type id used to identify articles within the EntryResolver framework. */
+   public final static String ENTRY_TYPE_ID = "trc.core.article";
+
+   /** The initial path (relative to some API endpoint) for building URIs that reference
+    *  and article and its sub-elements. */
+   public final static String ENTRY_URI_BASE = "entries/articles";
+
    /**
     * Retrieves a specific {@link Article}
     *
