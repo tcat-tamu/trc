@@ -10,7 +10,7 @@ import java.net.URI;
  */
 public class InvalidReferenceException extends RuntimeException
 {
-   private static final String ERR_BAD_REFERENCE = "The supplied entry reference '{0};version={1}' could not be resolved: {2}";
+   private static final String ERR_BAD_REFERENCE = "The supplied entry reference '{0}' could not be resolved: {2}";
    private static final String ERR_BAD_ENTRY = "The supplied entry [{0}] cannot be resolved: {1}";
    private static final String ERR_BAD_URI = "The supplied entry uri [{0}] cannot be resolved: {1}";
 
@@ -20,7 +20,7 @@ public class InvalidReferenceException extends RuntimeException
 
    public InvalidReferenceException(EntryReference ref, String msg)
    {
-      super(format(ERR_BAD_REFERENCE, ref.id, Long.valueOf(ref.version), msg));
+      super(format(ERR_BAD_REFERENCE, ref.id, msg));
 
       this.msg = msg;
       this.ref = ref;

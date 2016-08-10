@@ -26,7 +26,6 @@ public abstract class PersistenceModelV1Adapter
       EntryReference dto = new EntryReference();
       dto.id = ref.id;
       dto.type = ref.type;
-      dto.version = ref.version;
 
       return dto;
    }
@@ -154,6 +153,7 @@ public abstract class PersistenceModelV1Adapter
          if (ref == null)
             return null;
 
+         // TODO pass through user account
          Object entry = registry.getResolver(ref).resolve(ref);
          if (!type.isInstance(entry))
             throw new InvalidReferenceException(ref,

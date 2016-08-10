@@ -2,6 +2,8 @@ package edu.tamu.tcat.trc.entries.core;
 
 import java.net.URI;
 
+import edu.tamu.tcat.account.Account;
+
 
 /**
  * Used to convert between {@link EntryReference}s and the instantiated entry
@@ -21,12 +23,27 @@ import java.net.URI;
  */
 public interface EntryResolver<T>
 {
+
    /**
     * @param reference A reference to resolve.
     * @return An instance of the referenced entry.
     * @throws InvalidReferenceException If the supplied reference cannot be resolved.
+    * @deprecated Use {@link #resolve(Account, EntryReference)}
     */
-   T resolve(EntryReference reference) throws InvalidReferenceException;
+   @Deprecated
+   default T resolve(EntryReference reference) throws InvalidReferenceException
+   {
+      return resolve(null, reference);
+   }
+
+   /**
+    * @param account A reference to the user (or other actor) account that is requesting
+    *       access to this resource. May be {@code null}.
+    * @param reference A reference to resolve.
+    * @return An instance of the referenced entry.
+    * @throws InvalidReferenceException If the supplied reference cannot be resolved.
+    */
+   T resolve(Account account, EntryReference reference) throws InvalidReferenceException;
 
    /**
     * Constructs a URI for the supplied reference.
@@ -55,7 +72,7 @@ public interface EntryResolver<T>
     * @throws InvalidReferenceException It this resolver cannot construct
     *       an {@link EntryReference}.
     */
-   EntryReference fromUri(URI uri) throws InvalidReferenceException;
+   EntryReference makeReference(URI uri) throws InvalidReferenceException;
 
    /**
     * Indicates whether this resolver can construct an {@link EntryReference}

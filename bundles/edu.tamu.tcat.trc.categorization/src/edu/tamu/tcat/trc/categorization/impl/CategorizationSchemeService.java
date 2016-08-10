@@ -94,7 +94,7 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
       this.idFactoryProvider = idProvider;
    }
 
-   public void bindEntityResolver(EntryResolverRegistry registry)
+   public void bindEntryResolver(EntryResolverRegistry registry)
    {
       this.registry = registry;
    }
