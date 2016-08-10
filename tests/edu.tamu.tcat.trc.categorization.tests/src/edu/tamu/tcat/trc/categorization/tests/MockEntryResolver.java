@@ -6,6 +6,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.entries.core.EntryReference;
 import edu.tamu.tcat.trc.entries.core.EntryResolver;
 import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
@@ -28,7 +29,7 @@ class MockEntryResolver implements EntryResolver<MockEntry>
    }
 
    @Override
-   public MockEntry resolve(EntryReference reference) throws InvalidReferenceException
+   public MockEntry resolve(Account account, EntryReference reference) throws InvalidReferenceException
    {
       String errUnsupportedType = "Unsupported reference type {0}";
       String errNotFound = "Cannot find mock entry with id = {0}";
@@ -58,7 +59,7 @@ class MockEntryResolver implements EntryResolver<MockEntry>
    }
 
    @Override
-   public EntryReference fromUri(URI uri) throws InvalidReferenceException
+   public EntryReference makeReference(URI uri) throws InvalidReferenceException
    {
       URI relEntryUri = baseUrl.resolve(API_RESOURCE_PATH).relativize(uri);
       if (uri.equals(relEntryUri))

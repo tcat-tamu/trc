@@ -85,7 +85,7 @@ public abstract class CategorizationRepositoryTests
       svc = new CategorizationSchemeService();
       svc.bindSqlExecutor(exec);
       svc.bindIdProvider(idProvider);
-      svc.bindEntityResolver(registry);
+      svc.bindEntryResolver(registry);
       // TODO configure search
 
       Map<String, Object> props = new HashMap<>();
@@ -345,7 +345,6 @@ public abstract class CategorizationRepositoryTests
 
          assertEquals(mockRef.id, ref.id);
          assertEquals(mockRef.type, ref.type);
-         assertEquals(mockRef.version, ref.version);
 
          assertEquals(mockEntry.getId(), entry.getId());
          assertEquals(mockEntry.getDescription(), entry.getDescription());

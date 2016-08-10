@@ -34,6 +34,8 @@ import org.junit.Test;
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
+import edu.tamu.tcat.trc.entries.core.BasicResolverRegistry;
+import edu.tamu.tcat.trc.entries.core.db.DbEntryRepositoryContext;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.docrepo.ArticleRepoService;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
@@ -70,9 +72,15 @@ public class ArticleRepoTests
       exec = TestUtils.initPostgreSqlExecutor(config);
       IdFactoryProvider idProvider = TestUtils.makeIdFactoryProvider();
 
+      DbEntryRepositoryContext repoCtx = new DbEntryRepositoryContext();
+      repoCtx.setConfiguration(config);
+      repoCtx.setIdFactory(idProvider);
+      repoCtx.setSqlExecutor(exec);
+      repoCtx.setResolverRegistry(new BasicResolverRegistry());
+      repoCtx.activate();
+
       svc = new ArticleRepoService();
-      svc.setSqlExecutor(exec);
-      svc.setIdFactory(idProvider);
+      svc.setRepoContext(repoCtx);
       // TODO configure search
 
       Map<String, Object> props = new HashMap<>();
