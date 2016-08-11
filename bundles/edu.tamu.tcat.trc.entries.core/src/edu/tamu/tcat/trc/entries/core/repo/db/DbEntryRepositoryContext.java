@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.core.db;
+package edu.tamu.tcat.trc.entries.core.repo.db;
 
 import java.util.Objects;
 import java.util.function.Function;
