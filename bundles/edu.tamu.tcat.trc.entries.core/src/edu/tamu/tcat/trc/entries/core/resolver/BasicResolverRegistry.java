@@ -1,8 +1,10 @@
-package edu.tamu.tcat.trc.entries.core;
+package edu.tamu.tcat.trc.entries.core.resolver;
 
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
 
 /**
  * A basic implementation of the {@link EntryResolverRegistry}. Intended to be registered as

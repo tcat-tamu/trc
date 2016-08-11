@@ -1,8 +1,9 @@
-package edu.tamu.tcat.trc.entries.core;
+package edu.tamu.tcat.trc.entries.core.resolver;
 
 import java.net.URI;
 
 import edu.tamu.tcat.account.Account;
+import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
 
 
 /**

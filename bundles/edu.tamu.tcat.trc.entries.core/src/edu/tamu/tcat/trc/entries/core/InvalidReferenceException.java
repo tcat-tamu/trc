@@ -4,6 +4,8 @@ import static java.text.MessageFormat.format;
 
 import java.net.URI;
 
+import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
+
 /**
  * Thrown when an attempt to resolve an {@link EntryReference} fails or the
  * reference is otherwise determined to be invalid.

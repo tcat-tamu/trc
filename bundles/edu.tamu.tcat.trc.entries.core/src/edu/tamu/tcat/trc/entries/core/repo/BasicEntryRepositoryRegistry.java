@@ -1,9 +1,11 @@
-package edu.tamu.tcat.trc.entries.core;
+package edu.tamu.tcat.trc.entries.core.repo;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import edu.tamu.tcat.account.Account;
+import edu.tamu.tcat.trc.entries.core.resolver.BasicResolverRegistry;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 
 public class BasicEntryRepositoryRegistry implements EntryRepositoryRegistry
 {

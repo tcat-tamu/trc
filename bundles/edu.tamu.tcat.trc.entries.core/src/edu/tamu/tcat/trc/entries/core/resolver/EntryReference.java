@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.core;
+package edu.tamu.tcat.trc.entries.core.resolver;
 
 /**
  * A reference to an entry within a TRC repository.
