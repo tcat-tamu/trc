@@ -5,6 +5,9 @@ package edu.tamu.tcat.trc.entries.core;
  */
 public class EntryReference
 {
+
+   // TODO this is really and id, not a reference.
+
    /** Defines the type of entry this reference pertains to. */
    public String type;
 
