@@ -17,15 +17,15 @@ public class MockAccount implements Account
    }
 
    @Override
-   public String getTitle()
-   {
-      return title;
-   }
-
-   @Override
    public boolean isActive()
    {
       return active;
+   }
+
+   @Override
+   public String getDisplayName()
+   {
+      return title;
    }
 
 }

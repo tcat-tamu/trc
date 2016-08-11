@@ -75,7 +75,7 @@ public class PeopleReIndex
 
       DbBackedObfuscatingIdFactoryProvider provider = new DbBackedObfuscatingIdFactoryProvider();
       provider.setDatabaseExecutor(exec);
-      provider.activate();
+      provider.activate(new HashMap<>());
 
       repo = new PsqlPeopleRepo();
       repo.setDatabaseExecutor(exec);
