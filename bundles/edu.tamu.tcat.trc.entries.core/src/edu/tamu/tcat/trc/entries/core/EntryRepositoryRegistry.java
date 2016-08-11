@@ -1,5 +1,9 @@
 package edu.tamu.tcat.trc.entries.core;
 
+import java.util.function.Function;
+
+import edu.tamu.tcat.account.Account;
+
 /**
  *  Provides an interface for accessing repository instances and a few related
  *  resources that are typically required by repositories. Allows for some
@@ -27,7 +31,7 @@ public interface EntryRepositoryRegistry
     * @return The requested repository.
     * @throws IllegalArgumentException If no repository is registered for this type.
     */
-   <Repo> Repo getRepository(Class<Repo> type) throws IllegalArgumentException;
+   <Repo> Repo getRepository(Account account, Class<Repo> type) throws IllegalArgumentException;
 
    /**
     *
@@ -35,7 +39,7 @@ public interface EntryRepositoryRegistry
     *       should be registered.
     * @param repository The repository instance to register.
     */
-   <Repo> void registerRepository(Class<Repo> type, Repo repository);
+   <Repo> void registerRepository(Class<Repo> type, Function<Account, Repo> factory);
 
    /**
     * @return The configured {@link EntryResolverRegistry} to be used.

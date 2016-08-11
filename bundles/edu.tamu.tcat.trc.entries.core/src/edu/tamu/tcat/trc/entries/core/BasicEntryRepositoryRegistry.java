@@ -1,10 +1,13 @@
 package edu.tamu.tcat.trc.entries.core;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+
+import edu.tamu.tcat.account.Account;
 
 public class BasicEntryRepositoryRegistry implements EntryRepositoryRegistry
 {
-   private final ConcurrentHashMap<Class<? extends Object>, Object> repositories = new ConcurrentHashMap<>();
+   private final ConcurrentHashMap<Class<? extends Object>, Function<Account, ?>> repositories = new ConcurrentHashMap<>();
 
    public BasicResolverRegistry resolvers = new BasicResolverRegistry();
 
@@ -22,21 +25,22 @@ public class BasicEntryRepositoryRegistry implements EntryRepositoryRegistry
 
    @Override
    @SuppressWarnings("unchecked") // type safety maintained by registration process
-   public <Repo> Repo getRepository(Class<Repo> type)
+   public <Repo> Repo getRepository(Account account, Class<Repo> type)
    {
       if (!isAvailable(type))
          throw new IllegalArgumentException("No resolver has been registered for " + type);
 
-      return (Repo)repositories.get(type);
+      Function<Account, ?> factory = repositories.get(type);
+      return (Repo)factory.apply(account);
    }
 
    @Override
-   public <Repo> void registerRepository(Class<Repo> type, Repo repository)
+   public <Repo> void registerRepository(Class<Repo> type, Function<Account, Repo> factory)
    {
       if (repositories.containsKey(type))
             throw new IllegalArgumentException("A repository has already been registered for " + type);
 
-      repositories.put(type, repository);
+      repositories.put(type, factory);
    }
 
    public <Repo> void unregister(Class<Repo> type)
