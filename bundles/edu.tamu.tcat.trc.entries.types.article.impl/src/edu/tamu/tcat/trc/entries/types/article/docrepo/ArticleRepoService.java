@@ -13,11 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.core.EntryReference;
-import edu.tamu.tcat.trc.entries.core.EntryResolver;
 import edu.tamu.tcat.trc.entries.core.EntryResolverRegistry;
-import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
 import edu.tamu.tcat.trc.entries.core.db.DbEntryRepositoryContext;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.ArticleRepoFacade;
@@ -68,28 +64,33 @@ public class ArticleRepoService implements ArticleRepoFacade
    {
       try
       {
-         Objects.requireNonNull(context, "EntryRepositoryContext is not abailable.");
-         String tablename = (String)properties.getOrDefault(PARAM_TABLE_NAME, TABLE_NAME);
-         articleBackend = context.buildDocumentRepo(
-               tablename,
-               new EditArticleCommandFactory(),
-               dto -> new ArticleImpl(dto),
-               DataModelV1.Article.class);
-         configureIndexing(articleBackend);
-         configureVersioning(articleBackend);
-
-         String idContext = (String)properties.getOrDefault(PARAM_ID_CTX, ID_CONTEXT_ARTICLES);
-         idFactory = context.getIdFactory(idContext);
-         EntryResolverRegistry registry = context.getResolverRegistry();
-         if (registry != null)
-         {
-            registry.register(new ArticleResolver(this, context.getConfig()));
-         }
+         doActivation(properties);
       }
       catch (Exception e)
       {
          logger.log(Level.SEVERE, "Failed to construct articles repository instance.", e);
          throw e;
+      }
+   }
+
+   private void doActivation(Map<String, Object> properties)
+   {
+      Objects.requireNonNull(context, "EntryRepositoryContext is not abailable.");
+      String tablename = (String)properties.getOrDefault(PARAM_TABLE_NAME, TABLE_NAME);
+      articleBackend = context.buildDocumentRepo(
+            tablename,
+            new EditArticleCommandFactory(),
+            dto -> new ArticleImpl(dto),
+            DataModelV1.Article.class);
+      configureIndexing(articleBackend);
+      configureVersioning(articleBackend);
+
+      String idContext = (String)properties.getOrDefault(PARAM_ID_CTX, ID_CONTEXT_ARTICLES);
+      idFactory = context.getIdFactory(idContext);
+      EntryResolverRegistry registry = context.getResolverRegistry();
+      if (registry != null)
+      {
+         registry.register(new ArticleResolver(this, context.getConfig()));
       }
    }
 
@@ -238,94 +239,6 @@ public class ArticleRepoService implements ArticleRepoFacade
             // TODO adapt dto to Article
             ears.accept(null);
          });
-      }
-   }
-
-   private static class ArticleResolver implements EntryResolver<Article>
-   {
-      private final ArticleRepoService articleSvc;
-      private URI apiEndpoint;
-
-      public ArticleResolver(ArticleRepoService articleSvc, ConfigurationProperties config)
-      {
-         this.articleSvc = articleSvc;
-         this.apiEndpoint = config.getPropertyValue("trc.api.endpoint", URI.class, URI.create(""));
-      }
-
-      @Override
-      public Article resolve(Account account, EntryReference reference) throws InvalidReferenceException
-      {
-         if (!accepts(reference.type))
-            throw new InvalidReferenceException(reference, "Unsupported reference type.");
-
-         ArticleRepository repo = articleSvc.getArticleRepo(account);
-         return repo.get(reference.id);
-      }
-
-      @Override
-      public URI toUri(EntryReference reference) throws InvalidReferenceException
-      {
-         if (!accepts(reference.type))
-            throw new InvalidReferenceException(reference, "Unsupported reference type.");
-
-         // format: <api_endpoint>/entries/articles/{articleId}
-         return apiEndpoint.resolve(ArticleRepository.ENTRY_URI_BASE).resolve(reference.id);
-      }
-
-      @Override
-      public EntryReference makeReference(Article instance) throws InvalidReferenceException
-      {
-         EntryReference ref = new EntryReference();
-         ref.id = instance.getId();
-         ref.type = ArticleRepository.ENTRY_TYPE_ID;
-
-         return ref;
-      }
-
-      @Override
-      public EntryReference makeReference(URI uri) throws InvalidReferenceException
-      {
-         URI articleId = uri.relativize(apiEndpoint.resolve(ArticleRepository.ENTRY_URI_BASE));
-         if (articleId.equals(uri))
-            throw new InvalidReferenceException(uri, "The supplied URI does not reference an article.");
-
-         String path = articleId.getPath();
-         if (path.contains("/"))
-            throw new InvalidReferenceException(uri, "The supplied URI represents a sub-resource of an article.");
-
-         EntryReference ref = new EntryReference();
-         ref.id = path;
-         ref.type = ArticleRepository.ENTRY_TYPE_ID;
-
-         return ref;
-      }
-
-      @Override
-      public boolean accepts(Object obj)
-      {
-         return (ArticleImpl.class.isInstance(obj));
-      }
-
-      @Override
-      public boolean accepts(EntryReference ref)
-      {
-         return ArticleRepository.ENTRY_TYPE_ID.equals(ref.type);
-      }
-
-      @Override
-      public boolean accepts(URI uri)
-      {
-         URI articleId = uri.relativize(apiEndpoint.resolve(ArticleRepository.ENTRY_URI_BASE));
-//         The supplied URI does not reference an article
-         if (articleId.equals(uri))
-            return false;
-
-         String path = articleId.getPath();
-//         The supplied URI represents a sub-resource of an article.
-         if (path.contains("/"))
-            return false;
-
-         return true;
       }
    }
 }
