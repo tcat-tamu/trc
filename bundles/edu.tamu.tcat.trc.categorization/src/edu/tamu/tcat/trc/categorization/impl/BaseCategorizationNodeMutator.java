@@ -1,7 +1,7 @@
 package edu.tamu.tcat.trc.categorization.impl;
 
 import edu.tamu.tcat.trc.categorization.CategorizationNodeMutator;
-import edu.tamu.tcat.trc.entries.core.EntryReference;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.repo.ChangeSet;
 
 public class BaseCategorizationNodeMutator implements CategorizationNodeMutator

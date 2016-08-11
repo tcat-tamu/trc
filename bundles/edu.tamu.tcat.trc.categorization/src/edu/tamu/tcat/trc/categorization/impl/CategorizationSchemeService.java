@@ -27,7 +27,7 @@ import edu.tamu.tcat.trc.categorization.CategorizationScope;
 import edu.tamu.tcat.trc.categorization.EditCategorizationCommand;
 import edu.tamu.tcat.trc.categorization.strategies.tree.EditTreeCategorizationCommand;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeCategorization;
-import edu.tamu.tcat.trc.entries.core.EntryResolverRegistry;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.IdFactory;

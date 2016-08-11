@@ -1,6 +1,6 @@
 package edu.tamu.tcat.trc.categorization;
 
-import edu.tamu.tcat.trc.entries.core.EntryReference;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 
 /**
  *  Used to edit properties of a {@link CategorizationNode}. This will

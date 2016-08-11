@@ -4,9 +4,9 @@ import java.net.URI;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.core.EntryReference;
-import edu.tamu.tcat.trc.entries.core.EntryResolver;
 import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryResolver;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 

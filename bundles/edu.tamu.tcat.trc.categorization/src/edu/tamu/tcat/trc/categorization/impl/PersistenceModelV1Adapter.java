@@ -12,9 +12,9 @@ import edu.tamu.tcat.trc.categorization.CategorizationNode;
 import edu.tamu.tcat.trc.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeCategorization;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeNode;
-import edu.tamu.tcat.trc.entries.core.EntryReference;
-import edu.tamu.tcat.trc.entries.core.EntryResolverRegistry;
 import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 
 public abstract class PersistenceModelV1Adapter
 {
