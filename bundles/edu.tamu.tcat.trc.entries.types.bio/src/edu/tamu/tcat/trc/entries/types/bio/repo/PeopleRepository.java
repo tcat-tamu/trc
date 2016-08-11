@@ -30,6 +30,13 @@ import edu.tamu.tcat.trc.repo.RepositoryException;
 public interface PeopleRepository
 {
 
+   /** The type id used to identify biographical entries within the EntryResolver framework. */
+   public final static String ENTRY_TYPE_ID = "trc.entries.biographical";
+
+   /** The initial path (relative to some API endpoint) for building URIs that reference
+    *  a biographical entry and its sub-elements. */
+   public final static String ENTRY_URI_BASE = "entries/biographical";
+
    /**
     * Retrieves a person instance by their string identifier.
     * @param personId

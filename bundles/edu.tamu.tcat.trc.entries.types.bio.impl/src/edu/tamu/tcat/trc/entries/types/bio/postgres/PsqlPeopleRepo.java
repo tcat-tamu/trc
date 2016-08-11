@@ -45,7 +45,12 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
+import edu.tamu.tcat.osgi.config.ConfigurationProperties;
+import edu.tamu.tcat.trc.entries.core.EntryReference;
+import edu.tamu.tcat.trc.entries.core.EntryResolverBase;
+import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
 import edu.tamu.tcat.trc.entries.notification.BaseUpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
@@ -91,6 +96,8 @@ public class PsqlPeopleRepo implements PeopleRepository
 
    private LoadingCache<String, Person> cache;
 
+   private ConfigurationProperties config;
+
    public PsqlPeopleRepo()
    {
    }
@@ -105,6 +112,12 @@ public class PsqlPeopleRepo implements PeopleRepository
    public void setIdFactory(IdFactoryProvider idFactoryProvider)
    {
       this.idFactory = idFactoryProvider.getIdFactory(ID_CONTEXT);
+   }
+
+   // Dependency Inject
+   public void setConfiguration(ConfigurationProperties config)
+   {
+      this.config = config;
    }
 
    // DS entry point
@@ -422,6 +435,29 @@ public class PsqlPeopleRepo implements PeopleRepository
       catch (IOException je)
       {
          throw new IllegalStateException("Failed to parse JSON record for person [id = " + id + "]", je);
+      }
+   }
+
+   public class BiographicalEntryResolver extends EntryResolverBase<Person>
+   {
+      public BiographicalEntryResolver()
+      {
+         super(Person.class, config, PeopleRepository.ENTRY_URI_BASE, PeopleRepository.ENTRY_TYPE_ID);
+      }
+
+      @Override
+      public Person resolve(Account account, EntryReference reference) throws InvalidReferenceException
+      {
+         if (!accepts(reference))
+            throw new InvalidReferenceException(reference, "Unsupported reference type.");
+
+         return get(reference.id);
+      }
+
+      @Override
+      protected String getId(Person instance)
+      {
+         return instance.getId();
       }
    }
 }
