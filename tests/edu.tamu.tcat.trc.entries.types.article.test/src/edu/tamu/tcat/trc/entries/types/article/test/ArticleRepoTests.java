@@ -19,6 +19,7 @@ import static java.text.MessageFormat.format;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.sql.PreparedStatement;
 import java.util.HashMap;
@@ -35,6 +36,8 @@ import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.trc.entries.core.BasicResolverRegistry;
+import edu.tamu.tcat.trc.entries.core.EntryReference;
+import edu.tamu.tcat.trc.entries.core.EntryResolver;
 import edu.tamu.tcat.trc.entries.core.db.DbEntryRepositoryContext;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.docrepo.ArticleRepoService;
@@ -49,9 +52,19 @@ public class ArticleRepoTests
 {
 
    private static final String TBL_NAME = "test_articles";
+
+   private static final String ARTICLE_TYPE = "article";
+   private static final String CONTENT_TYPE = "text/plain";
+   private static final String TITLE = "Article Title";
+   private static final String SLUG = "article_title";
+   private static final String ABSTRACT = "This is the abstract for an article";
+   private static final String BODY = "This is the body text of an article";
+
    private ClosableSqlExecutor exec;
    private ConfigurationProperties config;
    private ArticleRepoService svc;
+
+   private BasicResolverRegistry resolvers;
 
    @BeforeClass
    public static void setUp()
@@ -76,7 +89,8 @@ public class ArticleRepoTests
       repoCtx.setConfiguration(config);
       repoCtx.setIdFactory(idProvider);
       repoCtx.setSqlExecutor(exec);
-      repoCtx.setResolverRegistry(new BasicResolverRegistry());
+      resolvers = new BasicResolverRegistry();
+      repoCtx.setResolverRegistry(resolvers);
       repoCtx.activate();
 
       svc = new ArticleRepoService();
@@ -122,12 +136,7 @@ public class ArticleRepoTests
       return cmd;
    }
 
-   private static final String ARTICLE_TYPE = "article";
-   private static final String CONTENT_TYPE = "text/plain";
-   private static final String TITLE = "Article Title";
-   private static final String SLUG = "article_title";
-   private static final String ABSTRACT = "This is the abstract for an article";
-   private static final String BODY = "This is the body text of an article";
+
 
 // TODO these should be tested
 //      cmd.setAuthors(new ArrayList<>());
@@ -210,5 +219,35 @@ public class ArticleRepoTests
       } catch (NoSuchEntryException ex) {
          // this is the expected behavior
       }
+   }
+
+   @Test
+   public void testArticleResolver() throws Exception
+   {
+      ArticleRepository repo = svc.getArticleRepo(null);
+      EditArticleCommand cmd = createStandardArticle(repo);
+
+      String articleId = cmd.execute().get();
+      Article article = repo.get(articleId);
+
+      EntryResolver<Article> resolver = resolvers.getResolver(article);
+      assertNotNull(resolver);
+      assertTrue(resolver.accepts(article));
+
+      EntryReference articleRef = resolver.makeReference(article);
+      assertNotNull(articleRef);
+      assertTrue(resolver.accepts(articleRef));
+      // Note - there is no obligation that the reolver id be the same as the article id,
+      // so we won't test for that
+
+      Article resolved = resolver.resolve(null, articleRef);
+      assertNotNull(resolved);
+      assertEquals(article.getId(), resolved.getId());
+      assertEquals(article.getArticleType(), resolved.getArticleType());
+      assertEquals(article.getContentType(), resolved.getContentType());
+      assertEquals(article.getSlug(), resolved.getSlug());
+      assertEquals(article.getTitle(), resolved.getTitle());
+      assertEquals(article.getAbstract(), resolved.getAbstract());
+      assertEquals(article.getBody(), resolved.getBody());
    }
 }

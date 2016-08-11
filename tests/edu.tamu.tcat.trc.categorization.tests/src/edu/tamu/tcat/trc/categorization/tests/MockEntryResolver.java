@@ -11,7 +11,6 @@ import edu.tamu.tcat.trc.entries.core.EntryReference;
 import edu.tamu.tcat.trc.entries.core.EntryResolver;
 import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
 
-// NOTE version informaton is unsupported
 class MockEntryResolver implements EntryResolver<MockEntry>
 {
    private static final String TYPE = "trc.tests.mock_entry";
