@@ -13,12 +13,12 @@ import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 public class ArticleResolver implements EntryResolver<Article>
 {
    private final ArticleRepoService articleSvc;
-   private URI apiEndpoint;
+   private final URI apiEndpoint;
 
    public ArticleResolver(ArticleRepoService articleSvc, ConfigurationProperties config)
    {
       this.articleSvc = articleSvc;
-      this.apiEndpoint = config.getPropertyValue("trc.api.endpoint", URI.class, URI.create("")); // FIXME magic string
+      this.apiEndpoint = config.getPropertyValue(API_ENDPOINT_PARAM, URI.class, URI.create(""));
    }
 
    @Override

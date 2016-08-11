@@ -25,6 +25,13 @@ public interface EntryResolver<T>
 {
 
    /**
+    * Configuration parameter that specifies the REST API endpoint for use in
+    * creating and interpreting TRC entry URIs.
+    */
+   static final String API_ENDPOINT_PARAM = "trc.api.endpoint";
+
+
+   /**
     * @param reference A reference to resolve.
     * @return An instance of the referenced entry.
     * @throws InvalidReferenceException If the supplied reference cannot be resolved.

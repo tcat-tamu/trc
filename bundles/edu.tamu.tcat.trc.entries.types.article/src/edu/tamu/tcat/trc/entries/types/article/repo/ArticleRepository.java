@@ -28,7 +28,7 @@ public interface ArticleRepository
 {
 
    /** The type id used to identify articles within the EntryResolver framework. */
-   public final static String ENTRY_TYPE_ID = "trc.core.article";
+   public final static String ENTRY_TYPE_ID = "trc.entries.article";
 
    /** The initial path (relative to some API endpoint) for building URIs that reference
     *  and article and its sub-elements. */
