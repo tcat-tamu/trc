@@ -36,7 +36,6 @@ public class BasicEntryRepositoryRegistry implements EntryRepositoryRegistry
       return (Repo)factory.apply(account);
    }
 
-   @Override
    public <Repo> void registerRepository(Class<Repo> type, Function<Account, Repo> factory)
    {
       if (repositories.containsKey(type))

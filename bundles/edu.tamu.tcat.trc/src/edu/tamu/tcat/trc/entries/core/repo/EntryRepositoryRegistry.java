@@ -1,7 +1,5 @@
 package edu.tamu.tcat.trc.entries.core.repo;
 
-import java.util.function.Function;
-
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 
@@ -34,13 +32,7 @@ public interface EntryRepositoryRegistry
     */
    <Repo> Repo getRepository(Account account, Class<Repo> type) throws IllegalArgumentException;
 
-   /**
-    *
-    * @param type The repository interface class under which the repository
-    *       should be registered.
-    * @param repository The repository instance to register.
-    */
-   <Repo> void registerRepository(Class<Repo> type, Function<Account, Repo> factory);
+
 
    /**
     * @return The configured {@link EntryResolverRegistry} to be used.

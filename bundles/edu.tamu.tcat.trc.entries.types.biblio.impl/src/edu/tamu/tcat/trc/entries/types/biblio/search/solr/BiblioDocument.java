@@ -26,11 +26,11 @@ import java.util.logging.Logger;
 
 import org.apache.solr.common.SolrInputDocument;
 
-import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.DateDescriptionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;

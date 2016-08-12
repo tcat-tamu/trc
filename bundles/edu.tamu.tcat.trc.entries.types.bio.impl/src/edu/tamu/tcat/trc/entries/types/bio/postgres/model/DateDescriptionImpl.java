@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
-import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
+import edu.tamu.tcat.trc.entries.types.bio.dto.DateDescriptionDTO;
 
 public class DateDescriptionImpl implements DateDescription
 {

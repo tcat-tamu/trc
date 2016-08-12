@@ -3,8 +3,11 @@ package edu.tamu.tcat.trc.entries.core.repo.db;
 import java.util.Objects;
 import java.util.function.Function;
 
+import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryContext;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
@@ -17,7 +20,7 @@ import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
  *  Provides a unified service for accessing the service dependencies that are
  *  common across repositories.
  */
-public class DbEntryRepositoryContext
+public class DbEntryRepositoryContext implements EntryRepositoryContext
 {
 
    private EntryResolverRegistry resolverRegistry;
@@ -69,21 +72,25 @@ public class DbEntryRepositoryContext
 
    }
 
+   @Override
    public IdFactory getIdFactory(String context)
    {
       return idFactoryProvider.getIdFactory(context);
    }
 
+   @Override
    public SqlExecutor getSqlExecutor()
    {
       return sqlExecutor;
    }
 
+   @Override
    public ConfigurationProperties getConfig()
    {
       return config;
    }
 
+   @Override
    public EntryResolverRegistry getResolverRegistry()
    {
       return resolverRegistry;
@@ -98,6 +105,7 @@ public class DbEntryRepositoryContext
     *
     * @return
     */
+   @Override
    public <T, DTO, CMD> DocumentRepository<T, DTO, CMD>
    buildDocumentRepo(String tablename, EditCommandFactory<DTO, CMD> factory, Function<DTO, T> adapter, Class<DTO> type)
    {
@@ -112,5 +120,19 @@ public class DbEntryRepositoryContext
       repoBuilder.setEnableCreation(true);
 
       return repoBuilder.build();
+   }
+
+   @Override
+   public EntryRepositoryRegistry getRepositoryRegistry()
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public <Repo> void register(Class<Repo> type, Function<Account, Repo> factory)
+   {
+      // TODO Auto-generated method stub
+
    }
 }

@@ -21,10 +21,10 @@ import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
-import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
-import edu.tamu.tcat.trc.entries.common.dto.HistoricalEventDTO;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
+import edu.tamu.tcat.trc.entries.types.bio.dto.DateDescriptionDTO;
+import edu.tamu.tcat.trc.entries.types.bio.dto.HistoricalEventDTO;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.RestApiV1;

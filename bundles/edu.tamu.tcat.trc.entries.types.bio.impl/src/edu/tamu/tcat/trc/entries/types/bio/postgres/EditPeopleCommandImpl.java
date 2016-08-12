@@ -20,7 +20,7 @@ import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.Function;
 
-import edu.tamu.tcat.trc.entries.common.dto.HistoricalEventDTO;
+import edu.tamu.tcat.trc.entries.types.bio.dto.HistoricalEventDTO;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;

@@ -18,10 +18,13 @@ package edu.tamu.tcat.trc.entries.types.article.repo;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
+import edu.tamu.tcat.trc.entries.core.repo.EditEntryCommand;
+import edu.tamu.tcat.trc.entries.types.article.Article;
+
 /**
  *  Used to update properties of an article.
  */
-public interface EditArticleCommand
+public interface EditArticleCommand extends EditEntryCommand<Article>
 {
    /**
     * @return The unique id for the article that is being edited. Will not be {@code null}

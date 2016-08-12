@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
-import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.AuthorReference;
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
@@ -20,6 +19,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.CopyReferenceDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.DateDescriptionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;

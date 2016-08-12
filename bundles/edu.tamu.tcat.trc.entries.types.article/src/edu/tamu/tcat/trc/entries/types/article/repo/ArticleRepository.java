@@ -17,14 +17,15 @@ package edu.tamu.tcat.trc.entries.types.article.repo;
 
 import java.net.URI;
 import java.util.List;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 
 
-public interface ArticleRepository
+public interface ArticleRepository extends EntryRepository<Article>
 {
 
    /** The type id used to identify articles within the EntryResolver framework. */
@@ -41,6 +42,7 @@ public interface ArticleRepository
     * @return The identified article.
     * @throws NoSuchEntryException If the requested article does not exist.
     */
+   @Override
    Article get(String articleId) throws NoSuchEntryException;
 
    /**
@@ -56,6 +58,7 @@ public interface ArticleRepository
     * Builds a new {@link EditArticleCommand} to create a new {@link Article}.
     * @return
     */
+   @Override
    EditArticleCommand create();
 
    /**
@@ -73,12 +76,14 @@ public interface ArticleRepository
     * Modifies a {@link ArticleNoteCommand} to allow editing a {@link Article}.
     * @return
     */
+   @Override
    EditArticleCommand edit(String articleId) throws NoSuchEntryException;
 
    /**
     * Removes a {@link Article} entry from the database.
     */
-   Future<Boolean> remove(String articleId);
+   @Override
+   CompletableFuture<Boolean> remove(String articleId);
 
    /**
     * Register a listener that will be notified when an article changes.

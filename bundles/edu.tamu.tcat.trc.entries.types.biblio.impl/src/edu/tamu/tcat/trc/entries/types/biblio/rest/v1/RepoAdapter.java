@@ -27,7 +27,6 @@ import java.util.stream.StreamSupport;
 import javax.ws.rs.BadRequestException;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
-import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.AuthorReference;
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
@@ -36,6 +35,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.Title;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.DateDescriptionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.CopyReferenceMutator;

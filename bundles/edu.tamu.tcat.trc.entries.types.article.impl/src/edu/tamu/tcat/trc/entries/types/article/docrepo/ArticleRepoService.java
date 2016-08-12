@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -220,7 +219,7 @@ public class ArticleRepoService implements ArticleRepoFacade
       }
 
       @Override
-      public Future<Boolean> remove(String articleId)
+      public CompletableFuture<Boolean> remove(String articleId)
       {
          CompletableFuture<Boolean> result = articleBackend.delete(articleId);
 

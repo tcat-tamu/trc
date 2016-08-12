@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.common.dto;
+package edu.tamu.tcat.trc.entries.types.bio.dto;
 
 import java.util.Date;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
 
+@Deprecated
 public class HistoricalEventDTO
 {
 

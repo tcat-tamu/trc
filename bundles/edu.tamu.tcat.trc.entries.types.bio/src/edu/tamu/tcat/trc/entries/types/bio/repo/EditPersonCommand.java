@@ -18,8 +18,8 @@ package edu.tamu.tcat.trc.entries.types.bio.repo;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-import edu.tamu.tcat.trc.entries.common.dto.HistoricalEventDTO;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
+import edu.tamu.tcat.trc.entries.types.bio.dto.HistoricalEventDTO;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
 import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
 

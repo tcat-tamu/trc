@@ -23,8 +23,8 @@ import java.time.format.DateTimeFormatter;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
-import edu.tamu.tcat.trc.entries.common.dto.DateDescriptionDTO;
-import edu.tamu.tcat.trc.entries.common.dto.HistoricalEventDTO;
+import edu.tamu.tcat.trc.entries.types.bio.dto.DateDescriptionDTO;
+import edu.tamu.tcat.trc.entries.types.bio.dto.HistoricalEventDTO;
 
 public class HistoricalEventImpl implements HistoricalEvent
 {
