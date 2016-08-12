@@ -23,6 +23,7 @@ import java.util.UUID;
  * additions, mutations, and deletions. Subtypes are intended to be used to access
  * details for a repository.
  */
+@Deprecated  // We will need something like this. perhaps implement this as an adapter around the DocumentRepo
 public interface UpdateEvent
 {
    /**

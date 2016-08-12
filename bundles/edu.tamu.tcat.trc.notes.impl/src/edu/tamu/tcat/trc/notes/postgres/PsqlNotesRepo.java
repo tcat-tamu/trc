@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
@@ -38,9 +39,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.notification.BaseUpdateEvent;
-import edu.tamu.tcat.trc.entries.notification.DataUpdateObserverAdapter;
 import edu.tamu.tcat.trc.entries.notification.EntryUpdateHelper;
-import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.notes.Note;
@@ -178,8 +177,10 @@ public class PsqlNotesRepo implements NotesRepository
 
       PostgresEditNoteCmd cmd = new PostgresEditNoteCmd(note);
       cmd.setCommitHook((n) -> {
-         NoteChangeNotifier notifier = new NoteChangeNotifier(UpdateEvent.UpdateAction.CREATE);
-         return exec.submit(new ObservableTaskWrapper<>(makeSaveTask(n, CREATE_SQL), notifier));
+
+         CompletableFuture<UUID> future = exec.submit(makeSaveTask(n, CREATE_SQL));
+         future.thenAccept(ignored -> listeners.after(new NoteChangeEventImpl(note.id, UpdateEvent.UpdateAction.CREATE)));
+         return future;
       });
 
       return cmd;
@@ -192,8 +193,9 @@ public class PsqlNotesRepo implements NotesRepository
 
       PostgresEditNoteCmd cmd = new PostgresEditNoteCmd(note);
       cmd.setCommitHook((n) -> {
-         NoteChangeNotifier notifier = new NoteChangeNotifier(UpdateEvent.UpdateAction.UPDATE);
-         return exec.submit(new ObservableTaskWrapper<>(makeSaveTask(n, UPDATE_SQL), notifier));
+         CompletableFuture<UUID> future = exec.submit(makeSaveTask(n, UPDATE_SQL));
+         future.thenAccept(ignored -> listeners.after(new NoteChangeEventImpl(note.id, UpdateEvent.UpdateAction.UPDATE)));
+         return future;
       });
 
       return cmd;
@@ -202,17 +204,14 @@ public class PsqlNotesRepo implements NotesRepository
    @Override
    public Future<Boolean> remove(UUID noteId)
    {
-      NoteChangeEvent evt = new NoteChangeEventImpl(noteId, UpdateEvent.UpdateAction.DELETE);
-      return exec.submit(new ObservableTaskWrapper<>(
-            makeRemoveTask(noteId),
-            new DataUpdateObserverAdapter<Boolean>()
-            {
-               @Override
-               protected void onFinish(Boolean result) {
-                  if (result.booleanValue())
-                     listeners.after(evt);
-               }
-            }));
+      CompletableFuture<Boolean> future = exec.submit(makeRemoveTask(noteId));
+      future.thenAccept(changed -> {
+         NoteChangeEvent evt = new NoteChangeEventImpl(noteId, UpdateEvent.UpdateAction.DELETE);
+         if (changed.booleanValue())
+            listeners.after(evt);
+      });
+
+      return future;
    }
 
    @Override
@@ -343,22 +342,6 @@ public class PsqlNotesRepo implements NotesRepository
         throw new IllegalStateException("Failed to retrive copy reference [" + id + "]. ", e);
      }
   }
-
-   private final class NoteChangeNotifier extends DataUpdateObserverAdapter<UUID>
-   {
-      private final UpdateEvent.UpdateAction type;
-
-      public NoteChangeNotifier(UpdateEvent.UpdateAction type)
-      {
-         this.type = type;
-      }
-
-      @Override
-      public void onFinish(UUID id)
-      {
-         listeners.after(new NoteChangeEventImpl(id, type));
-      }
-   }
 
    private class NoteChangeEventImpl extends BaseUpdateEvent implements NoteChangeEvent
    {

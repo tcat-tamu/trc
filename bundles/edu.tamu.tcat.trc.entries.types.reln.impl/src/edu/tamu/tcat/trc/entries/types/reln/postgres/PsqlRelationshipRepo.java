@@ -20,11 +20,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -35,8 +35,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.entries.notification.BaseUpdateEvent;
-import edu.tamu.tcat.trc.entries.notification.DataUpdateObserverAdapter;
-import edu.tamu.tcat.trc.entries.notification.ObservableTaskWrapper;
 import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
@@ -180,10 +178,9 @@ public class PsqlRelationshipRepo implements RelationshipRepository
       command.setCommitHook((r) -> {
          PsqlCreateRelationshipTask task = new PsqlCreateRelationshipTask(r, mapper);
 
-         RelnChangeNotifier<String> workChangeNotifier = new RelnChangeNotifier<>(r.id, UpdateEvent.UpdateAction.CREATE);
-         ObservableTaskWrapper<String> wrappedTask = new ObservableTaskWrapper<>(task, workChangeNotifier);
+         CompletableFuture<String> future = exec.submit(task);
+         future.thenAccept(id -> notifyRelationshipUpdate(UpdateEvent.UpdateAction.CREATE, r.id));
 
-         Future<String> future = exec.submit(wrappedTask);
          return future;
       });
       return command;
@@ -195,11 +192,9 @@ public class PsqlRelationshipRepo implements RelationshipRepository
       EditRelationshipCommandImpl command = new EditRelationshipCommandImpl(RelationshipDTO.create(get(id)) , idFactory);
       command.setCommitHook((r) -> {
          PsqlUpdateRelationshipTask task = new PsqlUpdateRelationshipTask(r, mapper);
+         CompletableFuture<String> future = exec.submit(task);
+         future.thenAccept(ignored -> notifyRelationshipUpdate(UpdateEvent.UpdateAction.UPDATE, r.id));
 
-         RelnChangeNotifier<String> workChangeNotifier = new RelnChangeNotifier<>(id, UpdateEvent.UpdateAction.UPDATE);
-         ObservableTaskWrapper<String> wrappedTask = new ObservableTaskWrapper<>(task, workChangeNotifier);
-
-         Future<String> future = exec.submit(wrappedTask);
          return future;
       });
       return command;
@@ -209,10 +204,8 @@ public class PsqlRelationshipRepo implements RelationshipRepository
    public void delete(String id) throws RepositoryException
    {
       PsqlDeleteRelationshipTask deleteTask = new PsqlDeleteRelationshipTask(id);
-      RelnChangeNotifier<Void> workChangeNotifier = new RelnChangeNotifier<>(id, UpdateEvent.UpdateAction.DELETE);
-      ObservableTaskWrapper<Void> wrappedTask = new ObservableTaskWrapper<>(deleteTask, workChangeNotifier);
-
-      exec.submit(wrappedTask);
+      CompletableFuture<Void> future = exec.submit(deleteTask);
+      future.thenAccept(ignored -> notifyRelationshipUpdate(UpdateEvent.UpdateAction.DELETE, id));
    }
 
    private void notifyRelationshipUpdate(UpdateEvent.UpdateAction type, String relnId)
@@ -234,25 +227,6 @@ public class PsqlRelationshipRepo implements RelationshipRepository
    {
       listeners.add(ears);
       return () -> listeners.remove(ears);
-   }
-
-   private final class RelnChangeNotifier<ResultType> extends DataUpdateObserverAdapter<ResultType>
-   {
-      private final String id;
-      private final UpdateEvent.UpdateAction type;
-
-      public RelnChangeNotifier(String id, UpdateEvent.UpdateAction type)
-      {
-         this.id = id;
-         this.type = type;
-
-      }
-
-      @Override
-      protected void onFinish(ResultType result)
-      {
-         notifyRelationshipUpdate(type, id);
-      }
    }
 
    private class RelationshipChangeEventImpl extends BaseUpdateEvent implements RelationshipChangeEvent

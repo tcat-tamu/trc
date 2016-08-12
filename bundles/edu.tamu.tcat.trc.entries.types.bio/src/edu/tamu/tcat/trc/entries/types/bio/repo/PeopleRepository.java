@@ -18,7 +18,6 @@ package edu.tamu.tcat.trc.entries.types.bio.repo;
 import java.util.Iterator;
 import java.util.concurrent.Future;
 
-import edu.tamu.tcat.trc.entries.notification.DataUpdateObserver;
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.repo.NoSuchEntryException;
@@ -96,9 +95,7 @@ public interface PeopleRepository
     *
     * @param personId The unique identifier of the person to delete.
     * @param observer An optional observer that will be notified upon success or failure of
-    *       this operation. Note that in the case of deletion, failure will result in an
-    *       exception, while successful deletion will be indicated by a call to
-    *       {@link DataUpdateObserver#finish(Object)} with a {@code null} result object.
+    *       this operation.
     * @return
     * @throws NoSuchEntryException
     * @since 1.1
