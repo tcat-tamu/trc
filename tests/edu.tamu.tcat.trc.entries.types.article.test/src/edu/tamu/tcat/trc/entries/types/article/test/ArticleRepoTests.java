@@ -35,7 +35,7 @@ import org.junit.Test;
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
-import edu.tamu.tcat.trc.entries.core.repo.db.DbEntryRepositoryContext;
+import edu.tamu.tcat.trc.entries.core.repo.db.DbEntryRepositoryRegistry;
 import edu.tamu.tcat.trc.entries.core.resolver.BasicResolverRegistry;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolver;
@@ -85,12 +85,11 @@ public class ArticleRepoTests
       exec = TestUtils.initPostgreSqlExecutor(config);
       IdFactoryProvider idProvider = TestUtils.makeIdFactoryProvider();
 
-      DbEntryRepositoryContext repoCtx = new DbEntryRepositoryContext();
+      DbEntryRepositoryRegistry repoCtx = new DbEntryRepositoryRegistry();
       repoCtx.setConfiguration(config);
       repoCtx.setIdFactory(idProvider);
       repoCtx.setSqlExecutor(exec);
       resolvers = new BasicResolverRegistry();
-      repoCtx.setResolverRegistry(resolvers);
       repoCtx.activate();
 
       svc = new ArticleRepoService();

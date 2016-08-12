@@ -70,6 +70,7 @@ public interface ArticleRepository extends EntryRepository<Article>
     * @return A command to edit the article. Note the article will not be created
     *    until the returned command is executed.
     */
+   @Override
    EditArticleCommand create(String id);
 
    /**

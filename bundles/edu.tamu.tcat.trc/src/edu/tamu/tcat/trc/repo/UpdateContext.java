@@ -1,5 +1,8 @@
 package edu.tamu.tcat.trc.repo;
 
+import java.time.Instant;
+import java.util.UUID;
+
 import edu.tamu.tcat.account.Account;
 
 /**
@@ -36,6 +39,19 @@ public interface UpdateContext<StorageType>
     * TODO rename to getEntryId
     */
    String getId();
+
+   /**
+    * @return A unique identifier for this update.
+    */
+   UUID getUpdateId();
+
+   /**
+    * Returns the timestamp when this update was executed. Must only be called in the post commit
+    * phase of the action.
+    *
+    * @return The timestamp when this update was executed.
+    */
+   Instant getTimestamp();
 
    /**
     * @return The type of update action. Typically, CREATE, EDIT, REMOVE

@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -568,12 +569,16 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          }
 
          CompletableFuture<DTO> result = updateAction.apply(dto);
+         result.thenRun(() -> context.timestamp = Instant.now());
 
-         // fire post-commit hooks
-         result.thenRunAsync(() -> {
-            postCommitTasks.entrySet().parallelStream()
-                           .forEach(entry -> firePostCommitTask(entry.getKey(), entry.getValue()));
-         }).thenRun(() -> context.finish());
+         // fire post-commit hooks]
+         result
+            .thenRun(() -> context.timestamp = Instant.now())
+            .thenRunAsync(() -> {
+               postCommitTasks.entrySet().parallelStream()
+                              .forEach(entry -> firePostCommitTask(entry.getKey(), entry.getValue()));
+            })
+            .thenRun(() -> context.finish());
 
          return result;
       }
@@ -602,6 +607,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    private class UpdateContextImpl implements UpdateContext<DTO>
    {
       private UUID updateId = UUID.randomUUID();
+      private Instant timestamp = null;
       private String entryId;
       private ActionType action;
       private Account actor;
@@ -639,6 +645,8 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       {
          // no-op -- reserved for future use
       }
+
+      @Override
       public UUID getUpdateId()
       {
          return updateId;
@@ -648,6 +656,15 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       public String getId()
       {
          return entryId;
+      }
+
+      @Override
+      public Instant getTimestamp()
+      {
+         if (timestamp == null)
+            throw new IllegalStateException("This action has not been executed");
+
+         return timestamp;
       }
 
       @Override

@@ -3,16 +3,21 @@ package edu.tamu.tcat.trc.entries.types.article.docrepo;
 import static java.text.MessageFormat.format;
 
 import java.net.URI;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.account.Account;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
+import edu.tamu.tcat.trc.entries.core.repo.EntryUpdateRecord;
 import edu.tamu.tcat.trc.entries.core.repo.db.DbEntryRepositoryRegistry;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.ArticleRepoFacade;
@@ -232,6 +237,16 @@ public class ArticleRepoService implements ArticleRepoFacade
       }
 
       @Override
+      public EntryRepository.ObserverRegistration onUpdate(EntryRepository.UpdateObserver<Article> observer)
+      {
+         Runnable registration = articleBackend.afterUpdate((ctx) -> {
+            observer.entryUpdated(new UpdateContextAdapter(ctx));
+         });
+
+         return () -> registration.run();
+      }
+
+      @Override
       public Runnable register(Consumer<Article> ears)
       {
          return articleBackend.afterUpdate((dto) -> {
@@ -239,5 +254,73 @@ public class ArticleRepoService implements ArticleRepoFacade
             ears.accept(null);
          });
       }
+   }
+
+   /**
+    * Adapts the underlying update context to the {@link EntryUpdateRecord} API.
+    */
+   private static class UpdateContextAdapter implements EntryUpdateRecord<Article>
+   {
+
+      private UpdateContext<DataModelV1.Article> ctx;
+
+      public UpdateContextAdapter(UpdateContext<DataModelV1.Article> ctx)
+      {
+         this.ctx = ctx;
+      }
+
+      @Override
+      public UUID getId()
+      {
+         return ctx.getUpdateId();
+      }
+
+      @Override
+      public Instant getTimestamp()
+      {
+         return ctx.getTimestamp();
+      }
+
+      @Override
+      public EntryUpdateRecord.UpdateAction getAction()
+      {
+         UpdateContext.ActionType action = ctx.getActionType();
+         switch (action)
+         {
+            case CREATE: return EntryUpdateRecord.UpdateAction.CREATE;
+            case EDIT: return EntryUpdateRecord.UpdateAction.UPDATE;
+            case REMOVE: return EntryUpdateRecord.UpdateAction.REMOVE;
+            default:
+               throw new IllegalStateException("Unexpected update modification type: " + action);
+         }
+      }
+
+      @Override
+      public Account getActor()
+      {
+         return ctx.getActor();
+      }
+
+      @Override
+      public EntryReference getEntryReference()
+      {
+         EntryReference ref = new EntryReference();
+         ref.id = ctx.getId();
+         ref.type = ArticleRepository.ENTRY_TYPE_ID;
+         return ref;
+      }
+
+      @Override
+      public Article getModifiedState()
+      {
+         return new ArticleImpl(ctx.getModified());
+      }
+
+      @Override
+      public Article getOriginalState()
+      {
+         return new ArticleImpl(ctx.getOriginal());
+      }
+
    }
 }
