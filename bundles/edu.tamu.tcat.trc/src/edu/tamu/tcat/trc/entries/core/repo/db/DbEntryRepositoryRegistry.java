@@ -1,13 +1,14 @@
 package edu.tamu.tcat.trc.entries.core.repo.db;
 
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryContext;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
+import edu.tamu.tcat.trc.entries.core.resolver.BasicResolverRegistry;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
@@ -19,11 +20,18 @@ import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
 /**
  *  Provides a unified service for accessing the service dependencies that are
  *  common across repositories.
+ *
  */
-public class DbEntryRepositoryContext implements EntryRepositoryContext
+public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry
 {
+//   NOTE that this introduces a dependency on this shared class (notably for registration of repos) that will
+//        will be difficult to untangle. For the immediate future, this is acceptable in order to simplify
+//        implementation, but the end result is that this class, effectively, becomes part of the API for the
+//        repo framework and makes it difficult to provide alternate implementatoins. Mostly likely, we need to
+//        split the API of this class to that they can be interchanged.
 
-   private EntryResolverRegistry resolverRegistry;
+   private final EntryResolverRegistry resolverRegistry = new BasicResolverRegistry();
+   private final ConcurrentHashMap<Class<? extends Object>, Function<Account, ?>> repositories = new ConcurrentHashMap<>();
 
    private SqlExecutor sqlExecutor;
    private IdFactoryProvider idFactoryProvider;
@@ -52,11 +60,6 @@ public class DbEntryRepositoryContext implements EntryRepositoryContext
       this.idFactoryProvider = idFactoryProvider;
    }
 
-   public void setResolverRegistry(EntryResolverRegistry reg)
-   {
-      this.resolverRegistry = reg;
-   }
-
    public void setConfiguration(ConfigurationProperties config)
    {
       this.config = config;
@@ -65,6 +68,7 @@ public class DbEntryRepositoryContext implements EntryRepositoryContext
    public void activate()
    {
       Objects.requireNonNull(idFactoryProvider);
+
    }
 
    public void dispose()
@@ -72,19 +76,16 @@ public class DbEntryRepositoryContext implements EntryRepositoryContext
 
    }
 
-   @Override
    public IdFactory getIdFactory(String context)
    {
       return idFactoryProvider.getIdFactory(context);
    }
 
-   @Override
    public SqlExecutor getSqlExecutor()
    {
       return sqlExecutor;
    }
 
-   @Override
    public ConfigurationProperties getConfig()
    {
       return config;
@@ -105,7 +106,6 @@ public class DbEntryRepositoryContext implements EntryRepositoryContext
     *
     * @return
     */
-   @Override
    public <T, DTO, CMD> DocumentRepository<T, DTO, CMD>
    buildDocumentRepo(String tablename, EditCommandFactory<DTO, CMD> factory, Function<DTO, T> adapter, Class<DTO> type)
    {
@@ -123,16 +123,40 @@ public class DbEntryRepositoryContext implements EntryRepositoryContext
    }
 
    @Override
-   public EntryRepositoryRegistry getRepositoryRegistry()
+   public <Repo> boolean isRepositoryAvailable(Class<Repo> type)
    {
-      // TODO Auto-generated method stub
-      return null;
+      return repositories.containsKey(type);
    }
 
    @Override
+   @SuppressWarnings("unchecked") // type safety maintained by registration process
+   public <Repo> Repo getRepository(Account account, Class<Repo> type)
+   {
+      if (!isRepositoryAvailable(type))
+         throw new IllegalArgumentException("No resolver has been registered for " + type);
+
+      Function<Account, ?> factory = repositories.get(type);
+      return (Repo)factory.apply(account);
+   }
+
+   public <Repo> void registerRepository(Class<Repo> type, Function<Account, Repo> factory)
+   {
+      if (repositories.containsKey(type))
+            throw new IllegalArgumentException("A repository has already been registered for " + type);
+
+      repositories.put(type, factory);
+   }
+
+   public <Repo> void unregister(Class<Repo> type)
+   {
+      repositories.remove(type);
+   }
+
    public <Repo> void register(Class<Repo> type, Function<Account, Repo> factory)
    {
-      // TODO Auto-generated method stub
+      if (repositories.containsKey(type))
+            throw new IllegalArgumentException("A repository has already been registered for " + type);
 
+      repositories.put(type, factory);
    }
 }

@@ -18,7 +18,20 @@ public abstract class EntryResolverBase<EntryType> implements EntryResolver<Entr
    protected final String typeId;
    private Class<? extends EntryType> entryType;
 
-   public EntryResolverBase(Class<? extends EntryType> type, ConfigurationProperties config, String entryUriBase, String entryTypeId)
+   /**
+    *
+    * @param type a Java type token representing the class of this entry resolver. Note that
+    *       unless a resolver is expected to handle multiple types of implementation classes,
+    *       this should be the implementation class rather than the the interface that defines
+    *       the API for this type of entry.
+    * @param config
+    * @param entryUriBase
+    * @param entryTypeId
+    */
+   public EntryResolverBase(Class<? extends EntryType> type,
+                            ConfigurationProperties config,
+                            String entryUriBase,
+                            String entryTypeId)
    {
       this.entryType = type;
       this.apiEndpoint = config.getPropertyValue(API_ENDPOINT_PARAM, URI.class, URI.create(""));

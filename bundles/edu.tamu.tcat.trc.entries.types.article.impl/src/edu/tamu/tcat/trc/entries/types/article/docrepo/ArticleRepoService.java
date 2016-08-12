@@ -12,7 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.entries.core.repo.db.DbEntryRepositoryContext;
+import edu.tamu.tcat.trc.entries.core.repo.db.DbEntryRepositoryRegistry;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.ArticleRepoFacade;
@@ -39,13 +39,13 @@ public class ArticleRepoService implements ArticleRepoFacade
    private static final String TABLE_NAME = "articles";
 
    private ArticleIndexManagerService indexSvc;
-   private DbEntryRepositoryContext context;
+   private DbEntryRepositoryRegistry context;
 
    private IdFactory idFactory;
    private DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> articleBackend;
 
 
-   public void setRepoContext(DbEntryRepositoryContext context)
+   public void setRepoContext(DbEntryRepositoryRegistry context)
    {
       this.context = context;
    }

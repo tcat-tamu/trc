@@ -8,6 +8,9 @@ import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
  *  resources that are typically required by repositories. Allows for some
  *  basic configuration so that individual services do not need to be stitched
  *  to repositories directly.
+ *
+ *  <p>
+ *  Note that the specific mechanism for registering repositories is implementation dependent.
  */
 public interface EntryRepositoryRegistry
 {
@@ -21,7 +24,7 @@ public interface EntryRepositoryRegistry
     * @param type The type of repository to check.
     * @return {@code true} if there is a repository registered for the supplied type.
     */
-   <Repo> boolean isAvailable(Class<Repo> type);
+   <Repo> boolean isRepositoryAvailable(Class<Repo> type);
 
    /**
     * Obtain a reference to a TRC entry repository of the indicated type.
@@ -29,10 +32,11 @@ public interface EntryRepositoryRegistry
     * @param type The type of repository to obtain.
     * @return The requested repository.
     * @throws IllegalArgumentException If no repository is registered for this type.
+    *
+    * @apiNote This is designed to be implemented such that an repository implementation
+    *    provides ac
     */
    <Repo> Repo getRepository(Account account, Class<Repo> type) throws IllegalArgumentException;
-
-
 
    /**
     * @return The configured {@link EntryResolverRegistry} to be used.
