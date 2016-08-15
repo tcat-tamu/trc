@@ -1,5 +1,6 @@
 package edu.tamu.tcat.trc.entries.core.repo.db;
 
+import java.net.URI;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -8,6 +9,7 @@ import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
+import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
 import edu.tamu.tcat.trc.entries.core.resolver.BasicResolverRegistry;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
@@ -22,7 +24,7 @@ import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
  *  common across repositories.
  *
  */
-public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry
+public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, RepositoryContext
 {
 //   NOTE that this introduces a dependency on this shared class (notably for registration of repos) that will
 //        will be difficult to untangle. For the immediate future, this is acceptable in order to simplify
@@ -76,50 +78,10 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry
 
    }
 
-   public IdFactory getIdFactory(String context)
-   {
-      return idFactoryProvider.getIdFactory(context);
-   }
-
-   public SqlExecutor getSqlExecutor()
-   {
-      return sqlExecutor;
-   }
-
-   public ConfigurationProperties getConfig()
-   {
-      return config;
-   }
-
    @Override
    public EntryResolverRegistry getResolverRegistry()
    {
       return resolverRegistry;
-   }
-
-   /**
-    *
-    * @param tablename
-    * @param factory
-    * @param adapter
-    * @param type
-    *
-    * @return
-    */
-   public <T, DTO, CMD> DocumentRepository<T, DTO, CMD>
-   buildDocumentRepo(String tablename, EditCommandFactory<DTO, CMD> factory, Function<DTO, T> adapter, Class<DTO> type)
-   {
-      PsqlJacksonRepoBuilder<T, DTO, CMD> repoBuilder = new PsqlJacksonRepoBuilder<>();
-
-      repoBuilder.setDbExecutor(sqlExecutor);
-      repoBuilder.setTableName(tablename);
-      repoBuilder.setEditCommandFactory(factory);
-      repoBuilder.setDataAdapter(adapter);
-      repoBuilder.setSchema(BasicSchemaBuilder.buildDefaultSchema());
-      repoBuilder.setStorageType(type);
-      repoBuilder.setEnableCreation(true);
-
-      return repoBuilder.build();
    }
 
    @Override
@@ -139,6 +101,76 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry
       return (Repo)factory.apply(account);
    }
 
+   /* (non-Javadoc)
+    * @see edu.tamu.tcat.trc.entries.core.repo.db.RepositoryContext#getConfig()
+    */
+   @Override
+   public ConfigurationProperties getConfig()
+   {
+      return config;
+   }
+
+   /* (non-Javadoc)
+    * @see edu.tamu.tcat.trc.entries.core.repo.db.RepositoryContext#getIdFactory(java.lang.String)
+    */
+   @Override
+   public IdFactory getIdFactory(String context)
+   {
+      return idFactoryProvider.getIdFactory(context);
+   }
+
+   public SqlExecutor getSqlExecutor()
+   {
+      return sqlExecutor;
+   }
+
+   /**
+    * @return The URI of the endpoint that will be used for URI based identification
+    *       of entries. This should correspond to the REST endpoint on which the
+    *       application is hosted.
+    */
+   @Override
+   public URI getApiEndpoint()
+   {
+      config.getPropertyValue(API_ENDPOINT_PARAM, URI.class, URI.create(""));
+
+      return null;
+   }
+
+   /**
+    * Builds a basic document repository using the supplied configuration utilities.
+    *
+    * @param tablename The name of the database table (or other storage specific mechanism)
+    *       for storing recording these entries. Note that if the underlying table does not
+    *       exist, it will be created.
+    * @param factory A factory for generating edit commands.
+    * @param adapter An adapter to convert stored data representations (type DTO) to
+    *       instances of the associated entries Java type (an Interface).
+    * @param type The Java interface that defines this entry.
+    *
+    * @return A document repository with the supplied configuration.
+    */
+   @Override
+   public <T, DTO, CMD> DocumentRepository<T, DTO, CMD>
+   buildDocumentRepo(String tablename, EditCommandFactory<DTO, CMD> factory, Function<DTO, T> adapter, Class<DTO> type)
+   {
+      PsqlJacksonRepoBuilder<T, DTO, CMD> repoBuilder = new PsqlJacksonRepoBuilder<>();
+
+      repoBuilder.setDbExecutor(sqlExecutor);
+      repoBuilder.setTableName(tablename);
+      repoBuilder.setEditCommandFactory(factory);
+      repoBuilder.setDataAdapter(adapter);
+      repoBuilder.setSchema(BasicSchemaBuilder.buildDefaultSchema());
+      repoBuilder.setStorageType(type);
+      repoBuilder.setEnableCreation(true);
+
+      return repoBuilder.build();
+   }
+
+   /* (non-Javadoc)
+    * @see edu.tamu.tcat.trc.entries.core.repo.db.RepositoryContext#registerRepository(java.lang.Class, java.util.function.Function)
+    */
+   @Override
    public <Repo> void registerRepository(Class<Repo> type, Function<Account, Repo> factory)
    {
       if (repositories.containsKey(type))
@@ -147,16 +179,12 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry
       repositories.put(type, factory);
    }
 
+   /* (non-Javadoc)
+    * @see edu.tamu.tcat.trc.entries.core.repo.db.RepositoryContext#unregister(java.lang.Class)
+    */
+   @Override
    public <Repo> void unregister(Class<Repo> type)
    {
       repositories.remove(type);
-   }
-
-   public <Repo> void register(Class<Repo> type, Function<Account, Repo> factory)
-   {
-      if (repositories.containsKey(type))
-            throw new IllegalArgumentException("A repository has already been registered for " + type);
-
-      repositories.put(type, factory);
    }
 }
