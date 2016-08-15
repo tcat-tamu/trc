@@ -29,6 +29,7 @@ public interface EntryResolver<T>
     * Configuration parameter that specifies the REST API endpoint for use in
     * creating and interpreting TRC entry URIs.
     */
+   @Deprecated // Use EntryRepositoryRegistry#API_ENDPOINT_PARAM
    static final String API_ENDPOINT_PARAM = "trc.api.endpoint";
 
 

@@ -17,6 +17,11 @@ public interface EntryRepositoryRegistry
    // TODO provide access to DocumentFactory, IdFactory, etc as needed.
 
    // TODO provide factory to create a document repo
+   /**
+    * Configuration parameter that specifies the REST API endpoint for use in
+    * creating and interpreting TRC entry URIs.
+    */
+   static final String API_ENDPOINT_PARAM = "trc.api.endpoint";
 
    /**
     * Indicates whether a given repository has been registered
