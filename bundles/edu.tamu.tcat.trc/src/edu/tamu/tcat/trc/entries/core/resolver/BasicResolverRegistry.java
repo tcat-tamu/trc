@@ -1,5 +1,7 @@
 package edu.tamu.tcat.trc.entries.core.resolver;
 
+import java.io.UnsupportedEncodingException;
+import java.util.Base64;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,6 +44,35 @@ public class BasicResolverRegistry implements EntryResolverRegistry
             .filter(resolver -> resolver.accepts(entry))
             .findAny()
             .orElseThrow(() -> new InvalidReferenceException((Object)null, "No registered resolver accpets this entry"));
+   }
+
+   public String makeToken(EntryReference ref)
+   {
+      // HACK this is an arbitrary restriction on ids and may not be robust
+      //      to future changes. Need a better tokenization strategy.
+      if (ref.id.contains("::"))
+         throw new IllegalStateException("Cannot tokenize reference with id " + ref.id);
+      String key = ref.id + "::" + ref.type;
+      return Base64.getEncoder().encodeToString(key.getBytes());
+   }
+
+   public EntryReference decodeToken(String token)
+   {
+      byte[] bytes = Base64.getDecoder().decode(token);
+      try
+      {
+         String key = new String(bytes, "UTF-8");
+         int ix = key.indexOf("::");
+         EntryReference ref = new EntryReference();
+         ref.id = key.substring(0, ix);
+         ref.type = key.substring(ix + 2);
+
+         return ref;
+      }
+      catch (UnsupportedEncodingException e)
+      {
+         throw new IllegalStateException("System does not support UTF-8", e);
+      }
    }
 
 }
