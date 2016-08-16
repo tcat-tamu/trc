@@ -66,7 +66,7 @@ public abstract class RestApiV1
       public String id;
 
       /** The Id fo the categorization this entry belongs to. */
-      public String categorizationId;
+      public String schemeId;
 
       /** The version of the categorization when this entry was last modified. */
       public long version;
@@ -79,9 +79,12 @@ public abstract class RestApiV1
        *  entry. Must not be {@code null}. */
       public String label;
 
+      /** A description of this entry. */
+      public String description;
+
       /** A reference to the associated article entry or null if no article has been
        *  associated with this entry. */
-      public ArticleReference articleReference;
+      public EntryReference articleReference;
    }
 
    /**
@@ -89,10 +92,6 @@ public abstract class RestApiV1
     */
    public static class HierarchyEntry extends BasicEntry
    {
-      /** The ID of this entry's parent in the hierarchy. Must not be {@code null}
-       *  except on the application-created root node. */
-      public String parentId;
-
       /** The ids of the children of this entry. Note that this is the authoritative
        *  record  child entries associated with this entry, while {@link #children} is
        *  used for eager fetching of data. */
@@ -119,19 +118,20 @@ public abstract class RestApiV1
       public List<edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.ArticleAuthor> authors;
    }
 
-   /** A simple data structure that refernces a specific version of an article. */
-   public static class ArticleReference
+   /** A simple data structure that reference a TRC Entry. */
+   public static class EntryReference
    {
-      /**
-       * The id of the referenced article.
-       */
+      /** The semantic type of the referenced entry. */
+      public String type;
+
+      /** The id of the referenced entry. */
       public String id;
 
       /**
-       * The version of the referenced article. If less than zero, this will
+       * The version of the referenced article. If zero (or negative), this will
        * reference the latest version.
        */
-      public String version;
+      public int version = 0;
    }
 
    public static enum ChangeDisposition

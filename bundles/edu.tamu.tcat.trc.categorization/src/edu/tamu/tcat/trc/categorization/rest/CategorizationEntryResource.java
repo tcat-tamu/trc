@@ -39,7 +39,7 @@ public class CategorizationEntryResource
    @Path("articleRef")
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.Categorization associateArticle(RestApiV1.ArticleReference article)
+   public RestApiV1.Categorization associateArticle(RestApiV1.EntryReference article)
    {
       return null;
    }

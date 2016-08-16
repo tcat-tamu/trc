@@ -13,18 +13,22 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import edu.tamu.tcat.trc.categorization.CategorizationRepo;
+import edu.tamu.tcat.trc.categorization.CategorizationScheme;
+
 /**
- *  REST API for working with an individual categorization.
- *
+ *  REST API for working with a categorization scheme.
  */
-public class CategorizationResource
+public abstract class CategorizationResource
 {
 
-   private final String key;     // TODO should be constructed with a specific categorization
+   protected final CategorizationRepo repo;
+   protected final CategorizationScheme scheme;
 
-   public CategorizationResource(String key)
+   public CategorizationResource(CategorizationRepo repo, CategorizationScheme scheme)
    {
-      this.key = key;
+      this.repo = repo;
+      this.scheme = scheme;
    }
 
    /**
@@ -34,7 +38,6 @@ public class CategorizationResource
    @Produces(MediaType.APPLICATION_JSON)
    public RestApiV1.Categorization getCategorization()
    {
-
       return null;
    }
 

@@ -1,16 +1,26 @@
 package edu.tamu.tcat.trc.categorization.rest;
 
-import javax.validation.constraints.NotNull;
+import static java.text.MessageFormat.format;
+
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.MatrixParam;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import edu.tamu.tcat.trc.categorization.CategorizationRepo;
+import edu.tamu.tcat.trc.categorization.CategorizationScheme;
+import edu.tamu.tcat.trc.categorization.EditCategorizationCommand;
+import edu.tamu.tcat.trc.categorization.strategies.tree.TreeCategorization;
 
 /**
  *  Represents categorization schemes. A categorization is a user-defined structure designed
@@ -64,28 +74,94 @@ import javax.ws.rs.core.Response;
  */
 public class CategorizationSchemesResource
 {
+   private final static Logger logger = Logger.getLogger(CategorizationSchemesResource.class.getName());
 
-   // HACK for initial API development, we'll store these internally
+   private final CategorizationRepo repo;
+
+   public CategorizationSchemesResource(CategorizationRepo repo)
+   {
+      this.repo = repo;
+   }
+
+   private void checkUniqueKey(String key)
+   {
+      if (key == null || key.trim().isEmpty())
+         throw new BadRequestException("A key must be supplied for the categorization.");
+
+      try
+      {
+         String errMsg = "The key {0} is already in use by scheme {1}.";
+         CategorizationScheme scheme = repo.get(key);
+         if (scheme != null)
+            throw new WebApplicationException(format(errMsg, key, scheme.getLabel()), Response.Status.CONFLICT);
+      }
+      catch (IllegalArgumentException ex)
+      {
+         // no-op this is the expected behavior since the key should not be in use
+      }
+   }
 
    /**
     *  Create a new categorization.
     *
-    * @param key The identifier for this categorization.
-    * @return A created response with a link to the created categorization. The created
+    *  @param key The identifier for this categorization.
+    *  @return A created response with a link to the created categorization. The created
     *       categorization will be supplied in the body.
     */
    @POST
    @Produces(MediaType.APPLICATION_JSON)
-   public Response createCategorization(RestApiV1.Categorization categorization)
+   public RestApiV1.Categorization createCategorization(RestApiV1.Categorization categorization)
    {
-      if (!categorization.type.equals(HierarchicalCategorizationResource.TYPE))
-         throw new BadRequestException("Cannot create new categorization. "
-               + "Categorizatons of the requested type " + categorization.type + " are not supported.");
+      String logEntryMsg = "Attempting to create new categorization scheme {0}/{1} ({2}).";
+      logger.fine(() -> format(logEntryMsg, repo.getScope().getScopeId(), categorization.key, categorization.label));
 
-      /// TODO throws conflict - if the resource already exists
-      //              bad request invalid type
-      //              forbidden
-      throw new UnsupportedOperationException();
+      try
+      {
+         checkUniqueKey(categorization.key);
+
+         String errBadType = "Cannot create new categorization. Categorizatons of the requested type {0} are not supported.";
+         switch (categorization.type)
+         {
+            // FIXME add support for other types
+            case HierarchicalCategorizationResource.TYPE:
+               return createTreeCategorization(categorization);
+            default:
+               throw new BadRequestException(format(errBadType, categorization.type));
+         }
+
+      }
+      catch (WebApplicationException ex)
+      {
+         String logMsg = "Error attempting to create a categorization scheme: {0}/{1} ({2}).";
+         String msg = format(logMsg, repo.getScope().getScopeId(), categorization.key, categorization.label);
+         logger.log(Level.INFO, msg, ex);
+         throw ex;
+      }
+   }
+
+   private RestApiV1.Categorization createTreeCategorization(RestApiV1.Categorization categorization)
+   {
+      try
+      {
+         EditCategorizationCommand command = repo.create(CategorizationScheme.Strategy.TREE, categorization.key);
+         command.setDescription(categorization.description);
+         command.setLabel(categorization.label);
+
+         String schemeId = command.execute().get();
+         String logSuccessMsg = "Created new categorization scheme {0}: {1}/{2} ({3}).";
+         logger.info(() -> format(logSuccessMsg, schemeId, repo.getScope().getScopeId(), categorization.key, categorization.label));
+
+         CategorizationScheme scheme = repo.getById(schemeId);
+         if (!TreeCategorization.class.isInstance(scheme))
+            throw new InternalServerErrorException("An unexpected type of categorization created by the server.");
+
+         return ModelAdapterV1.adapt((TreeCategorization)scheme);
+      }
+      catch (Exception e)
+      {
+         String template = "Failed to create new categorization scheme for key {0} (1). Unexpected error: {2}";
+         throw new InternalServerErrorException(format(template, categorization.key, categorization.label, e.getMessage()));
+      }
    }
 
    /**
@@ -101,27 +177,52 @@ public class CategorizationSchemesResource
     *       semi-readable identifiers that must be unique within a given
     *       categorization scope.
     * @return The identified categorization scheme.
+    *
     * @throws NotFoundException If no categorization is defined for the provided key.
     */
-   @Path("/")
-   public CategorizationResource getCategorization(@QueryParam("key") String key)
+   @Path("{key}")
+   public CategorizationResource getCategorization(@PathParam("key") String key)
    {
-      // NOTE for simplicity, let's use a suffix to indicate the categorization type?
-      return new CategorizationResource(key);
+      Optional<CategorizationScheme> opt = getByKey(key);
+      if (!opt.isPresent())
+         opt = getById(key);
+
+      CategorizationScheme scheme = opt.orElseThrow(
+            () -> new NotFoundException(format("No categorization scheme found for {0}", key)));
+
+      switch (scheme.getType())
+      {
+         case TREE:
+            return new HierarchicalCategorizationResource(repo, scheme);
+         default:
+            String badScheme = "The categorization strategy ({0}) of the requested scheme ({1}) is not supported.";
+            throw new InternalServerErrorException(format(badScheme, scheme.getType(), key));
+      }
+
    }
 
-   /**
-    * Looks up a categorization by its persistent, internal identifier and (optionally) a version id.
-    *
-    * @param id The id of the categorization scheme
-    * @param version The version number to return (optional)
-    * @return The requested version.
-    * @throws NotFoundException If the identified categorization resource could not be found.
-    */
-   @Path("/")
-   public CategorizationResource getCategorizationById(@MatrixParam("id") @NotNull String id,
-                                                       @MatrixParam("v") @DefaultValue("-1") long version)
+   private Optional<CategorizationScheme> getByKey(String key)
    {
-      throw new UnsupportedOperationException();
+      try
+      {
+         return Optional.of(repo.get(key));
+      }
+      catch (IllegalArgumentException ex)
+      {
+         return Optional.empty();
+      }
+   }
+
+
+   private Optional<CategorizationScheme> getById(String id)
+   {
+      try
+      {
+         return Optional.of(repo.getById(id));
+      }
+      catch (IllegalArgumentException ex)
+      {
+         return Optional.empty();
+      }
    }
 }
