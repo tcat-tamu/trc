@@ -256,6 +256,21 @@ public abstract class CategorizationRepositoryTests
       }
    }
 
+   @Test
+   public void testReferenceTokenization()
+   {
+      String entryDesc = "mock entry description";
+      MockEntry mockEntry = entryResolver.create(entryDesc);
+      EntryReference mockRef = entryResolver.makeReference(mockEntry);
+
+      mockRef.id = "3XthwW";
+      String token = ((BasicResolverRegistry)registry).makeToken(mockRef);
+      System.out.println(token);
+      EntryReference resored = ((BasicResolverRegistry)registry).decodeToken(token);
+      assertEquals(mockRef.id, resored.id);
+      assertEquals(mockRef.type, resored.type);
+   }
+
    protected abstract Strategy getStrategy();
 
    protected CategorizationRepo getDefaultRepo()
