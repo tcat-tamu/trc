@@ -264,7 +264,7 @@ public abstract class CategorizationRepositoryTests
       EntryReference mockRef = entryResolver.makeReference(mockEntry);
 
       mockRef.id = "3XthwW";
-      String token = ((BasicResolverRegistry)registry).makeToken(mockRef);
+      String token = ((BasicResolverRegistry)registry).tokenize(mockRef);
       System.out.println(token);
       EntryReference resored = ((BasicResolverRegistry)registry).decodeToken(token);
       assertEquals(mockRef.id, resored.id);

@@ -46,7 +46,7 @@ public class BasicResolverRegistry implements EntryResolverRegistry
             .orElseThrow(() -> new InvalidReferenceException((Object)null, "No registered resolver accpets this entry"));
    }
 
-   public String makeToken(EntryReference ref)
+   public String tokenize(EntryReference ref)
    {
       // HACK this is an arbitrary restriction on ids and may not be robust
       //      to future changes. Need a better tokenization strategy.
