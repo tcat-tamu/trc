@@ -36,9 +36,9 @@ import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.trc.entries.core.repo.db.DbEntryRepositoryRegistry;
-import edu.tamu.tcat.trc.entries.core.resolver.BasicResolverRegistry;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolver;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.docrepo.ArticleRepoService;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
@@ -64,7 +64,7 @@ public class ArticleRepoTests
    private ConfigurationProperties config;
    private ArticleRepoService svc;
 
-   private BasicResolverRegistry resolvers;
+   private EntryResolverRegistry resolvers;
 
    @BeforeClass
    public static void setUp()
@@ -89,7 +89,7 @@ public class ArticleRepoTests
       repoCtx.setConfiguration(config);
       repoCtx.setIdFactory(idProvider);
       repoCtx.setSqlExecutor(exec);
-      resolvers = new BasicResolverRegistry();
+      resolvers = repoCtx.getResolverRegistry();
       repoCtx.activate();
 
       svc = new ArticleRepoService();

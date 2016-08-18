@@ -37,9 +37,8 @@ import edu.tamu.tcat.trc.categorization.strategies.tree.PreOrderTraversal;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeCategorization;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeNode;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeNodeMutator;
-import edu.tamu.tcat.trc.entries.core.resolver.BasicResolverRegistry;
+import edu.tamu.tcat.trc.entries.core.repo.db.DbEntryRepositoryRegistry;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.test.ClosableSqlExecutor;
 import edu.tamu.tcat.trc.test.TestUtils;
@@ -52,11 +51,12 @@ public abstract class CategorizationRepositoryTests
 
    private ClosableSqlExecutor exec;
    private ConfigurationProperties config;
-   private EntryResolverRegistry registry;
 
    protected CategorizationSchemeService svc;
 
    protected MockEntryResolver entryResolver;
+
+   protected DbEntryRepositoryRegistry repos;
 
    @BeforeClass
    public static void setUp()
@@ -75,17 +75,21 @@ public abstract class CategorizationRepositoryTests
    {
       config = TestUtils.loadConfigFile();
       exec = TestUtils.initPostgreSqlExecutor(config);
-      registry = new BasicResolverRegistry();
-
-      entryResolver = new MockEntryResolver();
-      registry.register(entryResolver);
 
       IdFactoryProvider idProvider = TestUtils.makeIdFactoryProvider();
+
+      repos = new DbEntryRepositoryRegistry();
+      repos.setConfiguration(config);
+      repos.setIdFactory(idProvider);
+      repos.setSqlExecutor(exec);
+
+      entryResolver = new MockEntryResolver();
+      repos.getResolverRegistry().register(entryResolver);
 
       svc = new CategorizationSchemeService();
       svc.bindSqlExecutor(exec);
       svc.bindIdProvider(idProvider);
-      svc.bindEntryResolver(registry);
+      svc.bindEntryRepoResolver(repos);
       // TODO configure search
 
       Map<String, Object> props = new HashMap<>();
@@ -134,7 +138,6 @@ public abstract class CategorizationRepositoryTests
 
       CategorizationRepo repository = svc.getRepository(scope);
       assertNotNull("No categorization repo created", repository);
-
    }
 
    @Test
@@ -264,9 +267,9 @@ public abstract class CategorizationRepositoryTests
       EntryReference mockRef = entryResolver.makeReference(mockEntry);
 
       mockRef.id = "3XthwW";
-      String token = ((BasicResolverRegistry)registry).tokenize(mockRef);
+      String token = repos.getResolverRegistry().tokenize(mockRef);
       System.out.println(token);
-      EntryReference resored = ((BasicResolverRegistry)registry).decodeToken(token);
+      EntryReference resored = repos.getResolverRegistry().decodeToken(token);
       assertEquals(mockRef.id, resored.id);
       assertEquals(mockRef.type, resored.type);
    }

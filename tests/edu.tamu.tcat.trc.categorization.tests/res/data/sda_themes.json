@@ -1,0 +1,223 @@
+{
+  "label": "Root Node",
+  "children": [{
+    "label": "Categories of SDA",
+    "children": [{
+      "label": "Grace",
+      "children": []
+    }, {
+      "label": "Inspiration",
+      "children": []
+    }, {
+      "label": "Miracles",
+      "children": []
+    }, {
+      "label": "Providence",
+      "children": []
+    }]
+  }, {
+    "label": "Metaphors",
+    "children": [{
+      "label": "Watchmaker",
+      "children": []
+    }, {
+      "label": "Gardener",
+      "children": []
+    }, {
+      "label": "Illuminator",
+      "children": []
+    }, {
+      "label": "Bridegroom",
+      "children": []
+    }]
+  }, {
+    "label": "Worldviews",
+    "children": [{
+      "label": "HEADING GOES HERE (03-01)",
+      "children": [{
+        "label": "Causation",
+        "children": []
+      }, {
+        "label": "Laws of nature",
+        "children": []
+      }, {
+        "label": "Physics and SDA",
+        "children": [{
+          "label": "HEADING GOES HERE (03-01-03-01)",
+          "children": []
+        }, {
+          "label": "HEADING GOES HERE (03-01-03-02)",
+          "children": []
+        }, {
+          "label": "Fine tuning",
+          "children": []
+        }]
+      }, {
+        "label": "Idealism",
+        "children": []
+      }, {
+        "label": "Panpsychism",
+        "children": []
+      }, {
+        "label": "Emergence and holism",
+        "children": []
+      }, {
+        "label": "Hylomorphism",
+        "children": []
+      }, {
+        "label": "Indeterminism",
+        "children": []
+      }, {
+        "label": "Dualism",
+        "children": []
+      }, {
+        "label": "Determinism",
+        "children": []
+      }, {
+        "label": "Materialism",
+        "children": []
+      }]
+    }, {
+      "label": "HEADING GOES HERE (03-02)",
+      "children": [{
+        "label": "Trinitarianism",
+        "children": []
+      }, {
+        "label": "Classical theism",
+        "children": []
+      }, {
+        "label": "OmniGod",
+        "children": []
+      }, {
+        "label": "Concurrentism",
+        "children": []
+      }, {
+        "label": "Occasionalism",
+        "children": []
+      }, {
+        "label": "Panentheism",
+        "children": []
+      }, {
+        "label": "Process theology",
+        "children": []
+      }, {
+        "label": "Open theism",
+        "children": []
+      }, {
+        "label": "Deism",
+        "children": []
+      }, {
+        "label": "Impersonal conceptions of God (and SDA)",
+        "children": []
+      }, {
+        "label": "Agnosticism",
+        "children": []
+      }]
+    }, {
+      "label": "HEADING GOES HERE (03-03)",
+      "children": [{
+        "label": "Islam",
+        "children": []
+      }, {
+        "label": "Christianity",
+        "children": [{
+          "label": "Old Testament",
+          "children": []
+        }, {
+          "label": "New Testament",
+          "children": []
+        }, {
+          "label": "Post-apostolic SDA",
+          "children": [{
+            "label": "Sacraments",
+            "children": []
+          }, {
+            "label": "Saints",
+            "children": []
+          }]
+        }]
+      }, {
+        "label": "Greek and Roman culture",
+        "children": []
+      }, {
+        "label": "HEADING GOES HERE (03-03-04)",
+        "children": []
+      }, {
+        "label": "Zoroastrianism",
+        "children": []
+      }, {
+        "label": "Buddhism",
+        "children": []
+      }, {
+        "label": "Hinduism",
+        "children": []
+      }]
+    }, {
+      "label": "HEADING GOES HERE (03-04)",
+      "children": [{
+        "label": "HEADING GOES HERE (03-04-01)",
+        "children": [{
+          "label": "Aquinas",
+          "children": []
+        }, {
+          "label": "Spinoza",
+          "children": []
+        }, {
+          "label": "Hume",
+          "children": []
+        }, {
+          "label": "Kant",
+          "children": []
+        }, {
+          "label": "Bolzano",
+          "children": []
+        }, {
+          "label": "J. H. Newman",
+          "children": []
+        }, {
+          "label": "C. S. Lewis",
+          "children": []
+        }]
+      }, {
+        "label": "HEADING GOES HERE (03-04-02)",
+        "children": []
+      }, {
+        "label": "HEADING GOES HERE (03-04-03)",
+        "children": []
+      }, {
+        "label": "HEADING GOES HERE (03-04-04)",
+        "children": [{
+          "label": "HEADING GOES HERE (03-04-04-01)",
+          "children": []
+        }, {
+          "label": "Problem of evil",
+          "children": []
+        }]
+      }]
+    }]
+  }, {
+    "label": "HEADING GOES HERE (04)",
+    "children": [{
+      "label": "HEADING GOES HERE (04-01)",
+      "children": [{
+        "label": "Religious experience and divine action",
+        "children": []
+      }, {
+        "label": "HEADING GOES HERE (04-01-02)",
+        "children": []
+      }, {
+        "label": "Role of prayer",
+        "children": []
+      }]
+    }, {
+      "label": "Second-person perspective",
+      "children": []
+    }, {
+      "label": "HEADING GOES HERE (04-03)",
+      "children": []
+    }, {
+      "label": "Impersonal SDA",
+      "children": []
+    }]
+  }]
+}
