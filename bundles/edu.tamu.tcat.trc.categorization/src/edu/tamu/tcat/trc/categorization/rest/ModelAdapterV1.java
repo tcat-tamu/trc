@@ -16,7 +16,7 @@ public class ModelAdapterV1
       RestApiV1.Categorization dto = adaptBaseScheme(scheme);
 
       dto.type = HierarchicalCategorizationResource.TYPE;
-      dto.entries = adapt(scheme.getRootNode());
+      dto.root = adapt(scheme.getRootNode());
 
       return dto;
    }
@@ -28,6 +28,7 @@ public class ModelAdapterV1
       // TODO add additional metadata information
       dto.meta.id = scheme.getId();
       dto.key = scheme.getKey();
+      dto.label = scheme.getLabel();
       dto.description = scheme.getDescription();
 
       return dto;
@@ -42,7 +43,7 @@ public class ModelAdapterV1
       dto.label = node.getLabel();
       dto.description = node.getDescription();
 
-      dto.articleReference = adapt(node.getAssociatedEntryRef());
+      dto.entryRef = adapt(node.getAssociatedEntryRef());
       List<TreeNode> children = node.getChildren();
       dto.childIds = children.stream().map(TreeNode::getId).collect(Collectors.toList());
       dto.children = children.stream().map(ModelAdapterV1::adapt).collect(Collectors.toList());

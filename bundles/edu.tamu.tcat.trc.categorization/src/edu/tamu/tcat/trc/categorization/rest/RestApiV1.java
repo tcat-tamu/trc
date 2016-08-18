@@ -12,7 +12,7 @@ public abstract class RestApiV1
        * Basic information about this categorization including it's id, version,
        * and dates of creation/modification.
        */
-      public CategorizationMeta meta;
+      public CategorizationMeta meta = new CategorizationMeta();
 
       public String key;
 
@@ -31,7 +31,9 @@ public abstract class RestApiV1
        * a hierarchical categorization uses a {@link BasicEntry} while a
        * list or group uses a List<> or Set<> correspondingly.
        */
-      Object entries;
+      public List<BasicEntry> entries;
+
+      public HierarchyEntry root;
    }
 
    public static class CategorizationMeta
@@ -65,14 +67,14 @@ public abstract class RestApiV1
       /** A persistent, globally unique identifier for this entry. */
       public String id;
 
-      /** The Id fo the categorization this entry belongs to. */
+      /** The Id of the categorization this entry belongs to. */
       public String schemeId;
 
       /** The version of the categorization when this entry was last modified. */
       public long version;
 
       /** A short human-readable identifier for this entry. Most be
-       *  unique wihtin a {@link Categorization}. Optional. */
+       *  unique within a {@link Categorization}. Optional. */
       public String slug;
 
       /** A label for this node suitable for display as the primary identifier of this
@@ -84,7 +86,7 @@ public abstract class RestApiV1
 
       /** A reference to the associated article entry or null if no article has been
        *  associated with this entry. */
-      public EntryReference articleReference;
+      public EntryReference entryRef;
    }
 
    /**
@@ -115,7 +117,7 @@ public abstract class RestApiV1
       public String articleAbstract;
 
       /** The authors associated with this entry.  */
-      public List<edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.ArticleAuthor> authors;
+      public List<String> authors;
    }
 
    /** A simple data structure that reference a TRC Entry. */

@@ -83,23 +83,7 @@ public class CategorizationSchemesResource
       this.repo = repo;
    }
 
-   private void checkUniqueKey(String key)
-   {
-      if (key == null || key.trim().isEmpty())
-         throw new BadRequestException("A key must be supplied for the categorization.");
-
-      try
-      {
-         String errMsg = "The key {0} is already in use by scheme {1}.";
-         CategorizationScheme scheme = repo.get(key);
-         if (scheme != null)
-            throw new WebApplicationException(format(errMsg, key, scheme.getLabel()), Response.Status.CONFLICT);
-      }
-      catch (IllegalArgumentException ex)
-      {
-         // no-op this is the expected behavior since the key should not be in use
-      }
-   }
+   // TODO need a 'list' endpoint
 
    /**
     *  Create a new categorization.
@@ -136,6 +120,26 @@ public class CategorizationSchemesResource
          String msg = format(logMsg, repo.getScope().getScopeId(), categorization.key, categorization.label);
          logger.log(Level.INFO, msg, ex);
          throw ex;
+      }
+   }
+
+   // TODO need a 'list' endpoint
+
+   private void checkUniqueKey(String key)
+   {
+      if (key == null || key.trim().isEmpty())
+         throw new BadRequestException("A key must be supplied for the categorization.");
+
+      try
+      {
+         String errMsg = "The key {0} is already in use by scheme {1}.";
+         CategorizationScheme scheme = repo.get(key);
+         if (scheme != null)
+            throw new WebApplicationException(format(errMsg, key, scheme.getLabel()), Response.Status.CONFLICT);
+      }
+      catch (IllegalArgumentException ex)
+      {
+         // no-op this is the expected behavior since the key should not be in use
       }
    }
 

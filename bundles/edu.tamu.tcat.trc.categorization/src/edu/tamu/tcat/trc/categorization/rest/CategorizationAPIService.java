@@ -1,14 +1,18 @@
 package edu.tamu.tcat.trc.categorization.rest;
 
-import javax.ws.rs.DefaultValue;
+import static java.text.MessageFormat.format;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
-import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.categorization.CategorizationRepo;
 import edu.tamu.tcat.trc.categorization.CategorizationRepoFactory;
 import edu.tamu.tcat.trc.categorization.CategorizationScope;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 
 /**
  * Point of entry to the REST API for the Categorization system. This class is
@@ -18,40 +22,40 @@ import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 @Path("/")
 public class CategorizationAPIService
 {
+   private final static Logger logger = Logger.getLogger(CategorizationAPIService.class.getName());
 
    private CategorizationRepoFactory repoProvider;
-   private EntryResolverRegistry resolvers;
-   private ConfigurationProperties config;
 
    public void bind(CategorizationRepoFactory repoProvider)
    {
       this.repoProvider = repoProvider;
    }
 
-   public void bind(EntryResolverRegistry resolvers)
-   {
-      this.resolvers = resolvers;
-   }
-
-   public void bind(ConfigurationProperties config)
-   {
-      // TODO alternatively, we could bind the core TRC Facade
-      this.config = config;
-   }
-
    public void activate()
    {
-
+      logger.info("Activating Categorization REST API service");
    }
 
    @Path("/categorizations/{scope}")
-   public CategorizationSchemesResource get(@PathParam("scope") @DefaultValue("default") String scopeId)
+   public CategorizationSchemesResource get(@PathParam("scope") String scopeId)
    {
-      // TODO may adapt scope by translating username into account id
+      try
+      {
+         if (scopeId == null)
+            throw new BadRequestException("No scope id provided");
 
-      CategorizationScope scope = repoProvider.createScope(null, scopeId);
-      CategorizationRepo repository = repoProvider.getRepository(scope);
+         // TODO may adapt scope by translating username into account id
 
-      return new CategorizationSchemesResource(repository);
+         CategorizationScope scope = repoProvider.createScope(null, scopeId);
+         CategorizationRepo repository = repoProvider.getRepository(scope);
+
+         return new CategorizationSchemesResource(repository);
+      }
+      catch (Exception ex)
+      {
+         String pattern = "Failed to obtain categorization scheme for scope {0}";
+         logger.log(Level.SEVERE, format(pattern, scopeId), ex);
+         throw new InternalServerErrorException(ex);
+      }
    }
 }
