@@ -69,8 +69,10 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, Repos
 
    public void activate()
    {
+      // TODO make the idFactoryProvider option and/or configure internally?
+      Objects.requireNonNull(sqlExecutor);
       Objects.requireNonNull(idFactoryProvider);
-
+      Objects.requireNonNull(config);
    }
 
    public void dispose()
@@ -101,18 +103,12 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, Repos
       return (Repo)factory.apply(account);
    }
 
-   /* (non-Javadoc)
-    * @see edu.tamu.tcat.trc.entries.core.repo.db.RepositoryContext#getConfig()
-    */
    @Override
    public ConfigurationProperties getConfig()
    {
       return config;
    }
 
-   /* (non-Javadoc)
-    * @see edu.tamu.tcat.trc.entries.core.repo.db.RepositoryContext#getIdFactory(java.lang.String)
-    */
    @Override
    public IdFactory getIdFactory(String context)
    {
@@ -167,9 +163,6 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, Repos
       return repoBuilder.build();
    }
 
-   /* (non-Javadoc)
-    * @see edu.tamu.tcat.trc.entries.core.repo.db.RepositoryContext#registerRepository(java.lang.Class, java.util.function.Function)
-    */
    @Override
    public <Repo> void registerRepository(Class<Repo> type, Function<Account, Repo> factory)
    {
@@ -179,9 +172,6 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, Repos
       repositories.put(type, factory);
    }
 
-   /* (non-Javadoc)
-    * @see edu.tamu.tcat.trc.entries.core.repo.db.RepositoryContext#unregister(java.lang.Class)
-    */
    @Override
    public <Repo> void unregister(Class<Repo> type)
    {
