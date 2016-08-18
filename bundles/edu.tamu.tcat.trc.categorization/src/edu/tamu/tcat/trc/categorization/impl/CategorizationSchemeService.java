@@ -27,6 +27,7 @@ import edu.tamu.tcat.trc.categorization.CategorizationScope;
 import edu.tamu.tcat.trc.categorization.EditCategorizationCommand;
 import edu.tamu.tcat.trc.categorization.strategies.tree.EditTreeCategorizationCommand;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeCategorization;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
@@ -80,9 +81,7 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
    private IdFactory schemeIds;
 
    private EntryResolverRegistry registry;
-
    private String tableName;
-
 
    public void bindSqlExecutor(SqlExecutor sqlExecutor)
    {
@@ -94,9 +93,9 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
       this.idFactoryProvider = idProvider;
    }
 
-   public void bindEntryResolver(EntryResolverRegistry registry)
+   public void bindEntryRepoResolver(EntryRepositoryRegistry registry)
    {
-      this.registry = registry;
+      this.registry = registry.getResolverRegistry();
    }
 
    public void activate(Map<String, Object> props)
@@ -107,6 +106,7 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
          Objects.requireNonNull(sqlExecutor);
          Objects.requireNonNull(idFactoryProvider);
          Objects.requireNonNull(sqlExecutor);
+         Objects.requireNonNull(registry);
 
          String schemeIdsCtx = (String)props.getOrDefault(PARAM_ID_CTX, ID_CONTEXT_SCHEMES);
          logger.fine(() -> format("Categorization scheme id context {0}", schemeIdsCtx));
@@ -278,7 +278,15 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
          String scopeId = scope.getScopeId();
          String err = "Failed to retrieve categorization scheme for key {0} within scope {1}";
 
-         return DocumentRepository.unwrap(future, () -> format(err, key, scopeId));
+         try
+         {
+            return DocumentRepository.unwrap(future, () -> format(err, key, scopeId));
+         }
+         catch (NoSuchEntryException nsee)
+         {
+            String message = "No categorization scheme is available for key {0} within scope {1}";
+            throw new IllegalArgumentException(format(message, key, scopeId), nsee);
+         }
       }
 
       private CategorizationScheme doGetByKey(String key, String sql, Connection conn) throws SQLException
