@@ -1,26 +1,37 @@
 package edu.tamu.tcat.trc.categorization.rest;
 
-import java.util.List;
+import static java.text.MessageFormat.format;
+
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import edu.tamu.tcat.trc.categorization.CategorizationRepo;
 import edu.tamu.tcat.trc.categorization.CategorizationScheme;
+import edu.tamu.tcat.trc.categorization.CategorizationScope;
+import edu.tamu.tcat.trc.categorization.EditCategorizationCommand;
+import edu.tamu.tcat.trc.categorization.strategies.tree.TreeCategorization;
 
 /**
  *  REST API for working with a categorization scheme.
  */
 public abstract class CategorizationResource
 {
+   private final static Logger logger = Logger.getLogger(CategorizationResource.class.getName());
 
    protected final CategorizationRepo repo;
    protected final CategorizationScheme scheme;
@@ -38,7 +49,14 @@ public abstract class CategorizationResource
    @Produces(MediaType.APPLICATION_JSON)
    public RestApiV1.Categorization getCategorization()
    {
-      return null;
+      switch (scheme.getType())
+      {
+         case TREE:
+            return ModelAdapterV1.adapt((TreeCategorization)scheme);
+         default:
+            // TODO add message content
+            throw new InternalServerErrorException();
+      }
    }
 
    /**
@@ -54,53 +72,79 @@ public abstract class CategorizationResource
    @DELETE
    public Response removeCategorization()
    {
-      // TODO find and delete categorization. If not present, ignore
+      // TODO note that this might be OK if the scheme doesn't exist, but will have returned 404 already.
+      // NOTE once authorization is added, this will block permission errors.
+      try
+      {
+         repo.remove(scheme.getId()).get(10, TimeUnit.SECONDS);
+         return Response.noContent().build();
+      }
+      catch (Exception e)
+      {
+         String errMsg = "Failed to delete category {0} from scope {1} for user {2}";
+         String id = scheme.getId();
+         CategorizationScope scope = repo.getScope();
 
-      return Response.noContent().build();
+         String formatedMsg = format(errMsg, id, scope.getScopeId(), scope.getAccount().getDisplayName());
+         throw ModelAdapterV1.raise(Status.INTERNAL_SERVER_ERROR, formatedMsg, Level.SEVERE, e);
+      }
    }
 
    /**
     * Updates to the core descriptive information about the categorization. Will not
-    * affect entries associated with the categorization. While the entries field will
-    * be ignored, if supplied, it is best practice not to submit it in this request
-    * in order to minimize data transfer.
+    * affect entries associated with the categorization.
     *
-    * <p>The meta information associated with the last time data for this categorization
-    * was loaded from the server should be supplied and will be used for optimistic
-    * locking. If the categorization has been changed since the last seen update, this
-    * method will fail with a Conflict.
+    * <p>Supplied data must match the {@link RestApiV1.CategorizationDesc} data format.
+    * If supplied, the type field must match the type of this categorization scheme. All
+    * other fields will be updated if and only if they are supplied. Null values (where
+    * appropriate will be set to empty strings.
     *
     * @param updated The updated representation of the categorization.
     * @return The updated categorization.
     */
-   @PUT     // TODO technically, this is a patch, not a put
+   @PUT     // technically, this is a patch, not a put
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.Categorization update(RestApiV1.Categorization updated)
+   public RestApiV1.Categorization update(Map<String, String> fields)
    {
+      // TODO should throw 404 if not found .. can we do that?
+      EditCategorizationCommand command = repo.edit(scheme.getId());
+
+      setIfDefined("key", fields, key -> {
+         checkKeyNotEmpty(key);
+         command.setKey(key);
+      });
+      setIfDefined("label", fields, label -> {
+         label = label.isEmpty() ? "Unlabled" : label;
+         command.setLabel(label);
+      });
+      setIfDefined("description", fields, desc -> command.setDescription(desc));
+
       return null;
    }
 
-   /**
-    * Moves nodes from one position within the entry structure to another.
-    *
-    * This method is not supported for SetCategorizations. For ListCategorizations,
-    * information about the parent entry will be ignored if present.
-    *
-    * @param updates A list of entry movements to be applied in order.
-    * @return
-    */
-   @POST
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Produces(MediaType.APPLICATION_JSON)
-   public Response moveEntries(List<RestApiV1.MoveEntry> updates)
+   private void checkKeyNotEmpty(String key)
    {
-      return null;
+      if (!key.isEmpty())
+         return;
+
+      String msg = "Cannot set empty value for categorization scheme key.";
+      throw ModelAdapterV1.raise(Response.Status.BAD_REQUEST, msg, Level.WARNING, null);
+
    }
 
-   @Path("entries/{entry}")
-   public CategorizationEntryResource getEntry(@PathParam("entry") String entryKey)
+   private void setIfDefined(String param, Map<String, String> data, Consumer<String> action)
    {
-      return null;
+      if (!data.containsKey(param))
+         return;
+
+      String value = data.get(param);
+      if (value == null)
+         value = "";
+
+      action.accept(value);
    }
+
+   @Path("nodes/{id}")
+   public abstract CategorizationNodeResource getNode(@PathParam("id") String nodeId);
 }

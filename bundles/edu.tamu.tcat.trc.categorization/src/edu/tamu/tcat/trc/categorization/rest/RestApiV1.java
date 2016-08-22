@@ -6,6 +6,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public abstract class RestApiV1
 {
+   public static class CategorizationDesc
+   {
+      public String key;
+      public String label;
+      public String description;
+      public String type;
+   }
+
    public static class Categorization
    {
       /**

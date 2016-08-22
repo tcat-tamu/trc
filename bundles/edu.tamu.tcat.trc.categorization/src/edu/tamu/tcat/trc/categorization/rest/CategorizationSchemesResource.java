@@ -7,6 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
@@ -94,7 +95,8 @@ public class CategorizationSchemesResource
     */
    @POST
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.Categorization createCategorization(RestApiV1.Categorization categorization)
+   @Consumes(MediaType.APPLICATION_JSON)
+   public RestApiV1.Categorization createCategorization(RestApiV1.CategorizationDesc categorization)
    {
       String logEntryMsg = "Attempting to create new categorization scheme {0}/{1} ({2}).";
       logger.fine(() -> format(logEntryMsg, repo.getScope().getScopeId(), categorization.key, categorization.label));
@@ -110,7 +112,7 @@ public class CategorizationSchemesResource
             case HierarchicalCategorizationResource.TYPE:
                return createTreeCategorization(categorization);
             default:
-               throw new BadRequestException(format(errBadType, categorization.type));
+               throw raise(Response.Status.BAD_REQUEST, format(errBadType, categorization.type));
          }
 
       }
@@ -120,51 +122,6 @@ public class CategorizationSchemesResource
          String msg = format(logMsg, repo.getScope().getScopeId(), categorization.key, categorization.label);
          logger.log(Level.INFO, msg, ex);
          throw ex;
-      }
-   }
-
-   // TODO need a 'list' endpoint
-
-   private void checkUniqueKey(String key)
-   {
-      if (key == null || key.trim().isEmpty())
-         throw new BadRequestException("A key must be supplied for the categorization.");
-
-      try
-      {
-         String errMsg = "The key {0} is already in use by scheme {1}.";
-         CategorizationScheme scheme = repo.get(key);
-         if (scheme != null)
-            throw new WebApplicationException(format(errMsg, key, scheme.getLabel()), Response.Status.CONFLICT);
-      }
-      catch (IllegalArgumentException ex)
-      {
-         // no-op this is the expected behavior since the key should not be in use
-      }
-   }
-
-   private RestApiV1.Categorization createTreeCategorization(RestApiV1.Categorization categorization)
-   {
-      try
-      {
-         EditCategorizationCommand command = repo.create(CategorizationScheme.Strategy.TREE, categorization.key);
-         command.setDescription(categorization.description);
-         command.setLabel(categorization.label);
-
-         String schemeId = command.execute().get();
-         String logSuccessMsg = "Created new categorization scheme {0}: {1}/{2} ({3}).";
-         logger.info(() -> format(logSuccessMsg, schemeId, repo.getScope().getScopeId(), categorization.key, categorization.label));
-
-         CategorizationScheme scheme = repo.getById(schemeId);
-         if (!TreeCategorization.class.isInstance(scheme))
-            throw new InternalServerErrorException("An unexpected type of categorization created by the server.");
-
-         return ModelAdapterV1.adapt((TreeCategorization)scheme);
-      }
-      catch (Exception e)
-      {
-         String template = "Failed to create new categorization scheme for key {0} (1). Unexpected error: {2}";
-         throw new InternalServerErrorException(format(template, categorization.key, categorization.label, e.getMessage()));
       }
    }
 
@@ -197,12 +154,55 @@ public class CategorizationSchemesResource
       switch (scheme.getType())
       {
          case TREE:
-            return new HierarchicalCategorizationResource(repo, scheme);
+            return new HierarchicalCategorizationResource(repo, (TreeCategorization)scheme);
          default:
             String badScheme = "The categorization strategy ({0}) of the requested scheme ({1}) is not supported.";
             throw new InternalServerErrorException(format(badScheme, scheme.getType(), key));
       }
 
+   }
+
+   private void checkUniqueKey(String key)
+   {
+      if (key == null || key.trim().isEmpty())
+         throw new BadRequestException("A key must be supplied for the categorization.");
+
+      try
+      {
+         String errMsg = "The key {0} is already in use by scheme {1}.";
+         CategorizationScheme scheme = repo.get(key);
+
+         throw new WebApplicationException(format(errMsg, key, scheme.getLabel()), Response.Status.CONFLICT);
+      }
+      catch (IllegalArgumentException ex)
+      {
+         // no-op this is the expected behavior since the key should not be in use
+      }
+   }
+
+   private RestApiV1.Categorization createTreeCategorization(RestApiV1.CategorizationDesc categorization)
+   {
+      try
+      {
+         EditCategorizationCommand command = repo.create(CategorizationScheme.Strategy.TREE, categorization.key);
+         command.setDescription(categorization.description);
+         command.setLabel(categorization.label);
+
+         String schemeId = command.execute().get();
+         String logSuccessMsg = "Created new categorization scheme {0}: {1}/{2} ({3}).";
+         logger.info(() -> format(logSuccessMsg, schemeId, repo.getScope().getScopeId(), categorization.key, categorization.label));
+
+         CategorizationScheme scheme = repo.getById(schemeId);
+         if (!TreeCategorization.class.isInstance(scheme))
+            throw new InternalServerErrorException("An unexpected type of categorization created by the server.");
+
+         return ModelAdapterV1.adapt((TreeCategorization)scheme);
+      }
+      catch (Exception e)
+      {
+         String template = "Failed to create new categorization scheme for key {0} (1). Unexpected error: {2}";
+         throw new InternalServerErrorException(format(template, categorization.key, categorization.label, e.getMessage()));
+      }
    }
 
    private Optional<CategorizationScheme> getByKey(String key)
@@ -228,5 +228,14 @@ public class CategorizationSchemesResource
       {
          return Optional.empty();
       }
+   }
+
+   private WebApplicationException raise(Response.Status status, String msg)
+   {
+      Response resp = Response.status(Response.Status.BAD_REQUEST)
+                  .encoding("UTF-8")
+                  .entity(msg)
+                  .build();
+      return new WebApplicationException(resp);
    }
 }

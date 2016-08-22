@@ -1,7 +1,14 @@
 package edu.tamu.tcat.trc.categorization.rest;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 import edu.tamu.tcat.trc.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.categorization.rest.RestApiV1.HierarchyEntry;
@@ -11,6 +18,40 @@ import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 
 public class ModelAdapterV1
 {
+   private final static Logger logger = Logger.getLogger(ModelAdapterV1.class.getName());
+
+   /**
+    * Raises a {@link WebApplicationException} with the supplied status and error message.
+    *
+    * <p>
+    * Removes some of the boiler plate for correctly sending clean error messages back to the
+    * client. In general, the web framework (perhaps Jetty) we are using does a poor job of
+    * translating {@link WebApplicationException} sub-types into useful error messages, so
+    * we will supply our own. Additionally, the framework tends not to log errors, so this
+    * method does that as well.
+    *
+    * @param status HTTP status level of the error
+    * @param msg The error message
+    * @param logLevel The log level or <code>null</code> to ignore logging.
+    * @param e An exception to be logged. May be <code>null</code>.
+    */
+   public static WebApplicationException raise(Response.Status status, String msg, Level logLevel, Exception e)
+   {
+      if (logLevel != null)
+      {
+         if (e != null)
+            logger.log(logLevel, msg, e);
+         else
+            logger.log(logLevel, msg);
+      }
+
+      ResponseBuilder builder = Response
+            .status(status)
+            .type(MediaType.TEXT_PLAIN + ";charset=UTF-8")
+            .entity(msg);
+      return new WebApplicationException(builder.build());
+   }
+
    public static RestApiV1.Categorization adapt(TreeCategorization scheme)
    {
       RestApiV1.Categorization dto = adaptBaseScheme(scheme);
