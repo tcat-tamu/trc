@@ -1,6 +1,9 @@
 package edu.tamu.tcat.trc.categorization.rest;
 
+import static java.text.MessageFormat.format;
+
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -40,10 +43,15 @@ public class ModelAdapterV1
    {
       if (logLevel != null)
       {
+         UUID logId = UUID.randomUUID();
+         String logMsg = format("{0} [Error Id: {1}]", msg, logId);
          if (e != null)
-            logger.log(logLevel, msg, e);
+            logger.log(logLevel, logMsg, e);
          else
-            logger.log(logLevel, msg);
+            logger.log(logLevel, logMsg);
+
+         String template = "{0}\n\nDetails of this message have been recorded. Please reference the following error id: {1}";
+         msg = format(template, msg, logId);
       }
 
       ResponseBuilder builder = Response
