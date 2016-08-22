@@ -6,7 +6,6 @@ import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.categorization.CategorizationNode;
 import edu.tamu.tcat.trc.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.categorization.CategorizationScope;
-import edu.tamu.tcat.trc.categorization.CategorizationScheme.Strategy;
 import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
