@@ -6,6 +6,9 @@ import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
  * Represents an individual entry within a categorization. The specific categorization
  * strategy will determine the concrete type of node and nodes will typically be referenced
  * using one of these concrete sub-types.
+ *
+ * <p>Note that, to avoid confusion with the associated TRC entries, these are referred to
+ * as 'nodes' rather than 'entries'.
  */
 public interface CategorizationNode
 {
