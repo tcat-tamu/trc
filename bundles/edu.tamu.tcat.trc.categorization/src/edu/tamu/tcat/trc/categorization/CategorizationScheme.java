@@ -85,4 +85,11 @@ public interface CategorizationScheme
     * @return The description of the taxonomy.
     */
    String getDescription();
+
+   /**
+    * @param id The id of the node to return.
+    * @return The identified node.
+    * @throws IllegalArgumentException If the identified node is not present within this scheme.
+    */
+   CategorizationNode getNode(String id) throws IllegalArgumentException;
 }

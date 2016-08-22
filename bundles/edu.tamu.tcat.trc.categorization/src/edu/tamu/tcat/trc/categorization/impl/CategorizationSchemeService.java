@@ -25,6 +25,7 @@ import edu.tamu.tcat.trc.categorization.CategorizationRepoFactory;
 import edu.tamu.tcat.trc.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.categorization.CategorizationScope;
 import edu.tamu.tcat.trc.categorization.EditCategorizationCommand;
+import edu.tamu.tcat.trc.categorization.impl.PersistenceModelV1Adapter.TreeCategorizationImpl;
 import edu.tamu.tcat.trc.categorization.strategies.tree.EditTreeCategorizationCommand;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeCategorization;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
@@ -69,7 +70,6 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
     * The configuration properties key uses to supply an database table name
     */
    public static final String PARAM_TABLE_NAME = "table_name";
-
 
    private DocumentRepository<TreeCategorization, PersistenceModelV1.TreeCategorizationStrategy, EditTreeCategorizationCommand> treeRepo;
 
@@ -318,7 +318,8 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
                case TREE:
                   PersistenceModelV1.TreeCategorizationStrategy dto =
                      mapper.readValue(json, PersistenceModelV1.TreeCategorizationStrategy.class);
-                  return PersistenceModelV1Adapter.toDomainModel(registry, dto);
+                  TreeCategorizationImpl impl = PersistenceModelV1Adapter.toDomainModel(registry, dto);
+                  impl.setScope(getScope());
                case SET:
                   // TODO add support for sets
                   throw new UnsupportedOperationException("Set categorizations are not yet supported");
@@ -340,7 +341,8 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
       {
          try
          {
-            TreeCategorization scheme = treeRepo.get(id);
+            TreeCategorizationImpl scheme = (TreeCategorizationImpl)treeRepo.get(id);
+            scheme.setScope(scope);
             if (!scheme.getScopeId().equals(this.scope.getScopeId()))
             {
                String msg = "The requested categorization scheme [{0}] is not accessible within from {1}";
