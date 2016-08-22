@@ -25,7 +25,6 @@ import edu.tamu.tcat.trc.categorization.CategorizationRepoFactory;
 import edu.tamu.tcat.trc.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.categorization.CategorizationScope;
 import edu.tamu.tcat.trc.categorization.EditCategorizationCommand;
-import edu.tamu.tcat.trc.categorization.impl.PersistenceModelV1Adapter.TreeCategorizationImpl;
 import edu.tamu.tcat.trc.categorization.strategies.tree.EditTreeCategorizationCommand;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeCategorization;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
