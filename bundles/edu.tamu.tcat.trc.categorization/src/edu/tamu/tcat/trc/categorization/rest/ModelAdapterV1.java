@@ -11,6 +11,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import edu.tamu.tcat.trc.categorization.CategorizationScheme;
+import edu.tamu.tcat.trc.categorization.rest.CategorizationResource.TreeCategorizationResource;
 import edu.tamu.tcat.trc.categorization.rest.RestApiV1.HierarchyEntry;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeCategorization;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeNode;
@@ -56,7 +57,7 @@ public class ModelAdapterV1
    {
       RestApiV1.Categorization dto = adaptBaseScheme(scheme);
 
-      dto.type = HierarchicalCategorizationResource.TYPE;
+      dto.type = TreeCategorizationResource.TYPE;
       dto.root = adapt(scheme.getRootNode());
 
       return dto;

@@ -2,6 +2,7 @@ package edu.tamu.tcat.trc.categorization.rest;
 
 import static java.text.MessageFormat.format;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -12,6 +13,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -24,6 +26,7 @@ import edu.tamu.tcat.trc.categorization.CategorizationRepo;
 import edu.tamu.tcat.trc.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.categorization.CategorizationScope;
 import edu.tamu.tcat.trc.categorization.EditCategorizationCommand;
+import edu.tamu.tcat.trc.categorization.rest.CategorizationNodeResource.TreeNodeResource;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeCategorization;
 
 /**
@@ -147,4 +150,42 @@ public abstract class CategorizationResource
 
    @Path("nodes/{id}")
    public abstract CategorizationNodeResource getNode(@PathParam("id") String nodeId);
+
+   public static class TreeCategorizationResource extends CategorizationResource
+   {
+
+      /**
+       * The type identifier for hierarchical categorizations.
+       */
+      public static final String TYPE = "hierarchical";
+
+      public TreeCategorizationResource(CategorizationRepo repo, TreeCategorization scheme)
+      {
+         super(repo, scheme);
+      }
+
+      /**
+       * Moves nodes from one position within the entry structure to another.
+       *
+       * This method is not supported for SetCategorizations. For ListCategorizations,
+       * information about the parent entry will be ignored if present.
+       *
+       * @param updates A list of entry movements to be applied in order.
+       * @return
+       */
+      @POST
+      @Consumes(MediaType.APPLICATION_JSON)
+      @Produces(MediaType.APPLICATION_JSON)
+      public Response moveEntries(List<RestApiV1.MoveEntry> updates)
+      {
+         return null;
+      }
+
+      @Override
+      public CategorizationNodeResource<?> getNode(@PathParam("id") String nodeId)
+      {
+         return new TreeNodeResource(repo, (TreeCategorization)scheme, nodeId);
+      }
+   }
+
 }

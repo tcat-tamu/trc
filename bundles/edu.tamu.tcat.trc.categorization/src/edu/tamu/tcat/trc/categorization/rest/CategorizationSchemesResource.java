@@ -21,6 +21,7 @@ import javax.ws.rs.core.Response;
 import edu.tamu.tcat.trc.categorization.CategorizationRepo;
 import edu.tamu.tcat.trc.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.categorization.EditCategorizationCommand;
+import edu.tamu.tcat.trc.categorization.rest.CategorizationResource.TreeCategorizationResource;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeCategorization;
 
 /**
@@ -109,7 +110,7 @@ public class CategorizationSchemesResource
          switch (categorization.type)
          {
             // FIXME add support for other types
-            case HierarchicalCategorizationResource.TYPE:
+            case TreeCategorizationResource.TYPE:
                return createTreeCategorization(categorization);
             default:
                throw raise(Response.Status.BAD_REQUEST, format(errBadType, categorization.type));
@@ -154,7 +155,7 @@ public class CategorizationSchemesResource
       switch (scheme.getType())
       {
          case TREE:
-            return new HierarchicalCategorizationResource(repo, (TreeCategorization)scheme);
+            return new TreeCategorizationResource(repo, (TreeCategorization)scheme);
          default:
             String badScheme = "The categorization strategy ({0}) of the requested scheme ({1}) is not supported.";
             throw new InternalServerErrorException(format(badScheme, scheme.getType(), key));
