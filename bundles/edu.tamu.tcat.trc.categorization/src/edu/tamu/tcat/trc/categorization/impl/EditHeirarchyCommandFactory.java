@@ -13,6 +13,7 @@ import edu.tamu.tcat.trc.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.categorization.impl.PersistenceModelV1.TreeNode;
 import edu.tamu.tcat.trc.categorization.strategies.tree.EditTreeCategorizationCommand;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeNodeMutator;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.repo.ChangeSet;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.IdFactory;
@@ -27,6 +28,18 @@ public class EditHeirarchyCommandFactory
    public EditHeirarchyCommandFactory(IdFactory idFactory)
    {
       this.nodeIds = idFactory;
+   }
+
+   public static EntryReference copy(EntryReference ref)
+   {
+      if (ref == null)
+         return null;
+
+      EntryReference dto = new EntryReference();
+      dto.id = ref.id;
+      dto.type = ref.type;
+
+      return dto;
    }
 
    @Override
@@ -47,7 +60,7 @@ public class EditHeirarchyCommandFactory
       node.id = original.id;
       node.label = original.label;
       node.description = original.description;
-      node.ref = PersistenceModelV1Adapter.copy(original.ref);
+      node.ref = copy(original.ref);
 
 
       node.parentId = original.parentId;

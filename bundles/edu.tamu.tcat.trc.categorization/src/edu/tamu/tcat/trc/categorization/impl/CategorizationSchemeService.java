@@ -28,6 +28,7 @@ import edu.tamu.tcat.trc.categorization.EditCategorizationCommand;
 import edu.tamu.tcat.trc.categorization.strategies.tree.EditTreeCategorizationCommand;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeCategorization;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
@@ -134,6 +135,32 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
       sqlExecutor = null;
    }
 
+   /**
+    * Note that the returned {@link TreeCategorizationImpl} MUST have the associated
+    * categorization set prior to access.
+    *
+    * @param registry
+    * @param dto
+    * @return
+    */
+   private static TreeCategorizationImpl toDomainModel(EntryResolverRegistry registry,
+                                                      PersistenceModelV1.TreeCategorizationStrategy dto)
+   {
+      return new TreeCategorizationImpl(dto, registry);
+   }
+
+   public static EntryReference copy(EntryReference ref)
+   {
+      if (ref == null)
+         return null;
+
+      EntryReference dto = new EntryReference();
+      dto.id = ref.id;
+      dto.type = ref.type;
+
+      return dto;
+   }
+
    private void buildTreeDocRepo()
    {
       PsqlJacksonRepoBuilder<TreeCategorization,
@@ -148,7 +175,7 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
       repoBuilder.setEnableCreation(true);
 
       repoBuilder.setEditCommandFactory(new EditHeirarchyCommandFactory(nodeIds));
-      repoBuilder.setDataAdapter(dto -> PersistenceModelV1Adapter.toDomainModel(registry, dto));
+      repoBuilder.setDataAdapter(dto -> toDomainModel(registry, dto));
       repoBuilder.setStorageType(PersistenceModelV1.TreeCategorizationStrategy.class);
 
       treeRepo = repoBuilder.build();
@@ -317,7 +344,7 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
                case TREE:
                   PersistenceModelV1.TreeCategorizationStrategy dto =
                      mapper.readValue(json, PersistenceModelV1.TreeCategorizationStrategy.class);
-                  TreeCategorizationImpl impl = PersistenceModelV1Adapter.toDomainModel(registry, dto);
+                  TreeCategorizationImpl impl = toDomainModel(registry, dto);
                   impl.setScope(getScope());
                case SET:
                   // TODO add support for sets

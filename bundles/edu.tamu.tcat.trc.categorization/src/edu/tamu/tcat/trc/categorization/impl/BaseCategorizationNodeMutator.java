@@ -30,7 +30,7 @@ public class BaseCategorizationNodeMutator implements CategorizationNodeMutator
    @Override
    public final void associateEntryRef(EntryReference ref)
    {
-      EntryReference refDto = PersistenceModelV1Adapter.copy(ref);
+      EntryReference refDto = EditHeirarchyCommandFactory.copy(ref);
       changes.add("ref", dto -> dto.ref = refDto);
    }
 
