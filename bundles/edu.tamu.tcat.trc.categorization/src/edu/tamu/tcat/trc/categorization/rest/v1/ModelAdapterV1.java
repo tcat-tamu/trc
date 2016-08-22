@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.categorization.rest;
+package edu.tamu.tcat.trc.categorization.rest.v1;
 
 import static java.text.MessageFormat.format;
 
@@ -14,8 +14,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import edu.tamu.tcat.trc.categorization.CategorizationScheme;
-import edu.tamu.tcat.trc.categorization.rest.CategorizationResource.TreeCategorizationResource;
-import edu.tamu.tcat.trc.categorization.rest.RestApiV1.BasicTreeNode;
+import edu.tamu.tcat.trc.categorization.rest.v1.CategorizationResource.TreeCategorizationResource;
+import edu.tamu.tcat.trc.categorization.rest.v1.RestApiV1.BasicTreeNode;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeCategorization;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeNode;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;

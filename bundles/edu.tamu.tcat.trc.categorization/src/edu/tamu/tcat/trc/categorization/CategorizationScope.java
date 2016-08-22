@@ -1,7 +1,7 @@
 package edu.tamu.tcat.trc.categorization;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.categorization.rest.CategorizationSchemesResource;
+import edu.tamu.tcat.trc.categorization.rest.v1.CategorizationSchemesResource;
 
 /**
  *  Defines a scope that is used to organize related categorizations paired with an

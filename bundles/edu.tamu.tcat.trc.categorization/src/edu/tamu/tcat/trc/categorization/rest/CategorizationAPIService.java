@@ -13,6 +13,7 @@ import javax.ws.rs.PathParam;
 import edu.tamu.tcat.trc.categorization.CategorizationRepo;
 import edu.tamu.tcat.trc.categorization.CategorizationRepoFactory;
 import edu.tamu.tcat.trc.categorization.CategorizationScope;
+import edu.tamu.tcat.trc.categorization.rest.v1.CategorizationSchemesResource;
 
 /**
  * Point of entry to the REST API for the Categorization system. This class is

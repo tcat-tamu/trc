@@ -19,6 +19,7 @@ Import-Package: com.fasterxml.jackson.annotation;version="2.3.1",
 Export-Package: edu.tamu.tcat.trc.categorization;version="2.0.0",
  edu.tamu.tcat.trc.categorization.impl;version="2.0.0",
  edu.tamu.tcat.trc.categorization.rest;version="2.0.0",
+ edu.tamu.tcat.trc.categorization.rest.v1,
  edu.tamu.tcat.trc.categorization.strategies.list;version="2.0.0",
  edu.tamu.tcat.trc.categorization.strategies.set;version="2.0.0",
  edu.tamu.tcat.trc.categorization.strategies.tree;version="2.0.0"

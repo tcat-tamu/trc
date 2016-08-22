@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.categorization.rest;
+package edu.tamu.tcat.trc.categorization.rest.v1;
 
 import java.util.List;
 

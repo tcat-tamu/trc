@@ -1,6 +1,6 @@
 package edu.tamu.tcat.trc.categorization;
 
-import edu.tamu.tcat.trc.categorization.rest.CategorizationSchemesResource;
+import edu.tamu.tcat.trc.categorization.rest.v1.CategorizationSchemesResource;
 
 /**
  *  A categorization scheme is a user-defined structure designed to organize or order
