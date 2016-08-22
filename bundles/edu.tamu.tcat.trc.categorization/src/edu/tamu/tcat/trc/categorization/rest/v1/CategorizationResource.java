@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -34,8 +33,6 @@ import edu.tamu.tcat.trc.categorization.strategies.tree.TreeCategorization;
  */
 public abstract class CategorizationResource
 {
-   private final static Logger logger = Logger.getLogger(CategorizationResource.class.getName());
-
    protected final CategorizationRepo repo;
    protected final CategorizationScheme scheme;
 
@@ -126,6 +123,9 @@ public abstract class CategorizationResource
       return null;
    }
 
+   @Path("nodes/{id}")
+   public abstract CategorizationNodeResource<?> getNode(@PathParam("id") String nodeId);
+
    private void checkKeyNotEmpty(String key)
    {
       if (!key.isEmpty())
@@ -147,9 +147,6 @@ public abstract class CategorizationResource
 
       action.accept(value);
    }
-
-   @Path("nodes/{id}")
-   public abstract CategorizationNodeResource getNode(@PathParam("id") String nodeId);
 
    public static class TreeCategorizationResource extends CategorizationResource
    {
