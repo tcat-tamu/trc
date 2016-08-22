@@ -2,10 +2,11 @@ package edu.tamu.tcat.trc.categorization.rest;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public abstract class RestApiV1
 {
+
+   // TODO add HATEOS links
+
    public static class CategorizationDesc
    {
       public String key;
@@ -33,15 +34,13 @@ public abstract class RestApiV1
       /** The type of categorization. */
       public String type;
 
-      /**
-       * The entries associated with this {@code Categorization}. The type of
-       * categorization will determine the type of this field. For instance,
-       * a hierarchical categorization uses a {@link BasicEntry} while a
-       * list or group uses a List<> or Set<> correspondingly.
-       */
-      public List<BasicEntry> entries;
+      /** The entries associated with a set or list categorization. Will be
+       *  <code>null</code> for tree categorizations. */
+      public List<BasicNode> entries;
 
-      public HierarchyEntry root;
+      /** The root node of a tree or hierarchical categorization. Will be <code>null</code>
+       *  for other types. */
+      public BasicTreeNode root;
    }
 
    public static class CategorizationMeta
@@ -68,10 +67,8 @@ public abstract class RestApiV1
    /**
     * Represents a hierarchical categorization scheme.
     */
-   public static class BasicEntry
+   public static class BasicNode
    {
-      // TODO add HATEOS links
-
       /** A persistent, globally unique identifier for this entry. */
       public String id;
 
@@ -100,7 +97,7 @@ public abstract class RestApiV1
    /**
     * Represents a hierarchical categorization scheme.
     */
-   public static class HierarchyEntry extends BasicEntry
+   public static class BasicTreeNode extends BasicNode
    {
       /** The ids of the children of this entry. Note that this is the authoritative
        *  record  child entries associated with this entry, while {@link #children} is
@@ -110,22 +107,7 @@ public abstract class RestApiV1
       /** The children of this entry. For entries that have not been fully, restored,
        *  this may be {@code null}. In this case, the entries should be loaded by
        *  hitting the node's API endpoint. */
-      public List<BasicEntry> children;
-   }
-
-   /**
-    *  In addition to core categorization entry fields, provides additional detail about the
-    *  associated article (if any).
-    */
-   public static class ArticleAbstractEntry extends BasicEntry
-   {
-      /** The abstract of the associated article. May be {@code null} or empty string if no
-       *  article has been associated with the entry. */
-      @JsonProperty("abstract")
-      public String articleAbstract;
-
-      /** The authors associated with this entry.  */
-      public List<String> authors;
+      public List<BasicNode> children;
    }
 
    /** A simple data structure that reference a TRC Entry. */
@@ -223,27 +205,5 @@ public abstract class RestApiV1
       /** The original index of this entry among its siblings. Should not be
        *  supplied on update requests. */
       public long origPosition;
-   }
-
-   // TODO flesh out these actions
-
-   public static class CreateEntry extends ChangeDetails
-   {
-
-   }
-
-   public static class DeleteEntry extends ChangeDetails
-   {
-
-   }
-
-   public static class UpdateEntry extends ChangeDetails
-   {
-
-   }
-
-   public static class AssociateArticle extends ChangeDetails
-   {
-
    }
 }

@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 
 import edu.tamu.tcat.trc.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.categorization.rest.CategorizationResource.TreeCategorizationResource;
-import edu.tamu.tcat.trc.categorization.rest.RestApiV1.HierarchyEntry;
+import edu.tamu.tcat.trc.categorization.rest.RestApiV1.BasicTreeNode;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeCategorization;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeNode;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
@@ -84,9 +84,9 @@ public class ModelAdapterV1
       return dto;
    }
 
-   public static RestApiV1.HierarchyEntry adapt(TreeNode node)
+   public static RestApiV1.BasicTreeNode adapt(TreeNode node)
    {
-      HierarchyEntry dto = new RestApiV1.HierarchyEntry();
+      BasicTreeNode dto = new RestApiV1.BasicTreeNode();
 
       dto.schemeId = node.getCategorization().getId();
       dto.id = node.getId();

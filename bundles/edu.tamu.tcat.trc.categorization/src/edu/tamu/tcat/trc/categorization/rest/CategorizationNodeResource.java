@@ -23,7 +23,6 @@ import javax.ws.rs.core.Response;
 import edu.tamu.tcat.trc.categorization.CategorizationNode;
 import edu.tamu.tcat.trc.categorization.CategorizationRepo;
 import edu.tamu.tcat.trc.categorization.CategorizationScheme;
-import edu.tamu.tcat.trc.categorization.rest.RestApiV1.BasicEntry;
 import edu.tamu.tcat.trc.categorization.strategies.tree.EditTreeCategorizationCommand;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeCategorization;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeNode;
@@ -53,7 +52,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
     */
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public abstract RestApiV1.BasicEntry getNode();
+   public abstract RestApiV1.BasicNode getNode();
 
    public void remove() {
 
@@ -87,18 +86,6 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
          super(repo, scheme, nodeId);
       }
 
-      /**
-       * @return An instance of this entry.
-       */
-      @Override
-      @GET
-      @Produces(MediaType.APPLICATION_JSON)
-      public RestApiV1.HierarchyEntry getNode()
-      {
-         TreeNode node = resolveNode();
-         return ModelAdapterV1.adapt(node);
-      }
-
       @Override
       protected TreeNode resolveNode()
       {
@@ -113,24 +100,49 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
       }
 
       /**
-       * Updates submitted information to ensure proper creation of nodes.
+       * @return An instance of this entry.
        */
-      private void normalize(RestApiV1.BasicEntry entry)
+      @Override
+      @GET
+      @Produces(MediaType.APPLICATION_JSON)
+      public RestApiV1.BasicTreeNode getNode()
       {
-         if (entry.label == null || entry.label.isEmpty())
-            entry.label = UUID.randomUUID().toString();
+         return ModelAdapterV1.adapt(resolveNode());
+      }
 
-         if (entry.description == null)
-            entry.description = "";
+      @GET
+      @Path("parent")
+      @Produces(MediaType.APPLICATION_JSON)
+      public RestApiV1.BasicTreeNode getParent()
+      {
+         TreeNode node = resolveNode();
+         if (node.getParentId() == null)
+         {
+            String template = "This node {0} [{1}] is the root node.";
+            throw ModelAdapterV1.raise(Response.Status.NOT_FOUND, format(template, node.getLabel(), node.getId()), null, null);
+         }
+
+         TreeNode parent = scheme.getNode(node.getParentId());
+         return ModelAdapterV1.adapt(parent);
+      }
+
+      @GET
+      @Path("children")
+      @Produces(MediaType.APPLICATION_JSON)
+      public List<RestApiV1.BasicTreeNode> getChildren()
+      {
+         TreeNode node = resolveNode();
+         return node.getChildren().stream()
+               .map(ModelAdapterV1::adapt)
+               .collect(Collectors.toList());
       }
 
       @POST
       @Path("children")
       @Consumes(MediaType.APPLICATION_JSON)
       @Produces(MediaType.APPLICATION_JSON)
-      public RestApiV1.HierarchyEntry createChild(RestApiV1.BasicEntry entry)
+      public RestApiV1.BasicTreeNode createChild(RestApiV1.BasicNode entry)
       {
-
          TreeNode parent = resolveNode();
 
          try
@@ -149,7 +161,19 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
          }
       }
 
-      private RestApiV1.HierarchyEntry loadNewChild(String label)
+      /**
+       * Updates submitted information to ensure proper creation of nodes.
+       */
+      private void normalize(RestApiV1.BasicNode entry)
+      {
+         if (entry.label == null || entry.label.isEmpty())
+            entry.label = UUID.randomUUID().toString();
+
+         if (entry.description == null)
+            entry.description = "";
+      }
+
+      private RestApiV1.BasicTreeNode loadNewChild(String label)
       {
          TreeCategorization updated = (TreeCategorization)repo.getById(scheme.getId());
          TreeNode node = updated.getNode(nodeId);
@@ -164,7 +188,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
          return ModelAdapterV1.adapt(child);
       }
 
-      private void preventDuplicateLabels(TreeNode node, BasicEntry entry)
+      private void preventDuplicateLabels(TreeNode node, RestApiV1.BasicNode entry)
       {
          // HACK in theory duplicates should be discouraged, but not disallowed. However, given
          //      the need to retrieve the created node by label rather than ID, we need to
@@ -181,7 +205,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
          throw ModelAdapterV1.raise(Response.Status.CONFLICT, msg, Level.SEVERE, null);
       }
 
-      private void doCreateChild(TreeNode parent, RestApiV1.BasicEntry entry) throws InterruptedException, ExecutionException, TimeoutException
+      private void doCreateChild(TreeNode parent, RestApiV1.BasicNode entry) throws InterruptedException, ExecutionException, TimeoutException
       {
          EditTreeCategorizationCommand command;
          try
@@ -199,33 +223,6 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
          childMutator.setDescription(entry.description);
 
          command.execute().get(10, TimeUnit.SECONDS);
-      }
-
-      @GET
-      @Path("parent")
-      @Produces(MediaType.APPLICATION_JSON)
-      public RestApiV1.HierarchyEntry getParent()
-      {
-         TreeNode node = resolveNode();
-         if (node.getParentId() == null)
-         {
-            String template = "This node {0} [{1}] is the root node.";
-            throw ModelAdapterV1.raise(Response.Status.NOT_FOUND, format(template, node.getLabel(), node.getId()), null, null);
-         }
-
-         TreeNode parent = scheme.getNode(node.getParentId());
-         return ModelAdapterV1.adapt(parent);
-      }
-
-      @GET
-      @Path("children")
-      @Produces(MediaType.APPLICATION_JSON)
-      public List<RestApiV1.HierarchyEntry> getChildren()
-      {
-         TreeNode node = resolveNode();
-         return node.getChildren().stream()
-               .map(ModelAdapterV1::adapt)
-               .collect(Collectors.toList());
       }
    }
 }
