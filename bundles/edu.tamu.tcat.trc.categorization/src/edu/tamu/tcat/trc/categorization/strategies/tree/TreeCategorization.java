@@ -11,4 +11,7 @@ public interface TreeCategorization extends CategorizationScheme
     * @return The root node of the tree.
     */
    TreeNode getRootNode();
+
+   @Override
+   TreeNode getNode(String id) throws IllegalArgumentException;
 }
