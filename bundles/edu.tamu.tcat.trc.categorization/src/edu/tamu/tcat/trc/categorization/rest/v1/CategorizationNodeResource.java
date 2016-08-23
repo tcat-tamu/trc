@@ -3,15 +3,18 @@ package edu.tamu.tcat.trc.categorization.rest.v1;
 import static java.text.MessageFormat.format;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -21,12 +24,15 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import edu.tamu.tcat.trc.categorization.CategorizationNode;
+import edu.tamu.tcat.trc.categorization.CategorizationNodeMutator;
 import edu.tamu.tcat.trc.categorization.CategorizationRepo;
 import edu.tamu.tcat.trc.categorization.CategorizationScheme;
+import edu.tamu.tcat.trc.categorization.EditCategorizationCommand;
 import edu.tamu.tcat.trc.categorization.strategies.tree.EditTreeCategorizationCommand;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeCategorization;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeNode;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeNodeMutator;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 
 /**
  *  Represents a single entry within a categorization.
@@ -47,36 +53,134 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
 
    protected abstract CategorizationNode resolveNode();
 
+   protected abstract RestApiV1.BasicNode adapt(CategorizationNode node);
+
    /**
     * @return An instance of this entry.
     */
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public abstract RestApiV1.BasicNode getNode();
-
-   public void remove() {
-
+   public RestApiV1.BasicNode getNode()
+   {
+      return adapt(resolveNode());
    }
 
-   public void update() {
+   @DELETE
+   public Response remove()
+   {
+      CategorizationNode node = resolveNode();
+      try
+      {
+         EditTreeCategorizationCommand command = (EditTreeCategorizationCommand)repo.edit(scheme.getId());
+         command.removeNode(nodeId);
+         command.execute().get(10, TimeUnit.SECONDS);
 
+         return Response.noContent().build();
+      }
+      catch (InterruptedException | ExecutionException | TimeoutException e)
+      {
+         String template = "Failed to delete categorization node {0} [{1}]";
+         String msg = format(template, node.getLabel(), node.getId());
+         throw ModelAdapterV1.raise(Response.Status.INTERNAL_SERVER_ERROR, msg, Level.SEVERE, e);
+      }
+   }
+
+   /**
+    * Designed to accept the basic
+    * @param properties
+    * @return
+    */
+   @PUT
+   @Consumes(MediaType.APPLICATION_JSON)
+   @Produces(MediaType.APPLICATION_JSON)
+   public RestApiV1.BasicTreeNode update(Map<String, Object> properties)
+   {
+      CategorizationNode original = resolveNode();    // throw exception if the node is undefined.
+
+      try
+      {
+         EditTreeCategorizationCommand command = (EditTreeCategorizationCommand)repo.edit(scheme.getId());
+         TreeNodeMutator mutator = command.editNode(nodeId);
+
+         setIfDefined("label", properties, (String label) -> {
+            label = label.isEmpty() ? "Unlabled" : label;
+            mutator.setLabel(label);
+         });
+         setIfDefined("description", properties, (String desc) -> mutator.setDescription(desc));
+
+         command.execute().get(10, TimeUnit.SECONDS);
+
+         TreeNode node = (TreeNode)repo.getById(scheme.getId()).getNode(nodeId);
+         return ModelAdapterV1.adapt(node);
+      }
+      catch (Exception e)
+      {
+         String template = "Failed to update the categorization node {0} [{1}]";
+         String msg = format(template, original.getLabel(), nodeId);
+         throw ModelAdapterV1.raise(Response.Status.INTERNAL_SERVER_ERROR, msg, Level.SEVERE, e);
+      }
    }
 
    @PUT
-   @Path("articleRef")
+   @Path("entryRef")
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.Categorization associateArticle(RestApiV1.EntryReference article)
+   public RestApiV1.BasicNode associateEntry(RestApiV1.EntryReference entryRef)
    {
-      return null;
+      CategorizationNode node = resolveNode();
+      EntryReference ref = new EntryReference();
+      ref.id = entryRef.id;
+      ref.type = entryRef.type;
+      // TODO might check to ensure validity?
+
+      EditCategorizationCommand command = repo.edit(scheme.getId());
+      CategorizationNodeMutator mutator = command.editNode(nodeId);
+
+      mutator.associateEntryRef(ref);
+      try
+      {
+         command.execute().get(10, TimeUnit.SECONDS);
+      }
+      catch (InterruptedException | ExecutionException | TimeoutException e)
+      {
+         String template = "Failed to update entry reference for categorization node {0} [{1}].";
+         String msg = format(template, node.getLabel(), node.getId());
+         throw ModelAdapterV1.raise(Response.Status.INTERNAL_SERVER_ERROR, msg, Level.SEVERE, e);
+      }
+
+      return adapt(resolveNode());
    }
 
    @GET
-   @Path("article")
+   @Path("entryRef")
    @Produces(MediaType.APPLICATION_JSON)
    public RestApiV1.Categorization getArticle()
    {
       return null;
+   }
+
+   private <T> void setIfDefined(String param, Map<String, Object> data, Consumer<T> action)
+   {
+      if (!data.containsKey(param))
+         return;
+
+      // enforced by out-of-band knowledge in caller
+      @SuppressWarnings("unchecked")
+      T value = (T)data.get(param);
+
+      action.accept(value);
+   }
+
+   /**
+    * Updates submitted information to ensure proper creation of nodes.
+    */
+   protected void normalize(RestApiV1.BasicNode entry)
+   {
+      if (entry.label == null || entry.label.isEmpty())
+         entry.label = UUID.randomUUID().toString();
+
+      if (entry.description == null)
+         entry.description = "";
    }
 
    public static class TreeNodeResource extends CategorizationNodeResource<TreeCategorization>
@@ -99,16 +203,16 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
          }
       }
 
-      /**
-       * @return An instance of this entry.
-       */
       @Override
-      @GET
-      @Produces(MediaType.APPLICATION_JSON)
-      public RestApiV1.BasicTreeNode getNode()
+      protected RestApiV1.BasicNode adapt(CategorizationNode node)
       {
-         return ModelAdapterV1.adapt(resolveNode());
+         if (!TreeNode.class.isInstance(node))
+            throw ModelAdapterV1.raise(Response.Status.INTERNAL_SERVER_ERROR, "Unexpected node type while adapting", Level.SEVERE, null);
+
+         return ModelAdapterV1.adapt((TreeNode)node);
       }
+
+
 
       @GET
       @Path("parent")
@@ -137,6 +241,8 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
                .collect(Collectors.toList());
       }
 
+
+
       @POST
       @Path("children")
       @Consumes(MediaType.APPLICATION_JSON)
@@ -162,15 +268,18 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
       }
 
       /**
-       * Updates submitted information to ensure proper creation of nodes.
+       * Override to ensure that the root node is not removed and to respond with
+       * appropriate error message.
        */
-      private void normalize(RestApiV1.BasicNode entry)
+      @Override
+      public Response remove()
       {
-         if (entry.label == null || entry.label.isEmpty())
-            entry.label = UUID.randomUUID().toString();
+         String rootErrMsg = "The root node [{0}] cannot be deleted.";
+         TreeNode node = resolveNode();
+         if (node.getParentId() == null)
+            ModelAdapterV1.raise(Response.Status.BAD_REQUEST, format(rootErrMsg, nodeId), Level.WARNING, null);
 
-         if (entry.description == null)
-            entry.description = "";
+         return super.remove();
       }
 
       private RestApiV1.BasicTreeNode loadNewChild(String label)
@@ -218,7 +327,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
             throw ModelAdapterV1.raise(Response.Status.NOT_FOUND, "", Level.SEVERE, ex);
          }
 
-         TreeNodeMutator mutator = command.edit(nodeId);
+         TreeNodeMutator mutator = command.editNode(nodeId);
          TreeNodeMutator childMutator = mutator.add(entry.label);
          childMutator.setDescription(entry.description);
 
