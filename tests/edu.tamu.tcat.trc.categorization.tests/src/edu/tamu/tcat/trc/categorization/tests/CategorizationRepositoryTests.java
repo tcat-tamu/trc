@@ -351,7 +351,7 @@ public abstract class CategorizationRepositoryTests
          TreeNode nodeA = findByLabel(scheme, "A");
 
          EditTreeCategorizationCommand command = repository.edit(id, EditTreeCategorizationCommand.class);
-         TreeNodeMutator mutator = command.edit(nodeA.getId());
+         TreeNodeMutator mutator = command.editNode(nodeA.getId());
          mutator.associateEntryRef(mockRef);
 
          command.execute().get(10, TimeUnit.SECONDS);
@@ -382,8 +382,8 @@ public abstract class CategorizationRepositoryTests
          String hId = findByLabel(scheme, "H").getId();
 
          EditTreeCategorizationCommand command = repository.edit(id, EditTreeCategorizationCommand.class);
-         command.remove(fId); // remove node F
-         command.remove(hId); // remove node H (and I as part of sub-tree)
+         command.removeNode(fId); // remove node F
+         command.removeNode(hId); // remove node H (and I as part of sub-tree)
          command.execute().get(10, TimeUnit.SECONDS);
 
          scheme = repository.getById(id, TreeCategorization.class);
@@ -445,7 +445,7 @@ public abstract class CategorizationRepositoryTests
          // TODO note that we shouldn't be able to edit various properties of the root node . . .
          //      not sure how to handle this.
          EditTreeCategorizationCommand command = (EditTreeCategorizationCommand)repository.edit(scheme.getId());
-         TreeNodeMutator rootMutator = command.edit(scheme.getId());
+         TreeNodeMutator rootMutator = command.editNode(scheme.getId());
 
          TreeNodeMutator a = createNode(rootMutator, "A");
          TreeNodeMutator b = createNode(a, "B");

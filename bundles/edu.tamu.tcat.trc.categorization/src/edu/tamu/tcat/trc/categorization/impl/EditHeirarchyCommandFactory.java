@@ -99,7 +99,7 @@ public class EditHeirarchyCommandFactory
       }
 
       @Override
-      public TreeNodeMutator edit(String nodeId)
+      public TreeNodeMutator editNode(String nodeId)
       {
          ChangeSet<PersistenceModelV1.TreeNode> changeSet = changes.partial("node@" + nodeId, selectNode(nodeId));
          return new TreeNodeMutatorImpl(nodeId, this, changeSet);
@@ -108,7 +108,8 @@ public class EditHeirarchyCommandFactory
       @Override
       public void move(String nodeId, String parentId, int index)
       {
-         // TODO this API is ugly and bittle to conflicting structural changes. Would be better to 'moveBefore' or 'moveUnder' or else
+         // TODO this API is ugly and brittle to conflicting structural changes.
+         //      Would be better to 'moveBefore' or 'moveUnder' or else
          changes.add("move node#" + nodeId, dto -> {
             PersistenceModelV1.TreeNode child = dto.nodes.get(nodeId);
             PersistenceModelV1.TreeNode oldParent = dto.nodes.get(child.parentId);
@@ -133,7 +134,7 @@ public class EditHeirarchyCommandFactory
       }
 
       @Override
-      public void remove(String nodeId)
+      public void removeNode(String nodeId)
       {
          String pattern = "Failed to delete node {0}. This node's parent could not be found.";
          changes.add("delete child#" + nodeId, dto -> {
@@ -261,13 +262,13 @@ public class EditHeirarchyCommandFactory
       @Override
       public TreeNodeMutator edit(String id)
       {
-         return cmd.edit(id);
+         return cmd.editNode(id);
       }
 
       @Override
       public void removeChild(String id)
       {
-         cmd.remove(id);
+         cmd.removeNode(id);
       }
    }
 }

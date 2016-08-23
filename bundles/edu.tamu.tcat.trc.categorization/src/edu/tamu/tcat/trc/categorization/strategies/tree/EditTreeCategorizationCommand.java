@@ -11,14 +11,15 @@ public interface EditTreeCategorizationCommand extends EditCategorizationCommand
     * @param parentId
     * @return
     */
-   TreeNodeMutator edit(String nodeId);
+   @Override
+   TreeNodeMutator editNode(String nodeId);
 
    /**
     *
     * @param index
     * @param parentId
     */
-   void remove(String nodeId);
+   void removeNode(String nodeId);
 
    /**
     * Moves the indicated node (and all descendants) to be a child of a new parent

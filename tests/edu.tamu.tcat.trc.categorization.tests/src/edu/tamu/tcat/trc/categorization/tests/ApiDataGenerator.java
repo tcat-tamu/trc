@@ -146,7 +146,7 @@ public class ApiDataGenerator
       TreeNode root = scheme.getRootNode();
 
       command = (EditTreeCategorizationCommand)repository.edit(scheme.getId());
-      TreeNodeMutator rootNodeMutator = command.edit(root.getId());
+      TreeNodeMutator rootNodeMutator = command.editNode(root.getId());
       node.children.stream().forEach(child -> this.apply(rootNodeMutator, child));
 
       command.execute().get(10, TimeUnit.SECONDS);

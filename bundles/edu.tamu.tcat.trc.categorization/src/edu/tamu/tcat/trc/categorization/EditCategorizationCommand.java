@@ -6,15 +6,18 @@ public interface EditCategorizationCommand
 {
    void setKey(String key);
 
-  /**
-   * @param label
-   */
-  void setLabel(String label);
+   /**
+    * @param label
+    */
+   void setLabel(String label);
 
-  /**
-   * @param description
-   */
-  void setDescription(String description);
+   /**
+    * @param description
+    */
+   void setDescription(String description);
 
-  CompletableFuture<String> execute();
+   CategorizationNodeMutator editNode(String nodeId);
+
+   CompletableFuture<String> execute();
+
 }
