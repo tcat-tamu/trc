@@ -95,7 +95,7 @@ public abstract class CategorizationImpl implements CategorizationScheme
                                     CategorizationScheme scheme,
                                     PersistenceModelV1.CategorizationNode dto)
       {
-         // FIXME should be registry, not resolver
+
          this.registry = registry;
          this.scheme = scheme;
 

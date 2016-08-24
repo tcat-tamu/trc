@@ -346,6 +346,7 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
                      mapper.readValue(json, PersistenceModelV1.TreeCategorizationStrategy.class);
                   TreeCategorizationImpl impl = toDomainModel(registry, dto);
                   impl.setScope(getScope());
+                  return impl;
                case SET:
                   // TODO add support for sets
                   throw new UnsupportedOperationException("Set categorizations are not yet supported");
