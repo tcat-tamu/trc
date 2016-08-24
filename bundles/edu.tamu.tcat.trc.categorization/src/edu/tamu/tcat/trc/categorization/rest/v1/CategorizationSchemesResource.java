@@ -170,10 +170,10 @@ public class CategorizationSchemesResource
 
       try
       {
-         String errMsg = "The key {0} is already in use by scheme {1}.";
+         String errMsg = "The key '{0}' is already in use by scheme {1}.";
          CategorizationScheme scheme = repo.get(key);
 
-         throw new WebApplicationException(format(errMsg, key, scheme.getLabel()), Response.Status.CONFLICT);
+         throw ModelAdapterV1.raise(Response.Status.CONFLICT, format(errMsg, key, scheme.getLabel()), null, null);
       }
       catch (IllegalArgumentException ex)
       {
