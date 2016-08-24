@@ -38,7 +38,7 @@ public class CopyReferenceDTO
    public CopyReferenceDTO(CopyReferenceDTO orig)
    {
       this.id = orig.id;
-      this.type = orig.id;
+      this.type = orig.type;
       this.properties = new HashMap<>(orig.properties);
       this.title = orig.title;
       this.summary = orig.summary;
