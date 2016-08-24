@@ -3,19 +3,19 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  
+
   <groupId>edu.tamu.tcat</groupId>
   <artifactId>trc</artifactId>
   <version>1</version>
   <packaging>pom</packaging>
-  
+
   <name>TRC Library</name>
 
   <organization>
     <name>Texas Center for Applied Technology</name>
     <url>http://tcat.tamu.edu</url>
   </organization>
-  
+
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
@@ -24,11 +24,11 @@
       <comments></comments>
     </license>
   </licenses>
-  
+
   <prerequisites>
     <maven>3.0</maven>
   </prerequisites>
-  
+
   <properties>
     <tycho-groupid>org.eclipse.tycho</tycho-groupid>
     <tycho-version>0.22.0</tycho-version>
@@ -41,31 +41,32 @@
     <keystore.pwd></keystore.pwd>
 <!--     <keystore.tsa>http://timestamp.comodoca.com/rfc3161</keystore.tsa> -->
   </properties>
-  
+
   <modules>
     <module>oss.trc/releng/edu.tamu.tcat.trc.releng/repo.product</module>
     <module>oss.trc/releng/edu.tamu.tcat.trc.sdk.feature</module>
-    
+
     <module>oss.trc/bundles/edu.tamu.tcat.trc</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.search.solr</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.core</module>
-    
+
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio.impl</module>
-    
+
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.bio</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.bio.impl</module>
-    
+
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.reln</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.reln.impl</module>
 
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.article</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.article.impl</module>
-    
+
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.categorization</module>
+
     <module>oss.trc/bundles/edu.tamu.tcat.trc.digires</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.digires.books.hathitrust</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.digires.rest</module>
-    
+
     <module>oss.trc/bundles/edu.tamu.tcat.trc.notes</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.notes.impl</module>
   </modules>
@@ -91,7 +92,7 @@
       <url>http://hstaudacher.github.io/osgi-jax-rs-connector</url>
       <layout>p2</layout>
     </repository>
-    
+
     <repository>
       <id>oss.auth dev</id>
       <layout>p2</layout>
