@@ -45,6 +45,8 @@
   <modules>
     <module>oss.trc/releng/edu.tamu.tcat.trc.releng/repo.product</module>
     <module>oss.trc/releng/edu.tamu.tcat.trc.sdk.feature</module>
+    
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.base.feature</module>
 
     <module>oss.trc/bundles/edu.tamu.tcat.trc</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.search.solr</module>
@@ -92,7 +94,6 @@
       <url>http://hstaudacher.github.io/osgi-jax-rs-connector</url>
       <layout>p2</layout>
     </repository>
-
   </repositories>
 
   <build>

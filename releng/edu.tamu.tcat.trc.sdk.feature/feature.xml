@@ -34,6 +34,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
    </license>
 
+   <includes
+         id="edu.tamu.tcat.trc.base.feature"
+         version="0.0.0"/>
+
    <plugin
          id="edu.tamu.tcat.trc"
          download-size="0"
