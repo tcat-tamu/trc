@@ -19,9 +19,11 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.categorization.CategorizationRepo;
 import edu.tamu.tcat.trc.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.categorization.CategorizationScope;
@@ -34,6 +36,9 @@ import edu.tamu.tcat.trc.categorization.strategies.tree.TreeCategorization;
  */
 public abstract class CategorizationResource
 {
+
+   // TODO Rename SchemeResrouce
+
    protected final CategorizationRepo repo;
    protected final CategorizationScheme scheme;
 
@@ -80,14 +85,14 @@ public abstract class CategorizationResource
          repo.remove(scheme.getId()).get(10, TimeUnit.SECONDS);
          return Response.noContent().build();
       }
-      catch (Exception e)
+      catch (ExecutionException e)
       {
          String errMsg = "Failed to delete category {0} from scope {1} for user {2}";
-         String id = scheme.getId();
-         CategorizationScope scope = repo.getScope();
-
-         String formatedMsg = format(errMsg, id, scope.getScopeId(), scope.getAccount().getDisplayName());
-         throw ApiUtils.raise(Response.Status.INTERNAL_SERVER_ERROR, formatedMsg, Level.SEVERE, e);
+         throw handleExecutionException(errMsg, e);
+      }
+      catch (InterruptedException | TimeoutException e)
+      {
+         throw handleExecTimeout(e);
       }
    }
 
@@ -108,7 +113,50 @@ public abstract class CategorizationResource
    @Produces(MediaType.APPLICATION_JSON)
    public RestApiV1.Categorization update(Map<String, String> fields)
    {
-      // TODO should throw 404 if not found .. can we do that?
+      try
+      {
+         // TODO should throw 404 if not found .. can we do that?
+         String id = updateScheme(fields);
+         return ModelAdapterV1.adapt((TreeCategorization)repo.getById(id));
+      }
+      catch (ExecutionException e)
+      {
+         String errMsg = "Failed to update category {0} from scope {1} for user {2}";
+         throw handleExecutionException(errMsg, e);
+      }
+      catch (InterruptedException | TimeoutException e)
+      {
+         throw handleExecTimeout(e);
+      }
+   }
+
+   @Path("nodes/{id}")
+   public abstract CategorizationNodeResource<?> getNode(@PathParam("id") String nodeId);
+
+   private WebApplicationException handleExecutionException(String errMsg, ExecutionException e) throws Error
+   {
+      Throwable cause = e.getCause();
+      if (Error.class.isInstance(cause))
+         throw (Error)cause;
+
+      String id = scheme.getId();
+
+      CategorizationScope scope = repo.getScope();
+      Account account = scope.getAccount();
+      String uname = account == null ? "anonymous" : account.getDisplayName();
+      String formatedMsg = format(errMsg, id, scope.getScopeId(), uname);
+
+      return ApiUtils.raise(Response.Status.INTERNAL_SERVER_ERROR, formatedMsg, Level.SEVERE, (Exception)e.getCause());
+   }
+
+   private WebApplicationException handleExecTimeout(Exception e)
+   {
+      String msg = "We are currently experiencing heavy load and unable to complete your request in a timely manner.";
+      return ApiUtils.raise(Response.Status.SERVICE_UNAVAILABLE, msg, Level.SEVERE, e);
+   }
+
+   private String updateScheme(Map<String, String> fields) throws InterruptedException, ExecutionException, TimeoutException
+   {
       EditCategorizationCommand command = repo.edit(scheme.getId());
 
       setIfDefined("key", fields, key -> {
@@ -122,30 +170,9 @@ public abstract class CategorizationResource
       });
       setIfDefined("description", fields, desc -> command.setDescription(desc));
 
-      try
-      {
-         String id = command.execute().get(10, TimeUnit.SECONDS);
-         CategorizationScheme updated = repo.getById(id);
-         return ModelAdapterV1.adapt((TreeCategorization)updated);
-      }
-      catch (ExecutionException ee)
-      {
-         // FIXME this might be a user error (e.g., duplicate key). Need to send appropriate message.
-         Throwable cause = ee.getCause();
-         if (Exception.class.isInstance(cause))
-            throw ApiUtils.raise(Response.Status.INTERNAL_SERVER_ERROR, "", Level.SEVERE, (Exception)cause);
-
-         throw (Error)cause;
-      }
-      catch (InterruptedException | TimeoutException e)
-      {
-         String msg = "We are currently experiencing heavy load and unable to complete your request in a timely manner.";
-         throw ApiUtils.raise(Response.Status.SERVICE_UNAVAILABLE, msg, Level.SEVERE, e);
-      }
+      String id = command.execute().get(10, TimeUnit.SECONDS);
+      return id;
    }
-
-   @Path("nodes/{id}")
-   public abstract CategorizationNodeResource<?> getNode(@PathParam("id") String nodeId);
 
    private void checkKeyNotEmpty(String key)
    {
