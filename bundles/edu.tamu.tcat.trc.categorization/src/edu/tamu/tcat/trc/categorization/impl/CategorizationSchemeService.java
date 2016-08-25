@@ -37,10 +37,10 @@ import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 import edu.tamu.tcat.trc.repo.RepositorySchema;
 import edu.tamu.tcat.trc.repo.SchemaBuilder;
+import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepo;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
 
 /**
- *
  *
  */
 public class CategorizationSchemeService implements CategorizationRepoFactory
@@ -71,7 +71,7 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
     */
    public static final String PARAM_TABLE_NAME = "table_name";
 
-   private DocumentRepository<TreeCategorization, PersistenceModelV1.TreeCategorizationStrategy, EditTreeCategorizationCommand> treeRepo;
+   private PsqlJacksonRepo<TreeCategorization, PersistenceModelV1.TreeCategorizationStrategy, EditTreeCategorizationCommand> treeRepo;
 
    private SqlExecutor sqlExecutor;
 
@@ -290,11 +290,13 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
       @Override
       public CategorizationScheme get(String key) throws IllegalArgumentException
       {
+         // TODO provide API on DocRepo to support more robust WHERE queries and projections
          // paired single quotes ('') are required due to escaping performed by MessageFormat
          String sqlTemplate = "SELECT {0} AS json, {0}->>''strategy'' AS strategy"
                              + " FROM {1} "
                              + "WHERE {0}->>''key'' = ? "
-                               + "AND {0}->>''scopeId'' = ?";
+                               + "AND {0}->>''scopeId'' = ? " 
+                               + treeRepo.buildNotRemovedClause();
 
          String sql = format(sqlTemplate, SCHEMA_DATA_FIELD, tableName);
          Future<CategorizationScheme> future = sqlExecutor.submit((conn) -> {
