@@ -569,7 +569,6 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          }
 
          CompletableFuture<DTO> result = updateAction.apply(dto);
-         result.thenRun(() -> context.timestamp = Instant.now());
 
          // fire post-commit hooks]
          result
