@@ -23,6 +23,26 @@ public interface CategorizationRepo
    CategorizationScope getScope();
 
    /**
+    * Determines if the supplied key is currently used by a categorization scheme within
+    * this scope.
+    *
+    * <p>Note that this is intended to support basic checks and to support more clear user
+    * interfaces. In general, attempts to access a scheme for an existing key or to create a
+    * new scheme with an unused key may fail following a test for existence using this method
+    * due to concurrent updates. Callers must be prepared to deal with these scenarios
+    * appropriately. In most use cases, however, these conflicts will be sufficiently rare
+    * that this method can be used to provide valuable feedback.
+    *
+    * @param key The key to test.
+    * @return <code>true</code> if the supplied key is currently used to identify a
+    *       categorization scheme.
+    */
+   default boolean isUsed(String key)
+   {
+      throw new UnsupportedOperationException();
+   };
+
+   /**
     * Retrieves a specific {@link CategorizationScheme} using the user-supplied key.
     * Categorization keys are unique within a given {@link CategorizationScope}.
     *
