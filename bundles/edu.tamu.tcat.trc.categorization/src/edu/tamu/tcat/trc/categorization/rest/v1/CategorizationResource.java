@@ -4,7 +4,9 @@ import static java.text.MessageFormat.format;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -19,7 +21,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import edu.tamu.tcat.trc.categorization.CategorizationRepo;
 import edu.tamu.tcat.trc.categorization.CategorizationScheme;
@@ -112,6 +113,7 @@ public abstract class CategorizationResource
 
       setIfDefined("key", fields, key -> {
          checkKeyNotEmpty(key);
+         ApiUtils.checkUniqueKey(repo, key);
          command.setKey(key);
       });
       setIfDefined("label", fields, label -> {
@@ -120,7 +122,26 @@ public abstract class CategorizationResource
       });
       setIfDefined("description", fields, desc -> command.setDescription(desc));
 
-      return null;
+      try
+      {
+         String id = command.execute().get(10, TimeUnit.SECONDS);
+         CategorizationScheme updated = repo.getById(id);
+         return ModelAdapterV1.adapt((TreeCategorization)updated);
+      }
+      catch (ExecutionException ee)
+      {
+         // FIXME this might be a user error (e.g., duplicate key). Need to send appropriate message.
+         Throwable cause = ee.getCause();
+         if (Exception.class.isInstance(cause))
+            throw ApiUtils.raise(Response.Status.INTERNAL_SERVER_ERROR, "", Level.SEVERE, (Exception)cause);
+
+         throw (Error)cause;
+      }
+      catch (InterruptedException | TimeoutException e)
+      {
+         String msg = "We are currently experiencing heavy load and unable to complete your request in a timely manner.";
+         throw ApiUtils.raise(Response.Status.SERVICE_UNAVAILABLE, msg, Level.SEVERE, e);
+      }
    }
 
    @Path("nodes/{id}")
