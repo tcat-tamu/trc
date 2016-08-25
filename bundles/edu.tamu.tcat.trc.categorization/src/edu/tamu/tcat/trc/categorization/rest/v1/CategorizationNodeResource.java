@@ -311,7 +311,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
 
          String template = "The node {0} [{1}] already has a child with label {2}. Please choose a new lable.";
          String msg = format(template, node.getLabel(), node.getId(), entry.label);
-         throw ApiUtils.raise(Response.Status.CONFLICT, msg, Level.SEVERE, null);
+         throw ApiUtils.raise(Response.Status.CONFLICT, msg, Level.WARNING, null);
       }
 
       private void doCreateChild(TreeNode parent, RestApiV1.BasicNode entry) throws InterruptedException, ExecutionException, TimeoutException
@@ -324,7 +324,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
          catch (IllegalArgumentException ex)
          {
             // shouldn't happen
-            throw ApiUtils.raise(Response.Status.NOT_FOUND, "", Level.SEVERE, ex);
+            throw ApiUtils.raise(Response.Status.NOT_FOUND, format("Could not create new node. Failed to edit scheme [{0}]", scheme.getId()), Level.SEVERE, ex);
          }
 
          TreeNodeMutator mutator = command.editNode(nodeId);
