@@ -1,7 +1,6 @@
 package edu.tamu.tcat.trc.categorization.rest.v1;
 
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.categorization.CategorizationScheme;
@@ -13,8 +12,6 @@ import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 
 public class ModelAdapterV1
 {
-   private final static Logger logger = Logger.getLogger(ModelAdapterV1.class.getName());
-
    public static RestApiV1.Categorization adapt(TreeCategorization scheme)
    {
       RestApiV1.Categorization dto = adaptBaseScheme(scheme);
