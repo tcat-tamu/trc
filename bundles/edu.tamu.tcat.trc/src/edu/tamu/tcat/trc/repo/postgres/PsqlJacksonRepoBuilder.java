@@ -131,7 +131,7 @@ public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType>
     * @return The built document repository.
     * @throws RepositoryException
     */
-   public DocumentRepository<RecordType, StorageType, EditCmdType> build() throws RepositoryException
+   public PsqlJacksonRepo<RecordType, StorageType, EditCmdType> build() throws RepositoryException
    {
       if (!this.exists() && enableCreation)
          this.create();

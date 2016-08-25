@@ -170,16 +170,16 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       }
    }
 
+   public String buildNotRemovedClause()
+   {
+      String removedField = schema.getRemovedField();
+      return (removedField != null) ? format("AND {0} IS NULL", removedField) : "";
+   }
+
    private String prepareGetSql()
    {
       String GET_RECORD_SQL = "SELECT {0} FROM {1} WHERE {2} = ? {3}";
-
-      String removedField = schema.getRemovedField();
-      String isNotRemoved = (removedField != null)
-                  ? format("AND {0} IS NULL", removedField)
-                  : "";
-
-      return format(GET_RECORD_SQL, schema.getDataField(), tablename, schema.getIdField(), isNotRemoved);
+      return format(GET_RECORD_SQL, schema.getDataField(), tablename, schema.getIdField(), buildNotRemovedClause());
    }
 
    private String prepareInsertSql()
