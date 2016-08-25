@@ -130,7 +130,7 @@ public abstract class CategorizationResource
       }
    }
 
-   @Path("nodes/{id}")
+
    public abstract CategorizationNodeResource<?> getNode(@PathParam("id") String nodeId);
 
    private WebApplicationException handleExecutionException(String errMsg, ExecutionException e) throws Error
@@ -227,6 +227,7 @@ public abstract class CategorizationResource
       }
 
       @Override
+      @Path("nodes/{id}")
       public CategorizationNodeResource<?> getNode(@PathParam("id") String nodeId)
       {
          return new TreeNodeResource(repo, (TreeCategorization)scheme, nodeId);
