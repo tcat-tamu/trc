@@ -81,7 +81,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
       {
          String template = "Failed to delete categorization node {0} [{1}]";
          String msg = format(template, node.getLabel(), node.getId());
-         throw ModelAdapterV1.raise(Response.Status.INTERNAL_SERVER_ERROR, msg, Level.SEVERE, e);
+         throw ApiUtils.raise(Response.Status.INTERNAL_SERVER_ERROR, msg, Level.SEVERE, e);
       }
    }
 
@@ -117,7 +117,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
       {
          String template = "Failed to update the categorization node {0} [{1}]";
          String msg = format(template, original.getLabel(), nodeId);
-         throw ModelAdapterV1.raise(Response.Status.INTERNAL_SERVER_ERROR, msg, Level.SEVERE, e);
+         throw ApiUtils.raise(Response.Status.INTERNAL_SERVER_ERROR, msg, Level.SEVERE, e);
       }
    }
 
@@ -145,7 +145,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
       {
          String template = "Failed to update entry reference for categorization node {0} [{1}].";
          String msg = format(template, node.getLabel(), node.getId());
-         throw ModelAdapterV1.raise(Response.Status.INTERNAL_SERVER_ERROR, msg, Level.SEVERE, e);
+         throw ApiUtils.raise(Response.Status.INTERNAL_SERVER_ERROR, msg, Level.SEVERE, e);
       }
 
       return adapt(resolveNode());
@@ -199,7 +199,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
          }
          catch (IllegalArgumentException iae)
          {
-            throw ModelAdapterV1.raise(Response.Status.NOT_FOUND, format("Not Found"), Level.WARNING, iae);
+            throw ApiUtils.raise(Response.Status.NOT_FOUND, format("Not Found"), Level.WARNING, iae);
          }
       }
 
@@ -207,7 +207,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
       protected RestApiV1.BasicNode adapt(CategorizationNode node)
       {
          if (!TreeNode.class.isInstance(node))
-            throw ModelAdapterV1.raise(Response.Status.INTERNAL_SERVER_ERROR, "Unexpected node type while adapting", Level.SEVERE, null);
+            throw ApiUtils.raise(Response.Status.INTERNAL_SERVER_ERROR, "Unexpected node type while adapting", Level.SEVERE, null);
 
          return ModelAdapterV1.adapt((TreeNode)node);
       }
@@ -223,7 +223,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
          if (node.getParentId() == null)
          {
             String template = "This node {0} [{1}] is the root node.";
-            throw ModelAdapterV1.raise(Response.Status.NOT_FOUND, format(template, node.getLabel(), node.getId()), null, null);
+            throw ApiUtils.raise(Response.Status.NOT_FOUND, format(template, node.getLabel(), node.getId()), null, null);
          }
 
          TreeNode parent = scheme.getNode(node.getParentId());
@@ -263,7 +263,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
          {
             String template = "Failed to create child node {0} for parent {1} [{2}]";
             String msg = format(template, entry.label, parent.getLabel(), parent.getId());
-            throw ModelAdapterV1.raise(Response.Status.CONFLICT, msg, Level.SEVERE, ex);
+            throw ApiUtils.raise(Response.Status.CONFLICT, msg, Level.SEVERE, ex);
          }
       }
 
@@ -277,7 +277,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
          String rootErrMsg = "The root node [{0}] cannot be deleted.";
          TreeNode node = resolveNode();
          if (node.getParentId() == null)
-            ModelAdapterV1.raise(Response.Status.BAD_REQUEST, format(rootErrMsg, nodeId), Level.WARNING, null);
+            ApiUtils.raise(Response.Status.BAD_REQUEST, format(rootErrMsg, nodeId), Level.WARNING, null);
 
          return super.remove();
       }
@@ -292,7 +292,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
                .orElseThrow(() -> {
                   String template = "Failed to retrieve newly created child category {0} for node {1} [{2}].";
                   String msg = format(template, label, node.getLabel(), node.getId());
-                  throw ModelAdapterV1.raise(Response.Status.INTERNAL_SERVER_ERROR, msg, Level.SEVERE, null);
+                  throw ApiUtils.raise(Response.Status.INTERNAL_SERVER_ERROR, msg, Level.SEVERE, null);
                 });
          return ModelAdapterV1.adapt(child);
       }
@@ -311,7 +311,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
 
          String template = "The node {0} [{1}] already has a child with label {2}. Please choose a new lable.";
          String msg = format(template, node.getLabel(), node.getId(), entry.label);
-         throw ModelAdapterV1.raise(Response.Status.CONFLICT, msg, Level.SEVERE, null);
+         throw ApiUtils.raise(Response.Status.CONFLICT, msg, Level.SEVERE, null);
       }
 
       private void doCreateChild(TreeNode parent, RestApiV1.BasicNode entry) throws InterruptedException, ExecutionException, TimeoutException
@@ -324,7 +324,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
          catch (IllegalArgumentException ex)
          {
             // shouldn't happen
-            throw ModelAdapterV1.raise(Response.Status.NOT_FOUND, "", Level.SEVERE, ex);
+            throw ApiUtils.raise(Response.Status.NOT_FOUND, "", Level.SEVERE, ex);
          }
 
          TreeNodeMutator mutator = command.editNode(nodeId);

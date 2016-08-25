@@ -86,7 +86,7 @@ public abstract class CategorizationResource
          CategorizationScope scope = repo.getScope();
 
          String formatedMsg = format(errMsg, id, scope.getScopeId(), scope.getAccount().getDisplayName());
-         throw ModelAdapterV1.raise(Status.INTERNAL_SERVER_ERROR, formatedMsg, Level.SEVERE, e);
+         throw ApiUtils.raise(Response.Status.INTERNAL_SERVER_ERROR, formatedMsg, Level.SEVERE, e);
       }
    }
 
@@ -132,7 +132,7 @@ public abstract class CategorizationResource
          return;
 
       String msg = "Cannot set empty value for categorization scheme key.";
-      throw ModelAdapterV1.raise(Response.Status.BAD_REQUEST, msg, Level.WARNING, null);
+      throw ApiUtils.raise(Response.Status.BAD_REQUEST, msg, Level.WARNING, null);
 
    }
 

@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
@@ -104,7 +103,7 @@ public class CategorizationSchemesResource
 
       try
       {
-         checkUniqueKey(categorization.key);
+         ApiUtils.checkUniqueKey(repo, categorization.key);
 
          String errBadType = "Cannot create new categorization. Categorizatons of the requested type {0} are not supported.";
          switch (categorization.type)
@@ -149,8 +148,9 @@ public class CategorizationSchemesResource
       if (!opt.isPresent())
          opt = getById(key);
 
+      String notFoundMsg = "No categorization scheme found for key [{0}]";
       CategorizationScheme scheme = opt.orElseThrow(
-            () -> new NotFoundException(format("No categorization scheme found for {0}", key)));
+            () -> ApiUtils.raise(Response.Status.NOT_FOUND, format(notFoundMsg, key), null, null));
 
       switch (scheme.getType())
       {
@@ -158,26 +158,7 @@ public class CategorizationSchemesResource
             return new TreeCategorizationResource(repo, (TreeCategorization)scheme);
          default:
             String badScheme = "The categorization strategy ({0}) of the requested scheme ({1}) is not supported.";
-            throw new InternalServerErrorException(format(badScheme, scheme.getType(), key));
-      }
-
-   }
-
-   private void checkUniqueKey(String key)
-   {
-      if (key == null || key.trim().isEmpty())
-         throw new BadRequestException("A key must be supplied for the categorization.");
-
-      try
-      {
-         String errMsg = "The key '{0}' is already in use by scheme {1}.";
-         CategorizationScheme scheme = repo.get(key);
-
-         throw ModelAdapterV1.raise(Response.Status.CONFLICT, format(errMsg, key, scheme.getLabel()), null, null);
-      }
-      catch (IllegalArgumentException ex)
-      {
-         // no-op this is the expected behavior since the key should not be in use
+            throw ApiUtils.raise(Response.Status.INTERNAL_SERVER_ERROR, format(badScheme, scheme.getType(), key), null, null);
       }
    }
 
