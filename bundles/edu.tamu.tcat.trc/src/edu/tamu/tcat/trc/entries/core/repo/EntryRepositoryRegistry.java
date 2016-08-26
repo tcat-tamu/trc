@@ -1,5 +1,7 @@
 package edu.tamu.tcat.trc.entries.core.repo;
 
+import java.net.URI;
+
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 
@@ -22,6 +24,11 @@ public interface EntryRepositoryRegistry
     * creating and interpreting TRC entry URIs.
     */
    static final String API_ENDPOINT_PARAM = "trc.api.endpoint";
+
+   /**
+    * @return The configured REST API endpoint associated with this application. 
+    */
+   URI getApiEndpoint();
 
    /**
     * Indicates whether a given repository has been registered

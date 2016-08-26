@@ -128,9 +128,7 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, Repos
    @Override
    public URI getApiEndpoint()
    {
-      config.getPropertyValue(API_ENDPOINT_PARAM, URI.class, URI.create(""));
-
-      return null;
+      return config.getPropertyValue(API_ENDPOINT_PARAM, URI.class, URI.create(""));
    }
 
    /**
