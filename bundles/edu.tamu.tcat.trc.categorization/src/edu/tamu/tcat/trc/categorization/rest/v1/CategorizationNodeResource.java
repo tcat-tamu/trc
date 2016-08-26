@@ -30,6 +30,7 @@ import edu.tamu.tcat.trc.categorization.CategorizationNodeMutator;
 import edu.tamu.tcat.trc.categorization.CategorizationRepo;
 import edu.tamu.tcat.trc.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.categorization.EditCategorizationCommand;
+import edu.tamu.tcat.trc.categorization.rest.v1.RestApiV1.BasicNode;
 import edu.tamu.tcat.trc.categorization.strategies.tree.EditTreeCategorizationCommand;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeCategorization;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeNode;
@@ -127,7 +128,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
    @Path("entryRef")
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.BasicNode associateEntry(RestApiV1.EntryReference entryRef)
+   public RestApiV1.EntryReference associateEntry(RestApiV1.EntryReference entryRef)
    {
       CategorizationNode node = resolveNode();
       EntryReference ref = new EntryReference();
@@ -142,6 +143,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
       try
       {
          command.execute().get(10, TimeUnit.SECONDS);
+         return entryRef;
       }
       catch (InterruptedException | ExecutionException | TimeoutException e)
       {
@@ -149,16 +151,15 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
          String msg = format(template, node.getLabel(), node.getId());
          throw ApiUtils.raise(Response.Status.INTERNAL_SERVER_ERROR, msg, Level.SEVERE, e);
       }
-
-      return adapt(resolveNode());
    }
 
    @GET
    @Path("entryRef")
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.Categorization getArticle()
+   public RestApiV1.EntryReference getEnrtyRef()
    {
-      return null;
+      BasicNode dto = adapt(resolveNode());
+      return dto.entryRef;
    }
 
    private <T> void setIfDefined(String param, Map<String, Object> data, Consumer<T> action)
