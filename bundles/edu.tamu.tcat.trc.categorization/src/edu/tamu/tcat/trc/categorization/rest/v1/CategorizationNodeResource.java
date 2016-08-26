@@ -73,7 +73,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
       CategorizationNode node = resolveNode();
       try
       {
-         EditTreeCategorizationCommand command = (EditTreeCategorizationCommand)repo.edit(scheme.getId());
+         EditCategorizationCommand command = repo.edit(scheme.getId());
          command.removeNode(nodeId, removeRefs);
          command.execute().get(10, TimeUnit.SECONDS);
 

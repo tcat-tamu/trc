@@ -18,6 +18,7 @@ public interface EditCategorizationCommand
 
    CategorizationNodeMutator editNode(String nodeId);
 
-   CompletableFuture<String> execute();
+   void removeNode(String nodeId, boolean removeRefs);
 
+   CompletableFuture<String> execute();
 }
