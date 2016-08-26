@@ -33,8 +33,9 @@ import javax.ws.rs.core.MediaType;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.entries.types.article.Article;
-import edu.tamu.tcat.trc.entries.types.article.docrepo.ArticleRepoService;
+import edu.tamu.tcat.trc.entries.types.article.ArticleRepoFacade;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.repo.NoSuchEntryException;
@@ -47,14 +48,17 @@ public class ArticleResource
    private static final String ERR_NOT_FOUND = "Could not find an article with the supplied id {0}";
    private static final String ERR_UNKNOWN_GET = "That's embrassing. Something went wrong while trying to retrieve {0}.";
 
-   private final ArticleRepoService repo;
+   private final ArticleRepoFacade repo;
    private final ObjectMapper mapper;
 
    private final String articleId;
 
-   public ArticleResource(ArticleRepoService repo, String articleId)
+   private final EntryResolverRegistry resolvers;
+
+   public ArticleResource(ArticleRepoFacade repo, EntryResolverRegistry resolvers, String articleId)
    {
       this.repo = repo;
+      this.resolvers = resolvers;
       this.articleId = articleId;
 
       mapper = new ObjectMapper();
@@ -69,7 +73,7 @@ public class ArticleResource
       {
          ArticleRepository articleRepo = repo.getArticleRepo(null);
          Article article = articleRepo.get(articleId);
-         return ArticleSearchAdapter.adapt(article);
+         return ModelAdapter.adapt(article, resolvers);
       }
       catch (NoSuchEntryException e)
       {
@@ -101,7 +105,7 @@ public class ArticleResource
          // both the changes that were applied in this update (already present in article)
          // and any changes that may have been applied prior to this.
          Article current = articleRepo.get(articleId);
-         return ArticleSearchAdapter.adapt(current);
+         return ModelAdapter.adapt(current, resolvers);
       }
       catch (NoSuchEntryException noEx)
       {

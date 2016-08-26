@@ -21,6 +21,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
+
 
 public abstract class RestApiV1
 {
@@ -59,6 +61,8 @@ public abstract class RestApiV1
        * collections). This link provides a reference to the 'canonical' form of the article.
        */
       public Link self;
+
+      public EntryReference reference = new EntryReference();
 
       /** The unique identifier for this article. */
       public String id;

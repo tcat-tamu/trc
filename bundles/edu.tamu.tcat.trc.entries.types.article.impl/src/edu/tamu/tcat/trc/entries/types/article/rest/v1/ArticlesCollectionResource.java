@@ -5,6 +5,7 @@ import static java.text.MessageFormat.format;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,7 +27,9 @@ import javax.ws.rs.core.UriInfo;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.tcat.trc.entries.types.article.docrepo.ArticleRepoService;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
+import edu.tamu.tcat.trc.entries.types.article.Article;
+import edu.tamu.tcat.trc.entries.types.article.ArticleRepoFacade;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
@@ -43,12 +46,15 @@ public class ArticlesCollectionResource
    private final static Logger logger = Logger.getLogger(ArticlesCollectionResource.class.getName());
 
    private final ObjectMapper mapper;
-   private final ArticleRepoService repoSvc;
+   private final ArticleRepoFacade repoSvc;
+   private final EntryResolverRegistry resolvers;
    private final URI endpoint;
 
-   public ArticlesCollectionResource(ArticleRepoService repoSvc, URI endpoint)
+
+   public ArticlesCollectionResource(ArticleRepoFacade repoSvc, EntryResolverRegistry resolvers, URI endpoint)
    {
       this.repoSvc = repoSvc;
+      this.resolvers = resolvers;
       // HACK FIXME should not hard code endpoint API. Must be configured
       this.endpoint = endpoint != null ? endpoint : URI.create("http://localhost/articles/");
 
@@ -61,9 +67,8 @@ public class ArticlesCollectionResource
    public RestApiV1.ArticleSearchResultSet
    search(@Context UriInfo uriInfo,
           @QueryParam(value="q") String q,
-          @QueryParam(value = "offset") @DefaultValue("0")   int offset,
+          @QueryParam(value = "offset") @DefaultValue("0") int offset,
           @QueryParam(value = "max") @DefaultValue("100") int numResults)
-   throws SearchException
    {
       ArticleSearchService searchSvc = repoSvc.getSearchService();
       if (searchSvc == null)
@@ -81,8 +86,8 @@ public class ArticlesCollectionResource
          ArticleSearchResult results = articleQryCmd.execute();
 
          RestApiV1.ArticleSearchResultSet rs = new RestApiV1.ArticleSearchResultSet();
-         rs.articles = ArticleSearchAdapter.toDTO(results);
-         rs.query = ArticleSearchAdapter.toQueryDetail(uriInfo.getAbsolutePath(), results);
+         rs.articles = ModelAdapter.toDTO(results);
+         rs.query = ModelAdapter.toQueryDetail(uriInfo.getAbsolutePath(), results);
 
          return rs;
       }
@@ -99,7 +104,7 @@ public class ArticlesCollectionResource
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public Response create(@Context UriInfo uriInfo, RestApiV1.Article article)
+   public Response create(RestApiV1.Article article)
    {
       // TODO need to assess and fix error handling.
       try
@@ -108,9 +113,10 @@ public class ArticlesCollectionResource
          EditArticleCommand editCmd = articleRepo.create();
          ArticleResource.apply(editCmd, article);
 
-         article.id = editCmd.execute().get();
+         article.id = editCmd.execute().get(10, TimeUnit.SECONDS);
+         Article stored = articleRepo.get(article.id);
 
-         return buildResponse(article, uriInfo);
+         return buildResponse(ModelAdapter.adapt(stored, resolvers));
       }
       catch (ExecutionException ex)
       {
@@ -128,20 +134,21 @@ public class ArticlesCollectionResource
    @Path("{articleId}")
    public ArticleResource get(@PathParam(value="articleId") String articleId)
    {
-      return new ArticleResource(repoSvc, articleId);
+      return new ArticleResource(repoSvc, resolvers, articleId);
    }
 
-   private Response buildResponse(RestApiV1.Article article, UriInfo uriInfo)
+   private Response buildResponse(RestApiV1.Article dto)
    {
-      URI uri = endpoint.resolve(article.id);
+      URI uri = endpoint.resolve(dto.id);
 
       Link.Builder linkBuilder = Link.fromUri(uri);
       linkBuilder.rel("self");
-      linkBuilder.title(article.title);
+      linkBuilder.title(dto.title);
       Link link = linkBuilder.build();
+      dto.self = ModelAdapter.makeLink(uri, "self", dto.title);
 
       // might be created on creation, but I think it is good to return the created article
       // rather than just the ID
-      return Response.ok(article).links(link).build();
+      return Response.ok(dto).links(link).build();
    }
 }

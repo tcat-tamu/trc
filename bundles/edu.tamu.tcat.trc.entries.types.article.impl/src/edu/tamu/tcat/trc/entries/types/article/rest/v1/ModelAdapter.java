@@ -9,12 +9,12 @@ import java.util.stream.Collectors;
 
 import javax.ws.rs.core.UriBuilder;
 
+import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
 import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor.ContactInfo;
 import edu.tamu.tcat.trc.entries.types.article.ArticleLink;
 import edu.tamu.tcat.trc.entries.types.article.Footnote;
-import edu.tamu.tcat.trc.entries.types.article.rest.v1.RestApiV1.Link;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQuery;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy.AuthorRef;
@@ -23,7 +23,7 @@ import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
 /**
  * @since 1.1
  */
-public class ArticleSearchAdapter
+public class ModelAdapter
 {
    public static List<RestApiV1.ArticleSearchResult> toDTO(ArticleSearchResult results)
    {
@@ -33,7 +33,7 @@ public class ArticleSearchAdapter
          return new ArrayList<>();
 
       List<RestApiV1.ArticleSearchResult> compiledResults = proxies.stream()
-                    .map(ArticleSearchAdapter::toArticleDTO)
+                    .map(ModelAdapter::toArticleDTO)
                     .collect(Collectors.toList());
 
       compiledResults.forEach((article)->
@@ -114,7 +114,7 @@ public class ArticleSearchAdapter
       return detail;
    }
 
-   public static Link makeLink(URI uri, String rel, String title)
+   public static RestApiV1.Link makeLink(URI uri, String rel, String title)
    {
       RestApiV1.Link link = new RestApiV1.Link();
       link.uri = uri;
@@ -124,11 +124,13 @@ public class ArticleSearchAdapter
       return link;
    }
 
-   public static RestApiV1.Article adapt(Article article)
+   public static RestApiV1.Article adapt(Article article, EntryResolverRegistry resolvers)
    {
       RestApiV1.Article dto = new RestApiV1.Article();
       dto.id = article.getId().toString();
+      dto.reference = resolvers.getResolver(article).makeReference(article);
       dto.articleType = article.getArticleType();
+
       dto.title = article.getTitle();
       dto.authors = convertAuthors(article.getAuthors());
       dto.articleAbstract = article.getAbstract();
@@ -251,7 +253,7 @@ public class ArticleSearchAdapter
    private static List<RestApiV1.ArticleAuthor> convertAuthors(List<ArticleAuthor> authors)
    {
       return authors.stream()
-            .map(ArticleSearchAdapter::adapt)
+            .map(ModelAdapter::adapt)
             .collect(Collectors.toList());
    }
 

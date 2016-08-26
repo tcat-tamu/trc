@@ -7,8 +7,10 @@ import java.util.logging.Logger;
 
 import javax.ws.rs.Path;
 
-import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.types.article.docrepo.ArticleRepoService;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
+import edu.tamu.tcat.trc.entries.types.article.ArticleRepoFacade;
+import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.rest.v1.ArticlesCollectionResource;
 
 /**
@@ -19,25 +21,23 @@ import edu.tamu.tcat.trc.entries.types.article.rest.v1.ArticlesCollectionResourc
 @Path("/")
 public class RestApiService
 {
-   private static final String CONFIG_API_ENDPOINT = "edu.tamu.tcat.trc.rest.endpoint";
-
    private final static Logger logger = Logger.getLogger(RestApiService.class.getName());
 
-   private static final String ARTICLES_PATH = "articles";
-//   private static final String AUTHORS_PATH = "article_authors";
-
-   private ArticleRepoService repoSvc;
-   private ConfigurationProperties config;
+   private ArticleRepoFacade repoSvc;
+   private EntryResolverRegistry resolvers;
    private URI endpoint;
 
-   public void bindArticleRepository(ArticleRepoService repoSvc)
+   @Deprecated // should use EntryRepoRegistry instead. Bump access to SearchSvc into API for repo?
+   public void bindArticleRepository(ArticleRepoFacade repoSvc)
    {
       this.repoSvc = repoSvc;
    }
 
-   public void bindConfig(ConfigurationProperties config)
+   public void bindRepoRegistry(EntryRepositoryRegistry repos)
    {
-      this.config = config;
+      URI endpoint = repos.getApiEndpoint();
+      this.endpoint = endpoint.resolve(ArticleRepository.ENTRY_URI_BASE);
+      this.resolvers = repos.getResolverRegistry();
    }
 
    public void activate()
@@ -45,12 +45,7 @@ public class RestApiService
       try
       {
          Objects.requireNonNull(repoSvc, "Article repository service is not configured.");
-
-         String apiEndpoint = null;
-         if (config != null)
-            apiEndpoint = config.getPropertyValue(CONFIG_API_ENDPOINT, String.class);
-         endpoint = apiEndpoint != null ? URI.create(apiEndpoint) : URI.create("/");
-         if (apiEndpoint == null)
+         if (endpoint == null)
             logger.warning("No API endpoint for TRC is configured. Links returned via the REST API will not function correctly.");
       }
       catch (Exception ex)
@@ -65,9 +60,9 @@ public class RestApiService
 
    }
 
-   @Path(ARTICLES_PATH)
+   @Path(ArticleRepository.ENTRY_URI_BASE)
    public ArticlesCollectionResource getArticles()
    {
-      return new ArticlesCollectionResource(repoSvc, endpoint.resolve(ARTICLES_PATH));
+      return new ArticlesCollectionResource(repoSvc, resolvers, endpoint);
    }
 }
