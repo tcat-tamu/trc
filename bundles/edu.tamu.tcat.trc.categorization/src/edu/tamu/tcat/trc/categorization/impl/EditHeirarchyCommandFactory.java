@@ -5,15 +5,20 @@ import static java.text.MessageFormat.format;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.categorization.impl.PersistenceModelV1.TreeNode;
 import edu.tamu.tcat.trc.categorization.strategies.tree.EditTreeCategorizationCommand;
 import edu.tamu.tcat.trc.categorization.strategies.tree.TreeNodeMutator;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.repo.ChangeSet;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.IdFactory;
@@ -22,11 +27,16 @@ import edu.tamu.tcat.trc.repo.UpdateContext;
 public class EditHeirarchyCommandFactory
       implements EditCommandFactory<PersistenceModelV1.TreeCategorizationStrategy, EditTreeCategorizationCommand>
 {
+
+   private final static Logger logger = Logger.getLogger(EditHeirarchyCommandFactory.class.getName());
+
    // TODO need more consistent change labels.
    private final IdFactory nodeIds;
+   private final EntryResolverRegistry resolvers;
 
-   public EditHeirarchyCommandFactory(IdFactory idFactory)
+   public EditHeirarchyCommandFactory(EntryResolverRegistry resolvers, IdFactory idFactory)
    {
+      this.resolvers = resolvers;
       this.nodeIds = idFactory;
    }
 
@@ -88,7 +98,7 @@ public class EditHeirarchyCommandFactory
       return dto;
    }
 
-   public static class EditHierarchyCmdImpl
+   public class EditHierarchyCmdImpl
          extends BaseEditCommand<PersistenceModelV1.TreeCategorizationStrategy>
          implements EditTreeCategorizationCommand
    {
@@ -134,10 +144,12 @@ public class EditHeirarchyCommandFactory
       }
 
       @Override
-      public void removeNode(String nodeId)
+      public void removeNode(String nodeId, boolean removeRef)
       {
          String pattern = "Failed to delete node {0}. This node's parent could not be found.";
          changes.add("delete child#" + nodeId, dto -> {
+            // TODO find all child nodes, collect non-null references and remove them, ignoring errors
+
             Map<String, TreeNode> nodes = dto.nodes;
 
             PersistenceModelV1.TreeNode toRemove = nodes.get(nodeId);
@@ -146,10 +158,11 @@ public class EditHeirarchyCommandFactory
             PersistenceModelV1.TreeNode parent = nodes.get(toRemove.parentId);
             Objects.requireNonNull(parent, () -> format(pattern, nodeId));
 
+            Consumer<String> remover = makeRemoveFn(dto, removeRef);
             if (parent.children.remove(nodeId))
             {
-               getDescendents(nodes, nodeId).forEach(nodes::remove);
-               nodes.remove(nodeId);
+               getDescendents(nodes, nodeId).forEach(remover::accept);
+               remover.accept(nodeId);
             } // TODO otherwise, something has gone horribly wrong
          });
       }
@@ -160,6 +173,29 @@ public class EditHeirarchyCommandFactory
       {
          PersistenceModelV1.TreeCategorizationStrategy original = data.getOriginal();
          return (original != null) ? copy(original) : create();
+      }
+
+      private Consumer<String> makeRemoveFn(PersistenceModelV1.TreeCategorizationStrategy dto, boolean removeRef)
+      {
+         return nodeId -> {
+            PersistenceModelV1.TreeNode removed = dto.nodes.remove(nodeId);
+            if (removeRef && removed.ref != null)
+            {
+               try
+               {
+                  // NOTE calling #get on the returned Future may deadlock
+                  //      would be nice to know if this fails and log that, because that is bad.
+                  Account account = scope.getAccount();
+                  resolvers.getResolver(removed.ref)
+                           .remove(account, removed.ref);
+               }
+               catch (Exception ex)
+               {
+                  String errTemplate = "Failed to remove associated reference for {0} [{1}]:\n{2}";
+                  logger.log(Level.WARNING, format(errTemplate, dto.title, dto.id, removed.ref), ex);
+               }
+            }
+         };
       }
 
       private PersistenceModelV1.TreeCategorizationStrategy create()

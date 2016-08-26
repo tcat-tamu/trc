@@ -15,11 +15,13 @@ import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -66,13 +68,13 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
    }
 
    @DELETE
-   public Response remove()
+   public Response remove(@QueryParam("remove_refs") @DefaultValue("false") boolean removeRefs)
    {
       CategorizationNode node = resolveNode();
       try
       {
          EditTreeCategorizationCommand command = (EditTreeCategorizationCommand)repo.edit(scheme.getId());
-         command.removeNode(nodeId);
+         command.removeNode(nodeId, removeRefs);
          command.execute().get(10, TimeUnit.SECONDS);
 
          return Response.noContent().build();
@@ -272,14 +274,14 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
        * appropriate error message.
        */
       @Override
-      public Response remove()
+      public Response remove(@QueryParam("remove_refs") @DefaultValue("false") boolean removeRefs)
       {
          String rootErrMsg = "The root node [{0}] cannot be deleted.";
          TreeNode node = resolveNode();
          if (node.getParentId() == null)
             ApiUtils.raise(Response.Status.BAD_REQUEST, format(rootErrMsg, nodeId), Level.WARNING, null);
 
-         return super.remove();
+         return super.remove(removeRefs);
       }
 
       private RestApiV1.BasicTreeNode loadNewChild(String label)

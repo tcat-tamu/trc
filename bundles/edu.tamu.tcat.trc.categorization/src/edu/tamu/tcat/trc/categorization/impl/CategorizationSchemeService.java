@@ -174,7 +174,7 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
       repoBuilder.setSchema(buildSchema());
       repoBuilder.setEnableCreation(true);
 
-      repoBuilder.setEditCommandFactory(new EditHeirarchyCommandFactory(nodeIds));
+      repoBuilder.setEditCommandFactory(new EditHeirarchyCommandFactory(registry, nodeIds));
       repoBuilder.setDataAdapter(dto -> toDomainModel(registry, dto));
       repoBuilder.setStorageType(PersistenceModelV1.TreeCategorizationStrategy.class);
 
@@ -295,7 +295,7 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
          String sqlTemplate = "SELECT {0} AS json, {0}->>''strategy'' AS strategy"
                              + " FROM {1} "
                              + "WHERE {0}->>''key'' = ? "
-                               + "AND {0}->>''scopeId'' = ? " 
+                               + "AND {0}->>''scopeId'' = ? "
                                + treeRepo.buildNotRemovedClause();
 
          String sql = format(sqlTemplate, SCHEMA_DATA_FIELD, tableName);
