@@ -243,8 +243,6 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
                .collect(Collectors.toList());
       }
 
-
-
       @POST
       @Path("children")
       @Consumes(MediaType.APPLICATION_JSON)
@@ -273,6 +271,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
        * Override to ensure that the root node is not removed and to respond with
        * appropriate error message.
        */
+      @DELETE
       @Override
       public Response remove(@QueryParam("remove_refs") @DefaultValue("false") boolean removeRefs)
       {
