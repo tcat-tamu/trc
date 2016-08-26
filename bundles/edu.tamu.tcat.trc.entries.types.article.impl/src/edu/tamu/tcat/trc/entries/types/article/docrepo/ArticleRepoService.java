@@ -91,6 +91,7 @@ public class ArticleRepoService implements ArticleRepoFacade
 
       String idContext = (String)properties.getOrDefault(PARAM_ID_CTX, ID_CONTEXT_ARTICLES);
       idFactory = context.getIdFactory(idContext);
+      context.registerRepository(ArticleRepository.class, this::getArticleRepo);
       EntryResolverRegistry registry = context.getResolverRegistry();
       if (registry != null)
       {
