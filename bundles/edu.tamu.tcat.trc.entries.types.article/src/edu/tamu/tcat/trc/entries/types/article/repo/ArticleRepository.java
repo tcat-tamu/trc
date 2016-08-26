@@ -33,7 +33,7 @@ public interface ArticleRepository extends EntryRepository<Article>
 
    /** The initial path (relative to some API endpoint) for building URIs that reference
     *  and article and its sub-elements. */
-   public final static String ENTRY_URI_BASE = "entries/articles";
+   public final static String ENTRY_URI_BASE = "entries/articles/";
 
    /**
     * Retrieves a specific {@link Article}
