@@ -4,6 +4,7 @@ import java.net.URI;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
 
 /**
  *  {@link EntryResolver} base class designed to simplify the the implementation of
@@ -34,7 +35,7 @@ public abstract class EntryResolverBase<EntryType> implements EntryResolver<Entr
                             String entryTypeId)
    {
       this.entryType = type;
-      this.apiEndpoint = config.getPropertyValue(API_ENDPOINT_PARAM, URI.class, URI.create(""));
+      this.apiEndpoint = config.getPropertyValue(EntryRepositoryRegistry.API_ENDPOINT_PARAM, URI.class, URI.create(""));
 
       this.uriBase = entryUriBase;
       this.typeId = entryTypeId;

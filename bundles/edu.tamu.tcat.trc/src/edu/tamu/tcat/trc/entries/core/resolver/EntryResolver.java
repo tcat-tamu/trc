@@ -1,9 +1,12 @@
 package edu.tamu.tcat.trc.entries.core.resolver;
 
 import java.net.URI;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
+import edu.tamu.tcat.trc.entries.core.repo.UnauthorziedException;
 
 
 /**
@@ -24,15 +27,6 @@ import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
  */
 public interface EntryResolver<T>
 {
-
-   /**
-    * Configuration parameter that specifies the REST API endpoint for use in
-    * creating and interpreting TRC entry URIs.
-    */
-   @Deprecated // Use EntryRepositoryRegistry#API_ENDPOINT_PARAM
-   static final String API_ENDPOINT_PARAM = "trc.api.endpoint";
-
-
    /**
     * @param reference A reference to resolve.
     * @return An instance of the referenced entry.
@@ -53,6 +47,29 @@ public interface EntryResolver<T>
     * @throws InvalidReferenceException If the supplied reference cannot be resolved.
     */
    T resolve(Account account, EntryReference reference) throws InvalidReferenceException;
+
+   /**
+    * Attempts to remove the supplied entry from its associated data store.
+    *
+    * @param account A reference to the user (or other actor) account that is requesting
+    *       to remove this resource. May be {@code null}.
+    * @param reference A reference to an entry to remove.
+    * @return A future that resolves to indicate whether the underylying data store was
+    *       changed. On successful completion, the referenced entry will no longer be
+    *       available in the repository (although it may be retained as a deleted entry for
+    *       historical and versioning purposes). Execution errors will be propagated via an
+    *       {@link ExecutionException}.
+    *
+    * @throws InvalidReferenceException If the supplied reference cannot be resolved.
+    * @throws UnauthorziedException If the referenced entry cannot be removed by
+    *       the supplied account.
+    * @throws UnsupportedOperationException If this resolver does not support removal.
+    */
+   default CompletableFuture<Boolean> remove(Account account, EntryReference reference)
+         throws InvalidReferenceException, UnauthorziedException, UnsupportedOperationException
+   {
+      throw new UnsupportedOperationException();
+   }
 
    /**
     * Constructs a URI for the supplied reference.
