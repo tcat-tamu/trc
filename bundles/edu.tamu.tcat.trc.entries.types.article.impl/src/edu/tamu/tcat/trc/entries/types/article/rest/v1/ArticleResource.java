@@ -18,6 +18,7 @@ package edu.tamu.tcat.trc.entries.types.article.rest.v1;
 import static java.text.MessageFormat.format;
 
 import java.text.MessageFormat;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -99,7 +100,7 @@ public class ArticleResource
          EditArticleCommand editCmd = articleRepo.edit(articleId);
 
          apply(editCmd, article);
-         editCmd.execute().get();
+         editCmd.execute().get(10, TimeUnit.SECONDS);
 
          // we get the current version from the repo in order to ensure that we have
          // both the changes that were applied in this update (already present in article)
@@ -136,6 +137,7 @@ public class ArticleResource
 
    public static void apply(EditArticleCommand editCmd, RestApiV1.Article article)
    {
+      // TODO only apply things that have been updated. . . .
       editCmd.setContentType(article.contentType);
       editCmd.setArticleType(article.articleType);
       editCmd.setTitle(article.title);
