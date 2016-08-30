@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
+import edu.tamu.tcat.account.Account;
+
 /**
  *  A simple, document-oriented data store that performs basic CRUD operations over NoSQL-like
  *  database structures. Repository implementations are designed to store data using as
@@ -105,12 +107,21 @@ public interface DocumentRepository<RecordType, StorageType, EditCommandType>
 
    /**
     * Constructs a {@link RecordEditCommand} for use to create a new entry in this
-    * repository. Note that this does not create
+    * repository.
     *
+    * @param account The user account responsible for making this change.
     * @return A {@code DocumentEditorCommand} for use in editing the attributes of the object
     *       to be stored.
     */
-   EditCommandType create();
+   EditCommandType create(Account account);
+
+   /**
+    * Delegates to {@link #create(Account)}
+    */
+   @Deprecated
+   default EditCommandType create() {
+      return create((Account)null);
+   }
 
    /**
     * Optional method to constructs a {@link RecordEditCommand} for use to create a new
@@ -124,22 +135,40 @@ public interface DocumentRepository<RecordType, StorageType, EditCommandType>
     * developer should consult the documentation of the implementing repository to ensure that
     * this method is supported and to understand how duplicate identifiers are reported.
     *
+    * @param account The user account responsible for making this change.
     * @param id The id of the record to create
     * @return A {@code DocumentEditorCommand} for use in editing the attributes of the object
     *       to be stored.
     * @throws UnsupportedOperationException If client-supplied identifiers are not supported.
     */
-   EditCommandType create(String id) throws UnsupportedOperationException;
+   EditCommandType create(Account account, String id) throws UnsupportedOperationException;
+
+   /**
+    * delegates to {@link #create(Account, String)}
+    */
+   @Deprecated
+   default EditCommandType create(String id) throws UnsupportedOperationException {
+      return create(null, id);
+   };
 
    /**
     * Constructs a {@link RecordEditCommand} for use in editing the identified record.
     *
+    * @param account The user account responsible for making this change.
     * @param id The id of the record to edit.
     * @return A command for use in editing the record.
     * @throws RepositoryException If the identified record does not exist or if an edit command
     *       could not be constructed.
     */
-   EditCommandType edit(String id) throws RepositoryException;
+   EditCommandType edit(Account account, String id) throws RepositoryException;
+
+   /**
+    * delegates to {@link #edit(Account, String)}
+    */
+   @Deprecated
+   default EditCommandType edit(String id) throws RepositoryException {
+      return edit(null, id);
+   }
 
    /**
     * Removes the identified record from the repository. Often, repository implementations will
@@ -158,6 +187,7 @@ public interface DocumentRepository<RecordType, StorageType, EditCommandType>
     * in order to aid clients in selecting the correct repository implementation to meet their
     * needs.
     *
+    * @param account The user account responsible for making this change.
     * @param id The unique identifier of the record to delete.
     * @return A {@link Future} that returns the result of this deletion. If the record is
     *       no longer contained in the repository the {@link Future#get()} will return a
@@ -172,7 +202,15 @@ public interface DocumentRepository<RecordType, StorageType, EditCommandType>
     *       repository. This may reflect an inherent limitation of the repository or the way
     *       in which the {@link RepositorySchema} was configured.
     */
-   CompletableFuture<Boolean> delete(String id) throws UnsupportedOperationException;
+   CompletableFuture<Boolean> delete(Account account, String id) throws UnsupportedOperationException;
+
+   /**
+    * delegates to {@link #delete(Account, String)}
+    */
+   @Deprecated
+   default CompletableFuture<Boolean> delete(String id) throws UnsupportedOperationException {
+      return delete(null, id);
+   }
 
    /**
     * Convenience method to unwrap a {@link Future} and return the result or

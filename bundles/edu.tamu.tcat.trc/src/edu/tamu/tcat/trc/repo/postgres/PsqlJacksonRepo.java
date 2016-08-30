@@ -21,6 +21,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -118,7 +119,6 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
    void activate()
    {
-      // TODO initialize event notification tools
       // default to UUID-based ids
       if (idFactory == null)
          idFactory = () -> UUID.randomUUID().toString();
@@ -160,7 +160,6 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
    private class CacheLoaderImpl extends CacheLoader<String, RecordType>
    {
-      // TODO allow configuration to be specified;
       @Override
       public RecordType load(String key) throws Exception
       {
@@ -273,34 +272,34 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    }
 
    @Override
-   public EditCommandType create()
+   public EditCommandType create(Account account)
    {
       String id = idFactory != null
             ? idFactory.get()
             : UUID.randomUUID().toString();
-      return create(id);
+      return create(account, id);
    }
 
    @Override
-   public EditCommandType create(String id) throws UnsupportedOperationException
+   public EditCommandType create(Account account, String id) throws UnsupportedOperationException
    {
-      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.CREATE, null, () -> null);
+      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.CREATE, account, () -> null);
       UpdateStrategyImpl updater = new UpdateStrategyImpl(context, (dto) -> doCreate(id, dto));
 
       return this.cmdFactory.create(id, updater);
    }
 
    @Override
-   public EditCommandType edit(String id) throws RepositoryException
+   public EditCommandType edit(Account account, String id) throws RepositoryException
    {
-      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.EDIT, null, () -> loadStoredRecord(id));
+      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.EDIT, account, () -> loadStoredRecord(id));
       UpdateStrategyImpl updater = new UpdateStrategyImpl(context, (dto) -> doEdit(id, dto));
 
       return this.cmdFactory.edit(id, updater);
    }
 
    @Override
-   public CompletableFuture<Boolean> delete(String id) throws UnsupportedOperationException
+   public CompletableFuture<Boolean> delete(Account account, String id) throws UnsupportedOperationException
    {
       UpdateContextImpl context = new UpdateContextImpl(id, ActionType.REMOVE, null, () -> null);
       UpdateStrategyImpl updater = new UpdateStrategyImpl(context, (dto) -> doDelete(id));
@@ -311,21 +310,19 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    @Override
    public Runnable beforeUpdate(EntryUpdateObserver<DTO> preCommitTask)
    {
-      // TODO may need to provide access to id
-      UUID taskId = UUID.randomUUID();
-      preCommitTasks.put(taskId, preCommitTask);
+      UUID observerId = UUID.randomUUID();
+      preCommitTasks.put(observerId, preCommitTask);
 
-      return () -> preCommitTasks.remove(taskId);
+      return () -> preCommitTasks.remove(observerId);
    }
 
    @Override
    public Runnable afterUpdate(EntryUpdateObserver<DTO> postCommitTask)
    {
-      // TODO may need to provide access to id
-      UUID taskId = UUID.randomUUID();
-      postCommitTasks.put(taskId, postCommitTask);
+      UUID observerId = UUID.randomUUID();
+      postCommitTasks.put(observerId, postCommitTask);
 
-      return () -> postCommitTasks.remove(taskId);
+      return () -> postCommitTasks.remove(observerId);
    }
 
    private RecordType parse(String json)
@@ -540,10 +537,6 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       @Override
       public CompletableFuture<DTO> update(Function<UpdateContext<DTO>, DTO> generator)
       {
-         // TODO Support cancellation
-         //      return UpdateContext with notion of data availability and commit stage
-         //      Add monitor support to UpdateContext
-
          context.start();
 
          DTO dto = generator.apply(context);
@@ -556,13 +549,11 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          }
          catch (Exception ex)
          {
-            // TODO better logging -- include info about which pre-commit task failed.
-            // what is the appropriate log level here.
             String template = "Aborting update for entry {0}. Update id: {1}\n\tReason: {2}";
-            Supplier<String> msgSupplier = () -> format(template, context.getId(), context.getUpdateId(), ex.getMessage());
-            logger.log(Level.WARNING, ex, msgSupplier);
+            String msg = format(template, context.getId(), context.getUpdateId(), ex.getMessage());
+            logger.log(Level.WARNING, msg, ex);
 
-            // TODO log in UpdateContext
+            context.addError(msg);
             CompletableFuture<DTO> failure = new CompletableFuture<>();
             failure.completeExceptionally(ex);
             return failure;
@@ -595,25 +586,28 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          }
          catch (Exception ex)
          {
-            // TODO what is the appropriate log level here.
             String template = "Post-commit task failed while following update of entry {0}. Update id: {1}\n\tReason: {2}";
-            Supplier<String> msgSupplier = () -> format(template, context.getId(), context.getUpdateId(), ex.getMessage());
-            logger.log(Level.WARNING, ex, msgSupplier);
+            String msg = format(template, context.getId(), context.getUpdateId(), ex.getMessage());
+            context.addError(msg);
+            logger.log(Level.WARNING, msg, ex);
          }
       }
    }
 
    private class UpdateContextImpl implements UpdateContext<DTO>
    {
-      private UUID updateId = UUID.randomUUID();
+      private final UUID updateId = UUID.randomUUID();
       private Instant timestamp = null;
-      private String entryId;
-      private ActionType action;
-      private Account actor;
-      private Supplier<DTO> supplier;
+      private final String entryId;
+      private final ActionType action;
+      private final Account actor;
+      private final Supplier<DTO> supplier;
 
+      private DTO initial;
       private CompletableFuture<DTO> original;
       private CompletableFuture<DTO> modified = new CompletableFuture<>();
+
+      private final List<String> errors = new CopyOnWriteArrayList<>();
 
       UpdateContextImpl(String id, ActionType action, Account actor, Supplier<DTO> supplier)
       {
@@ -621,6 +615,8 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          this.action = action;
          this.actor = actor;
          this.supplier = supplier;
+
+         this.initial = supplier.get();
       }
 
       private void start()
@@ -676,6 +672,21 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       public Account getActor()
       {
          return actor;
+      }
+
+      public void addError(String msg)
+      {
+         errors.add(msg);
+      }
+
+      public List<String> listErrors()
+      {
+         return Collections.unmodifiableList(errors);
+      }
+
+      public DTO getInitialState()
+      {
+         return initial;
       }
 
       @Override
