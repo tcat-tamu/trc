@@ -1,6 +1,8 @@
 package edu.tamu.tcat.trc.entries.types.biblio.rest;
 
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.ws.rs.Path;
 
@@ -11,6 +13,9 @@ import edu.tamu.tcat.trc.entries.types.biblio.search.WorkSearchService;
 @Path("/")
 public class BiblioRestApiService
 {
+
+   private final static Logger logger = Logger.getLogger(BiblioRestApiService.class.getName());
+
    private WorkRepository repo;
    private WorkSearchService searchSvc;
 
@@ -41,8 +46,18 @@ public class BiblioRestApiService
     */
    public void activate()
    {
-      Objects.requireNonNull(repo, "No works repository provided.");
-      Objects.requireNonNull(searchSvc, "No work search service provided.");
+      try
+      {
+         logger.fine("Starting Works REST API endpoint.");
+
+         Objects.requireNonNull(repo, "No works repository provided.");
+         Objects.requireNonNull(searchSvc, "No work search service provided.");
+      }
+      catch (Exception ex)
+      {
+         logger.log(Level.SEVERE, "Failed to start works REST API", ex);
+         throw ex;
+      }
    }
 
    /**
