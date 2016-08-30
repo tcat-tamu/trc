@@ -80,10 +80,18 @@ public class WorkRepositoryImpl implements WorkRepository
     */
    public void activate()
    {
-      Objects.requireNonNull(sqlExecutor, "No SQL Executor provided.");
+      try
+      {
+         Objects.requireNonNull(sqlExecutor, "No SQL Executor provided.");
 
-      repoBackend = buildDocumentRepository();
-      idFactory = idFactoryProvider.getIdFactory(ID_CONTEXT_WORKS);
+         repoBackend = buildDocumentRepository();
+         idFactory = idFactoryProvider.getIdFactory(ID_CONTEXT_WORKS);
+      }
+      catch (Exception ex)
+      {
+         logger.log(Level.SEVERE, "Failed to initialize work repository", ex);
+         throw ex;
+      }
    }
 
    /**
