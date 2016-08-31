@@ -1,0 +1,5 @@
+ALTER TABLE relationships RENAME created TO date_created;
+ALTER TABLE relationships RENAME modified TO last_modified;
+ALTER TABLE relationships ADD COLUMN removed timestamp without time zone;
+UPDATE relationships SET removed = last_modified WHERE active = false;
+ALTER TABLE relationships DROP COLUMN active;

@@ -39,6 +39,23 @@ public class RelationshipDTO
    public Set<AnchorDTO> relatedEntities = new HashSet<>();
    public Set<AnchorDTO> targetEntities = new HashSet<>();
 
+   
+   public RelationshipDTO()
+   {
+      
+   }
+   
+   public RelationshipDTO(RelationshipDTO orig)
+   {
+      this.id = orig.id;
+      this.typeId = orig.typeId;
+      this.description = orig.description;
+      this.descriptionMimeType = orig.descriptionMimeType;
+      this.provenance = orig.provenance;
+      this.relatedEntities = new HashSet<>(orig.relatedEntities);
+      this.targetEntities = new HashSet<>(orig.targetEntities);
+   }
+
    public static RelationshipDTO create(Relationship reln)
    {
       RelationshipDTO result = new RelationshipDTO();
