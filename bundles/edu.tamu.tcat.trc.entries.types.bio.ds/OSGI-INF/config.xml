@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="dispose" immediate="false" name="edu.tamu.tcat.entries.types.bio.config">
    <implementation class="edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties"/>
-   <property name="props.file.propertyName" type="String" value="trc.biographical.war.config.file"/>
+   <property name="props.file.propertyName" type="String" value="config.file"/>
    <service>
       <provide interface="edu.tamu.tcat.osgi.config.ConfigurationProperties"/>
    </service>

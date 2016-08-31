@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="dispose" name="edu.tamu.tcat.trc.entries.types.trc.bio.repo">
-   <implementation class="edu.tamu.tcat.trc.entries.types.bio.postgres.PsqlPeopleRepo"/>
+   <implementation class="edu.tamu.tcat.trc.entries.types.bio.postgres.PeopleRepositoryImpl"/>
    <service>
       <provide interface="edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository"/>
    </service>

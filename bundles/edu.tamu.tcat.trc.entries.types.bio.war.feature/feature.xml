@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="edu.tamu.tcat.trc.entries.types.bio.feature"
+      id="edu.tamu.tcat.trc.entries.types.bio.war.feature"
       label="TRC People Microservice Feature"
       version="1.3.0.qualifier">
 
@@ -79,6 +79,20 @@ limitations under the License.
          download-size="0"
          install-size="0"
          version="1.3.0.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="com.eclipsesource.jaxrs.jersey-all"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.eclipsesource.jaxrs.publisher"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
          unpack="false"/>
 
 </feature>
