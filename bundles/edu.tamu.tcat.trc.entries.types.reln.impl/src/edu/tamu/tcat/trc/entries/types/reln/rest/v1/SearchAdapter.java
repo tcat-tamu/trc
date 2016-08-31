@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,10 +16,13 @@
 package edu.tamu.tcat.trc.entries.types.reln.rest.v1;
 
 import java.net.URI;
+import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -33,6 +36,8 @@ import edu.tamu.tcat.trc.entries.types.reln.search.RelnSearchProxy;
  */
 public class SearchAdapter
 {
+   private static final Logger logger = Logger.getLogger(SearchAdapter.class.getName());
+
    public static List<RestApiV1.RelationshipSearchResult> toDTO(List<RelnSearchProxy> origList)
    {
       if (origList == null)
@@ -90,6 +95,14 @@ public class SearchAdapter
 
       // group by type id, then transform the groups into RestApiV1.RelationshipTypeGroup instances
       resultSet.types = relns.stream()
+         .filter(r -> {
+            if (r.typeId == null) {
+               logger.log(Level.WARNING, MessageFormat.format("Skipping malformed relationship {0}", r.id));
+               return false;
+            }
+
+            return true;
+         })
          .collect(Collectors.groupingBy(r -> r.typeId)).entrySet().stream()
          .map(e -> groupByDirection(referent, lookupType.apply(e.getKey()), e.getValue()))
          .collect(Collectors.toList());

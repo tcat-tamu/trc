@@ -81,7 +81,7 @@ public class RelationshipDTO
    public static Relationship instantiate(RelationshipDTO data, RelationshipTypeRegistry registry) throws RelationshipException
    {
       String id = data.id;
-      RelationshipType type = registry.resolve(data.typeId);
+      RelationshipType type = data.typeId == null ? null : registry.resolve(data.typeId);
       String desc = data.description;
       String descType = data.descriptionMimeType;
       Provenance prov = (data.provenance != null) ? ProvenanceDTO.instantiate(data.provenance) : new BasicProvenance();

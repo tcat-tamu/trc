@@ -16,6 +16,7 @@
 package edu.tamu.tcat.trc.entries.types.reln.postgres;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -140,6 +141,8 @@ public class ExtPointRelnTypeRegistry implements RelationshipTypeRegistry
    @Override
    public RelationshipType resolve(String typeIdentifier) throws RelationshipException
    {
+      Objects.requireNonNull(typeIdentifier, "missing required relationship type identifier");
+
       try
       {
          // wait a respectable time, but not forever

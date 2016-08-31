@@ -33,6 +33,7 @@ public interface RelationshipTypeRegistry
     * @return The identified {@code RelationshipType}
     * @throws RelationshipException If the identified relationship type has not been
     *       registered with this registry.
+    * @throws NullPointerException If the supplied identifier is {@code null}
     */
    RelationshipType resolve(String typeIdentifier) throws RelationshipException;
 
