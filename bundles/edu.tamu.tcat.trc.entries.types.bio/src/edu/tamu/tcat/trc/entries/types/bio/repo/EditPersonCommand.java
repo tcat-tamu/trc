@@ -15,13 +15,9 @@
  */
 package edu.tamu.tcat.trc.entries.types.bio.repo;
 
-import java.util.Set;
 import java.util.concurrent.Future;
 
 import edu.tamu.tcat.trc.entries.types.bio.Person;
-import edu.tamu.tcat.trc.entries.types.bio.dto.HistoricalEventDTO;
-import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
-import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
 
 /**
  * A command allowing editing of new or existing {@link Person} entries in a
@@ -29,36 +25,64 @@ import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
  */
 public interface EditPersonCommand
 {
-   /**
-    * Sets all properties given the supplied {@link PersonDTO}
-    *
-    * @param person The data vehicle used to update the person.
-    */
-   void setAll(PersonDTO person);
+//   /**
+//    * Sets all properties given the supplied {@link PersonDTO}
+//    *
+//    * @param person The data vehicle used to update the person.
+//    */
+//   @Deprecated
+//   void setAll(PersonDTO person);
+//
+//   /**
+//    * Updates the set of all names given to the person
+//    * @param names
+//    */
+//   @Deprecated
+//   void setNames(Set<PersonNameDTO> names);
 
    /**
-    * Updates the set of all names given to the person
-    * @param names
+    * Creates a mutator to add a name for the person.
+    * @return
     */
-   void setNames(Set<PersonNameDTO> names);
-
+   PersonNameMutator addName();
+   
    /**
     * Updates the cannonical name of the person
-    * @param personName
+    * @return PersonNameMutator
     */
-   void setName(PersonNameDTO personName);
+   PersonNameMutator editName();
 
+   /**
+    * Updates the alternate names for the person.
+    * @return 
+    */
+   PersonNameMutator addNametoList();
+   
+   void clearNameList();
+   
+   /**
+    * Creates a birth Historical Event for the person
+    * @return
+    */
+   HistoricalEventMutator addBirthEvt();
+   
    /**
     * Updates the persons birth as a historical event
     * @param birth
     */
-   void setBirthEvt(HistoricalEventDTO birth);
-
+   HistoricalEventMutator editBirthEvt();
+   
+   /**
+    * Creates a death Historical Event for the person
+    * @return
+    */
+   HistoricalEventMutator addDeathEvt();
+   
    /**
     * Updates the persons death as a hsitorical event
     * @param death
     */
-   void setDeathEvt(HistoricalEventDTO death);
+   HistoricalEventMutator editDeathEvt();
 
    /**
     * Updates the provided description of the person.

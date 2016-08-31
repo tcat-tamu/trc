@@ -1,14 +1,14 @@
 package edu.tamu.tcat.trc.entries.types.bio.postgres.model;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
-import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
-import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
+import edu.tamu.tcat.trc.entries.types.bio.postgres.DataModelV1;
 
 public class PersonImpl implements Person
 {
@@ -19,14 +19,18 @@ public class PersonImpl implements Person
    private final HistoricalEventImpl death;
    private final String summary;
 
-   public PersonImpl(PersonDTO figure)
+   public PersonImpl(DataModelV1.Person figure)
    {
       this.id = figure.id;
       this.canonicalName = new PersonNameImpl(getCanonicalName(figure));
-      this.names = figure.names.stream()
-                        .map(PersonNameImpl::new)
-                        .collect(Collectors.toSet());
-
+      
+      if (figure.names != null)
+         this.names = figure.names.stream()
+                     .map(PersonNameImpl::new)
+                     .collect(Collectors.toSet());
+      else
+         this.names = new HashSet<>();
+      
       this.birth = (figure.birth != null) ? new HistoricalEventImpl(figure.birth) : null;
       this.death = (figure.death != null) ? new HistoricalEventImpl(figure.death) : null;
 
@@ -118,7 +122,7 @@ public class PersonImpl implements Person
     * @param figure
     * @return canonical name for this person
     */
-   private static PersonNameDTO getCanonicalName(PersonDTO figure)
+   private static DataModelV1.PersonName getCanonicalName(DataModelV1.Person figure)
    {
       // try the 'displayName' first
       if (figure.displayName != null) {
@@ -131,7 +135,7 @@ public class PersonImpl implements Person
       }
 
       // fall back to "Name Unknown" if this person does not have any names
-      PersonNameDTO fallbackName = new PersonNameDTO();
+      DataModelV1.PersonName fallbackName = new DataModelV1.PersonName();
       fallbackName.displayName = "Name Unknown";
       return fallbackName;
    }

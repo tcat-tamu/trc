@@ -23,8 +23,7 @@ import java.time.format.DateTimeFormatter;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
-import edu.tamu.tcat.trc.entries.types.bio.dto.DateDescriptionDTO;
-import edu.tamu.tcat.trc.entries.types.bio.dto.HistoricalEventDTO;
+import edu.tamu.tcat.trc.entries.types.bio.postgres.DataModelV1;
 
 public class HistoricalEventImpl implements HistoricalEvent
 {
@@ -34,7 +33,7 @@ public class HistoricalEventImpl implements HistoricalEvent
    private final String location;
    private final DateDescription eventDate;
 
-   public HistoricalEventImpl(HistoricalEventDTO src)
+   public HistoricalEventImpl(DataModelV1.HistoricalEvent src)
    {
       this.id = src.id;
       this.title = src.title;
@@ -48,11 +47,11 @@ public class HistoricalEventImpl implements HistoricalEvent
             LocalDate localDate = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalDate();
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMM yyyy");
-            DateDescriptionDTO dv = DateDescriptionDTO.create(localDate.format(formatter), localDate);
+            DataModelV1.DateDescription dv = DataModelV1.DateDescription.create(localDate.format(formatter), localDate);
 
             this.eventDate = new DateDescriptionImpl(dv);
          } else {
-            this.eventDate = new DateDescriptionImpl(DateDescriptionDTO.create("", null));
+            this.eventDate = new DateDescriptionImpl(DataModelV1.DateDescription.create("", null));
          }
       } else {
          this.eventDate = new DateDescriptionImpl(src.date);

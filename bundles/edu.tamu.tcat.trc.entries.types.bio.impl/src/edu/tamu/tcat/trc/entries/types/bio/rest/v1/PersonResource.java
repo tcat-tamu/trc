@@ -61,7 +61,7 @@ public class PersonResource
       try
       {
          EditPersonCommand updateCommand = repo.update(person.id);
-         updateCommand.setAll(RepoAdapter.toRepo(person));
+//         updateCommand.setAll(RepoAdapter.toRepo(person));
          updateCommand.execute().get();
 
          RestApiV1.PersonId result = new RestApiV1.PersonId();

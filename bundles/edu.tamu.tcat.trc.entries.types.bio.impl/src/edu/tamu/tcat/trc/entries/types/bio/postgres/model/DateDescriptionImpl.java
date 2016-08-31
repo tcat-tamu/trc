@@ -5,27 +5,27 @@ import java.time.format.DateTimeFormatter;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
-import edu.tamu.tcat.trc.entries.types.bio.dto.DateDescriptionDTO;
+import edu.tamu.tcat.trc.entries.types.bio.postgres.DataModelV1;
 
 public class DateDescriptionImpl implements DateDescription
 {
-   private static final Logger logger = Logger.getLogger(DateDescriptionDTO.class.getName());
+   private static final Logger logger = Logger.getLogger(DataModelV1.DateDescription.class.getName());
 
    public static java.time.format.DateTimeFormatter Iso8601Formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
    private final String description;
    private final LocalDate value;
 
-   public DateDescriptionImpl(DateDescriptionDTO dv)
+   public DateDescriptionImpl(DataModelV1.DateDescription dv)
    {
       if (dv == null)
-         dv = new DateDescriptionDTO();
+         dv = new DataModelV1.DateDescription();
 
       this.description = dv.description;
       this.value = extractCalendarDate(dv);
    }
 
-   private static LocalDate extractCalendarDate(DateDescriptionDTO dv)
+   private static LocalDate extractCalendarDate(DataModelV1.DateDescription dv)
    {
       try
       {

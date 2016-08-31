@@ -17,6 +17,7 @@ package edu.tamu.tcat.trc.entries.types.bio.rest.v1;
 
 import java.net.URLEncoder;
 import java.text.MessageFormat;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,9 +33,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import edu.tamu.tcat.trc.entries.types.bio.repo.DateDescriptionMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
+import edu.tamu.tcat.trc.entries.types.bio.repo.HistoricalEventMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
-import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RepoAdapter;
+import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNameMutator;
+import edu.tamu.tcat.trc.entries.types.bio.rest.v1.RestApiV1.HistoricalEvent;
+import edu.tamu.tcat.trc.entries.types.bio.rest.v1.RestApiV1.PersonName;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.SearchAdapter;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleSearchService;
@@ -115,7 +120,38 @@ public class PeopleResource
       try
       {
          EditPersonCommand createCommand = repo.create();
-         createCommand.setAll(RepoAdapter.toRepo(person));
+
+         PersonNameMutator addName = createCommand.addName();
+         addName.setFamilyName(person.name.familyName);
+         addName.setGivenName(person.name.givenName);
+         addName.setMiddleName(person.name.middleName);
+         addName.setSuffix(person.name.suffix);
+         addName.setTitle(person.name.title);
+         addName.setDisplayName(person.name.label);
+
+         HistoricalEvent birth = person.birth;
+         HistoricalEventMutator addBirthEvt = createCommand.addBirthEvt();
+         addBirthEvt.setTitle(birth.title);
+         addBirthEvt.setLocations(birth.location);
+         addBirthEvt.setDescription(birth.description);
+
+         DateDescriptionMutator setBirthDateDescription = addBirthEvt.editDateDescription();
+         setBirthDateDescription.setCalendar(birth.date.calendar);
+         setBirthDateDescription.setDescription(birth.date.description);
+
+         HistoricalEvent death = person.death;
+         HistoricalEventMutator addDeathEvt = createCommand.addDeathEvt();
+         addDeathEvt.setTitle(death.title);
+         addDeathEvt.setLocations(death.location);
+         addDeathEvt.setDescription(death.description);
+
+         DateDescriptionMutator setDeathDateDescription = addDeathEvt.editDateDescription();
+         setDeathDateDescription.setCalendar(death.date.calendar);
+         setDeathDateDescription.setDescription(death.date.description);
+
+         createCommand.setSummary(person.summary);
+
+         Set<PersonName> altNames = person.altNames;
 
          RestApiV1.PersonId personId = new RestApiV1.PersonId();
          personId.id = createCommand.execute().get();

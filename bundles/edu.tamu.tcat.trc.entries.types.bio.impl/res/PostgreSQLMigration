@@ -1,0 +1,6 @@
+ALTER TABLE people RENAME created TO date_created;
+ALTER TABLE people RENAME modified TO last_modified;
+ALTER TABLE people ADD COLUMN removed timestamp without time zone;
+UPDATE people SET removed = last_modified WHERE active = false;
+ALTER TABLE people DROP COLUMN active;
+ALTER TABLE people DROP COLUMN state;

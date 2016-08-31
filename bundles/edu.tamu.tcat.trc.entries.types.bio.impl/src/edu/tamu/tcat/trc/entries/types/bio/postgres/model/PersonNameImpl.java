@@ -3,7 +3,7 @@ package edu.tamu.tcat.trc.entries.types.bio.postgres.model;
 import java.util.Objects;
 
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
-import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
+import edu.tamu.tcat.trc.entries.types.bio.postgres.DataModelV1;
 
 public class PersonNameImpl implements PersonName
 {
@@ -15,7 +15,7 @@ public class PersonNameImpl implements PersonName
 
    private String displayName;
 
-   public PersonNameImpl(PersonNameDTO personDV)
+   public PersonNameImpl(DataModelV1.PersonName personDV)
    {
       this.title = personDV.title;
       this.givenName = personDV.givenName;
