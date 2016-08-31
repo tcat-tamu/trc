@@ -40,6 +40,7 @@ import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipChangeEvent;
+import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipPersistenceException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
@@ -176,6 +177,11 @@ public class PsqlRelationshipRepo implements RelationshipRepository
 
       EditRelationshipCommandImpl command = new EditRelationshipCommandImpl(relationship, idFactory);
       command.setCommitHook((r) -> {
+         // HACK: need better way of validating data and reporting validation errors; would prefer JSR Bean Validation
+         if (!isRelationshipValid(r)) {
+            throw new IllegalArgumentException("relationship is not valid");
+         }
+
          PsqlCreateRelationshipTask task = new PsqlCreateRelationshipTask(r, mapper);
 
          CompletableFuture<String> future = exec.submit(task);
@@ -191,6 +197,11 @@ public class PsqlRelationshipRepo implements RelationshipRepository
    {
       EditRelationshipCommandImpl command = new EditRelationshipCommandImpl(RelationshipDTO.create(get(id)) , idFactory);
       command.setCommitHook((r) -> {
+         // HACK: need better way of validating data and reporting validation errors; would prefer JSR Bean Validation
+         if (!isRelationshipValid(r)) {
+            throw new IllegalArgumentException("relationship is not valid");
+         }
+
          PsqlUpdateRelationshipTask task = new PsqlUpdateRelationshipTask(r, mapper);
          CompletableFuture<String> future = exec.submit(task);
          future.thenAccept(ignored -> notifyRelationshipUpdate(UpdateEvent.UpdateAction.UPDATE, r.id));
@@ -227,6 +238,20 @@ public class PsqlRelationshipRepo implements RelationshipRepository
    {
       listeners.add(ears);
       return () -> listeners.remove(ears);
+   }
+
+   private boolean isRelationshipValid(RelationshipDTO r)
+   {
+      try
+      {
+         typeReg.resolve(r.typeId);
+      }
+      catch (RelationshipException | NullPointerException e)
+      {
+         return false;
+      }
+
+      return true;
    }
 
    private class RelationshipChangeEventImpl extends BaseUpdateEvent implements RelationshipChangeEvent
