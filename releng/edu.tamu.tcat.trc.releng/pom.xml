@@ -49,6 +49,8 @@
     <module>oss.trc/bundles/edu.tamu.tcat.trc.base.feature</module>
 
     <module>oss.trc/bundles/edu.tamu.tcat.trc</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.core</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.repo</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.search.solr</module>
 
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio</module>
