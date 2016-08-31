@@ -1,0 +1,21 @@
+<assembly>
+  <id>relationships.war</id>
+  <formats>
+    <format>war</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <fileSets>
+    <fileSet>
+      <directory>${basedir}/target/products/${artifactId}/linux/gtk/x86_64</directory>
+      <outputDirectory>/WEB-INF</outputDirectory>
+      <excludes>
+        <exclude>plugins/javax.servlet_*.jar</exclude>
+        <exclude>plugins/javax.servlet-api*.jar</exclude>
+        <!--
+        <exclude>plugins/org.hamcrest*.jar</exclude>
+        <exclude>plugins/**junit*/</exclude>
+        -->
+      </excludes>
+    </fileSet>
+  </fileSets>
+</assembly>
