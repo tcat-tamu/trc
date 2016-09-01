@@ -1,8 +1,11 @@
 package edu.tamu.tcat.trc.entries.types.reln.postgres;
 
+import static java.text.MessageFormat.format;
+
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.types.reln.AnchorSet;
@@ -11,21 +14,22 @@ import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDTO;
 import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDTO;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
+import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipException;
+import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 import edu.tamu.tcat.trc.repo.BasicChangeSet;
-import edu.tamu.tcat.trc.repo.EditCommandFactory;
-import edu.tamu.tcat.trc.repo.IdFactoryProvider;
-import edu.tamu.tcat.trc.repo.UpdateContext;
 import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
+import edu.tamu.tcat.trc.repo.EditCommandFactory;
+import edu.tamu.tcat.trc.repo.UpdateContext;
 
 public class EditRelationshipCommandFactory implements EditCommandFactory<RelationshipDTO, EditRelationshipCommand>
 {
-   private final IdFactoryProvider idFactoryProvider;
-   
-   public EditRelationshipCommandFactory(IdFactoryProvider idFactoryProvider)
+   private final RelationshipTypeRegistry typeReg;
+
+   public EditRelationshipCommandFactory(RelationshipTypeRegistry typeReg)
    {
-      this.idFactoryProvider = idFactoryProvider;
+      this.typeReg = typeReg;
    }
-   
+
    @Override
    public EditRelationshipCommand create(String id, EditCommandFactory.UpdateStrategy<RelationshipDTO> context)
    {
@@ -44,8 +48,8 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<Relati
 
       private final String id;
       private final ApplicableChangeSet<RelationshipDTO> changes = new BasicChangeSet<>();
-      
-      
+
+
       public EditRelationshipCommandImpl(String id, EditCommandFactory.UpdateStrategy<RelationshipDTO> context)
       {
          this.id = id;
@@ -55,19 +59,33 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<Relati
       @Override
       public void setAll(RelationshipDTO realtionship)
       {
-         
+         throw new UnsupportedOperationException();
       }
 
       @Override
       public void setType(RelationshipType typeRelationship)
       {
-         // Not part of DTO.
+         setTypeId(typeRelationship.getIdentifier());
       }
 
       @Override
       public void setTypeId(String typeId)
       {
+         checkTypeId(typeId, msg -> new IllegalArgumentException(msg));
          changes.add("type id", dto -> dto.typeId = typeId);
+      }
+
+      private void checkTypeId(String typeId, Function<String, RuntimeException> generator)
+      {
+         try
+         {
+            typeReg.resolve(typeId);
+         }
+         catch (RelationshipException | NullPointerException e)
+         {
+            String msg = format("The supplied type id {0} could not be found. This relationship type has not been configured.", typeId);
+            throw generator.apply(msg);
+         }
       }
 
       @Override
@@ -93,7 +111,7 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<Relati
       {
          if (related == null)
             return;
-         
+
          changes.add("Set Related Entities", dto -> dto.relatedEntities = related.getAnchors().parallelStream()
                                                                              .map(anchor -> AnchorDTO.create(anchor))
                                                                              .collect(Collectors.toSet()));
@@ -122,7 +140,7 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<Relati
       {
          if (target == null)
             return;
-         
+
          changes.add("Set Target Entities", dto -> dto.targetEntities = target.getAnchors().parallelStream()
                                                                           .map(anchor -> AnchorDTO.create(anchor))
                                                                           .collect(Collectors.toSet()));
@@ -151,7 +169,10 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<Relati
       {
          CompletableFuture<RelationshipDTO> modified = context.update(ctx -> {
              RelationshipDTO dto = preModifiedData(ctx);
-             return changes.apply(dto);
+             RelationshipDTO result = changes.apply(dto);
+             checkTypeId(result.typeId, msg -> new IllegalStateException(msg));
+
+             return result;
          });
          return modified.thenApply(dto -> dto.id);
       }
@@ -159,13 +180,13 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<Relati
       private RelationshipDTO preModifiedData(UpdateContext<RelationshipDTO> ctx)
       {
          RelationshipDTO orig = ctx.getOriginal();
-         
+
          if (orig != null)
             return new RelationshipDTO(orig);
-         
+
          RelationshipDTO dto = new RelationshipDTO();
          dto.id = this.id;
-         
+
          return dto;
       }
    }

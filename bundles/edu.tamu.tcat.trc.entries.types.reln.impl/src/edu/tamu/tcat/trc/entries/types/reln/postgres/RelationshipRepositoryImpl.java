@@ -24,21 +24,21 @@ import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
 
 public class RelationshipRepositoryImpl implements RelationshipRepository
 {
-   
+
    private static final Logger logger = Logger.getLogger(RelationshipRepositoryImpl.class.getName());
-   
+
    public static final String ID_CONTEXT = "relationships";
 
    private static final String TABLE_NAME = "relationships";
    private static final String SCHEMA_ID = "trcRelationship";
    private static final String SCHEMA_DATA_FIELD = "relationship";
-   
+
    private DocumentRepository<Relationship, RelationshipDTO, EditRelationshipCommand> repoBackend;
    private SqlExecutor exec;
    private IdFactory idFactory;
    private IdFactoryProvider idFactoryProvider;
    private RelationshipTypeRegistry typeReg;
-   
+
 
    public void setDatabaseExecutor(SqlExecutor exec)
    {
@@ -58,7 +58,7 @@ public class RelationshipRepositoryImpl implements RelationshipRepository
    public void activate()
    {
       Objects.requireNonNull(exec, "No SQL executor provided");
-      
+
       repoBackend = buildDocumentRepository();
       idFactory = idFactoryProvider.getIdFactory(ID_CONTEXT);
    }
@@ -67,19 +67,19 @@ public class RelationshipRepositoryImpl implements RelationshipRepository
    {
       exec = null;
    }
-   
+
    private DocumentRepository<Relationship, RelationshipDTO, EditRelationshipCommand> buildDocumentRepository()
    {
       PsqlJacksonRepoBuilder<Relationship, RelationshipDTO, EditRelationshipCommand> repoBuilder = new PsqlJacksonRepoBuilder<>();
-      
+
       repoBuilder.setDbExecutor(exec);
       repoBuilder.setTableName(TABLE_NAME);
-      repoBuilder.setEditCommandFactory(new EditRelationshipCommandFactory(idFactoryProvider));
+      repoBuilder.setEditCommandFactory(new EditRelationshipCommandFactory(typeReg));
       repoBuilder.setDataAdapter(dto -> ModelAdapter.adapt(dto, typeReg));
       repoBuilder.setSchema(buildSchema());
       repoBuilder.setStorageType(RelationshipDTO.class);
       repoBuilder.setEnableCreation(true);
-      
+
       try
       {
          return repoBuilder.build();
@@ -88,7 +88,7 @@ public class RelationshipRepositoryImpl implements RelationshipRepository
       {
          logger.log(Level.SEVERE, "Failed to construct relationship repository instance.", e);
       }
-      
+
       return null;
    }
 
@@ -149,15 +149,14 @@ public class RelationshipRepositoryImpl implements RelationshipRepository
    @Override
    public void delete(String id) throws RepositoryException
    {
-      try 
+      try
       {
          repoBackend.delete(id).get();
       }
-      catch (Exception e) 
+      catch (Exception e)
       {
          throw new IllegalStateException("Encountered an unexpected error while trying to delete relationship with id {" + id + "}.", e);
       }
-
    }
 
    @Override
