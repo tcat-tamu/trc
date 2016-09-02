@@ -66,8 +66,6 @@ public class PersonResource
          EditPersonCommand updateCommand = repo.update(person.id);
          
          updatePersonName(updateCommand.editName(), person.name);
-         updateHistoricalEvent(updateCommand.addBirthEvt(), person.birth);
-         updateHistoricalEvent(updateCommand.addDeathEvt(), person.death);
          
          updateCommand.clearNameList();
          
@@ -75,6 +73,24 @@ public class PersonResource
          {
             updatePersonName(updateCommand.addNametoList(), name);
          }
+         
+         HistoricalEventMutator editBirthEvt = updateCommand.editBirthEvt();
+         DateDescriptionMutator birthDateMutator = editBirthEvt.editDateDescription();
+         birthDateMutator.setCalendar(person.birth.date.calendar);
+         birthDateMutator.setDescription(person.birth.date.description);
+         
+         editBirthEvt.setTitle(person.birth.title);
+         editBirthEvt.setLocations(person.birth.location);
+         editBirthEvt.setDescription(person.birth.description);
+         
+         HistoricalEventMutator editDeathEvt = updateCommand.editDeathEvt();
+         DateDescriptionMutator deathDateMutator = editDeathEvt.editDateDescription();
+         deathDateMutator.setCalendar(person.death.date.calendar);
+         deathDateMutator.setDescription(person.death.date.description);
+         
+         editDeathEvt.setTitle(person.death.title);
+         editDeathEvt.setLocations(person.death.location);
+         editDeathEvt.setDescription(person.death.description);
          
          updateCommand.setSummary(person.summary);
          updateCommand.execute().get();
@@ -102,17 +118,6 @@ public class PersonResource
       mutator.setMiddleName(name.middleName);
       mutator.setSuffix(name.suffix);
       mutator.setTitle(name.title);
-   }
-   
-   private void updateHistoricalEvent(HistoricalEventMutator mutator, RestApiV1.HistoricalEvent event)
-   {
-      DateDescriptionMutator dateMutator = mutator.editDateDescription();
-      dateMutator.setCalendar(event.date.calendar);
-      dateMutator.setDescription(event.date.description);
-      
-      mutator.setTitle(event.title);
-      mutator.setLocations(event.location);
-      mutator.setDescription(event.description);
    }
 
    @DELETE
