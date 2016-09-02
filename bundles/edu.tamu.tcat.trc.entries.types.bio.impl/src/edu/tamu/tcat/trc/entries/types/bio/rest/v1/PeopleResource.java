@@ -121,37 +121,45 @@ public class PeopleResource
       {
          EditPersonCommand createCommand = repo.create();
 
-         PersonNameMutator addName = createCommand.addName();
-         addName.setFamilyName(person.name.familyName);
-         addName.setGivenName(person.name.givenName);
-         addName.setMiddleName(person.name.middleName);
-         addName.setSuffix(person.name.suffix);
-         addName.setTitle(person.name.title);
-         addName.setDisplayName(person.name.label);
-
-         HistoricalEvent birth = person.birth;
-         HistoricalEventMutator addBirthEvt = createCommand.addBirthEvt();
-         addBirthEvt.setTitle(birth.title);
-         addBirthEvt.setLocations(birth.location);
-         addBirthEvt.setDescription(birth.description);
-
-         DateDescriptionMutator setBirthDateDescription = addBirthEvt.editDateDescription();
-         setBirthDateDescription.setCalendar(birth.date.calendar);
-         setBirthDateDescription.setDescription(birth.date.description);
-
-         HistoricalEvent death = person.death;
-         HistoricalEventMutator addDeathEvt = createCommand.addDeathEvt();
-         addDeathEvt.setTitle(death.title);
-         addDeathEvt.setLocations(death.location);
-         addDeathEvt.setDescription(death.description);
-
-         DateDescriptionMutator setDeathDateDescription = addDeathEvt.editDateDescription();
-         setDeathDateDescription.setCalendar(death.date.calendar);
-         setDeathDateDescription.setDescription(death.date.description);
-
+         
+         PersonNameMutator nameMutator = createCommand.addName();
+         nameMutator.setDisplayName(person.name.label);
+         nameMutator.setFamilyName(person.name.familyName);
+         nameMutator.setGivenName(person.name.givenName);
+         nameMutator.setMiddleName(person.name.middleName);
+         nameMutator.setSuffix(person.name.suffix);
+         nameMutator.setTitle(person.name.title);
+         
+         for (RestApiV1.PersonName personName : person.altNames)
+         {
+            PersonNameMutator altName = createCommand.addNametoList();
+            altName.setDisplayName(personName.label);
+            altName.setFamilyName(personName.familyName);
+            altName.setGivenName(personName.givenName);
+            altName.setMiddleName(personName.middleName);
+            altName.setSuffix(personName.suffix);
+            altName.setTitle(personName.title);
+         }
+         
+         HistoricalEventMutator birthEvt = createCommand.addBirthEvt();
+         birthEvt.setTitle(person.birth.title);
+         birthEvt.setDescription(person.birth.description);
+         birthEvt.setLocations(person.birth.location);
+         
+         DateDescriptionMutator birthDateDescription = birthEvt.addDateDescription();
+         birthDateDescription.setCalendar(person.birth.date.calendar);
+         birthDateDescription.setDescription(person.birth.date.description);
+         
+         HistoricalEventMutator deathEvt = createCommand.addDeathEvt();
+         deathEvt.setTitle(person.death.title);
+         deathEvt.setDescription(person.death.description);
+         deathEvt.setLocations(person.death.location);
+         
+         DateDescriptionMutator deathDateDescription = deathEvt.addDateDescription();
+         deathDateDescription.setCalendar(person.death.date.calendar);
+         deathDateDescription.setDescription(person.death.date.description);
+         
          createCommand.setSummary(person.summary);
-
-         Set<PersonName> altNames = person.altNames;
 
          RestApiV1.PersonId personId = new RestApiV1.PersonId();
          personId.id = createCommand.execute().get();

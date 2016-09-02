@@ -71,13 +71,14 @@ public class EditPersonCommandFactory implements EditCommandFactory<Person, Edit
 
          ChangeSet<DataModelV1.PersonName> person = changes.partial("Add alternate person name", p -> {
             
-            for (DataModelV1.PersonName pn : p.names)
-            {
-               if (pn.displayName == "")
-                  return pn;
-            }
+//            DataModelV1.PersonName personName = null;
+//            for (DataModelV1.PersonName pn : p.names)
+//            {
+//               if (pn.displayName == "")
+//                  personName = pn;
+//            }
             
-            return null;
+            return p.names.get(p.names.size());
          });
          
          return new PersonNameMutatorImpl(person);

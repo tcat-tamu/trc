@@ -26,7 +26,10 @@ public class DataModelV1
          Person dto = new Person();
          dto.id = orig.id;
          dto.displayName = orig.displayName;
-         dto.names = new ArrayList<>(orig.names);
+         if (orig.names == null)
+            dto.names = new ArrayList<>();
+         else 
+            dto.names = new ArrayList<>(orig.names);
          dto.birth = orig.birth;
          dto.death = orig.death;
          dto.summary = orig.summary;

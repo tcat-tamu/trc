@@ -16,8 +16,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import edu.tamu.tcat.trc.entries.types.bio.Person;
+import edu.tamu.tcat.trc.entries.types.bio.repo.DateDescriptionMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
+import edu.tamu.tcat.trc.entries.types.bio.repo.HistoricalEventMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
+import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNameMutator;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RepoAdapter;
 import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 
@@ -61,7 +64,19 @@ public class PersonResource
       try
       {
          EditPersonCommand updateCommand = repo.update(person.id);
-//         updateCommand.setAll(RepoAdapter.toRepo(person));
+         
+         updatePersonName(updateCommand.editName(), person.name);
+         updateHistoricalEvent(updateCommand.addBirthEvt(), person.birth);
+         updateHistoricalEvent(updateCommand.addDeathEvt(), person.death);
+         
+         updateCommand.clearNameList();
+         
+         for (RestApiV1.PersonName name : person.altNames)
+         {
+            updatePersonName(updateCommand.addNametoList(), name);
+         }
+         
+         updateCommand.setSummary(person.summary);
          updateCommand.execute().get();
 
          RestApiV1.PersonId result = new RestApiV1.PersonId();
@@ -77,6 +92,27 @@ public class PersonResource
       {
          throw new InternalServerErrorException("Failed to update person.", ex);
       }
+   }
+   
+   private void updatePersonName(PersonNameMutator mutator, RestApiV1.PersonName name)
+   {
+      mutator.setDisplayName(name.label);
+      mutator.setFamilyName(name.familyName);
+      mutator.setGivenName(name.givenName);
+      mutator.setMiddleName(name.middleName);
+      mutator.setSuffix(name.suffix);
+      mutator.setTitle(name.title);
+   }
+   
+   private void updateHistoricalEvent(HistoricalEventMutator mutator, RestApiV1.HistoricalEvent event)
+   {
+      DateDescriptionMutator dateMutator = mutator.editDateDescription();
+      dateMutator.setCalendar(event.date.calendar);
+      dateMutator.setDescription(event.date.description);
+      
+      mutator.setTitle(event.title);
+      mutator.setLocations(event.location);
+      mutator.setDescription(event.description);
    }
 
    @DELETE
