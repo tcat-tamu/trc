@@ -154,6 +154,11 @@ public class TestDocumentRepository
       
       PersonNameMutator altName1 = create.addNametoList();
       altName1.setDisplayName("Alternate Family Name 1");
+      altName1.setFamilyName("Family Name");
+      altName1.setGivenName("Given Name");
+      altName1.setMiddleName("Middle Name");
+      altName1.setSuffix("Suffix Name");
+      altName1.setTitle("Title");
 
       PersonNameMutator altName2 = create.addNametoList();
       altName2.setDisplayName("Alternate Family Name 2");
@@ -264,9 +269,9 @@ public class TestDocumentRepository
       person.name.givenName = "George";
       person.name.middleName = "Cunningham Monteath";
       person.name.familyName = "Douglas";
-      person.name.title = "";
-      person.name.role = "";
-      person.name.suffix = "";
+      person.name.title = "Mr.";
+      person.name.role = "Role";
+      person.name.suffix = "III";
       
       person.altNames = new HashSet<RestApiV1.PersonName>();
       
