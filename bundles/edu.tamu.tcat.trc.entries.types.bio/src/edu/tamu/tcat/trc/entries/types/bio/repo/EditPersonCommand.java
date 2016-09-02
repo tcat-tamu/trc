@@ -58,6 +58,9 @@ public interface EditPersonCommand
     */
    PersonNameMutator addNametoList();
    
+   /**
+    * Clears all alternate names in the list
+    */
    void clearNameList();
    
    /**
