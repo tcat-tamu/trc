@@ -7,6 +7,7 @@ import edu.tamu.tcat.trc.entries.types.bio.postgres.DataModelV1;
 
 public class PersonNameImpl implements PersonName
 {
+   private String id;
    private String title;
    private String givenName;
    private String middleName;
@@ -17,6 +18,7 @@ public class PersonNameImpl implements PersonName
 
    public PersonNameImpl(DataModelV1.PersonName personDV)
    {
+      this.id = personDV.id;
       this.title = personDV.title;
       this.givenName = personDV.givenName;
       this.middleName = personDV.middleName;
@@ -24,6 +26,12 @@ public class PersonNameImpl implements PersonName
       this.suffix = personDV.suffix;
 
       this.displayName = personDV.displayName;
+   }
+
+   @Override
+   public String getId()
+   {
+      return id;
    }
 
    @Override

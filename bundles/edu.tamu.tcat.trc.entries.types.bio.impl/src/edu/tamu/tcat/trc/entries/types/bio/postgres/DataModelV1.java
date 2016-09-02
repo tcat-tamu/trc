@@ -39,6 +39,7 @@ public class DataModelV1
    
    public static class PersonName
    {
+      public String id;
       public String title;
       public String givenName;
       public String middleName;

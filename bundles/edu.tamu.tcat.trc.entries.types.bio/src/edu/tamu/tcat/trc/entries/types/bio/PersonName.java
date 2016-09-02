@@ -21,6 +21,11 @@ package edu.tamu.tcat.trc.entries.types.bio;
 public interface PersonName
 {
    /**
+    * @return The internal id of this PersonName
+    */
+   String getId();
+   
+   /**
     * @return The title of address, such as Dr., Mr., Ms.
     */
    String getTitle();

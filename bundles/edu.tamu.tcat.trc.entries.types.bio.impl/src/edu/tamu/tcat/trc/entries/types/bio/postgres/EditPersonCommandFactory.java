@@ -1,6 +1,7 @@
 package edu.tamu.tcat.trc.entries.types.bio.postgres;
 
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
@@ -59,26 +60,18 @@ public class EditPersonCommandFactory implements EditCommandFactory<Person, Edit
       @Override
       public PersonNameMutator addNametoList()
       {
+         String id = UUID.randomUUID().toString();
          changes.add("Add name to list", person -> {
             if (person.names == null)
                person.names = new ArrayList<>();
             
             DataModelV1.PersonName name = new DataModelV1.PersonName();
-            name.displayName = "";
+            name.id = id;
             person.names.add(name);
          });
-         
 
          ChangeSet<DataModelV1.PersonName> person = changes.partial("Add alternate person name", p -> {
-            
-//            DataModelV1.PersonName personName = null;
-//            for (DataModelV1.PersonName pn : p.names)
-//            {
-//               if (pn.displayName == "")
-//                  personName = pn;
-//            }
-            
-            return p.names.get(p.names.size());
+            return p.names.stream().filter((n) -> n.id.equals(id)).findFirst().get();
          });
          
          return new PersonNameMutatorImpl(person);
