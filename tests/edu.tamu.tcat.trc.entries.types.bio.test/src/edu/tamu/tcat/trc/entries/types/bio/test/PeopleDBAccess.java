@@ -17,14 +17,9 @@ import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
-import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.DateDescriptionDTO;
 import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
-import edu.tamu.tcat.trc.entries.types.bio.dto.DateDescriptionDTO;
-import edu.tamu.tcat.trc.entries.types.bio.dto.HistoricalEventDTO;
-import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
-import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
-import edu.tamu.tcat.trc.entries.types.bio.postgres.PsqlPeopleRepo;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.repo.RepositoryException;
@@ -153,7 +148,7 @@ public class PeopleDBAccess
    }
 
    @Test
-   public void testGetAll() throws RepositoryException, CatalogRepoException
+   public void testGetAll() throws RepositoryException
    {
       Iterator<BiographicalEntry> peopleIterator = repo.listAll();
       while (peopleIterator.hasNext())
