@@ -1,6 +1,7 @@
 package edu.tamu.tcat.trc.repo;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import edu.tamu.tcat.account.Account;
@@ -32,6 +33,7 @@ public interface UpdateContext<StorageType>
 //       - include completion/stage status
 //   * Include support for progress monitoring
 //   * Make log serializable to support post use lookups
+//   * Provide access to associated entry (API type)
 
    /**
     *
@@ -63,7 +65,27 @@ public interface UpdateContext<StorageType>
     */
    Account getActor();
 
-   // TODO return entry reference
+   /**
+    * Called by various components responsible for executing the update and pre/post-commit
+    * hooks to add information about any errors that are encountered during execution.
+    *
+    * @param msg An error message
+    */
+   void addError(String msg);
+
+   /**
+    * @return The messages associated with any errors that may have been encountered while
+    *    executing this update.
+    */
+   List<String> listErrors();
+
+   /**
+    * @return The state of the entry when the {@link UpdateContext} was created. Note that the
+    *    entry may be changed following creation of the {@link UpdateContext} but prior to the
+    *    execution of changes to the context. It is the responsibility of
+    *
+    */
+   StorageType getInitialState();
 
    /**
     * @return The pre-commit representation of the entry prior to being modified. Note that
@@ -78,5 +100,4 @@ public interface UpdateContext<StorageType>
     *    will be persisted on successful execution.
     */
    StorageType getModified();
-
 }

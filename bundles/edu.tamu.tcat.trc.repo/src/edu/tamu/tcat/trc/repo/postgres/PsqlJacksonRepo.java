@@ -674,16 +674,19 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          return actor;
       }
 
+      @Override
       public void addError(String msg)
       {
          errors.add(msg);
       }
 
+      @Override
       public List<String> listErrors()
       {
          return Collections.unmodifiableList(errors);
       }
 
+      @Override
       public DTO getInitialState()
       {
          return initial;
