@@ -27,6 +27,7 @@ Import-Package: edu.tamu.tcat.account;version="1.0.0",
  edu.tamu.tcat.trc.refman.types,
  edu.tamu.tcat.trc.refman.types.zotero,
  edu.tamu.tcat.trc.repo,
+ edu.tamu.tcat.trc.repo.db,
  edu.tamu.tcat.trc.repo.postgres,
  edu.tamu.tcat.trc.repo.postgres.id,
  org.junit;version="4.11.0"
