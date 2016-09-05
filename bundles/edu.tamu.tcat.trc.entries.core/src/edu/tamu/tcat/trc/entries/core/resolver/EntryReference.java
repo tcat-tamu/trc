@@ -8,8 +8,9 @@ import static java.text.MessageFormat.format;
 public class EntryReference
 {
 
-   // TODO this is really and id, not a reference.
+   // TODO this is really an id, not a reference.
    // TODO what about sub-parts, eg. a Volume of a work?
+   // TODO needs to be moved out of the entries core into repo or persist or something similar
 
    /** Defines the type of entry this reference pertains to. */
    public String type;
