@@ -231,6 +231,12 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       return new PagedRecordIterator<>(this::getPersonBlock, this::parse, 100);
    }
 
+   public boolean exists(String id)
+   {
+      return unwrap(exec.submit(conn -> exists(conn, id)),
+            () -> format("Failed to determine if entry [{0}] exists.", id));
+   }
+
    @Override
    public RecordType get(String id) throws RepositoryException
    {
@@ -396,6 +402,23 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       return unwrap(future, () -> format("Failed to load DTO for entry with id={0}", id));
    }
 
+   private boolean exists(Connection conn, String id)
+         throws NoSuchEntryException, RepositoryException
+   {
+      String sqlTemplate = "SELECT {0} FROM {1} WHERE {2} = ? {3}";
+      String sql = format(sqlTemplate, schema.getIdField(), tablename, schema.getIdField(), buildNotRemovedClause());
+
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setString(1, id);
+         ResultSet rs = ps.executeQuery();
+         return rs.next();
+      }
+      catch (SQLException e)
+      {
+         throw new RepositoryException("Faield to check existance the record.", e);
+      }
+   }
    /**
     * Called from within the database executor to retrieve the underlying JSON representation
     * of an item.
