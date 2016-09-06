@@ -90,7 +90,7 @@ public class RestApiV1
        *  this individual in modern scholarship or public discourse. For example, prefer
        *  Lord Kelvin to William Thomson.
        */
-      public PersonName name;
+      public PersonName name = new PersonName();
 
       /**
        *  Other names by which this person is known. Historical figures are often known by a

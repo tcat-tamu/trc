@@ -15,10 +15,14 @@
  */
 package edu.tamu.tcat.trc.entries.types.bio.rest.v1;
 
+import static java.text.MessageFormat.format;
+
 import java.net.URLEncoder;
 import java.text.MessageFormat;
-import java.util.Set;
+import java.time.LocalDate;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,15 +35,17 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import edu.tamu.tcat.trc.entries.types.bio.repo.DateDescriptionMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.HistoricalEventMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNameMutator;
-import edu.tamu.tcat.trc.entries.types.bio.rest.v1.RestApiV1.HistoricalEvent;
-import edu.tamu.tcat.trc.entries.types.bio.rest.v1.RestApiV1.PersonName;
+import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.ApiUtils;
+import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RepoAdapter;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.SearchAdapter;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleSearchService;
@@ -115,59 +121,107 @@ public class PeopleResource
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.PersonId createPerson(RestApiV1.Person person)
+   public RestApiV1.Person createPerson(RestApiV1.Person person)
+   {
+      EditPersonCommand command = repo.create();
+      apply(command, person);
+
+      return execute(repo, command, person.name.label);
+   }
+
+
+   /**
+    * Applied data from the REST DTO to the supplied command.
+    *
+    * @param command The command to apply the changes to
+    * @param person The data to be updated for the associated person
+    */
+   static void apply(EditPersonCommand command, RestApiV1.Person person)
+   {
+      applyName(command.editCanonicalName(), person.name);
+      command.clearAlternateNames();
+      for (RestApiV1.PersonName personName : person.altNames)
+      {
+         applyName(command.addAlternateName(), personName);
+      }
+
+      applyEvent(command.editBirth(), person.birth);
+      applyEvent(command.editDeath(), person.death);
+
+      command.setSummary(person.summary);
+   }
+
+   /**
+    *
+    * @param repo T
+    * @param command
+    * @param name The anme of the person being created (for logging purposes
+    *
+    * @return A REST API representation of the data that was saved.
+    *
+    * @throws WebApplicationException For problems encountered during execution
+    */
+   static RestApiV1.Person execute(PeopleRepository repo, EditPersonCommand command, String name)
    {
       try
       {
-         EditPersonCommand createCommand = repo.create();
+         String id = command.execute().get(10, TimeUnit.SECONDS);
+         errorLogger.log(Level.INFO, format("Creating new bibliographic entry for {0} [{1}]", name, id));
 
-         
-         PersonNameMutator nameMutator = createCommand.addName();
-         nameMutator.setDisplayName(person.name.label);
-         nameMutator.setFamilyName(person.name.familyName);
-         nameMutator.setGivenName(person.name.givenName);
-         nameMutator.setMiddleName(person.name.middleName);
-         nameMutator.setSuffix(person.name.suffix);
-         nameMutator.setTitle(person.name.title);
-         
-         for (RestApiV1.PersonName personName : person.altNames)
-         {
-            PersonNameMutator altName = createCommand.addNametoList();
-            altName.setDisplayName(personName.label);
-            altName.setFamilyName(personName.familyName);
-            altName.setGivenName(personName.givenName);
-            altName.setMiddleName(personName.middleName);
-            altName.setSuffix(personName.suffix);
-            altName.setTitle(personName.title);
-         }
-         
-         HistoricalEventMutator birthEvt = createCommand.addBirthEvt();
-         birthEvt.setTitle(person.birth.title);
-         birthEvt.setDescription(person.birth.description);
-         birthEvt.setLocations(person.birth.location);
-         
-         DateDescriptionMutator birthDateDescription = birthEvt.addDateDescription();
-         birthDateDescription.setCalendar(person.birth.date.calendar);
-         birthDateDescription.setDescription(person.birth.date.description);
-         
-         HistoricalEventMutator deathEvt = createCommand.addDeathEvt();
-         deathEvt.setTitle(person.death.title);
-         deathEvt.setDescription(person.death.description);
-         deathEvt.setLocations(person.death.location);
-         
-         DateDescriptionMutator deathDateDescription = deathEvt.addDateDescription();
-         deathDateDescription.setCalendar(person.death.date.calendar);
-         deathDateDescription.setDescription(person.death.date.description);
-         
-         createCommand.setSummary(person.summary);
-
-         RestApiV1.PersonId personId = new RestApiV1.PersonId();
-         personId.id = createCommand.execute().get();
-         return personId;
+         // presumably we could just return the person that was supplied, but this ensures that we get
+         // the result as stored locally.
+         return RepoAdapter.toDTO(repo.get(id));
       }
-      catch (InterruptedException | ExecutionException e)
+      catch (InterruptedException | TimeoutException e)
       {
-         throw new InternalServerErrorException();
+         String msg = "Oops. Things seem to be a bit busy now and we could not update the bibliographic entry in a timely manner. Please try again.";
+         throw ApiUtils.raise(Response.Status.SERVICE_UNAVAILABLE, msg, Level.WARNING, e);
+      }
+      catch (ExecutionException ex)
+      {
+         throw handleExecutionException("Failed to create a new person", ex);
+      }
+   }
+
+   static WebApplicationException handleExecutionException(String errMsg, ExecutionException e) throws Error
+   {
+      Throwable cause = e.getCause();
+      if (Error.class.isInstance(cause))
+         throw (Error)cause;
+
+      return ApiUtils.raise(Response.Status.INTERNAL_SERVER_ERROR, errMsg, Level.SEVERE, (Exception)e.getCause());
+   }
+
+
+   private static void applyName(PersonNameMutator nameMutator, RestApiV1.PersonName name)
+   {
+      nameMutator.setDisplayName(name.label);
+      nameMutator.setFamilyName(name.familyName);
+      nameMutator.setGivenName(name.givenName);
+      nameMutator.setMiddleName(name.middleName);
+      nameMutator.setSuffix(name.suffix);
+      nameMutator.setTitle(name.title);
+   }
+
+   @SuppressWarnings("deprecation")
+   private static void applyEvent(HistoricalEventMutator mutator, RestApiV1.HistoricalEvent event)
+   {
+      mutator.setTitle(event.title);
+      mutator.setDescription(event.description);
+      mutator.setLocation(event.location);
+
+      DateDescriptionMutator birthDateDescription = mutator.editDate();
+      birthDateDescription.setDescription(event.date.description);
+      birthDateDescription.setCalendar(adaptCalendarDate(event.date.calendar));
+   }
+
+   private static LocalDate adaptCalendarDate(String dateStr)
+   {
+      try {
+         return (dateStr != null) ? LocalDate.parse(dateStr) : null;
+      } catch (Exception ex) {
+         errorLogger.log(Level.WARNING, format("Bad calendar date: {2}", dateStr), ex);
+         return null;
       }
    }
 

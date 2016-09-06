@@ -1,14 +1,17 @@
 package edu.tamu.tcat.trc.entries.types.bio.rest.v1;
 
-import java.text.MessageFormat;
+import static java.text.MessageFormat.format;
+
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Produces;
@@ -16,11 +19,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import edu.tamu.tcat.trc.entries.types.bio.Person;
-import edu.tamu.tcat.trc.entries.types.bio.repo.DateDescriptionMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
-import edu.tamu.tcat.trc.entries.types.bio.repo.HistoricalEventMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
-import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNameMutator;
+import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.ApiUtils;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RepoAdapter;
 import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 
@@ -53,7 +54,7 @@ public class PersonResource
    @PUT
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.PersonId updatePerson(RestApiV1.Person person)
+   public RestApiV1.Person updatePerson(RestApiV1.Person person)
    {
       if (person.id == null)
          person.id = this.personId;
@@ -63,61 +64,15 @@ public class PersonResource
 
       try
       {
-         EditPersonCommand updateCommand = repo.update(person.id);
-         
-         updatePersonName(updateCommand.editName(), person.name);
-         
-         updateCommand.clearNameList();
-         
-         for (RestApiV1.PersonName name : person.altNames)
-         {
-            updatePersonName(updateCommand.addNametoList(), name);
-         }
-         
-         HistoricalEventMutator editBirthEvt = updateCommand.editBirthEvt();
-         DateDescriptionMutator birthDateMutator = editBirthEvt.editDateDescription();
-         birthDateMutator.setCalendar(person.birth.date.calendar);
-         birthDateMutator.setDescription(person.birth.date.description);
-         
-         editBirthEvt.setTitle(person.birth.title);
-         editBirthEvt.setLocations(person.birth.location);
-         editBirthEvt.setDescription(person.birth.description);
-         
-         HistoricalEventMutator editDeathEvt = updateCommand.editDeathEvt();
-         DateDescriptionMutator deathDateMutator = editDeathEvt.editDateDescription();
-         deathDateMutator.setCalendar(person.death.date.calendar);
-         deathDateMutator.setDescription(person.death.date.description);
-         
-         editDeathEvt.setTitle(person.death.title);
-         editDeathEvt.setLocations(person.death.location);
-         editDeathEvt.setDescription(person.death.description);
-         
-         updateCommand.setSummary(person.summary);
-         updateCommand.execute().get();
-
-         RestApiV1.PersonId result = new RestApiV1.PersonId();
-         result.id = person.id;
-         return result;
+         EditPersonCommand command = repo.update(person.id);
+         PeopleResource.apply(command, person);
+         return PeopleResource.execute(repo, command, person.name.label);
       }
       catch (NoSuchEntryException ex)
       {
-         throw new NotFoundException(
-               MessageFormat.format("Cannot update person {0}. There is no record for this id.", personId));
+         String msg = "Cannot edit bibliographic entry for [{0}]. No record found";
+         throw ApiUtils.raise(Response.Status.NOT_FOUND, format(msg, personId), Level.FINE, ex);
       }
-      catch (InterruptedException | ExecutionException ex)
-      {
-         throw new InternalServerErrorException("Failed to update person.", ex);
-      }
-   }
-   
-   private void updatePersonName(PersonNameMutator mutator, RestApiV1.PersonName name)
-   {
-      mutator.setDisplayName(name.label);
-      mutator.setFamilyName(name.familyName);
-      mutator.setGivenName(name.givenName);
-      mutator.setMiddleName(name.middleName);
-      mutator.setSuffix(name.suffix);
-      mutator.setTitle(name.title);
    }
 
    @DELETE
@@ -126,11 +81,19 @@ public class PersonResource
    {
       try
       {
-         repo.delete(personId);
+         repo.delete(personId).get(10, TimeUnit.SECONDS);
       }
-      catch (NoSuchEntryException ex)
+      catch (InterruptedException | TimeoutException e)
       {
-         // no-op.
+         String msg = "Oops. Things seem to be a bit busy now and we could not delete the bibliographic entry {0} in a timely manner. Please try again.";
+         throw ApiUtils.raise(Response.Status.SERVICE_UNAVAILABLE, format(msg, personId), Level.WARNING, e);
+      }
+      catch (ExecutionException e)
+      {
+         String msg = "Failed to delete biographic entry [{0}]";
+         Throwable cause = e.getCause();
+         if (!NoSuchEntryException.class.isInstance(cause))
+            throw PeopleResource.handleExecutionException(format(msg,  personId), e);
       }
 
       return Response.noContent().build();
