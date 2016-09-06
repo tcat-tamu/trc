@@ -4,7 +4,6 @@ import static java.text.MessageFormat.format;
 
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -72,7 +71,7 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<Relati
       public void setTypeId(String typeId)
       {
          checkTypeId(typeId, msg -> new IllegalArgumentException(msg));
-         changes.add("type id", dto -> dto.typeId = typeId);
+         changes.add("typeId", dto -> dto.typeId = typeId);
       }
 
       private void checkTypeId(String typeId, Function<String, RuntimeException> generator)
@@ -97,13 +96,13 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<Relati
       @Override
       public void setDescriptionFormat(String descriptionFormat)
       {
-         changes.add("Mime type", dto -> dto.descriptionMimeType = descriptionFormat);
+         changes.add("descriptionMimeType", dto -> dto.descriptionMimeType = descriptionFormat);
       }
 
       @Override
       public void setProvenance(ProvenanceDTO provenance)
       {
-         changes.add("Provenance", dto -> dto.provenance = provenance);
+         changes.add("provenance", dto -> dto.provenance = provenance);
       }
 
       @Override
@@ -112,7 +111,7 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<Relati
          if (related == null)
             return;
 
-         changes.add("Set Related Entities", dto -> dto.relatedEntities = related.getAnchors().parallelStream()
+         changes.add("relatedEntities", dto -> dto.relatedEntities = related.getAnchors().parallelStream()
                                                                              .map(anchor -> AnchorDTO.create(anchor))
                                                                              .collect(Collectors.toSet()));
       }
@@ -120,19 +119,19 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<Relati
       @Override
       public void addRelatedEntities(Set<AnchorDTO> related)
       {
-         changes.add("Add Related Entities", dto -> dto.relatedEntities.addAll(related));
+         changes.add("relatedEntities [Add]", dto -> dto.relatedEntities.addAll(related));
       }
 
       @Override
       public void addRelatedEntity(AnchorDTO anchor)
       {
-         changes.add("Add Related Entitie", dto -> dto.relatedEntities.add(anchor));
+         changes.add("relatedEntities [Add]", dto -> dto.relatedEntities.add(anchor));
       }
 
       @Override
       public void removeRelatedEntity(AnchorDTO anchor)
       {
-         changes.add("Remove Related Entitie", dto -> dto.relatedEntities.remove(anchor));
+         changes.add("relatedEntities [Remove]", dto -> dto.relatedEntities.remove(anchor));
       }
 
       @Override
@@ -141,7 +140,7 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<Relati
          if (target == null)
             return;
 
-         changes.add("Set Target Entities", dto -> dto.targetEntities = target.getAnchors().parallelStream()
+         changes.add("targetEntities", dto -> dto.targetEntities = target.getAnchors().parallelStream()
                                                                           .map(anchor -> AnchorDTO.create(anchor))
                                                                           .collect(Collectors.toSet()));
       }
@@ -149,23 +148,23 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<Relati
       @Override
       public void addTargetEntities(Set<AnchorDTO> target)
       {
-         changes.add("Add Target Entities", dto -> dto.targetEntities.addAll(target));
+         changes.add("targetEntities [Add]", dto -> dto.targetEntities.addAll(target));
       }
 
       @Override
       public void addTargetEntity(AnchorDTO anchor)
       {
-         changes.add("Add Target Entitie", dto -> dto.targetEntities.add(anchor));
+         changes.add("targetEntities [Add]", dto -> dto.targetEntities.add(anchor));
       }
 
       @Override
       public void removeTargetEntity(AnchorDTO anchor)
       {
-         changes.add("Remove Target Entitie", dto -> dto.targetEntities.remove(anchor));
+         changes.add("targetEntities [Remove]", dto -> dto.targetEntities.remove(anchor));
       }
 
       @Override
-      public Future<String> execute()
+      public CompletableFuture<String> execute()
       {
          CompletableFuture<RelationshipDTO> modified = context.update(ctx -> {
              RelationshipDTO dto = preModifiedData(ctx);

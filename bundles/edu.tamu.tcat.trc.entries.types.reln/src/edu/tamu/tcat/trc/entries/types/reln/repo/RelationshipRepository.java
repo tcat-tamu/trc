@@ -49,7 +49,8 @@ public interface RelationshipRepository
     * @param id The id of the relationship to retrieve.
     * @return The relationship with the provided id.
     *
-    * @throws RepositoryException If there is no relationship with the supplied id or there are errors accessing the persistence layer.
+    * @throws RepositoryException If there is no relationship with the supplied id or there
+    *    are errors accessing the persistence layer.
     */
    Relationship get(String id) throws RepositoryException;
 
