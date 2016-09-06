@@ -1,18 +1,17 @@
 package edu.tamu.tcat.trc.entries.types.bio.postgres;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
-import edu.tamu.tcat.trc.entries.types.bio.postgres.DataModelV1.DateDescription;
-import edu.tamu.tcat.trc.entries.types.bio.postgres.DataModelV1.HistoricalEvent;
 import edu.tamu.tcat.trc.entries.types.bio.repo.DateDescriptionMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.HistoricalEventMutator;
 import edu.tamu.tcat.trc.repo.ChangeSet;
 
 public class HistoricalEventMutatorImpl implements HistoricalEventMutator
 {
-   private ChangeSet<HistoricalEvent> changes;
+   private ChangeSet<DataModelV1.HistoricalEvent> changes;
 
-   public HistoricalEventMutatorImpl(ChangeSet<HistoricalEvent> changes)
+   public HistoricalEventMutatorImpl(ChangeSet<DataModelV1.HistoricalEvent> changes)
    {
       this.changes = changes;
    }
@@ -26,66 +25,49 @@ public class HistoricalEventMutatorImpl implements HistoricalEventMutator
    @Override
    public void setDescription(String description)
    {
-      changes.add("Set description", event -> event.description = description);
+      changes.add("description", event -> event.description = description);
    }
 
    @Override
-   public void setLocations(String location)
+   public void setLocation(String location)
    {
-      changes.add("Set location", event -> event.location = location);
-   }
-   
-   @Override
-   public void setDate(Date eventDate)
-   {
-      changes.add("Set date", event -> event.eventDate = eventDate);
+      changes.add("location", event -> event.location = location);
    }
 
+
    @Override
-   public DateDescriptionMutator addDateDescription()
+   public DateDescriptionMutator editDate()
    {
-      
-      changes.add("Add Date Description", event -> {
-         event.date = new DateDescription();
-      });
-      
-      ChangeSet<DateDescription> partial = changes.partial("Add date description", (event) -> {
+      ChangeSet<DataModelV1.DateDescription> partial = changes.partial("date", (event) -> {
+         if (event.date == null)
+            event.date = new DataModelV1.DateDescription();
          return event.date;
       });
-      
+
       return new DateDescriptionMutatorImpl(partial);
    }
 
-   @Override
-   public DateDescriptionMutator editDateDescription()
-   {
-      ChangeSet<DateDescription> editDateDescription = changes.partial("Edit date description", (event) -> {
-         return event.date;
-      });
-      
-      return new DateDescriptionMutatorImpl(editDateDescription);
-   }
-   
    private class DateDescriptionMutatorImpl implements DateDescriptionMutator
    {
 
-      private ChangeSet<DateDescription> dateChangeSet;
+      private ChangeSet<DataModelV1.DateDescription> dateChangeSet;
 
-      public DateDescriptionMutatorImpl(ChangeSet<DateDescription> dateChangeSet)
+      public DateDescriptionMutatorImpl(ChangeSet<DataModelV1.DateDescription> dateChangeSet)
       {
          this.dateChangeSet = dateChangeSet;
-      }
-      
-      @Override
-      public void setCalendar(String calendar)
-      {
-         dateChangeSet.add("Set calendar", date -> date.calendar = calendar);
       }
 
       @Override
       public void setDescription(String description)
       {
-         dateChangeSet.add("Set description", date -> date.description = description);
+         dateChangeSet.add("description", date -> date.description = description);
+      }
+
+      @Override
+      public void setCalendar(LocalDate calendar)
+      {
+         dateChangeSet.add("calendar",
+               date -> date.calendar = DateTimeFormatter.ISO_LOCAL_DATE.format(calendar));
       }
    }
 }

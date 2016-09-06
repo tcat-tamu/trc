@@ -15,11 +15,15 @@
  */
 package edu.tamu.tcat.trc.entries.types.bio.postgres.model;
 
+import static java.text.MessageFormat.format;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
@@ -27,6 +31,8 @@ import edu.tamu.tcat.trc.entries.types.bio.postgres.DataModelV1;
 
 public class HistoricalEventImpl implements HistoricalEvent
 {
+   private final static Logger logger = Logger.getLogger(HistoricalEventImpl.class.getName());
+
    private final String id;
    private final String title;
    private final String description;
@@ -41,21 +47,29 @@ public class HistoricalEventImpl implements HistoricalEvent
       this.location = src.location;
 
       if (src.date == null) {
-         // support legacy data
-         if (src.eventDate != null) {
-            Instant instant = Instant.ofEpochMilli(src.eventDate.getTime());
-            LocalDate localDate = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalDate();
-
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMM yyyy");
-            DataModelV1.DateDescription dv = DataModelV1.DateDescription.create(localDate.format(formatter), localDate);
-
-            this.eventDate = new DateDescriptionImpl(dv);
-         } else {
-            this.eventDate = new DateDescriptionImpl(DataModelV1.DateDescription.create("", null));
-         }
+         this.eventDate = (src.eventDate != null) ? parseLegacyDate(src) : new DateDescriptionImpl("", null);
       } else {
-         this.eventDate = new DateDescriptionImpl(src.date);
+
+         String desc = src.date.description;
+         LocalDate calendar = null;
+         try {
+            calendar = (src.date.calendar != null) ? LocalDate.parse(src.date.calendar) : null;
+         } catch (Exception ex) {
+            String msg = "Bad calendar date stored for historical event {0} [{1}]: {2}";
+            logger.log(Level.WARNING, format(msg, this.title, this.id, src.date.calendar), ex);
+         }
+
+         this.eventDate = new DateDescriptionImpl(desc, calendar);
       }
+   }
+
+   private static DateDescriptionImpl parseLegacyDate(DataModelV1.HistoricalEvent src)
+   {
+      Instant instant = Instant.ofEpochMilli(src.eventDate.getTime());
+      LocalDate localDate = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalDate();
+      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMM yyyy");
+
+      return new DateDescriptionImpl(localDate.format(formatter), localDate);
    }
 
    @Override

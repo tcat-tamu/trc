@@ -28,7 +28,6 @@ public class PersonNameImpl implements PersonName
       this.displayName = personDV.displayName;
    }
 
-   @Override
    public String getId()
    {
       return id;

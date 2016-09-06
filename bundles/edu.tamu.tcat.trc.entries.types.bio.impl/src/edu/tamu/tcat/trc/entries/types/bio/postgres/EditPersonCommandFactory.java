@@ -1,12 +1,11 @@
 package edu.tamu.tcat.trc.entries.types.bio.postgres;
 
+import static java.text.MessageFormat.format;
+
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
-import edu.tamu.tcat.trc.entries.types.bio.postgres.DataModelV1.HistoricalEvent;
-import edu.tamu.tcat.trc.entries.types.bio.postgres.DataModelV1.Person;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.HistoricalEventMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNameMutator;
@@ -16,160 +15,133 @@ import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.UpdateContext;
 
-public class EditPersonCommandFactory implements EditCommandFactory<Person, EditPersonCommand>
+public class EditPersonCommandFactory implements EditCommandFactory<DataModelV1.Person, EditPersonCommand>
 {
 
    @Override
-   public EditPersonCommand create(String id, UpdateStrategy<Person> strategy)
+   public EditPersonCommand create(String id, UpdateStrategy<DataModelV1.Person> strategy)
    {
       return new EditPersonCommandImpl(id, strategy);
    }
 
    @Override
-   public EditPersonCommand edit(String id, UpdateStrategy<Person> strategy)
+   public EditPersonCommand edit(String id, UpdateStrategy<DataModelV1.Person> strategy)
    {
       return new EditPersonCommandImpl(id, strategy);
    }
-   
+
    private class EditPersonCommandImpl implements EditPersonCommand
    {
       private String id;
-      private UpdateStrategy<Person> exec;
-      private ApplicableChangeSet<Person> changes = new BasicChangeSet<>();
+      private UpdateStrategy<DataModelV1.Person> exec;
+      private ApplicableChangeSet<DataModelV1.Person> changes = new BasicChangeSet<>();
 
-      public EditPersonCommandImpl(String id, UpdateStrategy<Person> strategy)
+      public EditPersonCommandImpl(String id, UpdateStrategy<DataModelV1.Person> strategy)
       {
          this.id = id;
          this.exec = strategy;
       }
 
       @Override
-      public PersonNameMutator addName()
+      public PersonNameMutator editCanonicalName()
       {
-         changes.add("Add canonical name", person -> {
-            person.displayName = new DataModelV1.PersonName();
-         });
-         
-         ChangeSet<DataModelV1.PersonName> person = changes.partial("Add person name", p -> {
+
+         ChangeSet<DataModelV1.PersonName> partial = changes.partial("displayName [Edit]", p -> {
+            if (p.displayName == null)
+               p.displayName = new DataModelV1.PersonName();
+
             return p.displayName;
          });
-         
-         return new PersonNameMutatorImpl(person);
+
+         return new PersonNameMutatorImpl(partial);
       }
 
       @Override
-      public PersonNameMutator addNametoList()
+      public PersonNameMutator addAlternateName()
       {
-         String id = UUID.randomUUID().toString();
-         changes.add("Add name to list", person -> {
+         String pId = UUID.randomUUID().toString();
+         String msg = format("names.{1} [Add]", pId);
+         changes.add(msg, person -> {
             if (person.names == null)
                person.names = new ArrayList<>();
-            
+
             DataModelV1.PersonName name = new DataModelV1.PersonName();
-            name.id = id;
+            name.id = pId;
             person.names.add(name);
          });
 
-         ChangeSet<DataModelV1.PersonName> person = changes.partial("Add alternate person name", p -> {
-            return p.names.stream().filter((n) -> n.id.equals(id)).findFirst().get();
+         String editMsg = format("names.{1} [Edit]", pId);
+         ChangeSet<DataModelV1.PersonName> partial = changes.partial(editMsg, p -> {
+            return p.names.stream().filter(n -> n.id.equals(pId)).findFirst().get();
          });
-         
-         return new PersonNameMutatorImpl(person);
+
+         return new PersonNameMutatorImpl(partial);
       }
 
       @Override
-      public void clearNameList()
+      public void clearAlternateNames()
       {
-         changes.add("Clear alt names", person -> {
-            person.names = null;
+         changes.add("names [Clear]", person -> {
+            person.names = new ArrayList<>();
          });
       }
 
-      
       @Override
-      public PersonNameMutator editName()
+      public HistoricalEventMutator editBirth()
       {
+         ChangeSet<DataModelV1.HistoricalEvent> partial = changes.partial("birth [Edit]", (person) -> {
+            if (person.birth == null)
+               person.birth = new DataModelV1.HistoricalEvent();
 
-         ChangeSet<DataModelV1.PersonName> person = changes.partial("Edit person name", p -> {
-            return p.displayName;
-         });
-         
-         return new PersonNameMutatorImpl(person);
-      }
-
-      @Override
-      public HistoricalEventMutator addBirthEvt()
-      {
-         changes.add("Add birth event", person -> {
-            person.birth = new HistoricalEvent();
-         });
-         
-         ChangeSet<HistoricalEvent> partial = changes.partial("Add birth event", (person) -> {
             return person.birth;
          });
          return new HistoricalEventMutatorImpl(partial);
       }
 
       @Override
-      public HistoricalEventMutator editBirthEvt()
+      public HistoricalEventMutator editDeath()
       {
-         ChangeSet<HistoricalEvent> birthEvent = changes.partial("Edit birth event", (person) -> {
-            return person.birth;
-         });
-         return new HistoricalEventMutatorImpl(birthEvent);
-      }
+         ChangeSet<DataModelV1.HistoricalEvent> partial = changes.partial("death [Edit]", (person) -> {
+            if (person.death == null)
+               person.death = new DataModelV1.HistoricalEvent();
 
-      @Override
-      public HistoricalEventMutator addDeathEvt()
-      {
-         changes.add("Add death event", person -> {
-            person.death = new HistoricalEvent();
-         });
-         
-         ChangeSet<HistoricalEvent> partial = changes.partial("Add death event", (person) -> {
             return person.death;
          });
+
          return new HistoricalEventMutatorImpl(partial);
-      }
-
-      @Override
-      public HistoricalEventMutator editDeathEvt()
-      {
-         ChangeSet<HistoricalEvent> deathEvent = changes.partial("Edit death event", (person) -> {
-            return person.death;
-         });
-         return new HistoricalEventMutatorImpl(deathEvent);
       }
 
       @Override
       public void setSummary(String summary)
       {
-         changes.add("Set summary", person -> person.summary = summary);
+         changes.add("summary", person -> person.summary = summary);
       }
 
       @Override
-      public Future<String> execute()
+      public CompletableFuture<String> execute()
       {
-         CompletableFuture<Person> modified = exec.update(ctx -> {
-            Person dto = preModifiedData(ctx);
+         CompletableFuture<DataModelV1.Person> modified = exec.update(ctx -> {
+            DataModelV1.Person dto = preModifiedData(ctx);
             return this.changes.apply(dto);
          });
-         
+
          return modified.thenApply(dto -> dto.id);
       }
-      
-      private Person preModifiedData(UpdateContext<Person> ctx)
+
+      private DataModelV1.Person preModifiedData(UpdateContext<DataModelV1.Person> ctx)
       {
-         Person dto = null;
-         Person orig = ctx.getOriginal();
-         
+         DataModelV1.Person orig = ctx.getOriginal();
+
+         DataModelV1.Person dto = null;
          if (orig == null)
          {
-            dto = new Person();
+            dto = new DataModelV1.Person();
             dto.id = this.id;
          }
          else
-            dto = Person.copy(orig);
+         {
+            dto = DataModelV1.Person.copy(orig);
+         }
          return dto;
       }
    }
