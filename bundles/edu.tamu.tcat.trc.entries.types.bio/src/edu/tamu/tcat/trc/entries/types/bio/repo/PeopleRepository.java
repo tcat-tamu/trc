@@ -16,7 +16,7 @@
 package edu.tamu.tcat.trc.entries.types.bio.repo;
 
 import java.util.Iterator;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.trc.entries.notification.UpdateListener;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
@@ -100,7 +100,7 @@ public interface PeopleRepository
     * @throws NoSuchEntryException
     * @since 1.1
     */
-   Future<Boolean> delete(String personId) throws NoSuchEntryException;
+   CompletableFuture<Boolean> delete(String personId) throws NoSuchEntryException;
 
    /**
     * Add listener to be notified whenever a biography has been modified (created, updated or deleted).

@@ -2,7 +2,7 @@ package edu.tamu.tcat.trc.entries.types.bio.postgres;
 
 import java.util.Iterator;
 import java.util.Objects;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
@@ -26,37 +26,37 @@ public class PeopleRepositoryImpl implements PeopleRepository
 {
 
    private static final Logger logger = Logger.getLogger(PeopleRepositoryImpl.class.getName());
-   
+
    public static final String ID_CONTEXT = "people";
 
    private static final String TABLE_NAME = "people";
    private static final String SCHEMA_ID = "trcPerson";
    private static final String SCHEMA_DATA_FIELD = "historical_figure";
-   
+
    private DocumentRepository<Person, DataModelV1.Person, EditPersonCommand> repo;
    private SqlExecutor exec;
    private IdFactory idFactory;
-   
+
    public void setDatabaseExecutor(SqlExecutor exec)
    {
       this.exec = exec;
    }
-   
+
    public void setIdFactory(IdFactoryProvider idFactoryProvider)
    {
       this.idFactory = idFactoryProvider.getIdFactory(ID_CONTEXT);
    }
-   
+
    public void activate()
    {
       Objects.requireNonNull(exec, "No SQL executor provided");
       repo = buildDocumentRepository();
    }
-   
+
    private DocumentRepository<Person, DataModelV1.Person, EditPersonCommand> buildDocumentRepository()
    {
       PsqlJacksonRepoBuilder<Person, DataModelV1.Person, EditPersonCommand> builder = new PsqlJacksonRepoBuilder<>();
-      
+
       builder.setDbExecutor(exec);
       builder.setTableName(TABLE_NAME);
       builder.setEditCommandFactory(new EditPersonCommandFactory());
@@ -64,7 +64,7 @@ public class PeopleRepositoryImpl implements PeopleRepository
       builder.setSchema(buildSchema());
       builder.setStorageType(DataModelV1.Person.class);
       builder.setEnableCreation(true);
-      
+
       return builder.build();
    }
 
@@ -108,7 +108,7 @@ public class PeopleRepositoryImpl implements PeopleRepository
    }
 
    @Override
-   public Future<Boolean> delete(String personId) throws NoSuchEntryException
+   public CompletableFuture<Boolean> delete(String personId) throws NoSuchEntryException
    {
       return repo.delete(personId);
    }
