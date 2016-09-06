@@ -28,18 +28,6 @@ import edu.tamu.tcat.trc.entries.core.repo.UnauthorziedException;
 public interface EntryResolver<T>
 {
    /**
-    * @param reference A reference to resolve.
-    * @return An instance of the referenced entry.
-    * @throws InvalidReferenceException If the supplied reference cannot be resolved.
-    * @deprecated Use {@link #resolve(Account, EntryReference)}
-    */
-   @Deprecated
-   default T resolve(EntryReference reference) throws InvalidReferenceException
-   {
-      return resolve(null, reference);
-   }
-
-   /**
     * @param account A reference to the user (or other actor) account that is requesting
     *       access to this resource. May be {@code null}.
     * @param reference A reference to resolve.

@@ -11,6 +11,7 @@ import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
 import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
 import edu.tamu.tcat.trc.entries.core.resolver.BasicResolverRegistry;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryResolver;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
@@ -26,6 +27,8 @@ import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
  */
 public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, RepositoryContext
 {
+//   NOTE This is really a PsqlJacksonRepoRegistry - may provide different flavors of repo or (perhaps better) allow
+//        internal mechanisms to support different DB technologies.
 //   NOTE that this introduces a dependency on this shared class (notably for registration of repos) that will
 //        will be difficult to untangle. For the immediate future, this is acceptable in order to simplify
 //        implementation, but the end result is that this class, effectively, becomes part of the API for the
@@ -84,6 +87,12 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, Repos
    public EntryResolverRegistry getResolverRegistry()
    {
       return resolverRegistry;
+   }
+
+   @Override
+   public <T> EntryResolverRegistry.Registration registerResolver(EntryResolver<T> resolver)
+   {
+      return resolverRegistry.register(resolver);
    }
 
    @Override

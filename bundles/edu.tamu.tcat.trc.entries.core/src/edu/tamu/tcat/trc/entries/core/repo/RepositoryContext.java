@@ -5,15 +5,22 @@ import java.util.function.Function;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryResolver;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.IdFactory;
 
 public interface RepositoryContext
 {
-
+   /**
+    * @return The configured public API endpoint for this deployment.
+    */
    URI getApiEndpoint();
 
+   /**
+    * @return Configuration properties for this deployment.
+    */
    ConfigurationProperties getConfig();
 
    /**
@@ -65,6 +72,20 @@ public interface RepositoryContext
     *
     * @param type The Java interface associated with the repository to remove.
     */
-   <Repo> void unregister(Class<Repo> type);
+   <Repo> void unregister(Class<Repo> type); // TODO seems like a bad idea - should supply registration handle?
+
+   /**
+    * Register a new {@link EntryResolver} with the associated {@link EntryResolverRegistry}.
+    *
+    * <p>Note that, since the {@code EntryResolverRegistry} is intended to be managed by the
+    * {@link EntryRepositoryRegistry} rather than configured as an external service, it
+    * cannot be directly injected into repositories. Consequently the {@code RepositoryContext}
+    * needs to mediate resolver registration.
+    *
+    * @param resolver The resolver to be registered.
+    * @return A registration handle.
+    */
+   <EntryType> EntryResolverRegistry.Registration registerResolver(EntryResolver<EntryType> resolver);
+
 
 }
