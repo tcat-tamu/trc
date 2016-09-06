@@ -111,5 +111,6 @@ public interface PeopleRepository
     * @return A registration handle that allows the listener to be removed.
     * @since 1.1
     */
+   @Deprecated // follow pattern on TRC EntryRepo
    AutoCloseable addUpdateListener(UpdateListener<PersonChangeEvent> ears);
 }
