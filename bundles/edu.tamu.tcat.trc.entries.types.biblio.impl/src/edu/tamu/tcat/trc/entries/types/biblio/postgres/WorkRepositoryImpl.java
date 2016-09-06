@@ -1,11 +1,15 @@
 package edu.tamu.tcat.trc.entries.types.biblio.postgres;
 
 import java.util.Iterator;
-import java.util.Objects;
-import java.util.logging.Level;
+import java.util.Map;
 import java.util.logging.Logger;
 
-import edu.tamu.tcat.db.exec.sql.SqlExecutor;
+import edu.tamu.tcat.account.Account;
+import edu.tamu.tcat.osgi.config.ConfigurationProperties;
+import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
+import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverBase;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
@@ -13,14 +17,9 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkIndexService;
-import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.IdFactory;
-import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.repo.RepositoryException;
-import edu.tamu.tcat.trc.repo.RepositorySchema;
-import edu.tamu.tcat.trc.repo.SchemaBuilder;
-import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
 
 public class WorkRepositoryImpl implements WorkRepository
 {
@@ -36,31 +35,12 @@ public class WorkRepositoryImpl implements WorkRepository
    private static final String SCHEMA_DATA_FIELD = "work";
 
    private DocumentRepository<Work, WorkDTO, EditWorkCommand> repoBackend;
-   private SqlExecutor sqlExecutor;
-   private IdFactoryProvider idFactoryProvider;
+
    private WorkIndexService indexService;
 
    private IdFactory idFactory;
-
-   /**
-    * Bind method for SQL executor service dependency (usually called by dependency injection layer)
-    *
-    * @param sqlExecutor
-    */
-   public void setSqlExecutor(SqlExecutor sqlExecutor)
-   {
-      this.sqlExecutor = sqlExecutor;
-   }
-
-   /**
-    * Bind method for ID factory provider service dependency (usually called by dependency injection layer)
-    *
-    * @param idFactory
-    */
-   public void setIdFactory(IdFactoryProvider idFactoryProvider)
-   {
-      this.idFactoryProvider = idFactoryProvider;
-   }
+   private ConfigurationProperties config;
+   private RepositoryContext context;
 
    /**
     * Bind method for search index service dependency (usually called by dependency injection layer)
@@ -74,24 +54,28 @@ public class WorkRepositoryImpl implements WorkRepository
       this.indexService = workIndexService;
    }
 
+   public void setRepoContext(RepositoryContext context)
+   {
+      this.context = context;
+   }
+
    /**
     * Lifecycle management method (usually called by framework service layer)
     * Called when all dependencies have been provided and the service is ready to run.
     */
-   public void activate()
+   public void activate(Map<String, Object> params)
    {
-      try
-      {
-         Objects.requireNonNull(sqlExecutor, "No SQL Executor provided.");
+      // TODO refactor to create an account scoped proxy.
+      // TODO remove and re-stitch external dependencies
+      context.registerRepository(WorkRepository.class, account -> this);
+      context.registerResolver(new BibliographicEntryResolver());
 
-         repoBackend = buildDocumentRepository();
-         idFactory = idFactoryProvider.getIdFactory(ID_CONTEXT_WORKS);
-      }
-      catch (Exception ex)
-      {
-         logger.log(Level.SEVERE, "Failed to initialize work repository", ex);
-         throw ex;
-      }
+      repoBackend = context.buildDocumentRepo(TABLE_NAME,
+                           new EditWorkCommandFactory(context::getIdFactory, indexService),
+                           ModelAdapter::adapt,
+                           WorkDTO.class);
+      idFactory = context.getIdFactory(ID_CONTEXT_WORKS);
+      config = context.getConfig();
    }
 
    /**
@@ -100,44 +84,6 @@ public class WorkRepositoryImpl implements WorkRepository
     */
    public void dispose()
    {
-      sqlExecutor = null;
-   }
-
-   /**
-    * @return A new document repository instance for persisting and retrieving works
-    */
-   private DocumentRepository<Work, WorkDTO, EditWorkCommand> buildDocumentRepository()
-   {
-      PsqlJacksonRepoBuilder<Work, WorkDTO, EditWorkCommand> repoBuilder = new PsqlJacksonRepoBuilder<>();
-
-      repoBuilder.setDbExecutor(sqlExecutor);
-      repoBuilder.setTableName(TABLE_NAME);
-      repoBuilder.setEditCommandFactory(new EditWorkCommandFactory(idFactoryProvider, indexService));
-      repoBuilder.setDataAdapter(ModelAdapter::adapt);
-      repoBuilder.setSchema(buildSchema());
-      repoBuilder.setStorageType(WorkDTO.class);
-      repoBuilder.setEnableCreation(true);
-
-      try
-      {
-         return repoBuilder.build();
-      }
-      catch (RepositoryException e)
-      {
-         logger.log(Level.SEVERE, "Failed to construct work repository instance.", e);
-      }
-      return null;
-   }
-
-   /**
-    * @return The repository schema
-    */
-   private RepositorySchema buildSchema()
-   {
-      SchemaBuilder schemaBuilder = new BasicSchemaBuilder();
-      schemaBuilder.setId(SCHEMA_ID);
-      schemaBuilder.setDataField(SCHEMA_DATA_FIELD);
-      return schemaBuilder.build();
    }
 
    @Override
@@ -235,5 +181,29 @@ public class WorkRepositoryImpl implements WorkRepository
          throw new IllegalArgumentException("Unable to find volume with id {" + volumeId + "} on edition {" + editionId + "} on work {" + workId + "}.");
       }
       return volume;
+   }
+
+   private class BibliographicEntryResolver extends EntryResolverBase<Work>
+   {
+
+      public BibliographicEntryResolver()
+      {
+         super(Work.class, config, WorkRepository.ENTRY_URI_BASE, WorkRepository.ENTRY_TYPE_ID);
+      }
+
+      @Override
+      public Work resolve(Account account, EntryReference reference) throws InvalidReferenceException
+      {
+         if (!accepts(reference))
+            throw new InvalidReferenceException(reference, "Unsupported reference type.");
+
+         return getWork(reference.id);
+      }
+
+      @Override
+      protected String getId(Work relationship)
+      {
+         return relationship.getId();
+      }
    }
 }
