@@ -45,7 +45,7 @@ public class VolumeMutatorImpl implements VolumeMutator
    {
       this.id = id;
       this.changes = volChanges;
-      this.copyRefIds = idFactoryProvider.getIdFactory(WorkRepositoryImpl.ID_CONTEXT_COPIES);
+      this.copyRefIds = idFactoryProvider.getIdFactory(WorkRepositoryService.ID_CONTEXT_COPIES);
    }
 
    private Function<VolumeDTO, CopyReferenceDTO> makeCopySelector(String id)
