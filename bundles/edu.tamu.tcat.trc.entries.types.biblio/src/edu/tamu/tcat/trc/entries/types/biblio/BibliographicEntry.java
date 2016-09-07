@@ -25,24 +25,21 @@ import java.util.Set;
  */
 public interface BibliographicEntry
 {
-   // TODO rename to BibliographicEntry
-
    /**
     * @return A unique, persistent identifier for this work.
     */
-   String getId();      // TODO create named ID type
+   String getId();
 
    /**
     * Applications may need to distinguish between multiple types of works stored within a
     * single repository for analytical purposes.
     *
     * @return a application-defined type identifier for this work.
-    * @deprecated we should probably support the use of multiple WorkRepositories to
-    *       represent different types of bibliographic entries. Applications can then look
-    *       up the repo that they need.
+    * @deprecated Client applications should use the categorizations service to
+    *       organize entries into groups. This will be removed in version 3.0
+    *       pending improved search tools
     */
-   @Deprecated  // FIXME we should probably create multiple WorkRepos to represent the
-                //       different work types and
+   @Deprecated
    String getType();
 
    /**
@@ -82,7 +79,7 @@ public interface BibliographicEntry
     * @return A defined series of related works, typically published by a single publishers and
     *    issued under the direction of a series editor or editors.
     */
-   String getSeries();                    // TODO make series a first-level entity
+   String getSeries();
 
    /**
     * @return A brief summary of this work.
