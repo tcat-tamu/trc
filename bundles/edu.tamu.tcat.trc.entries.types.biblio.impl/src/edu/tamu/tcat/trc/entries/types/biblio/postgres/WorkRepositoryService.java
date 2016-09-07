@@ -1,7 +1,10 @@
 package edu.tamu.tcat.trc.entries.types.biblio.postgres;
 
+import static java.text.MessageFormat.format;
+
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.account.Account;
@@ -21,9 +24,9 @@ import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.RepositoryException;
 
-public class WorkRepositoryImpl implements WorkRepository
+public class WorkRepositoryService
 {
-   private static final Logger logger = Logger.getLogger(WorkRepositoryImpl.class.getName());
+   private static final Logger logger = Logger.getLogger(WorkRepositoryService.class.getName());
 
    public static final String ID_CONTEXT_WORKS = "works";
    public static final String ID_CONTEXT_EDITIONS = "editions";
@@ -38,9 +41,12 @@ public class WorkRepositoryImpl implements WorkRepository
 
    private WorkIndexService indexService;
 
-   private IdFactory idFactory;
+   private IdFactory workIds;
    private ConfigurationProperties config;
    private RepositoryContext context;
+
+   // TODO handle DB schema
+   // TODO update indexing approach
 
    /**
     * Bind method for search index service dependency (usually called by dependency injection layer)
@@ -51,11 +57,13 @@ public class WorkRepositoryImpl implements WorkRepository
     */
    public void setIndexService(WorkIndexService workIndexService)
    {
+      logger.fine("[bibliographic entry repository] setting search index service.");
       this.indexService = workIndexService;
    }
 
    public void setRepoContext(RepositoryContext context)
    {
+      logger.fine("[bibliographic entry repository] setting repository context.");
       this.context = context;
    }
 
@@ -65,46 +73,39 @@ public class WorkRepositoryImpl implements WorkRepository
     */
    public void activate(Map<String, Object> params)
    {
-      // TODO refactor to create an account scoped proxy.
       // TODO remove and re-stitch external dependencies
-      context.registerRepository(WorkRepository.class, account -> this);
-      context.registerResolver(new BibliographicEntryResolver());
-
-      repoBackend = context.buildDocumentRepo(TABLE_NAME,
-                           new EditWorkCommandFactory(context::getIdFactory, indexService),
-                           ModelAdapter::adapt,
-                           WorkDTO.class);
-      idFactory = context.getIdFactory(ID_CONTEXT_WORKS);
-      config = context.getConfig();
-   }
-
-   /**
-    * Lifecycle management method (usually called by framework service layer)
-    * Called when this service is no longer required.
-    */
-   public void dispose()
-   {
-   }
-
-   @Override
-   public Iterator<Work> getAllWorks()
-   {
       try
       {
-         return repoBackend.listAll();
+         logger.info("Activating bibliographic entry repository service.");
+         context.registerRepository(WorkRepository.class, account -> new WorkRepoImpl(account));
+         context.registerResolver(new BibliographicEntryResolver());
+
+         repoBackend = context.buildDocumentRepo(TABLE_NAME,
+               new EditWorkCommandFactory(context::getIdFactory, indexService),
+               ModelAdapter::adapt,
+               WorkDTO.class);
+         workIds = context.getIdFactory(ID_CONTEXT_WORKS);
+         config = context.getConfig();
+
+         logger.fine("Activating bibliographic entry repository service.");
       }
-      catch (RepositoryException e)
+      catch (Exception ex)
       {
-         throw new IllegalStateException("Unable to list all works", e);
+         logger.log(Level.SEVERE, "Failed to activating bibliographic entry repository service.", ex);
+
       }
    }
 
-   @Override
-   public Work getWork(String workId)
+   public EditWorkCommand createWork(Account account, String id)
+   {
+      return repoBackend.create(account, id);
+   }
+
+   public EditWorkCommand editWork(Account account, String workId)
    {
       try
       {
-         return repoBackend.get(workId);
+         return repoBackend.edit(account, workId);
       }
       catch (RepositoryException e)
       {
@@ -112,38 +113,11 @@ public class WorkRepositoryImpl implements WorkRepository
       }
    }
 
-   @Override
-   public EditWorkCommand createWork()
-   {
-      String id = idFactory.get();
-      return createWork(id);
-   }
-
-   @Override
-   public EditWorkCommand createWork(String id)
-   {
-      return repoBackend.create(id);
-   }
-
-   @Override
-   public EditWorkCommand editWork(String workId)
-   {
-      try
-      {
-         return repoBackend.edit(workId);
-      }
-      catch (RepositoryException e)
-      {
-         throw new IllegalArgumentException("Unable to find work with id {" + workId + "}.", e);
-      }
-   }
-
-   @Override
-   public void deleteWork(String workId)
+   public void deleteWork(Account account, String workId)
    {
       Boolean result;
       try {
-         result = repoBackend.delete(workId).get();
+         result = repoBackend.delete(account, workId).get();
       }
       catch (Exception e) {
          throw new IllegalStateException("Encountered an unexpected error while trying to delete work with id {" + workId + "}.", e);
@@ -159,28 +133,101 @@ public class WorkRepositoryImpl implements WorkRepository
       }
    }
 
-   @Override
-   public Edition getEdition(String workId, String editionId)
+
+   /**
+    * Lifecycle management method (usually called by framework service layer)
+    * Called when this service is no longer required.
+    */
+   public void dispose()
    {
-      Work work = getWork(workId);
-      Edition edition = work.getEdition(editionId);
-      if (edition == null)
-      {
-         throw new IllegalArgumentException("Unable to find edition with id {" + editionId + "} on work {" + workId + "}.");
-      }
-      return edition;
    }
 
-   @Override
-   public Volume getVolume(String workId, String editionId, String volumeId)
+   private class WorkRepoImpl implements WorkRepository
    {
-      Edition edition = getEdition(workId, editionId);
-      Volume volume = edition.getVolume(volumeId);
-      if (volume == null)
+      private final Account account;
+
+      WorkRepoImpl(Account account)
       {
-         throw new IllegalArgumentException("Unable to find volume with id {" + volumeId + "} on edition {" + editionId + "} on work {" + workId + "}.");
+         this.account = account;
       }
-      return volume;
+
+      @Override
+      public Iterator<Work> getAllWorks()
+      {
+         try
+         {
+            return repoBackend.listAll();
+         }
+         catch (RepositoryException e)
+         {
+            throw new IllegalStateException("Unable to list all works", e);
+         }
+      }
+
+      @Override
+      public Work getWork(String workId)
+      {
+         try
+         {
+            return repoBackend.get(workId);
+         }
+         catch (RepositoryException e)
+         {
+            String message = "Unable to find work with id [{0}].";
+            throw new IllegalArgumentException(format(message, workId), e);
+         }
+      }
+
+      @Override
+      public EditWorkCommand createWork()
+      {
+         return createWork(workIds.get());
+      }
+
+      @Override
+      public EditWorkCommand createWork(String id)
+      {
+         return WorkRepositoryService.this.createWork(account, id);
+      }
+
+      @Override
+      public EditWorkCommand editWork(String workId)
+      {
+         return WorkRepositoryService.this.editWork(account, workId);
+
+      }
+
+      @Override
+      public void deleteWork(String workId)
+      {
+         WorkRepositoryService.this.deleteWork(account, workId);
+      }
+
+      @Override
+      public Edition getEdition(String workId, String editionId)
+      {
+         String msg = "Unable to find edition with id [{0}] on work [{1}].";
+
+         Work work = getWork(workId);
+         Edition edition = work.getEdition(editionId);
+         if (edition == null)
+            throw new IllegalArgumentException(format(msg, editionId, workId));
+
+         return edition;
+      }
+
+      @Override
+      public Volume getVolume(String workId, String editionId, String volumeId)
+      {
+         Edition edition = getEdition(workId, editionId);
+         Volume volume = edition.getVolume(volumeId);
+         if (volume == null)
+         {
+            throw new IllegalArgumentException("Unable to find volume with id {" + volumeId + "} on edition {" + editionId + "} on work {" + workId + "}.");
+         }
+         return volume;
+      }
+
    }
 
    private class BibliographicEntryResolver extends EntryResolverBase<Work>
@@ -197,7 +244,8 @@ public class WorkRepositoryImpl implements WorkRepository
          if (!accepts(reference))
             throw new InvalidReferenceException(reference, "Unsupported reference type.");
 
-         return getWork(reference.id);
+         WorkRepoImpl repo = new WorkRepoImpl(account);
+         return repo.getWork(reference.id);
       }
 
       @Override
@@ -206,4 +254,5 @@ public class WorkRepositoryImpl implements WorkRepository
          return relationship.getId();
       }
    }
+
 }
