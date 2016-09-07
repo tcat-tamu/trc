@@ -1,12 +1,14 @@
 package edu.tamu.tcat.trc.entries.types.biblio.repo;
 
 import java.util.Iterator;
+import java.util.concurrent.CompletableFuture;
 
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
 
-public interface WorkRepository
+public interface WorkRepository extends EntryRepository<Work>
 {
    /** The type id used to identify bibliographic entries within the EntryResolver framework. */
    public final static String ENTRY_TYPE_ID = "trc.entries.bibliographic";
@@ -21,9 +23,20 @@ public interface WorkRepository
    Iterator<Work> getAllWorks();
 
    /**
+    * Retrieve an existing work document.
+    *
+    * @param workId
+    * @return
+    * @throws IllegalArgumentException if a work with the given ID cannot be found
+    */
+   @Override
+   Work get(String workId);
+
+   /**
     * @return Edit command to modify and persist a new work document.
     */
-   EditWorkCommand createWork();
+   @Override
+   EditWorkCommand create();
 
    /**
     * Creates a work with the given ID. The burden is placed on the implementing code to prevent the
@@ -32,16 +45,8 @@ public interface WorkRepository
     * @param id
     * @return Edit command to modify and persist a new work document.
     */
-   EditWorkCommand createWork(String workId);
-
-   /**
-    * Retrieve an existing work document.
-    *
-    * @param workId
-    * @return
-    * @throws IllegalArgumentException if a work with the given ID cannot be found
-    */
-   Work getWork(String workId);
+   @Override
+   EditWorkCommand create(String workId);
 
    /**
     * Edit an existing work document.
@@ -50,15 +55,16 @@ public interface WorkRepository
     * @return Edit command to modify work with given ID.
     * @throws IllegalArgumentException if a work with the given ID cannot be found
     */
-   EditWorkCommand editWork(String workId);
+   @Override
+   EditWorkCommand edit(String workId);
 
    /**
     * Delete a work document
     *
     * @param workId
-    * @throws IllegalArgumentException if a work with the given ID cannot be found
     */
-   void deleteWork(String workId);
+   @Override
+   CompletableFuture<Boolean> remove(String workId);
 
    /**
     * Shorthand to retrieve an edition from a work.

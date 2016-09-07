@@ -18,8 +18,8 @@ package edu.tamu.tcat.trc.entries.types.biblio.repo;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Future;
 
+import edu.tamu.tcat.trc.entries.core.repo.EditEntryCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.Work;
@@ -37,7 +37,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
  * @see WorkRepository#create()
  * @see WorkRepository#edit(String)
  */
-public interface EditWorkCommand
+public interface EditWorkCommand extends EditEntryCommand<Work>
 {
    // TODO: Any field that is a collection of models should eventually use mutators.
 
@@ -149,9 +149,4 @@ public interface EditWorkCommand
     */
    Set<String> retainAllCopyReferences(Set<String> copyReferenceIds);
 
-   /**
-    * Execute this command.
-    * @return A future that resolves to the id of the updated entry.
-    */
-   Future<String> execute();
 }

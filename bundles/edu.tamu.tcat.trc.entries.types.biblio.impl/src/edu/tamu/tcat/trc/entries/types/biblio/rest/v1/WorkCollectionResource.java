@@ -167,13 +167,13 @@ public class WorkCollectionResource
    @Produces(MediaType.APPLICATION_JSON)
    public RestApiV1.Work createWork(RestApiV1.Work work)
    {
-      EditWorkCommand command = repo.createWork();
+      EditWorkCommand command = repo.create();
       RepoAdapter.apply(work, command);
 
       try
       {
          String id = command.execute().get();
-         Work createdWork = repo.getWork(id);
+         Work createdWork = repo.get(id);
          return RepoAdapter.toDTO(createdWork);
       }
       catch (Exception e)
@@ -209,7 +209,7 @@ public class WorkCollectionResource
       @Override
       public Work get()
       {
-         return repo.getWork(id);
+         return repo.get(id);
       }
 
       @Override
@@ -219,7 +219,7 @@ public class WorkCollectionResource
 
          try
          {
-            command = repo.editWork(id);
+            command = repo.edit(id);
          }
          catch (IllegalArgumentException e)
          {
@@ -269,7 +269,7 @@ public class WorkCollectionResource
       {
          try
          {
-            repo.deleteWork(id);
+            repo.remove(id);
          }
          catch (IllegalArgumentException e)
          {

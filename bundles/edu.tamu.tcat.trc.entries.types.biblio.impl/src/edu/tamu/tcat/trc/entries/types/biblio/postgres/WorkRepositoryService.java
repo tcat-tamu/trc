@@ -4,12 +4,14 @@ import static java.text.MessageFormat.format;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverBase;
@@ -73,7 +75,8 @@ public class WorkRepositoryService
     */
    public void activate(Map<String, Object> params)
    {
-      // TODO remove and re-stitch external dependencies
+      // TODO connect index service appropriately
+      // TODO fix DS stitching
       try
       {
          logger.info("Activating bibliographic entry repository service.");
@@ -113,24 +116,26 @@ public class WorkRepositoryService
       }
    }
 
-   public void deleteWork(Account account, String workId)
+   public CompletableFuture<Boolean> remove(Account account, String workId)
    {
-      Boolean result;
+      CompletableFuture<Boolean> result = new CompletableFuture<>();
       try {
-         result = repoBackend.delete(account, workId).get();
+         result = repoBackend.delete(account, workId);
       }
-      catch (Exception e) {
-         throw new IllegalStateException("Encountered an unexpected error while trying to delete work with id {" + workId + "}.", e);
+      catch (Exception e)
+      {
+         String message = "Encountered an unexpected error while trying to delete work with id [{0}].";
+         result.completeExceptionally(new IllegalStateException(format(message, workId), e));
+         return result;
       }
 
-      if (result != null && result.booleanValue() && indexService != null)
-      {
-         indexService.remove(workId);
-      }
-      else
-      {
-         throw new IllegalArgumentException("Unable to find work with id {" + workId + "}.");
-      }
+      // TODO HACK this should be listener on repo
+      result.thenAcceptAsync(success -> {
+         if (indexService != null)
+            indexService.remove(workId);
+      });
+
+      return result;
    }
 
 
@@ -165,7 +170,7 @@ public class WorkRepositoryService
       }
 
       @Override
-      public Work getWork(String workId)
+      public Work get(String workId)
       {
          try
          {
@@ -179,28 +184,28 @@ public class WorkRepositoryService
       }
 
       @Override
-      public EditWorkCommand createWork()
+      public EditWorkCommand create()
       {
-         return createWork(workIds.get());
+         return create(workIds.get());
       }
 
       @Override
-      public EditWorkCommand createWork(String id)
+      public EditWorkCommand create(String id)
       {
          return WorkRepositoryService.this.createWork(account, id);
       }
 
       @Override
-      public EditWorkCommand editWork(String workId)
+      public EditWorkCommand edit(String workId)
       {
          return WorkRepositoryService.this.editWork(account, workId);
 
       }
 
       @Override
-      public void deleteWork(String workId)
+      public CompletableFuture<Boolean> remove(String workId)
       {
-         WorkRepositoryService.this.deleteWork(account, workId);
+         return WorkRepositoryService.this.remove(account, workId);
       }
 
       @Override
@@ -208,7 +213,7 @@ public class WorkRepositoryService
       {
          String msg = "Unable to find edition with id [{0}] on work [{1}].";
 
-         Work work = getWork(workId);
+         Work work = get(workId);
          Edition edition = work.getEdition(editionId);
          if (edition == null)
             throw new IllegalArgumentException(format(msg, editionId, workId));
@@ -228,6 +233,13 @@ public class WorkRepositoryService
          return volume;
       }
 
+      @Override
+      public EntryRepository.ObserverRegistration onUpdate(EntryRepository.UpdateObserver<Work> observer)
+      {
+         // TODO Auto-generated method stub
+         return null;
+      }
+
    }
 
    private class BibliographicEntryResolver extends EntryResolverBase<Work>
@@ -245,7 +257,7 @@ public class WorkRepositoryService
             throw new InvalidReferenceException(reference, "Unsupported reference type.");
 
          WorkRepoImpl repo = new WorkRepoImpl(account);
-         return repo.getWork(reference.id);
+         return repo.get(reference.id);
       }
 
       @Override

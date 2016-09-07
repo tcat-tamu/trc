@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.function.Function;
 
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
@@ -223,7 +222,7 @@ public class EditWorkCommandFactory implements EditCommandFactory<WorkDTO, EditW
       }
 
       @Override
-      public Future<String> execute()
+      public CompletableFuture<String> execute()
       {
          CompletableFuture<WorkDTO> modified = context.update(ctx -> {
             WorkDTO dto = prepModifiedData(ctx);
