@@ -26,10 +26,10 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
 
 /**
  * Used to edit the properties of a {@link Volume}. A {@code VolumeMutator} is created
- * within the transactional scope of an {@link EditWorkCommand} via either the
+ * within the transactional scope of an {@link EditBibliographicEntryCommand} via either the
  * {@link EditionMutator#createVolume()} or the {@link EditionMutator#editVolume(String)}
  * method. Changes made to the {@code Volume} modified by this mutator will take effect
- * when the parent {@link EditWorkCommand#execute()} method is invoked. Changes made after
+ * when the parent {@link EditBibliographicEntryCommand#execute()} method is invoked. Changes made after
  * this command's {@code execute()} method is called will have indeterminate affects.
  *
  * <p>

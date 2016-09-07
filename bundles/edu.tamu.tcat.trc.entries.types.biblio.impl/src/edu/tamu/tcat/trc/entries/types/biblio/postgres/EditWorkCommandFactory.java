@@ -14,7 +14,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.CopyReferenceMutator;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkIndexService;
 import edu.tamu.tcat.trc.repo.BasicChangeSet;
@@ -25,7 +25,7 @@ import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.repo.UpdateContext;
 
-public class EditWorkCommandFactory implements EditCommandFactory<WorkDTO, EditWorkCommand>
+public class EditWorkCommandFactory implements EditCommandFactory<WorkDTO, EditBibliographicEntryCommand>
 {
    private final IdFactoryProvider idFactoryProvider;
    private final WorkIndexService indexService;
@@ -43,18 +43,18 @@ public class EditWorkCommandFactory implements EditCommandFactory<WorkDTO, EditW
    }
 
    @Override
-   public EditWorkCommand create(String id, EditCommandFactory.UpdateStrategy<WorkDTO> context)
+   public EditBibliographicEntryCommand create(String id, EditCommandFactory.UpdateStrategy<WorkDTO> context)
    {
       return new EditWorkCommandImpl(id, context);
    }
 
    @Override
-   public EditWorkCommand edit(String id, EditCommandFactory.UpdateStrategy<WorkDTO> context)
+   public EditBibliographicEntryCommand edit(String id, EditCommandFactory.UpdateStrategy<WorkDTO> context)
    {
       return new EditWorkCommandImpl(id, context);
    }
 
-   private class EditWorkCommandImpl implements EditWorkCommand
+   private class EditWorkCommandImpl implements EditBibliographicEntryCommand
    {
       EditCommandFactory.UpdateStrategy<WorkDTO> context;
 

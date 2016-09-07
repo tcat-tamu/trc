@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Editions are published manifestations of a {@link Work}. An edition adds specific information related to the
+ * Editions are published manifestations of a {@link BibliographicEntry}. An edition adds specific information related to the
  */
 public interface Edition
 {
@@ -39,7 +39,7 @@ public interface Edition
    String getEditionName();
 
    /**
-    * Editions are physical manifestations of {@link Work}s.
+    * Editions are physical manifestations of {@link BibliographicEntry}s.
     *
     * @return
     */

@@ -36,7 +36,7 @@ import org.apache.solr.common.SolrInputDocument;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.Work;
+import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkIndexService;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkQueryCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkSearchService;
@@ -117,7 +117,7 @@ public class BiblioEntriesSearchService implements WorkSearchService, WorkIndexS
    }
 
    @Override
-   public void index(Work work)
+   public void index(BibliographicEntry work)
    {
       String id = work.getId();
       if (isIndexed(id))

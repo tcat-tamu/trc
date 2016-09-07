@@ -1,6 +1,6 @@
 package edu.tamu.tcat.trc.entries.types.biblio.search;
 
-import edu.tamu.tcat.trc.entries.types.biblio.Work;
+import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 
 /**
  * Responsible for handling work create, update, and delete events and making the appropriate
@@ -13,7 +13,7 @@ public interface WorkIndexService
     *
     * @param work
     */
-   void index(Work work);
+   void index(BibliographicEntry work);
 
    /**
     * Notify the index layer of an updated work

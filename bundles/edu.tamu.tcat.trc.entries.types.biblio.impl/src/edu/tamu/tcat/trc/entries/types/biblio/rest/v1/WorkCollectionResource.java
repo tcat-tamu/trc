@@ -23,9 +23,9 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 
-import edu.tamu.tcat.trc.entries.types.biblio.Work;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.BibliographicEntryRepository;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityPersistenceAdapter;
 import edu.tamu.tcat.trc.entries.types.biblio.search.BiblioSearchProxy;
 import edu.tamu.tcat.trc.entries.types.biblio.search.SearchWorksResult;
@@ -37,10 +37,10 @@ public class WorkCollectionResource
 {
    private static final Logger logger = Logger.getLogger(WorkCollectionResource.class.getName());
 
-   private final WorkRepository repo;
+   private final BibliographicEntryRepository repo;
    private final WorkSearchService workSearchService;
 
-   public WorkCollectionResource(WorkRepository repo, WorkSearchService searchSvc)
+   public WorkCollectionResource(BibliographicEntryRepository repo, WorkSearchService searchSvc)
    {
       this.repo = repo;
       this.workSearchService = searchSvc;
@@ -167,13 +167,13 @@ public class WorkCollectionResource
    @Produces(MediaType.APPLICATION_JSON)
    public RestApiV1.Work createWork(RestApiV1.Work work)
    {
-      EditWorkCommand command = repo.create();
+      EditBibliographicEntryCommand command = repo.create();
       RepoAdapter.apply(work, command);
 
       try
       {
          String id = command.execute().get();
-         Work createdWork = repo.get(id);
+         BibliographicEntry createdWork = repo.get(id);
          return RepoAdapter.toDTO(createdWork);
       }
       catch (Exception e)
@@ -193,11 +193,11 @@ public class WorkCollectionResource
    @Path("/{id}")
    public WorkResource getWork(@PathParam("id") String id)
    {
-      EntityPersistenceAdapter<Work, EditWorkCommand> helper = new WorkPersistenceAdapter(id);
+      EntityPersistenceAdapter<BibliographicEntry, EditBibliographicEntryCommand> helper = new WorkPersistenceAdapter(id);
       return new WorkResource(helper);
    }
 
-   private class WorkPersistenceAdapter implements EntityPersistenceAdapter<Work, EditWorkCommand>
+   private class WorkPersistenceAdapter implements EntityPersistenceAdapter<BibliographicEntry, EditBibliographicEntryCommand>
    {
       private final String id;
 
@@ -207,15 +207,15 @@ public class WorkCollectionResource
       }
 
       @Override
-      public Work get()
+      public BibliographicEntry get()
       {
          return repo.get(id);
       }
 
       @Override
-      public void edit(Consumer<EditWorkCommand> modifier)
+      public void edit(Consumer<EditBibliographicEntryCommand> modifier)
       {
-         EditWorkCommand command;
+         EditBibliographicEntryCommand command;
 
          try
          {

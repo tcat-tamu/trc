@@ -18,7 +18,7 @@ package edu.tamu.tcat.trc.entries.types.biblio;
 import java.util.Map;
 
 /**
- * Associates a {@link DigitalCopy} with a bibliographic {@link Work} or portion of a work
+ * Associates a {@link DigitalCopy} with a bibliographic {@link BibliographicEntry} or portion of a work
  * such as an edition or volume.
  */
 public interface CopyReference

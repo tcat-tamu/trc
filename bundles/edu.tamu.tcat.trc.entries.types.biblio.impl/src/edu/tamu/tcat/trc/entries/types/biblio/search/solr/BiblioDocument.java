@@ -28,7 +28,7 @@ import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.Work;
+import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.DateDescriptionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
@@ -64,7 +64,7 @@ public class BiblioDocument
       return indexDocument.getSolrDocument();
    }
 
-   public static BiblioDocument createWork(Work work) throws SearchException
+   public static BiblioDocument createWork(BibliographicEntry work) throws SearchException
    {
       BiblioDocument doc = new BiblioDocument();
       WorkDTO workDTO = WorkDTO.create(work);
@@ -144,7 +144,7 @@ public class BiblioDocument
       return doc;
    }
 
-   public static BiblioDocument updateWork(Work work) throws SearchException
+   public static BiblioDocument updateWork(BibliographicEntry work) throws SearchException
    {
       BiblioDocument doc = new BiblioDocument();
       WorkDTO workDTO = WorkDTO.create(work);

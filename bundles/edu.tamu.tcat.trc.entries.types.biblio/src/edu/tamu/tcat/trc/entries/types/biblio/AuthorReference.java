@@ -15,7 +15,7 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio;
 
-import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.BibliographicEntryRepository;
 
 /**
  * The bibliographic name of the creator or other contributor to a work along with the role
@@ -30,7 +30,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
  * the role the author played in the creation of this work (e.g., author, translator, editor,
  * director, etc).
  *
- * @see WorkRepository#getAuthor(AuthorReference) To retrieve the {@link Person} associated
+ * @see BibliographicEntryRepository#getAuthor(AuthorReference) To retrieve the {@link Person} associated
  * with an {@code AuthorReference}.
  */
 public interface AuthorReference

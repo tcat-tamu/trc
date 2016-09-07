@@ -30,7 +30,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.PublicationInfo;
 import edu.tamu.tcat.trc.entries.types.biblio.Title;
 import edu.tamu.tcat.trc.entries.types.biblio.TitleDefinition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.Work;
+import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
 
 
@@ -54,7 +54,7 @@ public class BiblioSearchProxy
    public String summary;
    public String pubYear = null;
 
-   public static BiblioSearchProxy create(Work w)
+   public static BiblioSearchProxy create(BibliographicEntry w)
    {
       BiblioSearchProxy result = new BiblioSearchProxy();
 

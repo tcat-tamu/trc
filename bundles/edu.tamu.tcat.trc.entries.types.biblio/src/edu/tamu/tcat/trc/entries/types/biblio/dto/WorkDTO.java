@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
-import edu.tamu.tcat.trc.entries.types.biblio.Work;
+import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 
 
 /**
@@ -67,7 +67,7 @@ public class WorkDTO
    }
 
    // TODO move to model adapter
-   public static WorkDTO create(Work work)
+   public static WorkDTO create(BibliographicEntry work)
    {
       WorkDTO dto = new WorkDTO();
 

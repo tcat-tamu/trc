@@ -33,13 +33,13 @@ import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.PublicationInfo;
 import edu.tamu.tcat.trc.entries.types.biblio.Title;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.Work;
+import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.DateDescriptionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.CopyReferenceMutator;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.VolumeMutator;
 
@@ -49,7 +49,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.repo.VolumeMutator;
  */
 public class RepoAdapter
 {
-   public static RestApiV1.Work toDTO(Work work)
+   public static RestApiV1.Work toDTO(BibliographicEntry work)
    {
       if (work == null)
       {
@@ -323,7 +323,7 @@ public class RepoAdapter
       return dto;
    }
 
-   public static void apply(RestApiV1.Work work, EditWorkCommand command)
+   public static void apply(RestApiV1.Work work, EditBibliographicEntryCommand command)
    {
       List<AuthorReferenceDTO> authors = work.authors.stream()
             .map(RepoAdapter::toRepo)

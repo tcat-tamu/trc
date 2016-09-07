@@ -23,9 +23,9 @@ import javax.ws.rs.core.MediaType;
 
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
-import edu.tamu.tcat.trc.entries.types.biblio.Work;
+import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.CopyReferenceMutator;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityCollectionPersistenceAdapter;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityPersistenceAdapter;
@@ -34,10 +34,10 @@ public class WorkResource
 {
    static final Logger logger = Logger.getLogger(WorkResource.class.getName());
 
-   private EntityPersistenceAdapter<Work, EditWorkCommand> workPersistenceAdapter;
+   private EntityPersistenceAdapter<BibliographicEntry, EditBibliographicEntryCommand> workPersistenceAdapter;
 
 
-   public WorkResource(EntityPersistenceAdapter<Work, EditWorkCommand> workPersistenceAdapter)
+   public WorkResource(EntityPersistenceAdapter<BibliographicEntry, EditBibliographicEntryCommand> workPersistenceAdapter)
    {
       this.workPersistenceAdapter = workPersistenceAdapter;
    }
@@ -49,7 +49,7 @@ public class WorkResource
    @Produces(MediaType.APPLICATION_JSON)
    public RestApiV1.Work getWork()
    {
-      Work work = workPersistenceAdapter.get();
+      BibliographicEntry work = workPersistenceAdapter.get();
       return RepoAdapter.toDTO(work);
    }
 
@@ -176,7 +176,7 @@ public class WorkResource
          workPersistenceAdapter.edit(command -> doEdit(command, modifier));
       }
 
-      private void doEdit(EditWorkCommand command, Consumer<EditionMutator> modifier)
+      private void doEdit(EditBibliographicEntryCommand command, Consumer<EditionMutator> modifier)
       {
          EditionMutator mutator;
 
@@ -206,7 +206,7 @@ public class WorkResource
          workPersistenceAdapter.edit(this::doDelete);
       }
 
-      private void doDelete(EditWorkCommand command)
+      private void doDelete(EditBibliographicEntryCommand command)
       {
          try
          {
@@ -302,7 +302,7 @@ public class WorkResource
          workPersistenceAdapter.edit(command -> doEdit(command, modifier));
       }
 
-      private void doEdit(EditWorkCommand command, Consumer<CopyReferenceMutator> modifier)
+      private void doEdit(EditBibliographicEntryCommand command, Consumer<CopyReferenceMutator> modifier)
       {
          CopyReferenceMutator mutator;
 
@@ -332,7 +332,7 @@ public class WorkResource
          workPersistenceAdapter.edit(this::doDelete);
       }
 
-      private void doDelete(EditWorkCommand command)
+      private void doDelete(EditBibliographicEntryCommand command)
       {
          try
          {

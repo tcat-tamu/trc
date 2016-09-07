@@ -23,7 +23,7 @@ import java.util.Set;
  * Bibliographic description for a book, article, journal or other work. This is the main
  * point of entry for working with bibliographic records.
  */
-public interface Work
+public interface BibliographicEntry
 {
    // TODO rename to BibliographicEntry
 

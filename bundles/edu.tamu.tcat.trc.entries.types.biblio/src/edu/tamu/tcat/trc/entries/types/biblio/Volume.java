@@ -55,7 +55,7 @@ public interface Volume
 
    /**
     * Volumes have their own series of authors who may not contribute to the underlying {@link
-    * Edition} or {@link Work}. This list should be disjoint with the list of authors of the
+    * Edition} or {@link BibliographicEntry}. This list should be disjoint with the list of authors of the
     * underlying Edition and Work.
     *
     * @return

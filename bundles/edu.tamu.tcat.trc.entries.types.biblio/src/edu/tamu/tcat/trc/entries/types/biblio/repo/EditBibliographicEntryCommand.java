@@ -22,22 +22,22 @@ import java.util.Set;
 import edu.tamu.tcat.trc.entries.core.repo.EditEntryCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.Work;
+import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
 
 /**
- * Used to edit a {@link Work}. This class allows clients to make updates to a {@link Work}
+ * Used to edit a {@link BibliographicEntry}. This class allows clients to make updates to a {@link BibliographicEntry}
  * instance and its component elements (e.g., {@link Edition}s and {@link Volume}s) in a multi-step
  * transaction and to commit those changes to the persistence layer via its
  * {@link #execute()} method.
  *
  * <p>Note that implementations typically are not thread safe.
  *
- * @see WorkRepository#create()
- * @see WorkRepository#edit(String)
+ * @see BibliographicEntryRepository#create()
+ * @see BibliographicEntryRepository#edit(String)
  */
-public interface EditWorkCommand extends EditEntryCommand<Work>
+public interface EditBibliographicEntryCommand extends EditEntryCommand<BibliographicEntry>
 {
    // TODO: Any field that is a collection of models should eventually use mutators.
 

@@ -18,14 +18,14 @@ package edu.tamu.tcat.trc.entries.types.biblio.search;
 import edu.tamu.tcat.trc.search.SearchException;
 
 /**
- * The main API for searching a {@link WorkRepository}.
+ * The main API for searching a {@link BibliographicEntryRepository}.
  */
 public interface WorkSearchService
 {
    /**
     * Create a new command for searching works. The returned {@link WorkQueryCommand} may be
     * parameterized according to the search criteria and executed to run the search against
-    * this service and the {@link WorkRepository} backing it.
+    * this service and the {@link BibliographicEntryRepository} backing it.
     *
     * @throws SearchException
     */

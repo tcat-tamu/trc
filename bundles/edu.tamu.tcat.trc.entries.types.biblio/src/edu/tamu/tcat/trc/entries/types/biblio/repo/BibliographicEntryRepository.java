@@ -6,9 +6,9 @@ import java.util.concurrent.CompletableFuture;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.Work;
+import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 
-public interface WorkRepository extends EntryRepository<Work>
+public interface BibliographicEntryRepository extends EntryRepository<BibliographicEntry>
 {
    /** The type id used to identify bibliographic entries within the EntryResolver framework. */
    public final static String ENTRY_TYPE_ID = "trc.entries.bibliographic";
@@ -20,7 +20,7 @@ public interface WorkRepository extends EntryRepository<Work>
    /**
     * @return An iterator over all works in the repository.
     */
-   Iterator<Work> getAllWorks();
+   Iterator<BibliographicEntry> getAllWorks();
 
    /**
     * Retrieve an existing work document.
@@ -30,13 +30,13 @@ public interface WorkRepository extends EntryRepository<Work>
     * @throws IllegalArgumentException if a work with the given ID cannot be found
     */
    @Override
-   Work get(String workId);
+   BibliographicEntry get(String workId);
 
    /**
     * @return Edit command to modify and persist a new work document.
     */
    @Override
-   EditWorkCommand create();
+   EditBibliographicEntryCommand create();
 
    /**
     * Creates a work with the given ID. The burden is placed on the implementing code to prevent the
@@ -46,7 +46,7 @@ public interface WorkRepository extends EntryRepository<Work>
     * @return Edit command to modify and persist a new work document.
     */
    @Override
-   EditWorkCommand create(String workId);
+   EditBibliographicEntryCommand create(String workId);
 
    /**
     * Edit an existing work document.
@@ -56,7 +56,7 @@ public interface WorkRepository extends EntryRepository<Work>
     * @throws IllegalArgumentException if a work with the given ID cannot be found
     */
    @Override
-   EditWorkCommand edit(String workId);
+   EditBibliographicEntryCommand edit(String workId);
 
    /**
     * Delete a work document

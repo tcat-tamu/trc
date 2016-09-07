@@ -16,7 +16,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.PublicationInfo;
 import edu.tamu.tcat.trc.entries.types.biblio.Title;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.Work;
+import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.CopyReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.DateDescriptionDTO;
@@ -30,12 +30,12 @@ import edu.tamu.tcat.trc.entries.types.biblio.postgres.copies.BasicCopyReference
 public class ModelAdapter
 {
    /**
-    * Constructs a {@link Work} instance from a storage data transfer object.
+    * Constructs a {@link BibliographicEntry} instance from a storage data transfer object.
     *
     * @param dto
     * @return
     */
-   public static Work adapt(WorkDTO dto)
+   public static BibliographicEntry adapt(WorkDTO dto)
    {
       if (dto == null)
       {

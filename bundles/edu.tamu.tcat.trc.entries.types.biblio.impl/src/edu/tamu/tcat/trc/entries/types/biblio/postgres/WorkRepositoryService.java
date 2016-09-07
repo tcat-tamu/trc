@@ -17,10 +17,10 @@ import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverBase;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.Work;
+import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.BibliographicEntryRepository;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkIndexService;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.IdFactory;
@@ -39,7 +39,7 @@ public class WorkRepositoryService
    private static final String SCHEMA_ID = "trcWork";
    private static final String SCHEMA_DATA_FIELD = "work";
 
-   private DocumentRepository<Work, WorkDTO, EditWorkCommand> repoBackend;
+   private DocumentRepository<BibliographicEntry, WorkDTO, EditBibliographicEntryCommand> repoBackend;
 
    private WorkIndexService indexService;
 
@@ -80,7 +80,7 @@ public class WorkRepositoryService
       try
       {
          logger.info("Activating bibliographic entry repository service.");
-         context.registerRepository(WorkRepository.class, account -> new WorkRepoImpl(account));
+         context.registerRepository(BibliographicEntryRepository.class, account -> new WorkRepoImpl(account));
          context.registerResolver(new BibliographicEntryResolver());
 
          repoBackend = context.buildDocumentRepo(TABLE_NAME,
@@ -99,12 +99,12 @@ public class WorkRepositoryService
       }
    }
 
-   public EditWorkCommand createWork(Account account, String id)
+   public EditBibliographicEntryCommand createWork(Account account, String id)
    {
       return repoBackend.create(account, id);
    }
 
-   public EditWorkCommand editWork(Account account, String workId)
+   public EditBibliographicEntryCommand editWork(Account account, String workId)
    {
       try
       {
@@ -147,7 +147,7 @@ public class WorkRepositoryService
    {
    }
 
-   private class WorkRepoImpl implements WorkRepository
+   private class WorkRepoImpl implements BibliographicEntryRepository
    {
       private final Account account;
 
@@ -157,7 +157,7 @@ public class WorkRepositoryService
       }
 
       @Override
-      public Iterator<Work> getAllWorks()
+      public Iterator<BibliographicEntry> getAllWorks()
       {
          try
          {
@@ -170,7 +170,7 @@ public class WorkRepositoryService
       }
 
       @Override
-      public Work get(String workId)
+      public BibliographicEntry get(String workId)
       {
          try
          {
@@ -184,19 +184,19 @@ public class WorkRepositoryService
       }
 
       @Override
-      public EditWorkCommand create()
+      public EditBibliographicEntryCommand create()
       {
          return create(workIds.get());
       }
 
       @Override
-      public EditWorkCommand create(String id)
+      public EditBibliographicEntryCommand create(String id)
       {
          return WorkRepositoryService.this.createWork(account, id);
       }
 
       @Override
-      public EditWorkCommand edit(String workId)
+      public EditBibliographicEntryCommand edit(String workId)
       {
          return WorkRepositoryService.this.editWork(account, workId);
 
@@ -213,7 +213,7 @@ public class WorkRepositoryService
       {
          String msg = "Unable to find edition with id [{0}] on work [{1}].";
 
-         Work work = get(workId);
+         BibliographicEntry work = get(workId);
          Edition edition = work.getEdition(editionId);
          if (edition == null)
             throw new IllegalArgumentException(format(msg, editionId, workId));
@@ -234,7 +234,7 @@ public class WorkRepositoryService
       }
 
       @Override
-      public EntryRepository.ObserverRegistration onUpdate(EntryRepository.UpdateObserver<Work> observer)
+      public EntryRepository.ObserverRegistration onUpdate(EntryRepository.UpdateObserver<BibliographicEntry> observer)
       {
          // TODO Auto-generated method stub
          return null;
@@ -242,16 +242,16 @@ public class WorkRepositoryService
 
    }
 
-   private class BibliographicEntryResolver extends EntryResolverBase<Work>
+   private class BibliographicEntryResolver extends EntryResolverBase<BibliographicEntry>
    {
 
       public BibliographicEntryResolver()
       {
-         super(Work.class, config, WorkRepository.ENTRY_URI_BASE, WorkRepository.ENTRY_TYPE_ID);
+         super(BibliographicEntry.class, config, BibliographicEntryRepository.ENTRY_URI_BASE, BibliographicEntryRepository.ENTRY_TYPE_ID);
       }
 
       @Override
-      public Work resolve(Account account, EntryReference reference) throws InvalidReferenceException
+      public BibliographicEntry resolve(Account account, EntryReference reference) throws InvalidReferenceException
       {
          if (!accepts(reference))
             throw new InvalidReferenceException(reference, "Unsupported reference type.");
@@ -261,7 +261,7 @@ public class WorkRepositoryService
       }
 
       @Override
-      protected String getId(Work relationship)
+      protected String getId(BibliographicEntry relationship)
       {
          return relationship.getId();
       }

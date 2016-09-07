@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 import javax.ws.rs.Path;
 
-import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.BibliographicEntryRepository;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.v1.WorkCollectionResource;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkSearchService;
 
@@ -16,7 +16,7 @@ public class BiblioRestApiService
 
    private final static Logger logger = Logger.getLogger(BiblioRestApiService.class.getName());
 
-   private WorkRepository repo;
+   private BibliographicEntryRepository repo;
    private WorkSearchService searchSvc;
 
    /**
@@ -24,7 +24,7 @@ public class BiblioRestApiService
     *
     * @param repoProvider
     */
-   public void setRepository(WorkRepository repo)
+   public void setRepository(BibliographicEntryRepository repo)
    {
       this.repo = repo;
    }

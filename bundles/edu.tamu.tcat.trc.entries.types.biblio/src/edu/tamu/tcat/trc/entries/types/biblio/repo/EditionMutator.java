@@ -27,10 +27,10 @@ import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 
 /**
  * Used to edit the properties of an {@link Edition}. A {@code EditionMutator} is created
- * within the transactional scope of an {@link EditWorkCommand} via either the
- * {@link EditWorkCommand#createEdition()} or the {@link EditWorkCommand#editEdition(String)}
+ * within the transactional scope of an {@link EditBibliographicEntryCommand} via either the
+ * {@link EditBibliographicEntryCommand#createEdition()} or the {@link EditBibliographicEntryCommand#editEdition(String)}
  * method. Changes made to the {@code Edition} modified by this mutator will take effect
- * when the parent {@link EditWorkCommand#execute()} method is invoked. Changes made after this
+ * when the parent {@link EditBibliographicEntryCommand#execute()} method is invoked. Changes made after this
  * command's {@code execute()} method is called will have indeterminate affects.
  *
  * <p>

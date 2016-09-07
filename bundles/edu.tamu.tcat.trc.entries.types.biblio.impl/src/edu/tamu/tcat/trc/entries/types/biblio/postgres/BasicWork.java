@@ -11,9 +11,9 @@ import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.PublicationInfo;
 import edu.tamu.tcat.trc.entries.types.biblio.TitleDefinition;
-import edu.tamu.tcat.trc.entries.types.biblio.Work;
+import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 
-public class BasicWork implements Work
+public class BasicWork implements BibliographicEntry
 {
    private final String id;
    @Deprecated // see note on Work#getType()
