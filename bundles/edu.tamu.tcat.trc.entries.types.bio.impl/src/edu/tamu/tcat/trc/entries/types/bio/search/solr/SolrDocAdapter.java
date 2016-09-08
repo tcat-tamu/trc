@@ -60,7 +60,7 @@ public class SolrDocAdapter implements Function<Person, SolrInputDocument>
          }
 
          indexDocument.set(BioSolrConfig.SUMMARY, guardNull(person.getSummary()));
-         return indexDocument.getSolrDocument();
+         return indexDocument.build();
       }
       catch (Exception ex)
       {

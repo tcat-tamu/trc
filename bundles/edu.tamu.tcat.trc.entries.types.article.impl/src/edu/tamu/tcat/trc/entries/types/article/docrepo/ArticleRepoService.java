@@ -31,7 +31,7 @@ import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 import edu.tamu.tcat.trc.repo.RepositoryException;
 import edu.tamu.tcat.trc.repo.UpdateContext;
-import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
+import edu.tamu.tcat.trc.search.solr.DocumentBuilder;
 
 public class ArticleRepoService implements ArticleRepoFacade
 {
@@ -118,7 +118,7 @@ public class ArticleRepoService implements ArticleRepoFacade
       try
       {
          // TODO should be able to generalize this.
-         TrcDocument doc;
+         DocumentBuilder doc;
          switch(ctx.getActionType())
          {
             case CREATE:

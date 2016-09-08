@@ -34,7 +34,7 @@ public class NoteDocument
 
    public SolrInputDocument getDocument()
    {
-      return indexDoc.getSolrDocument();
+      return indexDoc.build();
    }
 
    public static NoteDocument create(Note note)

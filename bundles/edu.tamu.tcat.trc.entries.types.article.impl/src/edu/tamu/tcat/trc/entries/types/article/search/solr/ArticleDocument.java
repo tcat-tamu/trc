@@ -17,6 +17,7 @@ package edu.tamu.tcat.trc.entries.types.article.search.solr;
 
 import edu.tamu.tcat.trc.entries.types.article.docrepo.DataModelV1;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy;
+import edu.tamu.tcat.trc.search.solr.DocumentBuilder;
 import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 
 
@@ -24,7 +25,7 @@ public class ArticleDocument
 {
 
 
-   public static TrcDocument adapt(DataModelV1.Article dto)
+   public static DocumentBuilder adapt(DataModelV1.Article dto)
    {
       TrcDocument doc = new TrcDocument(new ArticleSolrConfig());
 

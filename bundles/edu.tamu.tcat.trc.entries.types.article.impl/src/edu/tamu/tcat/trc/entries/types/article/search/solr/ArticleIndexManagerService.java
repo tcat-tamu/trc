@@ -33,7 +33,7 @@ import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchService;
 import edu.tamu.tcat.trc.search.SearchException;
-import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
+import edu.tamu.tcat.trc.search.solr.DocumentBuilder;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
 
@@ -93,10 +93,10 @@ public class ArticleIndexManagerService implements ArticleSearchService
       }
    }
 
-   public void postDocument(TrcDocument doc) throws SolrServerException, IOException
+   public void postDocument(DocumentBuilder doc) throws SolrServerException, IOException
    {
       // TODO be careful how frequently we commit
-      solr.add(Arrays.asList(doc.getSolrDocument()));
+      solr.add(Arrays.asList(doc.build()));
       solr.commit();
    }
 

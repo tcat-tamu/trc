@@ -46,7 +46,7 @@ public class RelnDocument
 
    public SolrInputDocument getDocument()
    {
-      return indexDocument.getSolrDocument();
+      return indexDocument.build();
    }
 
    public static RelnDocument create(Relationship reln)

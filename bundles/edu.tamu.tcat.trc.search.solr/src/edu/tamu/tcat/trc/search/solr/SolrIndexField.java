@@ -29,7 +29,6 @@ public interface SolrIndexField<FieldType>
     */
    Class<FieldType> getType();
 
-
    /**
     * Convert to a string suitable to be used as a SolrJ REST query parameter value.
     *
