@@ -32,7 +32,7 @@ public class VolumeTextDocument
 
    public SolrInputDocument getDocument()
    {
-      return indexDocument.getSolrDocument();
+      return indexDocument.build();
    }
 
    public static VolumeTextDocument create(String volId, String assocEntry, String text) throws SearchException

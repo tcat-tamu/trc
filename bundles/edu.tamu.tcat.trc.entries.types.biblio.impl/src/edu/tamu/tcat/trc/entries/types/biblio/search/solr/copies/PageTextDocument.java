@@ -35,7 +35,7 @@ public class PageTextDocument
 
    public SolrInputDocument getDocument()
    {
-      return indexDocument.getSolrDocument();
+      return indexDocument.build();
    }
 
    public String getText()

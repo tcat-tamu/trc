@@ -16,7 +16,6 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.CopyReferenceMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
-import edu.tamu.tcat.trc.entries.types.biblio.search.WorkIndexService;
 import edu.tamu.tcat.trc.repo.BasicChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
@@ -28,15 +27,13 @@ import edu.tamu.tcat.trc.repo.UpdateContext;
 public class EditWorkCommandFactory implements EditCommandFactory<WorkDTO, EditBibliographicEntryCommand>
 {
    private final IdFactoryProvider idFactoryProvider;
-   private final WorkIndexService indexService;
 
    private final IdFactory copyRefIds;
    private final IdFactory editionIds;
 
-   public EditWorkCommandFactory(IdFactoryProvider idFactoryProvider, WorkIndexService indexService)
+   public EditWorkCommandFactory(IdFactoryProvider idFactoryProvider)
    {
       this.idFactoryProvider = idFactoryProvider;
-      this.indexService = indexService;
 
       this.editionIds = idFactoryProvider.getIdFactory(WorkRepositoryService.ID_CONTEXT_EDITIONS);
       this.copyRefIds = idFactoryProvider.getIdFactory(WorkRepositoryService.ID_CONTEXT_COPIES);
@@ -229,9 +226,7 @@ public class EditWorkCommandFactory implements EditCommandFactory<WorkDTO, EditB
             return changes.apply(dto);
          });
 
-         return modified
-               .thenApply(this::index)             // TODO move to plugable task listening on repo
-               .thenApply(dto -> dto.id);
+         return modified.thenApply(dto -> dto.id);
       }
 
       private WorkDTO prepModifiedData(UpdateContext<WorkDTO> ctx)
@@ -242,15 +237,6 @@ public class EditWorkCommandFactory implements EditCommandFactory<WorkDTO, EditB
 
          WorkDTO dto = new WorkDTO();
          dto.id = this.workId;
-
-         return dto;
-      }
-
-      public WorkDTO index(WorkDTO dto)
-      {
-         // TODO do we really need to adapt?
-         if (indexService != null)
-            indexService.index(ModelAdapter.adapt(dto));
 
          return dto;
       }

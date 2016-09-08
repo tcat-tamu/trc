@@ -15,10 +15,11 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio.search.solr;
 
+import static java.text.MessageFormat.format;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -34,20 +35,18 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.types.biblio.Edition;
-import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
-import edu.tamu.tcat.trc.entries.types.biblio.search.WorkIndexService;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkQueryCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkSearchService;
 import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.search.solr.impl.BasicIndexService;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
 /**
  * Provides a service to support SOLR backed searching over bibliographic entries.
  *
  */
-public class BiblioEntriesSearchService implements WorkSearchService, WorkIndexService
+public class BiblioEntriesSearchService implements WorkSearchService
 {
    private final static Logger logger = Logger.getLogger(BiblioEntriesSearchService.class.getName());
 
@@ -76,6 +75,11 @@ public class BiblioEntriesSearchService implements WorkSearchService, WorkIndexS
       // construct Solr core
       URI solrBaseUri = config.getPropertyValue(SOLR_API_ENDPOINT, URI.class);
       String solrCore = config.getPropertyValue(SOLR_CORE, String.class);
+      BasicIndexService<WorkDTO> indexSvc = new BasicIndexService<>(
+            config.getPropertyValue(SOLR_API_ENDPOINT, URI.class),
+            config.getPropertyValue(SOLR_CORE, String.class),
+            BiblioEntriesSearchService::adapt,
+            entry -> entry.id);
 
       URI coreUri = solrBaseUri.resolve(solrCore);
       logger.info("Connecting to Solr Service [" + coreUri + "]");
@@ -116,50 +120,25 @@ public class BiblioEntriesSearchService implements WorkSearchService, WorkIndexS
       }
    }
 
-   @Override
-   public void index(BibliographicEntry work)
+   private static SolrInputDocument adapt(WorkDTO entry)
    {
-      String id = work.getId();
-      if (isIndexed(id))
-      {
-         removeWork(id);
-      }
-
-      Collection<SolrInputDocument> solrDocs = new ArrayList<>();
       try
       {
-         BiblioDocument workDoc = BiblioDocument.createWork(work);
-         solrDocs.add(workDoc.getDocument());
-
-         for(Edition edition : work.getEditions())
-         {
-            BiblioDocument editionDoc = BiblioDocument.createEdition(work.getId(), edition);
-            solrDocs.add(editionDoc.getDocument());
-
-            for(Volume volume : edition.getVolumes())
-            {
-               BiblioDocument volumeDoc = BiblioDocument.createVolume(work.getId(), edition, volume);
-               solrDocs.add(volumeDoc.getDocument());
-            }
-         }
+         return IndexAdapter.createWork(entry);
       }
-      catch (Exception e)
+      catch (SearchException ex)
       {
-         logger.log(Level.SEVERE, "Failed to adapt created Work to indexable data transfer objects for work id: [" + work.getId() + "]", e);
-      }
-
-      try
-      {
-         solr.add(solrDocs);
-         solr.commit();
-      }
-      catch (SolrServerException | IOException e)
-      {
-         logger.log(Level.SEVERE, "Failed to commit the work id: [" + work.getId() + "] to the SOLR server.", e);
+         throw new IllegalStateException(format("Failed to adapt bibliographic entry [{0}]", entry.id), ex);
       }
    }
 
-   @Override
+   /**
+    * @deprecated The indexing capabilities are in the process of being replaced with a new model. The old
+    *       model, however, is significantly more complex and requires special handling to index and remove
+    *       objects that is not currently supported by the general purpose tooling. This will be removed once
+    *       the underlying models have been updated.
+    */
+   @Deprecated // the indexing
    public  void remove(String id)
    {
       if (isIndexed(id))

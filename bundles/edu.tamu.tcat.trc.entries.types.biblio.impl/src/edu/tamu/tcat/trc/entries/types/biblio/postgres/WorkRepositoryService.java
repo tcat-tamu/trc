@@ -2,11 +2,14 @@ package edu.tamu.tcat.trc.entries.types.biblio.postgres;
 
 import static java.text.MessageFormat.format;
 
+import java.net.URI;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
@@ -15,20 +18,31 @@ import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverBase;
+import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.BibliographicEntryRepository;
-import edu.tamu.tcat.trc.entries.types.biblio.search.WorkIndexService;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.search.solr.IndexAdapter;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.RepositoryException;
+import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.search.solr.SolrSearchAdapter;
+import edu.tamu.tcat.trc.search.solr.impl.BasicIndexService;
 
 public class WorkRepositoryService
 {
    private static final Logger logger = Logger.getLogger(WorkRepositoryService.class.getName());
+
+   // TODO this needs to be refactored.
+   /** Configuration property key that defines the URI for the Solr server. */
+   public static final String SOLR_API_ENDPOINT = "solr.api.endpoint";
+
+   /** Configuration property key that defines Solr core to be used for relationships. */
+   public static final String SOLR_CORE = "trc.entries.biblio.solr-core";
+
 
    public static final String ID_CONTEXT_WORKS = "works";
    public static final String ID_CONTEXT_EDITIONS = "editions";
@@ -41,27 +55,11 @@ public class WorkRepositoryService
 
    private DocumentRepository<BibliographicEntry, WorkDTO, EditBibliographicEntryCommand> repoBackend;
 
-   private WorkIndexService indexService;
-
    private IdFactory workIds;
    private ConfigurationProperties config;
    private RepositoryContext context;
 
    // TODO handle DB schema
-   // TODO update indexing approach
-
-   /**
-    * Bind method for search index service dependency (usually called by dependency injection layer)
-    *
-    * Note that this is an optional dependency.
-    *
-    * @param workIndexService
-    */
-   public void setIndexService(WorkIndexService workIndexService)
-   {
-      logger.fine("[bibliographic entry repository] setting search index service.");
-      this.indexService = workIndexService;
-   }
 
    public void setRepoContext(RepositoryContext context)
    {
@@ -75,20 +73,28 @@ public class WorkRepositoryService
     */
    public void activate(Map<String, Object> params)
    {
-      // TODO connect index service appropriately
       // TODO fix DS stitching
       try
       {
          logger.info("Activating bibliographic entry repository service.");
+         workIds = context.getIdFactory(ID_CONTEXT_WORKS);
+         config = context.getConfig();
+
          context.registerRepository(BibliographicEntryRepository.class, account -> new WorkRepoImpl(account));
          context.registerResolver(new BibliographicEntryResolver());
 
          repoBackend = context.buildDocumentRepo(TABLE_NAME,
-               new EditWorkCommandFactory(context::getIdFactory, indexService),
+               new EditWorkCommandFactory(context::getIdFactory),
                ModelAdapter::adapt,
                WorkDTO.class);
-         workIds = context.getIdFactory(ID_CONTEXT_WORKS);
-         config = context.getConfig();
+
+         // TODO need to wire this into core?
+         BasicIndexService<WorkDTO> indexSvc = new BasicIndexService<>(
+               config.getPropertyValue(SOLR_API_ENDPOINT, URI.class),
+               config.getPropertyValue(SOLR_CORE, String.class),
+               WorkRepositoryService::adapt,
+               entry -> entry.id);
+         repoBackend.afterUpdate(ctx -> SolrSearchAdapter.index(indexSvc, ctx));
 
          logger.fine("Activating bibliographic entry repository service.");
       }
@@ -96,6 +102,18 @@ public class WorkRepositoryService
       {
          logger.log(Level.SEVERE, "Failed to activating bibliographic entry repository service.", ex);
 
+      }
+   }
+
+   private static SolrInputDocument adapt(WorkDTO entry)
+   {
+      try
+      {
+         return IndexAdapter.createWork(entry);
+      }
+      catch (SearchException ex)
+      {
+         throw new IllegalStateException(format("Failed to adapt bibliographic entry [{0}]", entry.id), ex);
       }
    }
 
@@ -128,12 +146,6 @@ public class WorkRepositoryService
          result.completeExceptionally(new IllegalStateException(format(message, workId), e));
          return result;
       }
-
-      // TODO HACK this should be listener on repo
-      result.thenAcceptAsync(success -> {
-         if (indexService != null)
-            indexService.remove(workId);
-      });
 
       return result;
    }
@@ -239,7 +251,6 @@ public class WorkRepositoryService
          // TODO Auto-generated method stub
          return null;
       }
-
    }
 
    private class BibliographicEntryResolver extends EntryResolverBase<BibliographicEntry>
