@@ -38,6 +38,14 @@ import edu.tamu.tcat.trc.repo.RepositoryException;
  */
 public interface RelationshipRepository
 {
+
+   /** The type id used to identify relationships within the EntryResolver framework. */
+   public final static String ENTRY_TYPE_ID = "trc.entries.relationships";
+
+   /** The initial path (relative to some API endpoint) for building URIs that reference
+    *  a relationship and its sub-elements. */
+   public final static String ENTRY_URI_BASE = "entries/relationships";
+
    /**
     * Lists all stored relationships
     *
