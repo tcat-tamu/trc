@@ -1,6 +1,5 @@
 package edu.tamu.tcat.trc.refman;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Set;
 
@@ -26,7 +25,7 @@ public interface BibliographicReference
     * @return A unique, persistent identifier for this bibliographic reference. Note that the
     *    id references this descriptive bibliographic record, not the referenced item.
     */
-   URI getId();
+   String getId();
 
    /**
     * @return The bibliographic type of the referenced item (such as book, film, journal article).
@@ -71,18 +70,32 @@ public interface BibliographicReference
    }
 
    /**
-    * A structured representation of a person or entity who contributed to the creation of this
+    * A structured representation of a person or entity who contributed to the creation of an
     * item. Creators require a structured representation that is not adequately supported by
     * the general key-value pair structure of other bibliographic fields.
     *
-    * <p>
-    * Creators are typically defined using a family and given name and will be sorted
+    * <p>Creators are typically defined using a family and given name and will be sorted
     * lexigraphically by the family name and then the given name. Alternatively, for some types
     * of creators such as institutions, there is not adequate structured representation of the
     * name. In these cases a single name value may be supplied.
+    *
+    * <p>Creator names provide a bibliographic description of a person, that is, the name of the
+    * creator as it is associated with a bibliographic item. This is usually inadequate to uniquely
+    * identify the individual creators as a person may use multiple names, write anonymously or
+    * pseudonymously and multiple people will have the same name (J Smith, and A Jain, for instance).
+    * This type provides a {@link #getAuthority()} method to (optionally) provide a identifier that
+    * uniquely references the author within some authority. The authority list used and the format
+    * of the identifier are defined by the application that uses the reference management API.
     */
    public interface CreatorValue
    {
+      /**
+       * @return A unique identifier for this person as defined by some canonical name authority.
+       *       The specific choice of a name authority is determined by the client application.
+       *       May be {@code null}.
+       */
+      String getAuthority();
+
       // TODO do we need to separate family name from the 'name' field or can we collapse
       //      these two representations
       /**
@@ -104,17 +117,9 @@ public interface BibliographicReference
       String getFamilyName();
 
       /**
-       * @return The creator's given or first name. This will be used as a secondary value for
-       *    sorting.
+       * @return The creator's given or first name. Used as a secondary value for sorting.
        */
       String getGivenName();
-
-      /**
-       * @return A unique identifier for this person as defined by some canonical name authority.
-       *       The specific choice of a name authority is determined by the client application.
-       *       May be {@code null}.
-       */
-      String getAuthId();
 
    }
 }

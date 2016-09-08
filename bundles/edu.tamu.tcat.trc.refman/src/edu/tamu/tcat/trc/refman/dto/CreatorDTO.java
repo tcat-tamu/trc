@@ -15,7 +15,7 @@ public class CreatorDTO
       dto.firstName = creatorVal.getGivenName();
       dto.lastName = creatorVal.getFamilyName();
       dto.role = creatorVal.getRoleId();
-      dto.authoritiveId = creatorVal.getAuthId() != null ? creatorVal.getAuthId().toString() : null;
+      dto.authoritiveId = creatorVal.getAuthority() != null ? creatorVal.getAuthority().toString() : null;
 
       return dto;
    }

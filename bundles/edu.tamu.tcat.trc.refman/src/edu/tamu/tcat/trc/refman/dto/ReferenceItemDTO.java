@@ -1,6 +1,5 @@
 package edu.tamu.tcat.trc.refman.dto;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +12,7 @@ import edu.tamu.tcat.trc.refman.types.ItemType;
 @Deprecated // use BibRefDTO
 public class ReferenceItemDTO
 {
-   public URI id;
+   public String id;
    public ItemType type;
    public Map<String, String> typeFields = new HashMap<>();
    public List<CreatorDTO> creators = new ArrayList<>();
