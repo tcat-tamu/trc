@@ -39,8 +39,8 @@ import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.Work;
-import edu.tamu.tcat.trc.entries.types.biblio.postgres.WorkRepositoryImpl;
+import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
+import edu.tamu.tcat.trc.entries.types.biblio.postgres.WorkRepositoryService;
 import edu.tamu.tcat.trc.entries.types.biblio.search.solr.BiblioDocument;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.repo.postgres.PostgresDataSourceProvider;
@@ -53,7 +53,7 @@ public class WorkReIndex
    private PostgreSqlExecutor exec;
    private SimpleFileConfigurationProperties config;
    private PostgresDataSourceProvider dsp;
-   private WorkRepositoryImpl repo;
+   private WorkRepositoryService repo;
    private IdFactoryProvider idFactoryProvider;
 
    private SolrClient solr;
@@ -77,7 +77,7 @@ public class WorkReIndex
 
       idFactoryProvider = new MockIdFactoryProvider();
 
-      repo = new WorkRepositoryImpl();
+      repo = new WorkRepositoryService();
       repo.setSqlExecutor(exec);
       repo.setIdFactory(idFactoryProvider);
       repo.activate();
@@ -117,11 +117,11 @@ public class WorkReIndex
          logger.log(Level.SEVERE, "Failed to remove data from the works core.");
       }
 
-      Iterable<Work> works = () -> repo.getAllWorks();
+      Iterable<BibliographicEntry> works = () -> repo.getAllWorks();
 
       Collection<SolrInputDocument> solrDocs = new ArrayList<>();
 
-      for (Work work : works)
+      for (BibliographicEntry work : works)
       {
          solrDocs.addAll(addWork(work));
       }
@@ -137,7 +137,7 @@ public class WorkReIndex
       }
    }
 
-   private static Collection<SolrInputDocument> addWork(Work work)
+   private static Collection<SolrInputDocument> addWork(BibliographicEntry work)
    {
       Collection<SolrInputDocument> solrDocs = new ArrayList<>();
       try

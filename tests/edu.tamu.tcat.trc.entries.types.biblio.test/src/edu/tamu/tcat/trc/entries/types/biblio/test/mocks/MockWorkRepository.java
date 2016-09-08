@@ -18,22 +18,24 @@ package edu.tamu.tcat.trc.entries.types.biblio.test.mocks;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.Work;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.postgres.ModelAdapter;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.WorkRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.BibliographicEntryRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.test.MockIdFactoryProvider;
 
 /**
- * In memory implementation of the {@link WorkRepository} for use in testing.
+ * In memory implementation of the {@link BibliographicEntryRepository} for use in testing.
  */
-public class MockWorkRepository implements WorkRepository
+public class MockWorkRepository implements BibliographicEntryRepository
 {
    public static final String ID_CONTEXT_WORKS = "works";
    public static final String ID_CONTEXT_EDITIONS = "editions";
@@ -41,16 +43,16 @@ public class MockWorkRepository implements WorkRepository
 
    private final IdFactoryProvider idFactoryProvider = new MockIdFactoryProvider();
    private final IdFactory workIdFactory = idFactoryProvider.getIdFactory(ID_CONTEXT_WORKS);
-   private final Map<String, Work> cache = new HashMap<>();
+   private final Map<String, BibliographicEntry> cache = new HashMap<>();
 
    @Override
-   public Iterator<Work> getAllWorks()
+   public Iterator<BibliographicEntry> getAllWorks()
    {
       return cache.values().iterator();
    }
 
    @Override
-   public Work getWork(String workId)
+   public BibliographicEntry get(String workId)
    {
       if (!cache.containsKey(workId))
          throw new IllegalArgumentException("No record found for work [" + workId + "]");
@@ -61,7 +63,7 @@ public class MockWorkRepository implements WorkRepository
    @Override
    public Edition getEdition(String workId, String editionId)
    {
-      Work w = getWork(workId);
+      BibliographicEntry w = get(workId);
       Edition edition = w.getEditions().stream()
                               .filter(e -> e.getId().equals(editionId))
                               .findAny()
@@ -89,14 +91,14 @@ public class MockWorkRepository implements WorkRepository
    }
 
    @Override
-   public EditWorkCommand createWork()
+   public EditBibliographicEntryCommand create()
    {
       String id = workIdFactory.get();
-      return createWork(id);
+      return create(id);
    }
 
    @Override
-   public EditWorkCommand createWork(String id)
+   public EditBibliographicEntryCommand create(String id)
    {
       // TODO Auto-generated method stub
       WorkDTO dto = new WorkDTO();
@@ -108,9 +110,9 @@ public class MockWorkRepository implements WorkRepository
    }
 
    @Override
-   public EditWorkCommand editWork(String id)
+   public EditBibliographicEntryCommand edit(String id)
    {
-      WorkDTO dto = WorkDTO.create(getWork(id));
+      WorkDTO dto = WorkDTO.create(get(id));
       return new MockEditWorkCommand(dto, idFactoryProvider, (update) ->
       {
          // TODO fire notifications
@@ -119,8 +121,20 @@ public class MockWorkRepository implements WorkRepository
    }
 
    @Override
-   public void deleteWork(String id)
+   public CompletableFuture<Boolean> remove(String id)
    {
-      cache.remove(id);
+      BibliographicEntry entry = cache.remove(id);
+
+      CompletableFuture<Boolean> result = new CompletableFuture<>();
+      result.complete(entry != null);
+
+      return result;
+   }
+
+   @Override
+   public EntryRepository.ObserverRegistration onUpdate(EntryRepository.UpdateObserver<BibliographicEntry> observer)
+   {
+      // no-op
+      return () -> {};
    }
 }

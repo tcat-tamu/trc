@@ -1,14 +1,9 @@
 package edu.tamu.tcat.trc.entries.types.bio.test;
 
-import static org.junit.Assert.assertEquals;
-
 import java.sql.PreparedStatement;
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -26,13 +21,10 @@ import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
+import edu.tamu.tcat.trc.entries.types.biblio.dto.DateDescriptionDTO;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
-import edu.tamu.tcat.trc.entries.types.bio.dto.DateDescriptionDTO;
-import edu.tamu.tcat.trc.entries.types.bio.dto.HistoricalEventDTO;
-import edu.tamu.tcat.trc.entries.types.bio.dto.PersonDTO;
-import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
-import edu.tamu.tcat.trc.entries.types.bio.postgres.PsqlPeopleRepo;
+import edu.tamu.tcat.trc.entries.types.bio.postgres.PeopleRepositoryImpl;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.repo.RepositoryException;
@@ -44,7 +36,7 @@ public class TestPersistence
    private ClosableSqlExecutor exec;
    private ConfigurationProperties config;
 
-   private PsqlPeopleRepo repo;
+   private PeopleRepositoryImpl repo;
    private IdFactory idFactory;
    private boolean canWrite = false;
 
@@ -52,12 +44,12 @@ public class TestPersistence
    public void setupTest() throws DataSourceException
    {
       IdFactoryProvider idFactoryProvider = TestUtils.makeIdFactoryProvider();
-      idFactory = idFactoryProvider.getIdFactory(PsqlPeopleRepo.ID_CONTEXT);
+      idFactory = idFactoryProvider.getIdFactory(PeopleRepositoryImpl.ID_CONTEXT);
 
       config = TestUtils.loadConfigFile();
       exec = TestUtils.initPostgreSqlExecutor(config);
 
-      this.repo = new PsqlPeopleRepo();
+      this.repo = new PeopleRepositoryImpl();
       repo.setDatabaseExecutor(exec);
       repo.setIdFactory(idFactoryProvider);
       repo.activate();
@@ -68,7 +60,6 @@ public class TestPersistence
    {
       cleanDB();
 
-      repo.dispose();
       exec.close();
 
       if (config instanceof SimpleFileConfigurationProperties)
@@ -93,96 +84,96 @@ public class TestPersistence
 
    private DateDescriptionDTO makeHistoricalDate(String desc, LocalDate calendar)
    {
-      DateDescriptionDTO date = new DateDescriptionDTO();
+      DateDescriptionDTO date = new edu.tamu.tcat.trc.entries.types.biblio.dto.DateDescriptionDTO();
       date.calendar = calendar.toString();
       date.description = desc;
 
       return date;
    }
 
-   private HistoricalEventDTO makeHistoricalEvent(String title, String description, String location,
-                                                  DateDescriptionDTO date)
-   {
-      HistoricalEventDTO event = new HistoricalEventDTO();
-
-      event.id = UUID.randomUUID().toString();
-      event.title = title;
-      event.description = description;
-      event.location = location;
-      event.date = date;
-
-      return event;
-   }
+//   private HistoricalEventDTO makeHistoricalEvent(String title, String description, String location,
+//                                                  DateDescriptionDTO date)
+//   {
+//      HistoricalEventDTO event = new HistoricalEventDTO();
+//
+//      event.id = UUID.randomUUID().toString();
+//      event.title = title;
+//      event.description = description;
+//      event.location = location;
+//      event.date = date;
+//
+//      return event;
+//   }
 
    @Test
    public void testCreateWithDTO() throws Exception
    {
-      if (!canWrite)
-         return;
-
-      // tests the low-level data creation API.
-      PersonDTO dto = new PersonDTO();
-      dto.id = idFactory.get();
-      dto.displayName = new PersonNameDTO("Test", null, "User");
-      dto.birth = makeHistoricalEvent(
-            "Birth date of " + dto.displayName,
-            "The date that this person was born.",
-            "Paris, France",
-            makeHistoricalDate("A long time ago", LocalDate.of(1956, Month.APRIL, 23)));
-      dto.death = makeHistoricalEvent(
-            "Death date of " + dto.displayName,
-            "The date that this person was died.",
-            null,
-            null);
-      dto.names = new HashSet<>();
-      dto.names.add(new PersonNameDTO("Alternate", null, "Name"));
-      dto.summary = "A simple person description for testing purposes.";
-
-      Future<String> future = repo.create(dto);
-
-      String id = future.get();
-
-      Person person = repo.get(id);
-      PersonName name = person.getCanonicalName();
-
-      assertEquals("ids do not match", person.getId(), dto.id);
-      assertEquals("summaries do not match", person.getSummary(), dto.summary);
-      checkName(name, dto.displayName);
-
-      checkDate(person.getBirth(), dto.birth);
-      checkDate(person.getDeath(), dto.death);
-
-      // check alternative names -- TODO build a map of id -> name, use that to compare
-      PersonNameDTO[] altNamesDto = new PersonNameDTO[dto.names.size()];
-      PersonName[] altNames = new PersonName[person.getAlternativeNames().size()];
-      checkName(person.getAlternativeNames().toArray(altNames)[0],
-                dto.names.toArray(altNamesDto)[0]);
+//      if (!canWrite)
+//         return;
+//
+//      // tests the low-level data creation API.
+//      PersonDTO dto = new PersonDTO();
+//      dto.id = idFactory.get();
+//      dto.displayName = new PersonNameDTO("Test", null, "User");
+//      dto.birth = makeHistoricalEvent(
+//            "Birth date of " + dto.displayName,
+//            "The date that this person was born.",
+//            "Paris, France",
+//            makeHistoricalDate("A long time ago", LocalDate.of(1956, Month.APRIL, 23)));
+//      dto.death = makeHistoricalEvent(
+//            "Death date of " + dto.displayName,
+//            "The date that this person was died.",
+//            null,
+//            null);
+//      dto.names = new HashSet<>();
+//      dto.names.add(new PersonNameDTO("Alternate", null, "Name"));
+//      dto.summary = "A simple person description for testing purposes.";
+//
+//      Future<String> future = repo.create(dto);
+//
+//      String id = future.get();
+//
+//      Person person = repo.get(id);
+//      PersonName name = person.getCanonicalName();
+//
+//      assertEquals("ids do not match", person.getId(), dto.id);
+//      assertEquals("summaries do not match", person.getSummary(), dto.summary);
+//      checkName(name, dto.displayName);
+//
+//      checkDate(person.getBirth(), dto.birth);
+//      checkDate(person.getDeath(), dto.death);
+//
+//      // check alternative names -- TODO build a map of id -> name, use that to compare
+//      PersonNameDTO[] altNamesDto = new PersonNameDTO[dto.names.size()];
+//      PersonName[] altNames = new PersonName[person.getAlternativeNames().size()];
+//      checkName(person.getAlternativeNames().toArray(altNames)[0],
+//                dto.names.toArray(altNamesDto)[0]);
    }
 
-private void checkDate(HistoricalEvent death, HistoricalEventDTO dto)
-   {
-      // FIXME implement this.
-      if ((death == null) || (dto == null))
-      {
-         assertEquals(death, dto);
-         return;
-      }
-
-      death.getId();
-      death.getTitle();
-      death.getDescription();
-      death.getLocation();
-      death.getDate();
-      // TODO Auto-generated method stub
-
-   }
-
-   private void checkName(PersonName name, PersonNameDTO dto)
-   {
-      assertEquals("family names not match", name.getFamilyName(), dto.familyName);
-      assertEquals("family names not match", name.getMiddleName(), dto.middleName);
-      assertEquals("family names not match", name.getGivenName(), dto.givenName);
-   }
+//   private void checkDate(HistoricalEvent death, HistoricalEventDTO dto)
+//   {
+//      // FIXME implement this.
+//      if ((death == null) || (dto == null))
+//      {
+//         assertEquals(death, dto);
+//         return;
+//      }
+//
+//      death.getId();
+//      death.getTitle();
+//      death.getDescription();
+//      death.getLocation();
+//      death.getDate();
+//      // TODO Auto-generated method stub
+//
+//   }
+////
+//   private void checkName(PersonName name, PersonNameDTO dto)
+//   {
+//      assertEquals("family names not match", name.getFamilyName(), dto.familyName);
+//      assertEquals("family names not match", name.getMiddleName(), dto.middleName);
+//      assertEquals("family names not match", name.getGivenName(), dto.givenName);
+//   }
 
    //   @Test
    public void testLoadSurnamesFile() throws Exception

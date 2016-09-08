@@ -20,10 +20,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
@@ -31,12 +28,12 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.CopyReferenceMutator;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.EditWorkCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 
-public class MockEditWorkCommand implements EditWorkCommand
+public class MockEditWorkCommand implements EditBibliographicEntryCommand
 {
 
    private WorkDTO dto;
@@ -132,41 +129,12 @@ public class MockEditWorkCommand implements EditWorkCommand
    }
 
    @Override
-   public Future<String> execute()
+   public CompletableFuture<String> execute()
    {
       saveHook.accept(dto);
-      return new Future<String>()
-      {
-         @Override
-         public boolean cancel(boolean mayInterruptIfRunning)
-         {
-            return false;
-         }
-
-         @Override
-         public boolean isCancelled()
-         {
-            return false;
-         }
-
-         @Override
-         public boolean isDone()
-         {
-            return true;
-         }
-
-         @Override
-         public String get() throws InterruptedException, ExecutionException
-         {
-            return dto.id;
-         }
-
-         @Override
-         public String get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException
-         {
-            return dto.id;
-         }
-      };
+      CompletableFuture<String> result = new CompletableFuture<>();
+      result.complete(dto.id);
+      return result;
    }
 
    @Override
