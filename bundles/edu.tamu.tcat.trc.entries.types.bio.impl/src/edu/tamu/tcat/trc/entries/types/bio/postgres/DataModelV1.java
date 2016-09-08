@@ -8,7 +8,6 @@ import java.util.List;
 
 public abstract class DataModelV1
 {
-   public static java.time.format.DateTimeFormatter Iso8601Formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
    public static class Person
    {
@@ -75,7 +74,7 @@ public abstract class DataModelV1
          DateDescription dto = new DateDescription();
 
          dto.description = description;
-         dto.calendar = (calendar == null) ? null : Iso8601Formatter.format(calendar);
+         dto.calendar = (calendar == null) ? null : DateTimeFormatter.ISO_LOCAL_DATE.format(calendar);
 
          return dto;
       }
