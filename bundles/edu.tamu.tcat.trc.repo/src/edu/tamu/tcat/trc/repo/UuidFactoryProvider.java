@@ -1,9 +1,6 @@
-package edu.tamu.tcat.trc.repo.postgres.id;
+package edu.tamu.tcat.trc.repo;
 
 import java.util.UUID;
-
-import edu.tamu.tcat.trc.repo.IdFactory;
-import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 
 /**
  *  For obtaining {@link IdFactory}s that produce UUIDs.
