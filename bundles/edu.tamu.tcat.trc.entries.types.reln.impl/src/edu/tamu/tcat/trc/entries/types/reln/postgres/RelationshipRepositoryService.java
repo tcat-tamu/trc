@@ -30,11 +30,10 @@ public class RelationshipRepositoryService
 
    private BasicRepoDelegate<Relationship, RelationshipDTO, EditRelationshipCommand> delegate;
 
-   private IdFactory relnIds;
    private RelationshipTypeRegistry typeReg;
 
+   private IdFactory relnIds;
    private RepositoryContext ctx;
-
    private ConfigurationProperties config;
 
    private DocumentRepository<Relationship, RelationshipDTO, EditRelationshipCommand> docRepo;

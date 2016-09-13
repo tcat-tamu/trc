@@ -1,5 +1,6 @@
 package edu.tamu.tcat.trc.entries.core.repo;
 
+import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -36,6 +37,11 @@ public interface EntryRepository<EntryType>
     * @throws NoSuchEntryException If the no entry with the supplied id exists.
     */
    EntryType get(String id) throws NoSuchEntryException;
+
+   /**
+    * @return an iterator over all entries in the repository.
+    */
+   Iterator<EntryType> listAll();
 
    /**
     * @return An edit command to be used to create a new entry. The entry will not be

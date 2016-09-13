@@ -24,7 +24,7 @@ import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.DateDescriptionDTO;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
-import edu.tamu.tcat.trc.entries.types.bio.postgres.PeopleRepositoryImpl;
+import edu.tamu.tcat.trc.entries.types.bio.postgres.PeopleRepositoryService;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.repo.RepositoryException;
@@ -36,7 +36,7 @@ public class TestPersistence
    private ClosableSqlExecutor exec;
    private ConfigurationProperties config;
 
-   private PeopleRepositoryImpl repo;
+   private PeopleRepositoryService repo;
    private IdFactory idFactory;
    private boolean canWrite = false;
 
@@ -44,12 +44,12 @@ public class TestPersistence
    public void setupTest() throws DataSourceException
    {
       IdFactoryProvider idFactoryProvider = TestUtils.makeIdFactoryProvider();
-      idFactory = idFactoryProvider.getIdFactory(PeopleRepositoryImpl.ID_CONTEXT);
+      idFactory = idFactoryProvider.getIdFactory(PeopleRepositoryService.ID_CONTEXT);
 
       config = TestUtils.loadConfigFile();
       exec = TestUtils.initPostgreSqlExecutor(config);
 
-      this.repo = new PeopleRepositoryImpl();
+      this.repo = new PeopleRepositoryService();
       repo.setDatabaseExecutor(exec);
       repo.setIdFactory(idFactoryProvider);
       repo.activate();

@@ -31,6 +31,11 @@ class RelationshipRepositoryImpl implements RelationshipRepository
    }
 
    @Override
+   public Iterator<Relationship> listAll()
+   {
+      return delegate.listAll();
+   }
+   @Override
    public Iterator<Relationship> getAllRelationships()
    {
       return delegate.listAll();
