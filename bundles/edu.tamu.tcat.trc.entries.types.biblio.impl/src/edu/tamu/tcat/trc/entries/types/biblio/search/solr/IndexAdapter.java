@@ -14,27 +14,39 @@ import edu.tamu.tcat.trc.search.SearchException;
 
 public abstract class IndexAdapter
 {
-   public static SolrInputDocument createWork(WorkDTO workDTO) throws SearchException
+   public static SolrInputDocument createWork(BibliographicEntry entry)
    {
-      BiblioDocument doc = new BiblioDocument();
+      return createWork(WorkDTO.create(entry));
+   }
 
-      doc.indexDocument.set(BiblioSolrConfig.ID, workDTO.id);
-      doc.indexDocument.set(BiblioSolrConfig.TYPE, workDTO.type);
-      doc.addAuthors(workDTO.authors);
-      doc.addTitles(workDTO.titles);
-      doc.indexDocument.set(BiblioSolrConfig.SERIES, workDTO.series);
-      doc.indexDocument.set(BiblioSolrConfig.SUMMARY, workDTO.summary);
-
+   public static SolrInputDocument createWork(WorkDTO workDTO)
+   {
       try
       {
-         doc.indexDocument.set(BiblioSolrConfig.SEARCH_PROXY, BiblioSearchProxy.create(ModelAdapter.adapt(workDTO)));
-      }
-      catch (Exception e)
-      {
-         throw new IllegalStateException("Failed to serialize BiblioSearchProxy data", e);
-      }
+         BiblioDocument doc = new BiblioDocument();
 
-      return doc.indexDocument.build();
+         doc.indexDocument.set(BiblioSolrConfig.ID, workDTO.id);
+         doc.indexDocument.set(BiblioSolrConfig.TYPE, workDTO.type);
+         doc.addAuthors(workDTO.authors);
+         doc.addTitles(workDTO.titles);
+         doc.indexDocument.set(BiblioSolrConfig.SERIES, workDTO.series);
+         doc.indexDocument.set(BiblioSolrConfig.SUMMARY, workDTO.summary);
+
+         try
+         {
+            doc.indexDocument.set(BiblioSolrConfig.SEARCH_PROXY, BiblioSearchProxy.create(ModelAdapter.adapt(workDTO)));
+         }
+         catch (Exception e)
+         {
+            throw new IllegalStateException("Failed to serialize BiblioSearchProxy data", e);
+         }
+
+         return doc.indexDocument.build();
+      }
+      catch (SearchException se)
+      {
+         throw new IllegalStateException("Failed to create indexable document.", se);
+      }
    }
 
    public static SolrInputDocument createEdition(String workId, Edition edition) throws SearchException
