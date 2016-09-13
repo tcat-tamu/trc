@@ -16,6 +16,7 @@
 package edu.tamu.tcat.trc.entries.types.biblio.search.solr;
 
 import java.util.Objects;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.solr.client.solrj.SolrClient;
@@ -62,11 +63,10 @@ public class BiblioEntriesSearchService implements WorkSearchService
     */
    public void setConfiguration(ConfigurationProperties cp)
    {
-      // TODO allow the config props to come and go. If reset, may need to restart this service.
       this.config = cp;
    }
 
-   public void setBiblioRepo(EntryRepositoryRegistry registry)
+   public void setRepoRegistry(EntryRepositoryRegistry registry)
    {
       this.repo = registry.getRepository(null, BibliographicEntryRepository.class);
    }
@@ -75,6 +75,16 @@ public class BiblioEntriesSearchService implements WorkSearchService
    {
       logger.info("Activating " + getClass().getSimpleName());
 
+      try {
+         doActivation();
+      } catch (Exception ex) {
+         logger.log(Level.SEVERE, "Failed to activate" + getClass().getSimpleName(), ex);
+         throw ex;
+      }
+   }
+
+   private void doActivation()
+   {
       Objects.requireNonNull(repo, "No bibliographic entry repository configured");
       Objects.requireNonNull(config, "No configuration properties provided.");
 
@@ -90,7 +100,7 @@ public class BiblioEntriesSearchService implements WorkSearchService
 
    public void deactivate()
    {
-      logger.info("Deactivating BiblioEntriesSearchService");
+      logger.info("Deactivating " + getClass().getSimpleName());
       if (registration != null)
          registration.close();
 
