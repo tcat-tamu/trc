@@ -13,9 +13,9 @@ import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
 import edu.tamu.tcat.trc.entries.core.resolver.BasicResolverRegistry;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolver;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
+import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
-import edu.tamu.tcat.trc.repo.postgres.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
 
 /**
