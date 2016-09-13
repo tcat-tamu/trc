@@ -6,52 +6,64 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrInputDocument;
 
+import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.search.solr.IndexService;
 
 public class BasicIndexService<T> implements IndexService<T>
 {
    private final static Logger logger = Logger.getLogger(BasicIndexService.class.getName());
 
-   private final URI solrBaseUri;
-   private final String core;
+   /** Configuration property key that defines the URI for the Solr server. */
+   public static final String SOLR_API_ENDPOINT = "trc.search.solr.url";
+   public static final String SOLR_ENABLED = "trc.search.solr.enabled";
+   public static final String SOLR_USERNAME = "trc.search.solr.username";
+   public static final String SOLR_PASSWORD = "trc.search.solr.password";
+
+   public static final String SOLR_CORE_ID = "trc.search.solr.cores.{0}.id";
+   public static final String SOLR_CORE_ENABLED = "trc.search.solr.cores.{0}.enabled";
+
+   private final HttpSolrClient solr;
    private final Function<T, SolrInputDocument> adapter;
    private final Function<T, String> idProvider;
 
-   private final HttpSolrClient solr;
-   private final AtomicBoolean stopping = new AtomicBoolean(false);
+   private final AtomicBoolean enabled = new AtomicBoolean(false);
 
+   // used for debug purposes
+   private URI solrBaseUri;
+   private String core;
 
-   public BasicIndexService(URI solrBaseUri,
-                            String core,
+   public BasicIndexService(HttpSolrClient client,
                             Function<T, SolrInputDocument> adapter,
                             Function<T, String> idProvider)
    {
-      // TODO should provide a factory that supports basic configuration and generates index managers per-core
-      this.solrBaseUri = solrBaseUri;
-      this.core = core;
-
+      this.solr = client;
       this.adapter = adapter;
       this.idProvider = idProvider;
 
-      URI coreUri = solrBaseUri.resolve(core);
-      solr = new HttpSolrClient(coreUri.toString());
+      if (this.solr == null)
+         enabled.set(false);
    }
 
-   public void close()
+   @Override
+   public void shutdown(long time, TimeUnit units)
    {
-      if (!stopping.compareAndSet(false, true))
+      // TODO enforce timeout
+      if (!enabled.compareAndSet(false, true))
          return;        // TODO otherwise, block until stopped?
 
       try
@@ -64,6 +76,12 @@ public class BasicIndexService<T> implements IndexService<T>
       }
    }
 
+
+   @Override
+   public SolrClient getSolrClient()
+   {
+      return solr;
+   }
 
    @Override
    public boolean isIndexed(T instance)
@@ -83,11 +101,12 @@ public class BasicIndexService<T> implements IndexService<T>
       this.remove(idProvider.apply(instance));
    }
 
+   @Override
    public void remove(String... ids)
    {
-      if (stopping.get())
+      if (enabled.get())
          throw new IllegalStateException("The index service has been stopped.");
-   
+
       addIndexTask(() -> {
          try {
             solr.deleteById(Arrays.asList(ids));
@@ -101,7 +120,7 @@ public class BasicIndexService<T> implements IndexService<T>
 
    private boolean isIndexed(String id)
    {
-      if (stopping.get())
+      if (enabled.get())
          throw new IllegalStateException("The index service has been stopped.");
 
       SolrQuery query = new SolrQuery();
@@ -120,7 +139,7 @@ public class BasicIndexService<T> implements IndexService<T>
 
    private void index(SolrInputDocument... docs)
    {
-      if (stopping.get())
+      if (enabled.get())
          throw new IllegalStateException("The index service has been stopped.");
 
       addIndexTask(() -> {
@@ -149,6 +168,80 @@ public class BasicIndexService<T> implements IndexService<T>
          solr.commit();
       } catch (Exception ex) {
          logger.log(Level.SEVERE, "Failed to commit changes to Solr", ex);
+      }
+   }
+
+   /**
+    * The core key will be used to lookup configuration properties.
+    * General properties will be defined as:
+    *
+    * <ul>
+    *   <li>trc.search.solr.url</li>
+    *   <li>trc.search.solr.enabled{=true}</li>
+    *   <li>trc.search.solr.username</li>
+    *   <li>trc.search.solr.password</li>
+    * </ul>
+    *
+    * @param key
+    * @return
+    */
+   public static class Builder<Entry>
+   {
+      private final ConfigurationProperties config;
+
+      private Function<Entry, SolrInputDocument> adapter;
+      private Function<Entry, String> idProvider;
+
+      private String coreId;
+
+      /**
+       * The core key will be used to lookup configuration properties. Properties will
+       * be defined as:
+       *
+       * <ul>
+       *   <li>trc.search.solr.core.{key}.id</li>
+       *   <li>trc.search.solr.core.{key}.enabled{=true}</li>
+       * </ul>
+       *
+       * @param key
+       * @return
+       */
+      public Builder(ConfigurationProperties config, String coreId)
+      {
+         this.config = Objects.requireNonNull(config);
+         this.coreId = Objects.requireNonNull(coreId);
+      }
+
+      public Builder<Entry> setDataAdapter(Function<Entry, SolrInputDocument> adapter)
+      {
+         this.adapter = adapter;
+         return this;
+      }
+
+      public Builder<Entry> setIdProvider(Function<Entry, String> idProvider)
+      {
+         this.idProvider = idProvider;
+         return this;
+      }
+
+      public BasicIndexService<Entry> build()
+      {
+         Objects.requireNonNull(adapter, format("No data adapter supplied for core {0}", coreId));
+         Objects.requireNonNull(idProvider, format("No id provider supplied for core {0}", coreId));
+
+         URI solrBaseUri = config.getPropertyValue(SOLR_API_ENDPOINT, URI.class);
+         String core = config.getPropertyValue(format(SOLR_CORE_ID, coreId), String.class);
+         boolean enabled = config.getPropertyValue(format(SOLR_CORE_ENABLED, coreId), Boolean.class, true);
+
+         URI coreUri = solrBaseUri.resolve(core);
+
+         HttpSolrClient client = enabled ? new HttpSolrClient(coreUri.toString()) : null;
+         BasicIndexService<Entry> service = new BasicIndexService<>(client, adapter, idProvider);
+
+         service.solrBaseUri = solrBaseUri;
+         service.core = core;
+
+         return service;
       }
    }
 }
