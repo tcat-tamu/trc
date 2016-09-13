@@ -49,7 +49,7 @@ public class RelnDocument
       return indexDocument.build();
    }
 
-   public static RelnDocument create(Relationship reln)
+   public static SolrInputDocument create(Relationship reln)
    {
       RelnDocument doc = new RelnDocument();
       try
@@ -78,7 +78,7 @@ public class RelnDocument
          throw new IllegalStateException("Failed to serialize Relationship Search Proxy data", e);
       }
 
-      return doc;
+      return doc.indexDocument.build();
    }
 
    public static RelnDocument update(Relationship reln)
