@@ -13,11 +13,9 @@ import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
 import edu.tamu.tcat.trc.entries.core.resolver.BasicResolverRegistry;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolver;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
-import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
-import edu.tamu.tcat.trc.repo.DocumentRepository;
-import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
+import edu.tamu.tcat.trc.repo.postgres.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
 
 /**
@@ -154,20 +152,12 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, Repos
     * @return A document repository with the supplied configuration.
     */
    @Override
-   public <T, DTO, CMD> DocumentRepository<T, DTO, CMD>
-   buildDocumentRepo(String tablename, EditCommandFactory<DTO, CMD> factory, Function<DTO, T> adapter, Class<DTO> type)
+   public <T, DTO, CMD> DocRepoBuilder<T, DTO, CMD> getDocRepoBuilder()
    {
       PsqlJacksonRepoBuilder<T, DTO, CMD> repoBuilder = new PsqlJacksonRepoBuilder<>();
 
       repoBuilder.setDbExecutor(sqlExecutor);
-      repoBuilder.setTableName(tablename);
-      repoBuilder.setEditCommandFactory(factory);
-      repoBuilder.setDataAdapter(adapter);
-      repoBuilder.setSchema(BasicSchemaBuilder.buildDefaultSchema());
-      repoBuilder.setStorageType(type);
-      repoBuilder.setEnableCreation(true);
-
-      return repoBuilder.build();
+      return repoBuilder;
    }
 
    @Override

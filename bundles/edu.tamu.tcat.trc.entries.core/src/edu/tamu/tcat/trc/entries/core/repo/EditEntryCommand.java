@@ -15,9 +15,9 @@ import java.util.concurrent.ExecutionException;
  *  editions to a book) may be modified using mutators.
  *
  *
- *  @param <T> The type of entry that is edited by this command.
+ *  @param <EntryType> The type of entry that is edited by this command.
  */
-public interface EditEntryCommand<T>
+public interface EditEntryCommand<EntryType>
 {
 
 

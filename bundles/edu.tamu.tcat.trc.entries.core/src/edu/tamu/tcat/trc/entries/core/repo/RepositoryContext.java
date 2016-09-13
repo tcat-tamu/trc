@@ -7,9 +7,8 @@ import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolver;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
-import edu.tamu.tcat.trc.repo.DocumentRepository;
-import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.IdFactory;
+import edu.tamu.tcat.trc.repo.postgres.DocRepoBuilder;
 
 public interface RepositoryContext
 {
@@ -35,6 +34,8 @@ public interface RepositoryContext
     */
    IdFactory getIdFactory(String context);
 
+   EntryResolverRegistry getResolverRegistry();
+
    /**
     * Builds a basic document repository using the supplied configuration utilities.
     *
@@ -48,10 +49,11 @@ public interface RepositoryContext
     *
     * @return A document repository with the supplied configuration.
     */
-   <T, DTO, CMD> DocumentRepository<T, DTO, CMD> buildDocumentRepo(String tablename,
-                                                                   EditCommandFactory<DTO, CMD> factory,
-                                                                   Function<DTO, T> adapter,
-                                                                   Class<DTO> type);
+   <T, DTO, CMD> DocRepoBuilder<T, DTO, CMD> getDocRepoBuilder();
+//   buildDocumentRepo(String tablename,
+//                                                                   EditCommandFactory<DTO, CMD> factory,
+//                                                                   Function<DTO, T> adapter,
+//                                                                   Class<DTO> type);
 
    /**
     * Registers an entry repository. Duplicate registrations for the same type will result
