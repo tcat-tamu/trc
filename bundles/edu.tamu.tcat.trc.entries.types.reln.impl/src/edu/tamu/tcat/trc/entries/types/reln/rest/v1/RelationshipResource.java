@@ -15,6 +15,9 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln.rest.v1;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,6 +43,7 @@ import edu.tamu.tcat.trc.repo.RepositoryException;
 @Path("/relationships/{id}")
 public class RelationshipResource
 {
+   // FIXME improve error handling
    private static final Logger logger = Logger.getLogger(RelationshipResource.class.getName());
 
    private RelationshipRepository repo;
@@ -127,6 +131,13 @@ public class RelationshipResource
    @DELETE
    public void remove(@PathParam(value = "id") String id) throws RepositoryException
    {
-      repo.delete(id);
+      try
+      {
+         repo.remove(id).get(10, TimeUnit.SECONDS);
+      }
+      catch (InterruptedException | ExecutionException | TimeoutException e)
+      {
+         throw new RepositoryException("Failed to remove relations " + id, e);
+      }
    }
 }

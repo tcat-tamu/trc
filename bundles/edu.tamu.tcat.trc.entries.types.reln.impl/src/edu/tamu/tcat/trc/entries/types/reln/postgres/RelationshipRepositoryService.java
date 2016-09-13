@@ -1,37 +1,44 @@
 package edu.tamu.tcat.trc.entries.types.reln.postgres;
 
-import java.util.Iterator;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import edu.tamu.tcat.account.Account;
+import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
+import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverBase;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
-import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipChangeEvent;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
+import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.IdFactory;
-import edu.tamu.tcat.trc.repo.RepositoryException;
 
 public class RelationshipRepositoryService
 {
+   private final static Logger logger = Logger.getLogger(RelationshipRepositoryService.class.getName());
+
    public static final String ID_CONTEXT = "relationships";
 
    private static final String TABLE_NAME = "relationships";
-   private static final String SCHEMA_ID = "trcRelationship";
    private static final String SCHEMA_DATA_FIELD = "relationship";
 
-   private DocumentRepository<Relationship, RelationshipDTO, EditRelationshipCommand> repoBackend;
-   private IdFactory idFactory;
+   private BasicRepoDelegate<Relationship, RelationshipDTO, EditRelationshipCommand> delegate;
+
+   private IdFactory relnIds;
    private RelationshipTypeRegistry typeReg;
 
    private RepositoryContext ctx;
+
+   private ConfigurationProperties config;
+
+   private DocumentRepository<Relationship, RelationshipDTO, EditRelationshipCommand> docRepo;
+
 
    public void setRepoContext(RepositoryContext ctx)
    {
@@ -45,126 +52,72 @@ public class RelationshipRepositoryService
 
    public void activate()
    {
-      repoBackend = ctx.buildDocumentRepo(TABLE_NAME,
-                            new EditRelationshipCommandFactory(typeReg),
-                            dto -> ModelAdapter.adapt(dto, typeReg),
-                            RelationshipDTO.class);
+      try
+      {
+         logger.info("Activating relationship repository service. . . ");
+         this.relnIds = ctx.getIdFactory(ID_CONTEXT);
+         this.config = ctx.getConfig();
 
-      ctx.registerResolver(new RelationshipResolver());
-      ctx.registerRepository(RelationshipRepository.class,
-            account -> new RelationshipRepositoryImpl(account));
+         initDocumentStore();
+         initDelegate();
 
-      idFactory = ctx.getIdFactory(ID_CONTEXT);
+         ctx.registerResolver(new RelationshipResolver());
+         ctx.registerRepository(RelationshipRepository.class, account -> new RelationshipRepositoryImpl(delegate, account));
+
+         logger.fine("Activated relationship repository service.");
+
+      }
+      catch (Exception ex)
+      {
+         logger.log(Level.SEVERE, "Failed to activate relationship repository service.", ex);
+         throw ex;
+      }
+   }
+
+   private void initDocumentStore()
+   {
+      DocRepoBuilder<Relationship, RelationshipDTO, EditRelationshipCommand> builder = ctx.getDocRepoBuilder();
+      builder.setTableName(TABLE_NAME);
+      builder.setDataColumn(SCHEMA_DATA_FIELD);
+      builder.setEditCommandFactory(new EditRelationshipCommandFactory(typeReg));
+      builder.setDataAdapter(this::adapt);
+      builder.setStorageType(RelationshipDTO.class);
+      builder.setEnableCreation(true);
+
+      docRepo = builder.build();
+   }
+
+   private void initDelegate()
+   {
+      BasicRepoDelegate.Builder<Relationship, RelationshipDTO, EditRelationshipCommand> delegateBuilder =
+            new BasicRepoDelegate.Builder<>();
+
+      delegateBuilder.setEntryName("relationship");
+      delegateBuilder.setIdFactory(relnIds);
+      delegateBuilder.setEntryResolvers(ctx.getResolverRegistry());
+      delegateBuilder.setAdapter(this::adapt);
+      delegateBuilder.setDocumentRepo(docRepo);
+
+      delegate = delegateBuilder.build();
+   }
+
+   private Relationship adapt(RelationshipDTO dto)
+   {
+      return ModelAdapter.adapt(dto, typeReg);
    }
 
    public void dispose()
    {
-      repoBackend.dispose();
+      delegate.dispose();
+      docRepo.dispose();
    }
 
-   private Relationship get(Account account, String id) throws RepositoryException
-   {
-      try
-      {
-         return repoBackend.get(id);
-      }
-      catch (RepositoryException e)
-      {
-         throw new IllegalArgumentException("Unable to find relationship with id {" + id + "}.", e);
-      }
-   }
-
-   private EditRelationshipCommand create(Account account, String id) throws RepositoryException
-   {
-      return repoBackend.create(account, id);
-   }
-
-   private EditRelationshipCommand edit(Account account, String id) throws RepositoryException
-   {
-      try
-      {
-         return repoBackend.edit(account, id);
-      }
-      catch (RepositoryException e)
-      {
-         throw new IllegalArgumentException("Unable to find relationship with id {" + id + "}.", e);
-      }
-   }
-
-   private void delete(Account account, String id) throws RepositoryException
-   {
-      try
-      {
-         repoBackend.delete(account, id).get(10, TimeUnit.SECONDS);
-      }
-      catch (Exception e)
-      {
-         throw new IllegalStateException("Encountered an unexpected error while trying to delete relationship with id {" + id + "}.", e);
-      }
-   }
-
-
-   private class RelationshipRepositoryImpl implements RelationshipRepository
-   {
-
-      private final Account account;
-
-      RelationshipRepositoryImpl(Account account)
-      {
-         this.account = account;
-      }
-
-      @Override
-      public Iterator<Relationship> getAllRelationships()
-      {
-         try
-         {
-            return repoBackend.listAll();
-         }
-         catch (RepositoryException e)
-         {
-            throw new IllegalStateException("Unable to list all relationships", e);
-         }
-      }
-
-      @Override
-      public Relationship get(String id) throws RepositoryException
-      {
-         return RelationshipRepositoryService.this.get(account, id);
-      }
-
-      @Override
-      public EditRelationshipCommand create() throws RepositoryException
-      {
-         String id = idFactory.get();
-         return RelationshipRepositoryService.this.create(account, id);
-      }
-
-      @Override
-      public EditRelationshipCommand edit(String id) throws RepositoryException
-      {
-         return RelationshipRepositoryService.this.edit(account, id);
-      }
-
-      @Override
-      public void delete(String id) throws RepositoryException
-      {
-         RelationshipRepositoryService.this.delete(account, id);
-      }
-
-      @Override
-      public AutoCloseable addUpdateListener(Consumer<RelationshipChangeEvent> ears)
-      {
-         return null;
-      }
-   }
 
    private class RelationshipResolver extends EntryResolverBase<Relationship>
    {
-
       public RelationshipResolver()
       {
-         super(Relationship.class, ctx.getConfig(), RelationshipRepository.ENTRY_URI_BASE, RelationshipRepository.ENTRY_TYPE_ID);
+         super(Relationship.class, config, RelationshipRepository.ENTRY_URI_BASE, RelationshipRepository.ENTRY_TYPE_ID);
       }
 
       @Override
@@ -173,7 +126,7 @@ public class RelationshipRepositoryService
          if (!accepts(reference))
             throw new InvalidReferenceException(reference, "Unsupported reference type.");
 
-         return get(account, reference.id);
+         return delegate.get(account, reference.id);
       }
 
       @Override

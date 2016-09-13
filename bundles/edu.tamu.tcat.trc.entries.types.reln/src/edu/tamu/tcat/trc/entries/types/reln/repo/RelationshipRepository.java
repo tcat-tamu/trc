@@ -16,8 +16,9 @@
 package edu.tamu.tcat.trc.entries.types.reln.repo;
 
 import java.util.Iterator;
-import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
 
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.repo.RepositoryException;
 
@@ -36,7 +37,7 @@ import edu.tamu.tcat.trc.repo.RepositoryException;
  * the repository.
  *
  */
-public interface RelationshipRepository
+public interface RelationshipRepository extends EntryRepository<Relationship>
 {
 
    /** The type id used to identify relationships within the EntryResolver framework. */
@@ -60,6 +61,7 @@ public interface RelationshipRepository
     * @throws RepositoryException If there is no relationship with the supplied id or there
     *    are errors accessing the persistence layer.
     */
+   @Override
    Relationship get(String id) throws RepositoryException;
 
    // Relationship get(URI relnUri);
@@ -72,7 +74,11 @@ public interface RelationshipRepository
     *  @throws RepositoryException If a new command instance could not be
     *       created.
     */
+   @Override
    EditRelationshipCommand create() throws RepositoryException;
+
+   @Override
+   EditRelationshipCommand create(String id) throws RepositoryException;
 
    /**
     * Construct an {@link EditRelationshipCommand} to modify an existing relationship.
@@ -82,6 +88,7 @@ public interface RelationshipRepository
     *       identified {@code Relationship}.
     * @throws RepositoryException If the identified relationship does not exist or there are errors accessing the persistence layer.
     */
+   @Override
    EditRelationshipCommand edit(String id) throws RepositoryException;
 
    /**
@@ -90,22 +97,9 @@ public interface RelationshipRepository
     * @param id The id of the {@link Relationship} to delete.
     * @throws RepositoryException If the identified relationship does not exist or there are errors accessing the persistence layer.
     */
-   void delete(String id) throws RepositoryException;
+   @Override
+   CompletableFuture<Boolean> remove(String id) throws RepositoryException;
 
-   /**
-    * Add listener to be notified whenever a relationship is modified (created, updated or deleted).
-    * Note that this will be fired after the change has taken place and the attached listener will not
-    * be able affect or modify the update action.
-    *
-    * @param ears The listener to be added.
-    * @return A registration handle that allows the listener to be removed.
-    */
-   AutoCloseable addUpdateListener(Consumer<RelationshipChangeEvent> ears);
-
-   // TODO may need to add hook for notification before the change happens to allow
-   //      modification of the event (e.g., permission checks, etc).
-
-   // TODO support the creation/mgnt of defined sets of relationships
-   // TODO support tracking the history of revisions to relationships
-   // NOTE these might be separate services
+   @Override
+   EntryRepository.ObserverRegistration onUpdate(EntryRepository.UpdateObserver<Relationship> observer);
 }
