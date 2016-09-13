@@ -22,6 +22,8 @@ package edu.tamu.tcat.trc.repo;
  */
 public class NoSuchEntryException extends RepositoryException
 {
+   // FIXME should clarify the exception hierarchy to ensure that this exception is not
+   //       propagated via the entry repo API
    public NoSuchEntryException()
    {
    }

@@ -7,7 +7,7 @@ import java.util.Objects;
 public class BasicSchemaBuilder implements SchemaBuilder
 {
    private static final String SCHEMA_ID = "trc.entries.default";
-   private static final String SCHEMA_DATA_FIELD = "data";
+   public static final String SCHEMA_DATA_FIELD = "data";
 
    /**
     * Constructs a default schema for use with TRC repostiories.

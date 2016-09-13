@@ -20,10 +20,13 @@ import java.util.logging.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
+import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
+import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.RepositoryException;
 import edu.tamu.tcat.trc.repo.RepositorySchema;
+import edu.tamu.tcat.trc.repo.SchemaBuilder;
 
 /**
  *  Constructs {@link DocumentRepository} instances that are connected to a PostgreSQL database
@@ -49,7 +52,7 @@ import edu.tamu.tcat.trc.repo.RepositorySchema;
  *       repository API. It is used by the {@link EditCommandFactory} and the data adapter
  *       function for data editing and transformation.
  */
-public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType>
+public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> implements DocRepoBuilder<RecordType, StorageType, EditCmdType>
 {
    private static final Logger logger = Logger.getLogger(PsqlJacksonRepoBuilder.class.getName());
 
@@ -62,77 +65,78 @@ public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType>
    private EditCommandFactory<StorageType, EditCmdType> cmdFactory;
    private Class<StorageType> storageType;
 
+   private String colname;
+
 
    public PsqlJacksonRepoBuilder()
    {
    }
 
-
-   /**
-    * @param value Indicates whether the builder should create the backing database table
-    *       if it does not exist. This is {@code false} by default.
-    */
-   public void setEnableCreation(boolean value)
+   @Override
+   public PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> setEnableCreation(boolean value)
    {
       this.enableCreation = value;
+      return this;
    }
 
    /**
     * @param exec The database executor to use.
     */
-   public void setDbExecutor(SqlExecutor exec)
+   public PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> setDbExecutor(SqlExecutor exec)
    {
       this.exec = exec;
+      return this;
    }
 
-   /**
-    * @param schema Defines the columns to be used to store data. Note that if no remove field
-    *       is supplied, removal will result in the deletion of the record from the database.
-    */
-   public void setSchema(RepositorySchema schema) {
+   @Override
+   public PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> setSchema(RepositorySchema schema)
+   {
       this.schema = schema;
+      return this;
    }
 
-   /**
-    * @param tablename The name of the database table to be used to store records for this
-    *       repository.
-    */
-   public void setTableName(String tablename)
+   @Override
+   public PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> setDataColumn(String colname)
+   {
+      this.colname = colname;
+      return this;
+   }
+
+   @Override
+   public PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> setTableName(String tablename)
    {
       this.tablename = tablename;
+      return this;
    }
 
-   /**
-    * @param type A type token for the data storage POJO. Used by Jackson for JSON databinding.
-    */
-   public void setStorageType(Class<StorageType> type)
+   @Override
+   public PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> setStorageType(Class<StorageType> type)
    {
       this.storageType = type;
+      return this;
    }
 
-   /**
-    * @param adapter A {@link Function} that will convert instances of the internal data storage
-    *    type into instances of the public data model to be produced by the repository.
-    */
-   public void setDataAdapter(Function<StorageType, RecordType> adapter)
+   @Override
+   public PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> setDataAdapter(Function<StorageType, RecordType> adapter)
    {
       this.adapter = adapter;
+      return this;
    }
 
-   /**
-    * @param cmdFactory A factory for use in generating edit commands.
-    */
-   public void setEditCommandFactory(EditCommandFactory<StorageType, EditCmdType> cmdFactory)
+   @Override
+   public PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> setEditCommandFactory(EditCommandFactory<StorageType, EditCmdType> cmdFactory)
    {
       this.cmdFactory = cmdFactory;
+      return this;
    }
 
-   /**
-    * @return The built document repository.
-    * @throws RepositoryException
+   /* (non-Javadoc)
+    * @see edu.tamu.tcat.trc.repo.postgres.DocRepoBuilder#build()
     */
+   @Override
    public PsqlJacksonRepo<RecordType, StorageType, EditCmdType> build() throws RepositoryException
    {
+      initSchema();
       if (!this.exists() && enableCreation)
          this.create();
 
@@ -147,6 +151,22 @@ public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType>
       repo.activate();
 
       return repo;
+   }
+
+   private void initSchema()
+   {
+      if (schema != null)
+         return;
+
+      SchemaBuilder schemaBuilder = new BasicSchemaBuilder();
+      schemaBuilder.setId(tablename + "_schema");
+
+      String cName = (colname == null || colname.trim().isEmpty())
+            ? BasicSchemaBuilder.SCHEMA_DATA_FIELD
+            : colname;
+      schemaBuilder.setDataField(cName);
+
+      schema = schemaBuilder.build();
    }
 
    private boolean exists() throws RepositoryException
