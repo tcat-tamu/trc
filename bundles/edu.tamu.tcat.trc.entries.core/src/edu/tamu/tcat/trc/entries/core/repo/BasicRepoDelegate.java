@@ -65,7 +65,6 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
 
    public void dispose()
    {
-      repo.dispose();
    }
 
    public EntryType get(Account account, String id) throws RepositoryException
