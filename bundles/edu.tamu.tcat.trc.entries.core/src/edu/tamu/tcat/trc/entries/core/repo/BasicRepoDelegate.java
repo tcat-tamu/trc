@@ -152,7 +152,7 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
       Function<StorageType, EntryType> adapter;
       DocumentRepository<EntryType, StorageType, EditCommandType> repo;
 
-      Builder<EntryType, StorageType, EditCommandType> setEntryName(String entryName)
+      public Builder<EntryType, StorageType, EditCommandType> setEntryName(String entryName)
       {
          this.entryName = entryName;
          return this;
