@@ -1,21 +1,22 @@
-package edu.tamu.tcat.trc.search.solr;
+package edu.tamu.tcat.trc.entries.core.search;
 
-import edu.tamu.tcat.trc.repo.UpdateContext;
+import edu.tamu.tcat.trc.entries.core.repo.EntryUpdateRecord;
+import edu.tamu.tcat.trc.search.solr.IndexService;
 
-public class SolrSearchAdapter
+public class SolrSearchMediator
 {
-   public static <T> void index(IndexService<T> indexSvc, UpdateContext<T> ctx)
+   public static <T> void index(IndexService<T> indexSvc, EntryUpdateRecord<T> ctx)
    {
-      switch(ctx.getActionType())
+      switch(ctx.getAction())
       {
          case CREATE:
-            indexSvc.index(ctx.getModified());
+            indexSvc.index(ctx.getModifiedState());
             break;
-         case EDIT:
-            indexSvc.index(ctx.getModified());
+         case UPDATE:
+            indexSvc.index(ctx.getModifiedState());
             break;
          case REMOVE:
-            indexSvc.remove(ctx.getId());
+            indexSvc.remove(ctx.getEntryReference().id);
             break;
       }
    }
