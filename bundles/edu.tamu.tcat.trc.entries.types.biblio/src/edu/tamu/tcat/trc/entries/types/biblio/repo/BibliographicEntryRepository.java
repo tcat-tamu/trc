@@ -4,9 +4,9 @@ import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 
 public interface BibliographicEntryRepository extends EntryRepository<BibliographicEntry>
 {
@@ -20,7 +20,8 @@ public interface BibliographicEntryRepository extends EntryRepository<Bibliograp
    /**
     * @return An iterator over all works in the repository.
     */
-   Iterator<BibliographicEntry> getAllWorks();
+   @Override
+   Iterator<BibliographicEntry> listAll();
 
    /**
     * Retrieve an existing work document.

@@ -27,7 +27,7 @@ public class WorkRepoImpl implements BibliographicEntryRepository
    }
 
    @Override
-   public Iterator<BibliographicEntry> getAllWorks()
+   public Iterator<BibliographicEntry> listAll()
    {
       return delegate.listAll();
    }
