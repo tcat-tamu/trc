@@ -64,7 +64,7 @@ public class PersonResource
 
       try
       {
-         EditPersonCommand command = repo.update(person.id);
+         EditPersonCommand command = repo.edit(person.id);
          PeopleResource.apply(command, person);
          return PeopleResource.execute(repo, command, person.name.label);
       }
@@ -81,7 +81,7 @@ public class PersonResource
    {
       try
       {
-         repo.delete(personId).get(10, TimeUnit.SECONDS);
+         repo.remove(personId).get(10, TimeUnit.SECONDS);
       }
       catch (InterruptedException | TimeoutException e)
       {
