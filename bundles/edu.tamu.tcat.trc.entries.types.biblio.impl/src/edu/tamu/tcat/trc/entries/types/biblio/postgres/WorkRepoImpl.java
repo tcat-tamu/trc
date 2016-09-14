@@ -91,7 +91,6 @@ public class WorkRepoImpl implements BibliographicEntryRepository
    @Override
    public EntryRepository.ObserverRegistration onUpdate(EntryRepository.UpdateObserver<BibliographicEntry> observer)
    {
-      // TODO Auto-generated method stub
-      return null;
+      return delegate.onUpdate(observer, account);
    }
 }
