@@ -17,28 +17,27 @@ package edu.tamu.tcat.trc.entries.types.bio.search.solr;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
+import edu.tamu.tcat.trc.entries.core.repo.EntryUpdateRecord;
+import edu.tamu.tcat.trc.entries.core.search.SolrSearchMediator;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
-import edu.tamu.tcat.trc.entries.types.bio.repo.PersonChangeEvent;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleIndexServiceManager;
-import edu.tamu.tcat.trc.entries.types.bio.search.PeopleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleSearchService;
 import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.search.solr.impl.BasicIndexService;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
@@ -55,176 +54,83 @@ public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleS
    /** Configuration property key that defines Solr core to be used for relationships. */
    public static final String SOLR_CORE = "catalogentries.authors.solr.core";
 
-   private PeopleRepository repo;
-   private ConfigurationProperties config;
-   private SolrClient solr;
-   private AutoCloseable registration;
 
-   public void setRepo(PeopleRepository repo)
+   private PeopleRepository repo;
+   private EntryRepository.ObserverRegistration registration;
+   private ConfigurationProperties config;
+
+   private SolrClient solr;
+
+   private BasicIndexService<Person> indexSvc;
+
+   public void setConfiguration(ConfigurationProperties config)
    {
-      this.repo = repo;
+      this.config = config;
    }
 
-   public void setConfiguration(ConfigurationProperties cp)
+   public void setRepoRegistry(EntryRepositoryRegistry registry)
    {
-      this.config = cp;
+      this.repo = registry.getRepository(null, PeopleRepository.class);
    }
 
    public void activate()
    {
-      logger.fine("Activating PeopleIndexingService");
-      Objects.requireNonNull(repo, "No people repository supplied.");
-      registration = repo.addUpdateListener(this::onUpdate);
+      logger.info("Activating " + getClass().getSimpleName());
+
+      try {
+         doActivation();
+         logger.fine("Activated " + getClass().getSimpleName());
+      } catch (Exception ex) {
+         logger.log(Level.SEVERE, "Failed to activate" + getClass().getSimpleName(), ex);
+         throw ex;
+      }
+   }
+
+   private void doActivation()
+   {
+      Objects.requireNonNull(repo, "No relationship repository configured");
+      Objects.requireNonNull(config, "No configuration properties provided.");
 
       // construct Solr core
-      URI solrBaseUri = config.getPropertyValue(SOLR_API_ENDPOINT, URI.class);
-      String solrCore = config.getPropertyValue(SOLR_CORE, String.class);
+      BasicIndexService.Builder<Person> indexBuilder = new BasicIndexService.Builder<>(config, SOLR_CORE);
+      indexSvc = indexBuilder.setDataAdapter(p -> create(p, this::extractFirstSentence))
+                  .setIdProvider(entry -> entry.getId())
+                  .build();
 
-      Objects.requireNonNull(solrBaseUri, "Failed to initialize PeopleIndexing Service. Solr API endpoint is not configured.");
-      Objects.requireNonNull(solrCore, "Failed to initialize PeopleIndexing Service. Solr core is not configured.");
-
-      URI coreUri = solrBaseUri.resolve(solrCore);
-      logger.info("Connecting to Solr Service [" + coreUri + "]");
-
-      solr = new HttpSolrClient(coreUri.toString());
+      registration = repo.onUpdate(this::index);
+      this.solr = indexSvc.getSolrClient();
    }
 
    public void deactivate()
    {
-      logger.info("Deactivating PeopleIndexingService");
+      logger.info("Deactivating " + getClass().getSimpleName());
+      if (registration != null)
+         registration.close();
 
-      unregisterRepoListener();
-      releaseSolrConnection();
+      registration = null;
+   }
+
+   public static SolrInputDocument create(Person person, Function<String, String> sentenceParser)
+   {
+      SolrDocAdapter adapter = new SolrDocAdapter(sentenceParser);
+      return adapter.apply(person);
+   }
+
+   private void index(EntryUpdateRecord<Person> ctx)
+   {
+      SolrSearchMediator.index(indexSvc, ctx);
    }
 
    @Override
-   public PeopleQueryCommand createQueryCommand() throws SearchException
+   public PeopleSolrQueryCommand createQueryCommand() throws SearchException
    {
       TrcQueryBuilder builder = new TrcQueryBuilder(new BioSolrConfig());
       return new PeopleSolrQueryCommand(solr, builder);
    }
 
-   private void unregisterRepoListener()
+   public void setRepo(PeopleRepository repo)
    {
-      if (registration != null)
-      {
-         try
-         {
-            registration.close();
-         }
-         catch (Exception e)
-         {
-            logger.log(Level.WARNING, "Failed to unregister update listener on people repository.", e);
-         }
-         finally {
-            registration = null;
-         }
-      }
-   }
-
-   private void releaseSolrConnection()
-   {
-      logger.fine("Releasing connection to Solr server");
-      if (solr != null)
-      {
-         try
-         {
-            solr.close();
-         }
-         catch (Exception e)
-         {
-            logger.log(Level.WARNING, "Failed to cleanly shut down connection to Solr server.", e);
-         }
-      }
-   }
-
-   private void onUpdate(PersonChangeEvent evt)
-   {
-      try
-      {
-         switch(evt.getUpdateAction())
-         {
-            case CREATE:
-               onCreate(evt.getPerson());
-               break;
-            case UPDATE:
-               onUpdate(evt.getPerson());
-               break;
-            case DELETE:
-               onDelete(evt.getPerson());
-               break;
-            default:
-               logger.log(Level.INFO, "Unexpected change event " + evt);
-         }
-      }
-      catch(Exception e)
-      {
-         logger.log(Level.WARNING, "Failed to update search indices following a change " + evt, e);
-      }
-   }
-
-   private void onCreate(Person person)
-   {
-      Collection<SolrInputDocument> solrDocs = new ArrayList<>();
-      try
-      {
-         BioDocument doc = BioDocument.create(person, this::extractFirstSentence);
-         solrDocs.add(doc.getDocument());
-      }
-      catch (Exception e)
-      {
-         logger.log(Level.SEVERE, "Failed to adapt Person to indexable data transfer objects for person id: [" + person.getId() + "]", e);
-         return;
-      }
-
-      try
-      {
-         solr.add(solrDocs);
-         solr.commit();
-      }
-      catch (SolrServerException | IOException e)
-      {
-         logger.log(Level.SEVERE, "Failed to commit the person id: [" + person.getId() + "] to the SOLR server. " + e);
-      }
-   }
-
-   private void onUpdate(Person person)
-   {
-      Collection<SolrInputDocument> solrDocs = new ArrayList<>();
-      try
-      {
-         BioDocument doc = BioDocument.create(person, this::extractFirstSentence);
-         solrDocs.add(doc.getDocument());
-      }
-      catch (Exception e)
-      {
-         logger.log(Level.SEVERE, "Failed to adapt Person to indexable data transfer objects for person id: [" + person.getId() + "]", e);
-         return;
-      }
-
-      try
-      {
-         solr.add(solrDocs);
-         solr.commit();
-      }
-      catch (SolrServerException | IOException e)
-      {
-         logger.log(Level.SEVERE, "Failed to commit the person id: [" + person.getId() + "] to the SOLR server. " + e);
-      }
-   }
-
-   private void onDelete(Person person)
-   {
-      String id = person.getId();
-      try
-      {
-         solr.deleteById(id);
-         solr.commit();
-      }
-      catch(SolrServerException | IOException e)
-      {
-         logger.log(Level.SEVERE, "Failed to delete the person id: [" + id + "] from the SOLR server. " + e);
-      }
+      this.repo = repo;
    }
 
    /**
@@ -236,35 +142,46 @@ public class PeopleIndexingService implements PeopleIndexServiceManager, PeopleS
     */
    private String extractFirstSentence(String text)
    {
+      // TODO this should be generalized
       if (text == null || text.trim().isEmpty())
          return "";
 
-      Path sentenceModelPath = null;
-      try {
-         sentenceModelPath = config.getPropertyValue(OPENNLP_MODELS_SENTENCE_PATH, Path.class);
-      } catch (Exception ex) {
-         // do nothing
-      }
-
-      if (sentenceModelPath != null)
+      try
       {
-         try (InputStream modelInput = Files.newInputStream(sentenceModelPath))
-         {
-            SentenceModel sentenceModel = new SentenceModel(modelInput);
-            SentenceDetectorME detector = new SentenceDetectorME(sentenceModel);
-            String[] summarySentences = detector.sentDetect(text);
-            return (summarySentences.length == 0) ? null : summarySentences[0];
-         }
-         catch (IOException e)
-         {
-            logger.log(Level.SEVERE, "Unable to open sentence detect model input file", e);
-         }
+         Path sentenceModelPath = config.getPropertyValue(OPENNLP_MODELS_SENTENCE_PATH, Path.class, null);
+         return (sentenceModelPath != null)
+                  ? extractSentenceWithNLP(text, sentenceModelPath)
+                  : extractSentenceWithRegex(text);
+      }
+      catch (IOException e)
+      {
+         logger.log(Level.SEVERE, "Unable to open sentence detect model input file", e);
       }
 
+
+      logger.log(Level.WARNING, "Falling back to simple sentence parsing.");
+      return extractFirstSentence(text);
+   }
+
+   private String extractSentenceWithRegex(String text)
+   {
       int ix = text.indexOf(".");
       if (ix < 0)
          ix = text.length();
 
       return text.substring(0, Math.min(ix, 140));
    }
+
+   private String extractSentenceWithNLP(String text, Path sentenceModelPath) throws IOException
+   {
+      try (InputStream modelInput = Files.newInputStream(sentenceModelPath))
+      {
+         SentenceModel sentenceModel = new SentenceModel(modelInput);
+         SentenceDetectorME detector = new SentenceDetectorME(sentenceModel);
+         String[] summarySentences = detector.sentDetect(text);
+         return (summarySentences.length == 0) ? null : summarySentences[0];
+      }
+
+   }
+
 }
