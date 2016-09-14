@@ -66,6 +66,8 @@ public class ArticleRepoTests
 
    private EntryResolverRegistry resolvers;
 
+   private DbEntryRepositoryRegistry repoCtx;
+
    @BeforeClass
    public static void setUp()
    {
@@ -85,7 +87,7 @@ public class ArticleRepoTests
       exec = TestUtils.initPostgreSqlExecutor(config);
       IdFactoryProvider idProvider = TestUtils.makeIdFactoryProvider();
 
-      DbEntryRepositoryRegistry repoCtx = new DbEntryRepositoryRegistry();
+      repoCtx = new DbEntryRepositoryRegistry();
       repoCtx.setConfiguration(config);
       repoCtx.setIdFactory(idProvider);
       repoCtx.setSqlExecutor(exec);
@@ -148,7 +150,7 @@ public class ArticleRepoTests
    @Test
    public void createArticle() throws Exception
    {
-      ArticleRepository repo = svc.getArticleRepo(null);
+      ArticleRepository repo = repoCtx.getRepository(null, ArticleRepository.class);
       EditArticleCommand cmd = createStandardArticle(repo);
 
       Future<String> result = cmd.execute();
@@ -175,7 +177,7 @@ public class ArticleRepoTests
       String articleAbstract = "This is the another abstract for the same article";
       String body = "This is the changed body text of an article";
 
-      ArticleRepository repo = svc.getArticleRepo(null);
+      ArticleRepository repo = repoCtx.getRepository(null, ArticleRepository.class);
       EditArticleCommand cmd = createStandardArticle(repo);
 
       String articleId = cmd.execute().get();
@@ -204,7 +206,7 @@ public class ArticleRepoTests
    @Test
    public void deleteArticle() throws Exception
    {
-      ArticleRepository repo = svc.getArticleRepo(null);
+      ArticleRepository repo = repoCtx.getRepository(null, ArticleRepository.class);
       EditArticleCommand cmd = createStandardArticle(repo);
 
       String articleId = cmd.execute().get();
@@ -223,7 +225,7 @@ public class ArticleRepoTests
    @Test
    public void testArticleResolver() throws Exception
    {
-      ArticleRepository repo = svc.getArticleRepo(null);
+      ArticleRepository repo = repoCtx.getRepository(null, ArticleRepository.class);
       EditArticleCommand cmd = createStandardArticle(repo);
 
       String articleId = cmd.execute().get();
