@@ -124,14 +124,19 @@ public class WorkRepositoryService
          if (!accepts(reference))
             throw new InvalidReferenceException(reference, "Unsupported reference type.");
 
-         WorkRepoImpl repo = new WorkRepoImpl(delegate, account);
-         return repo.get(reference.id);
+         return delegate.get(account, reference.id);
       }
 
       @Override
       protected String getId(BibliographicEntry relationship)
       {
          return relationship.getId();
+      }
+
+      @Override
+      public CompletableFuture<Boolean> remove(Account account, EntryReference reference) throws InvalidReferenceException, UnauthorziedException, UnsupportedOperationException
+      {
+         return delegate.remove(account, reference.id);
       }
    }
 
