@@ -1,6 +1,9 @@
 package edu.tamu.tcat.trc.entries.types.biblio.postgres;
 
+import static java.text.MessageFormat.format;
+
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -9,6 +12,7 @@ import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
 import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
+import edu.tamu.tcat.trc.entries.core.repo.UnauthorziedException;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverBase;
 import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
@@ -41,7 +45,7 @@ public class WorkRepositoryService
 
    public void setRepoContext(RepositoryContext context)
    {
-      logger.fine("[bibliographic entry repository] setting repository context.");
+      logger.fine(format("[{0}] setting repository context", getClass().getName()));
       this.context = context;
    }
 
@@ -51,10 +55,9 @@ public class WorkRepositoryService
     */
    public void activate(Map<String, Object> params)
    {
-      // TODO fix DS stitching
       try
       {
-         logger.info("Activating bibliographic entry repository service. . . ");
+         logger.info("Activating " + getClass().getSimpleName());
          workIds = context.getIdFactory(ID_CONTEXT_WORKS);
          config = context.getConfig();
 
@@ -64,7 +67,7 @@ public class WorkRepositoryService
          context.registerRepository(BibliographicEntryRepository.class, account -> new WorkRepoImpl(delegate, account));
          context.registerResolver(new BibliographicEntryResolver());
 
-         logger.fine("Activating bibliographic entry repository service.");
+         logger.fine("Activated " + getClass().getSimpleName());
       }
       catch (Exception ex)
       {
