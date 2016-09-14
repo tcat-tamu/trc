@@ -24,6 +24,16 @@ public interface ArticleAuthor
    String getName();
 
    /**
+    * @return The first or given name of this individual.
+    */
+   String getFirstname();
+
+   /**
+    * @return The last or family name of this individual. Used for alphabetizing by author.
+    */
+   String getLastname();
+
+   /**
     * @return The affiliation of the author
     */
    String getAffiliation();

@@ -14,7 +14,7 @@ import edu.tamu.tcat.trc.entries.types.article.Footnote;
 public class ArticleImpl implements Article
 {
    private final static Logger logger = Logger.getLogger(ArticleImpl.class.getName());
-   
+
    private final String id;
    private final String articleType;
    private final String contentType;
@@ -121,7 +121,4 @@ public class ArticleImpl implements Article
       logger.warning("Links are not currently supported");
       return Collections.emptyList();
    }
-
-
-
 }

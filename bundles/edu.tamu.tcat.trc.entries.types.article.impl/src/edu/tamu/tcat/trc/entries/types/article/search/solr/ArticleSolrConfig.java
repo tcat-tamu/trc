@@ -84,9 +84,9 @@ public class ArticleSolrConfig implements SolrIndexConfig
    }
 
    @Override
-   public Class<ArticleDocument> getIndexDocumentType()
+   public Class<SearchAdapter> getIndexDocumentType()
    {
-      return ArticleDocument.class;
+      return SearchAdapter.class;
    }
 
    @Override

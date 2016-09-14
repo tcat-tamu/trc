@@ -18,22 +18,29 @@ package edu.tamu.tcat.trc.entries.types.article.search.solr;
 import static java.text.MessageFormat.format;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
+import edu.tamu.tcat.trc.entries.core.repo.EntryUpdateRecord;
+import edu.tamu.tcat.trc.entries.core.search.SolrSearchMediator;
+import edu.tamu.tcat.trc.entries.types.article.Article;
+import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQuery;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchService;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.DocumentBuilder;
+import edu.tamu.tcat.trc.search.solr.impl.BasicIndexService;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
 
@@ -44,41 +51,72 @@ public class ArticleIndexManagerService implements ArticleSearchService
    /** Configuration property key that defines the URI for the Solr server. */
    public static final String SOLR_API_ENDPOINT = "solr.api.endpoint";
 
-   public static final String SOLR_CORE = "trc.articles.solr.core";
+   public static final String SOLR_CORE = "articles";
 
-   // TODO wrap this in a solr core config an inject via DS
-   private SolrClient solr;
+   private ArticleRepository repo;
+   private EntryRepository.ObserverRegistration registration;
    private ConfigurationProperties config;
 
+   private SolrClient solr;
+
+   private BasicIndexService<Article> indexSvc;
 
    public void setConfiguration(ConfigurationProperties config)
    {
       this.config = config;
    }
 
-   public void activate()
+   public void setRepoRegistry(EntryRepositoryRegistry registry)
    {
-      // construct Solr core
-      URI solrBaseUri = config.getPropertyValue(SOLR_API_ENDPOINT, URI.class);
-      String solrCore = config.getPropertyValue(SOLR_CORE, String.class);
-
-      URI coreUri = solrBaseUri.resolve(solrCore);
-      logger.info("Connecting to Solr Service [" + coreUri + "]");
-
-      solr = new HttpSolrClient(coreUri.toString());
+      this.repo = registry.getRepository(null, ArticleRepository.class);
    }
 
-   public void dispose()
+   public void activate()
    {
+      logger.info("Activating " + getClass().getSimpleName());
 
-      try
-      {
-         solr.close();
+      try {
+         doActivation();
+         logger.fine("Activated " + getClass().getSimpleName());
+      } catch (Exception ex) {
+         logger.log(Level.SEVERE, "Failed to activate" + getClass().getSimpleName(), ex);
+         throw ex;
       }
-      catch (Exception ex)
-      {
-         logger.log(Level.WARNING, "Failed to shutdown solr server client for article index manager", ex);
-      }
+   }
+
+   private void doActivation()
+   {
+      Objects.requireNonNull(repo, "No article repository configured");
+      Objects.requireNonNull(config, "No configuration properties provided.");
+
+      // construct Solr core
+      BasicIndexService.Builder<Article> indexBuilder = new BasicIndexService.Builder<>(config, SOLR_CORE);
+      indexSvc = indexBuilder
+                  .setDataAdapter(this::adapt)
+                  .setIdProvider(entry -> entry.getId())
+                  .build();
+
+      registration = repo.onUpdate(this::index);
+      this.solr = indexSvc.getSolrClient();
+   }
+
+   public void deactivate()
+   {
+      logger.info("Deactivating " + getClass().getSimpleName());
+      if (registration != null)
+         registration.close();
+
+      registration = null;
+   }
+
+   private void index(EntryUpdateRecord<Article> ctx)
+   {
+      SolrSearchMediator.index(indexSvc, ctx);
+   }
+
+   private SolrInputDocument adapt(Article article)
+   {
+      return SearchAdapter.adapt(article);
    }
 
    public void remove(String articleId)
