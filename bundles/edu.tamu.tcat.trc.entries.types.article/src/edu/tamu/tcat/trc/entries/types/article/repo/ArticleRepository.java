@@ -18,7 +18,6 @@ package edu.tamu.tcat.trc.entries.types.article.repo;
 import java.net.URI;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.types.article.Article;
@@ -87,13 +86,12 @@ public interface ArticleRepository extends EntryRepository<Article>
    CompletableFuture<Boolean> remove(String articleId);
 
    /**
-    * Register a listener that will be notified when an article changes.
+    * Register a observer that will be notified when an article changes.
     *
-    * @param ears The listener to be notified.
+    * @param observer The observer to be notified.
     * @return A registration that allows the client to stop listening for changes. The returned
     *       registration <em>must</em> be closed by the caller.
     */
-   public Runnable register(Consumer<Article> ears);
-
-
+   @Override
+   EntryRepository.ObserverRegistration onUpdate(EntryRepository.UpdateObserver<Article> observer);
 }

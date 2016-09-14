@@ -8,6 +8,7 @@ import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchService;
  *  Provides access to the repositories and other core backend services associated
  *  with the article TRC Entry
  */
+@Deprecated
 public interface ArticleRepoFacade
 {
    /**

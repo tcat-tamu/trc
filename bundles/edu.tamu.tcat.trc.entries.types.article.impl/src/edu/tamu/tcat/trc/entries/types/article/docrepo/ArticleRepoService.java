@@ -2,38 +2,27 @@ package edu.tamu.tcat.trc.entries.types.article.docrepo;
 
 import static java.text.MessageFormat.format;
 
-import java.net.URI;
-import java.time.Instant;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
-import edu.tamu.tcat.trc.entries.core.repo.EntryUpdateRecord;
+import edu.tamu.tcat.osgi.config.ConfigurationProperties;
+import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
+import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
+import edu.tamu.tcat.trc.entries.core.repo.UnauthorziedException;
 import edu.tamu.tcat.trc.entries.core.repo.db.DbEntryRepositoryRegistry;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverBase;
 import edu.tamu.tcat.trc.entries.types.article.Article;
-import edu.tamu.tcat.trc.entries.types.article.ArticleRepoFacade;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
-import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchService;
-import edu.tamu.tcat.trc.entries.types.article.search.solr.ArticleDocument;
-import edu.tamu.tcat.trc.entries.types.article.search.solr.ArticleIndexManagerService;
+import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.IdFactory;
-import edu.tamu.tcat.trc.repo.NoSuchEntryException;
-import edu.tamu.tcat.trc.repo.RepositoryException;
-import edu.tamu.tcat.trc.repo.UpdateContext;
-import edu.tamu.tcat.trc.search.solr.DocumentBuilder;
 
-public class ArticleRepoService implements ArticleRepoFacade
+public class ArticleRepoService
 {
    private final static Logger logger = Logger.getLogger(ArticleRepoService.class.getName());
 
@@ -42,22 +31,24 @@ public class ArticleRepoService implements ArticleRepoFacade
 
    private static final String ID_CONTEXT_ARTICLES = "trc.articles";
    private static final String TABLE_NAME = "articles";
+   private static final String SCHEMA_DATA_FIELD = "data";
 
-   private ArticleIndexManagerService indexSvc;
    private DbEntryRepositoryRegistry context;
+   private ConfigurationProperties config;
 
-   private IdFactory idFactory;
-   private DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> articleBackend;
+   private IdFactory articleIds;
 
+   private DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> repoBackend;
+   private BasicRepoDelegate<Article, DataModelV1.Article, EditArticleCommand> delegate;
 
+   /**
+    * Note that this requires the implementation-specific
+    * @param context
+    */
    public void setRepoContext(DbEntryRepositoryRegistry context)
    {
+      logger.fine(format("[{0}] setting repository context", getClass().getName()));
       this.context = context;
-   }
-
-   public void setIndexService(ArticleIndexManagerService indexSvc)
-   {
-      this.indexSvc = indexSvc;
    }
 
    /**
@@ -79,72 +70,45 @@ public class ArticleRepoService implements ArticleRepoFacade
 
    private void doActivation(Map<String, Object> properties)
    {
-      Objects.requireNonNull(context, "EntryRepositoryContext is not abailable.");
-      String tablename = (String)properties.getOrDefault(PARAM_TABLE_NAME, TABLE_NAME);
-      articleBackend = context.buildDocumentRepo(
-            tablename,
-            new EditArticleCommandFactory(),
-            dto -> new ArticleImpl(dto),
-            DataModelV1.Article.class);
-      configureIndexing(articleBackend);
-      configureVersioning(articleBackend);
+      logger.info("Activating " + getClass().getSimpleName());
+      articleIds = context.getIdFactory(ID_CONTEXT_ARTICLES);
+      config = context.getConfig();
 
-      String idContext = (String)properties.getOrDefault(PARAM_ID_CTX, ID_CONTEXT_ARTICLES);
-      idFactory = context.getIdFactory(idContext);
-      context.registerRepository(ArticleRepository.class, this::getArticleRepo);
-      EntryResolverRegistry registry = context.getResolverRegistry();
-      if (registry != null)
-      {
-         registry.register(new ArticleResolver(this, context.getConfig()));
-      }
+      initDocRepo();
+      initDelegate();
+
+      context.registerRepository(ArticleRepository.class,
+            account -> new ArticleRepoImpl(delegate, account));
+      context.registerResolver(new ArticleResolver());
+
+      logger.fine("Activated " + getClass().getSimpleName());
    }
 
-   private void configureIndexing(DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> repo)
+
+   private void initDocRepo()
    {
-      if (indexSvc == null)
-         logger.warning("No search index has been configured for articles.");
-
-      repo.afterUpdate(this::index);
+      DocRepoBuilder<Article, DataModelV1.Article, EditArticleCommand> builder = context.getDocRepoBuilder();
+      repoBackend = builder.setTableName(TABLE_NAME)
+             .setDataColumn(SCHEMA_DATA_FIELD)
+             .setEditCommandFactory(new EditArticleCommandFactory())
+             .setDataAdapter(ArticleImpl::new)
+             .setStorageType(DataModelV1.Article.class)
+             .build();
    }
 
-   private void index(UpdateContext<DataModelV1.Article> ctx)
+   private void initDelegate()
    {
-      if (indexSvc == null)
-      {
-         logger.info(() -> format("Not indexing article {0}. No search index is available.", ctx.getId()));
-         return;
-      }
+      BasicRepoDelegate.Builder<Article, DataModelV1.Article, EditArticleCommand> delegateBuilder =
+            new BasicRepoDelegate.Builder<>();
 
-      try
-      {
-         // TODO should be able to generalize this.
-         DocumentBuilder doc;
-         switch(ctx.getActionType())
-         {
-            case CREATE:
-               doc = ArticleDocument.adapt(ctx.getModified());
-               indexSvc.postDocument(doc);
-               break;
-            case EDIT:
-               doc = ArticleDocument.adapt(ctx.getModified());
-               indexSvc.postDocument(doc);
-               break;
-            case REMOVE:
-               indexSvc.remove(ctx.getId());
-               break;
-         }
-      }
-      catch (Exception ex)
-      {
-         logger.log(Level.SEVERE, ex, () -> "Failed to index article {0}: " + ex.getMessage());
-      }
+      delegateBuilder.setEntryName("bibliographic");
+      delegateBuilder.setIdFactory(articleIds);
+      delegateBuilder.setEntryResolvers(context.getResolverRegistry());
+      delegateBuilder.setAdapter(ArticleImpl::new);
+      delegateBuilder.setDocumentRepo(repoBackend);
+
+      delegate = delegateBuilder.build();
    }
-
-   private void configureVersioning(DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> repo)
-   {
-      // TODO Auto-generated method stub
-   }
-
 
    /**
     * Lifecycle management method (usually called by framework service layer)
@@ -152,176 +116,39 @@ public class ArticleRepoService implements ArticleRepoFacade
     */
    public void dispose()
    {
+      delegate.dispose();
+      repoBackend.dispose();
    }
 
-   /**
-    * @param account The account to be used with this repository.
-    * @return Obtains an {@code ArticleRepository} scoped to a particular user account.
-    */
-   @Override
-   public ArticleRepository getArticleRepo(Account account)
+   private class ArticleResolver extends EntryResolverBase<Article>
    {
-      return new ArticleRepoImpl(account);
-   }
-
-   /**
-    * @return The article search service associated with this repository.
-    *       Note that this may be {@code null} if no search service has been configured.
-    */
-   @Override
-   public ArticleSearchService getSearchService()
-   {
-      return indexSvc;
-   }
-
-   public class ArticleRepoImpl implements ArticleRepository
-   {
-
-      @SuppressWarnings("unused")      // placeholder to be used once account creation has been integrated
-      private Account account;
-
-      public ArticleRepoImpl(Account account)
+      public ArticleResolver()
       {
-         this.account = account;
+         super(Article.class,
+               config,
+               ArticleRepository.ENTRY_URI_BASE,
+               ArticleRepository.ENTRY_TYPE_ID);
       }
 
       @Override
-      public Article get(String articleId)
+      public Article resolve(Account account, EntryReference reference) throws InvalidReferenceException
       {
-         return articleBackend.get(articleId);
+         if (!accepts(reference))
+            throw new InvalidReferenceException(reference, "Unsupported reference type.");
+
+         return delegate.get(account, reference.id);
       }
 
       @Override
-      public List<Article> getArticles(URI entityURI) throws NoSuchEntryException
+      protected String getId(Article article)
       {
-         // This seems like a query rather than part of the article repo impl.
-         throw new UnsupportedOperationException();
+         return article.getId();
       }
 
       @Override
-      public EditArticleCommand create()
+      public CompletableFuture<Boolean> remove(Account account, EntryReference reference) throws InvalidReferenceException, UnauthorziedException, UnsupportedOperationException
       {
-         String id = idFactory.get();
-         return create(id);
+         return delegate.remove(account, reference.id);
       }
-
-      @Override
-      public EditArticleCommand create(String id)
-      {
-         return articleBackend.create(id);
-      }
-
-      @Override
-      public EditArticleCommand edit(String articleId) throws NoSuchEntryException
-      {
-         try
-         {
-            return articleBackend.edit(articleId);
-         }
-         catch (RepositoryException e)
-         {
-            throw new IllegalArgumentException("Unable to find article with id {" + articleId + "}.", e);
-         }
-      }
-
-      @Override
-      public CompletableFuture<Boolean> remove(String articleId)
-      {
-         CompletableFuture<Boolean> result = articleBackend.delete(articleId);
-
-         result.thenRun(() -> {
-               if (indexSvc != null)
-                  indexSvc.remove(articleId);
-            });
-
-         return result;
-      }
-
-      @Override
-      public EntryRepository.ObserverRegistration onUpdate(EntryRepository.UpdateObserver<Article> observer)
-      {
-         Runnable registration = articleBackend.afterUpdate((ctx) -> {
-            observer.entryUpdated(new UpdateContextAdapter(ctx));
-         });
-
-         return () -> registration.run();
-      }
-
-      @Override
-      public Runnable register(Consumer<Article> ears)
-      {
-         return articleBackend.afterUpdate((dto) -> {
-            // TODO adapt dto to Article
-            ears.accept(null);
-         });
-      }
-   }
-
-   /**
-    * Adapts the underlying update context to the {@link EntryUpdateRecord} API.
-    */
-   private static class UpdateContextAdapter implements EntryUpdateRecord<Article>
-   {
-
-      private UpdateContext<DataModelV1.Article> ctx;
-
-      public UpdateContextAdapter(UpdateContext<DataModelV1.Article> ctx)
-      {
-         this.ctx = ctx;
-      }
-
-      @Override
-      public UUID getId()
-      {
-         return ctx.getUpdateId();
-      }
-
-      @Override
-      public Instant getTimestamp()
-      {
-         return ctx.getTimestamp();
-      }
-
-      @Override
-      public EntryUpdateRecord.UpdateAction getAction()
-      {
-         UpdateContext.ActionType action = ctx.getActionType();
-         switch (action)
-         {
-            case CREATE: return EntryUpdateRecord.UpdateAction.CREATE;
-            case EDIT: return EntryUpdateRecord.UpdateAction.UPDATE;
-            case REMOVE: return EntryUpdateRecord.UpdateAction.REMOVE;
-            default:
-               throw new IllegalStateException("Unexpected update modification type: " + action);
-         }
-      }
-
-      @Override
-      public Account getActor()
-      {
-         return ctx.getActor();
-      }
-
-      @Override
-      public EntryReference getEntryReference()
-      {
-         EntryReference ref = new EntryReference();
-         ref.id = ctx.getId();
-         ref.type = ArticleRepository.ENTRY_TYPE_ID;
-         return ref;
-      }
-
-      @Override
-      public Article getModifiedState()
-      {
-         return new ArticleImpl(ctx.getModified());
-      }
-
-      @Override
-      public Article getOriginalState()
-      {
-         return new ArticleImpl(ctx.getOriginal());
-      }
-
    }
 }
