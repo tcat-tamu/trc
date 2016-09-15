@@ -24,8 +24,8 @@ import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
 import edu.tamu.tcat.trc.entries.types.bio.impl.search.BioSearchStrategy;
-import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
-import edu.tamu.tcat.trc.entries.types.bio.search.PeopleQueryCommand;
+import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
+import edu.tamu.tcat.trc.entries.types.bio.search.BioEntryQueryCommand;
 import edu.tamu.tcat.trc.search.solr.QueryService;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
 
@@ -39,7 +39,7 @@ public class PeopleResourceService
    private EntryRepositoryRegistry registry;
    private SearchServiceManager searchMgr;
    private ConfigurationProperties config;
-   private QueryService<PeopleQueryCommand> queryService;
+   private QueryService<BioEntryQueryCommand> queryService;
 
    public void setConfig(ConfigurationProperties config)
    {
@@ -89,7 +89,7 @@ public class PeopleResourceService
    {
       Account account = null;    // TODO get this from the request if this is possible here.
 
-      PeopleRepository repo = registry.getRepository(account, PeopleRepository.class);
+      BiographicalEntryRepository repo = registry.getRepository(account, BiographicalEntryRepository.class);
       return new PeopleResource(repo, queryService);
    }
 }

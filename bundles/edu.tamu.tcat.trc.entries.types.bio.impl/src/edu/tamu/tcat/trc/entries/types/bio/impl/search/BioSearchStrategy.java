@@ -11,8 +11,8 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.types.bio.Person;
-import edu.tamu.tcat.trc.entries.types.bio.search.PeopleQueryCommand;
+import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
+import edu.tamu.tcat.trc.entries.types.bio.search.BioEntryQueryCommand;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.IndexServiceStrategy;
 import edu.tamu.tcat.trc.search.solr.SolrIndexConfig;
@@ -20,7 +20,7 @@ import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 
-public class BioSearchStrategy implements IndexServiceStrategy<Person, PeopleQueryCommand>
+public class BioSearchStrategy implements IndexServiceStrategy<BiographicalEntry, BioEntryQueryCommand>
 {
    private final static Logger logger = Logger.getLogger(BioSearchStrategy.class.getName());
 
@@ -58,9 +58,9 @@ public class BioSearchStrategy implements IndexServiceStrategy<Person, PeopleQue
    }
 
    @Override
-   public Class<Person> getType()
+   public Class<BiographicalEntry> getType()
    {
-      return Person.class;
+      return BiographicalEntry.class;
    }
 
    @Override
@@ -76,14 +76,14 @@ public class BioSearchStrategy implements IndexServiceStrategy<Person, PeopleQue
    }
 
    @Override
-   public SolrInputDocument getDocument(Person person)
+   public SolrInputDocument getDocument(BiographicalEntry person)
    {
       SolrDocAdapter adapter = new SolrDocAdapter(this::extractFirstSentence);
       return adapter.apply(person);
    }
 
    @Override
-   public String getEntryId(Person entry)
+   public String getEntryId(BiographicalEntry entry)
    {
       return entry.getId();
    }

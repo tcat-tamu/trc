@@ -18,9 +18,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import edu.tamu.tcat.trc.entries.types.bio.Person;
-import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
-import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
+import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
+import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
+import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.ApiUtils;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RepoAdapter;
 import edu.tamu.tcat.trc.repo.NoSuchEntryException;
@@ -28,9 +28,9 @@ import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 public class PersonResource
 {
    private final String personId;
-   private PeopleRepository repo;
+   private BiographicalEntryRepository repo;
 
-   public PersonResource(PeopleRepository repo, String personId)
+   public PersonResource(BiographicalEntryRepository repo, String personId)
    {
       this.repo = repo;
       this.personId = personId;
@@ -42,7 +42,7 @@ public class PersonResource
    {
       try
       {
-         Person figure = repo.get(personId);
+         BiographicalEntry figure = repo.get(personId);
          return RepoAdapter.toDTO(figure);
       }
       catch (NoSuchEntryException e)
@@ -64,7 +64,7 @@ public class PersonResource
 
       try
       {
-         EditPersonCommand command = repo.edit(person.id);
+         EditBiographicalEntryCommand command = repo.edit(person.id);
          PeopleResource.apply(command, person);
          return PeopleResource.execute(repo, command, person.name.label);
       }

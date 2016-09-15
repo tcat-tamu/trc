@@ -17,12 +17,12 @@ package edu.tamu.tcat.trc.entries.types.bio.repo;
 
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
 import edu.tamu.tcat.trc.entries.core.repo.EditEntryCommand;
-import edu.tamu.tcat.trc.entries.types.bio.Person;
+import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 
 /**
- * A command to edit a {@link Person} entries in a {@link PeopleRepository}.
+ * A command to edit a {@link BiographicalEntry} entries in a {@link BiographicalEntryRepository}.
  */
-public interface EditPersonCommand extends EditEntryCommand<Person>
+public interface EditBiographicalEntryCommand extends EditEntryCommand<BiographicalEntry>
 {
 
    /**

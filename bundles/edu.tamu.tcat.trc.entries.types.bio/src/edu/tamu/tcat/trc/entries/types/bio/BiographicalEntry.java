@@ -23,10 +23,9 @@ import java.util.Set;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
 
 /**
- * Represents a historical figure described in the collection. This is typically used to
- * represent a person.
+ * Records biographical information about a person, historical or fictional.
  */
-public interface Person
+public interface BiographicalEntry
 {
    /**
     * @return A unique, persistent identifier for this person.
@@ -37,7 +36,7 @@ public interface Person
     * @return The canonical name associated with this person. Many people are commonly referenced
     *       by multiple names, for example pen names or titles of nobility. This form of the
     *       represents an editorially determined 'canonical' representation of this person.
-    * @see Person#getAlternativeNames()
+    * @see BiographicalEntry#getAlternativeNames()
     */
    PersonName getCanonicalName();
 

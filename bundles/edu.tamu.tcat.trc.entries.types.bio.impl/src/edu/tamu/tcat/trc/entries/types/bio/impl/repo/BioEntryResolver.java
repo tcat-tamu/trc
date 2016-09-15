@@ -9,22 +9,22 @@ import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.UnauthorziedException;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverBase;
-import edu.tamu.tcat.trc.entries.types.bio.Person;
-import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
-import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
+import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
+import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
+import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
 
-public class BioEntryResolver extends EntryResolverBase<Person>
+public class BioEntryResolver extends EntryResolverBase<BiographicalEntry>
 {
-   private final BasicRepoDelegate<Person, DataModelV1.Person, EditPersonCommand> delegate;
+   private final BasicRepoDelegate<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> delegate;
 
-   public BioEntryResolver(ConfigurationProperties config, BasicRepoDelegate<Person, DataModelV1.Person, EditPersonCommand> delegate)
+   public BioEntryResolver(ConfigurationProperties config, BasicRepoDelegate<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> delegate)
    {
-      super(Person.class, config, PeopleRepository.ENTRY_URI_BASE, PeopleRepository.ENTRY_TYPE_ID);
+      super(BiographicalEntry.class, config, BiographicalEntryRepository.ENTRY_URI_BASE, BiographicalEntryRepository.ENTRY_TYPE_ID);
       this.delegate = delegate;
    }
 
    @Override
-   public Person resolve(Account account, EntryReference reference) throws InvalidReferenceException
+   public BiographicalEntry resolve(Account account, EntryReference reference) throws InvalidReferenceException
    {
       if (!accepts(reference))
          throw new InvalidReferenceException(reference, "Unsupported reference type.");
@@ -33,7 +33,7 @@ public class BioEntryResolver extends EntryResolverBase<Person>
    }
 
    @Override
-   protected String getId(Person person)
+   protected String getId(BiographicalEntry person)
    {
       return person.getId();
    }

@@ -9,7 +9,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.trc.entries.types.bio.repo.DateDescriptionMutator;
-import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
+import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.HistoricalEventMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNameMutator;
 import edu.tamu.tcat.trc.repo.BasicChangeSet;
@@ -18,22 +18,22 @@ import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.UpdateContext;
 
-public class EditPersonCommandFactory implements EditCommandFactory<DataModelV1.Person, EditPersonCommand>
+public class EditPersonCommandFactory implements EditCommandFactory<DataModelV1.Person, EditBiographicalEntryCommand>
 {
 
    @Override
-   public EditPersonCommand create(String id, UpdateStrategy<DataModelV1.Person> strategy)
+   public EditBiographicalEntryCommand create(String id, UpdateStrategy<DataModelV1.Person> strategy)
    {
       return new EditPersonCommandImpl(id, strategy);
    }
 
    @Override
-   public EditPersonCommand edit(String id, UpdateStrategy<DataModelV1.Person> strategy)
+   public EditBiographicalEntryCommand edit(String id, UpdateStrategy<DataModelV1.Person> strategy)
    {
       return new EditPersonCommandImpl(id, strategy);
    }
 
-   private class EditPersonCommandImpl implements EditPersonCommand
+   private class EditPersonCommandImpl implements EditBiographicalEntryCommand
    {
       private String id;
       private UpdateStrategy<DataModelV1.Person> exec;

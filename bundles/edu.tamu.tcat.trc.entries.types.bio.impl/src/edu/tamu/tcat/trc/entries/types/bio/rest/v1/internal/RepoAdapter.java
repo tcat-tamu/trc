@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
-import edu.tamu.tcat.trc.entries.types.bio.Person;
+import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.RestApiV1;
 
@@ -31,7 +31,7 @@ import edu.tamu.tcat.trc.entries.types.bio.rest.v1.RestApiV1;
  */
 public class RepoAdapter
 {
-   public static RestApiV1.Person toDTO(Person orig)
+   public static RestApiV1.Person toDTO(BiographicalEntry orig)
    {
       if (orig == null)
          return null;

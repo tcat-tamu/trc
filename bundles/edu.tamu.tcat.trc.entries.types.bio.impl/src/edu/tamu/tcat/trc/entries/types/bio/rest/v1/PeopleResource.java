@@ -40,14 +40,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import edu.tamu.tcat.trc.entries.types.bio.repo.DateDescriptionMutator;
-import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
+import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.HistoricalEventMutator;
-import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
+import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNameMutator;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.ApiUtils;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RepoAdapter;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.SearchAdapter;
-import edu.tamu.tcat.trc.entries.types.bio.search.PeopleQueryCommand;
+import edu.tamu.tcat.trc.entries.types.bio.search.BioEntryQueryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.search.PersonSearchResult;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.QueryService;
@@ -57,10 +57,10 @@ public class PeopleResource
    // records internal errors accessing the REST
    static final Logger errorLogger = Logger.getLogger(PeopleResource.class.getName());
 
-   private PeopleRepository repo;
-   private QueryService<PeopleQueryCommand> queryService;
+   private BiographicalEntryRepository repo;
+   private QueryService<BioEntryQueryCommand> queryService;
 
-   public PeopleResource(PeopleRepository repo, QueryService<PeopleQueryCommand> queryService)
+   public PeopleResource(BiographicalEntryRepository repo, QueryService<BioEntryQueryCommand> queryService)
    {
       this.repo = repo;
       this.queryService = queryService;
@@ -84,14 +84,14 @@ public class PeopleResource
 
       try
       {
-         PeopleQueryCommand cmd = queryService.createQuery();
+         BioEntryQueryCommand cmd = queryService.createQuery();
          if (q != null)
             cmd.query(q);
          else
             cmd.queryAll();
          cmd.setOffset(offset);
          cmd.setMaxResults(numResults);
-         PersonSearchResult results = cmd.execute();
+         PersonSearchResult results = cmd.executeSync();
 
          RestApiV1.PersonSearchResultSet rs = new RestApiV1.PersonSearchResultSet();
          rs.items = SearchAdapter.toDTO(results.get());
@@ -134,7 +134,7 @@ public class PeopleResource
    @Produces(MediaType.APPLICATION_JSON)
    public RestApiV1.Person createPerson(RestApiV1.Person person)
    {
-      EditPersonCommand command = repo.create();
+      EditBiographicalEntryCommand command = repo.create();
       apply(command, person);
 
       return execute(repo, command, person.name.label);
@@ -147,7 +147,7 @@ public class PeopleResource
     * @param command The command to apply the changes to
     * @param person The data to be updated for the associated person
     */
-   static void apply(EditPersonCommand command, RestApiV1.Person person)
+   static void apply(EditBiographicalEntryCommand command, RestApiV1.Person person)
    {
       applyName(command.editCanonicalName(), person.name);
       command.clearAlternateNames();
@@ -172,7 +172,7 @@ public class PeopleResource
     *
     * @throws WebApplicationException For problems encountered during execution
     */
-   static RestApiV1.Person execute(PeopleRepository repo, EditPersonCommand command, String name)
+   static RestApiV1.Person execute(BiographicalEntryRepository repo, EditBiographicalEntryCommand command, String name)
    {
       try
       {

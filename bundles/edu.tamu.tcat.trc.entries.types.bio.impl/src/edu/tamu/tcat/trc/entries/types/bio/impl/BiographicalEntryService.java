@@ -7,15 +7,15 @@ import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository.ObserverRegistration;
 import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
 import edu.tamu.tcat.trc.entries.core.search.SolrSearchMediator;
-import edu.tamu.tcat.trc.entries.types.bio.Person;
+import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.impl.model.PersonImpl;
 import edu.tamu.tcat.trc.entries.types.bio.impl.repo.BioEntryRepoImpl;
 import edu.tamu.tcat.trc.entries.types.bio.impl.repo.BioEntryResolver;
 import edu.tamu.tcat.trc.entries.types.bio.impl.repo.DataModelV1;
 import edu.tamu.tcat.trc.entries.types.bio.impl.repo.EditPersonCommandFactory;
 import edu.tamu.tcat.trc.entries.types.bio.impl.search.BioSearchStrategy;
-import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
-import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
+import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
+import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.search.solr.IndexService;
@@ -35,8 +35,8 @@ public class BiographicalEntryService
    private RepositoryContext ctx;
    private SearchServiceManager indexSvcMgr;
 
-   private DocumentRepository<Person, DataModelV1.Person, EditPersonCommand> docRepo;
-   private BasicRepoDelegate<Person, DataModelV1.Person, EditPersonCommand> delegate;
+   private DocumentRepository<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> docRepo;
+   private BasicRepoDelegate<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> delegate;
 
    private ObserverRegistration searchReg;
 
@@ -96,12 +96,12 @@ public class BiographicalEntryService
       initDelegate();
 
       ctx.registerResolver(new BioEntryResolver(ctx.getConfig(), delegate));
-      ctx.registerRepository(PeopleRepository.class, account -> new BioEntryRepoImpl(delegate, account));
+      ctx.registerRepository(BiographicalEntryRepository.class, account -> new BioEntryRepoImpl(delegate, account));
    }
 
    private void initDocumentStore()
    {
-      DocRepoBuilder<Person, DataModelV1.Person, EditPersonCommand> builder = ctx.getDocRepoBuilder();
+      DocRepoBuilder<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> builder = ctx.getDocRepoBuilder();
       builder.setTableName(TABLE_NAME);
       builder.setDataColumn(SCHEMA_DATA_FIELD);
       builder.setEditCommandFactory(new EditPersonCommandFactory());
@@ -114,7 +114,7 @@ public class BiographicalEntryService
 
    private void initDelegate()
    {
-      BasicRepoDelegate.Builder<Person, DataModelV1.Person, EditPersonCommand> delegateBuilder =
+      BasicRepoDelegate.Builder<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> delegateBuilder =
             new BasicRepoDelegate.Builder<>();
 
       delegateBuilder.setEntryName("relationship");
@@ -135,7 +135,7 @@ public class BiographicalEntryService
       }
 
       BioSearchStrategy indexCfg = new BioSearchStrategy(ctx.getConfig());
-      IndexService<Person> indexSvc = indexSvcMgr.configure(indexCfg);
+      IndexService<BiographicalEntry> indexSvc = indexSvcMgr.configure(indexCfg);
 
       BioEntryRepoImpl repo = new BioEntryRepoImpl(delegate, null);     // USE SEARCH ACCT
       searchReg = repo.onUpdate(ctx -> SolrSearchMediator.index(indexSvc, ctx));

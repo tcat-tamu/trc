@@ -6,11 +6,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
-import edu.tamu.tcat.trc.entries.types.bio.Person;
+import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 import edu.tamu.tcat.trc.entries.types.bio.impl.repo.DataModelV1;
 
-public class PersonImpl implements Person
+public class PersonImpl implements BiographicalEntry
 {
    private final String id;
    private final PersonName canonicalName;

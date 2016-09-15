@@ -18,7 +18,7 @@ package edu.tamu.tcat.trc.entries.types.bio.impl.search;
 import java.util.List;
 
 import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
-import edu.tamu.tcat.trc.entries.types.bio.search.PeopleQueryCommand;
+import edu.tamu.tcat.trc.entries.types.bio.search.BioEntryQueryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.search.PersonSearchResult;
 
 public class SolrPersonResults implements PersonSearchResult
@@ -45,7 +45,7 @@ public class SolrPersonResults implements PersonSearchResult
    }
 
    @Override
-   public PeopleQueryCommand getCommand()
+   public BioEntryQueryCommand getCommand()
    {
       return cmd;
    }

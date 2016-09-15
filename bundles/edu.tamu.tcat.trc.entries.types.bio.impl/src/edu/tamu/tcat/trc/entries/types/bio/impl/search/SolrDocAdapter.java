@@ -11,14 +11,14 @@ import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
-import edu.tamu.tcat.trc.entries.types.bio.Person;
+import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.SolrIndexField;
 import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 
-public class SolrDocAdapter implements Function<Person, SolrInputDocument>
+public class SolrDocAdapter implements Function<BiographicalEntry, SolrInputDocument>
 {
    private final Function<String, String> sentenceParser;
 
@@ -28,7 +28,7 @@ public class SolrDocAdapter implements Function<Person, SolrInputDocument>
    }
 
    @Override
-   public SolrInputDocument apply(Person person)
+   public SolrInputDocument apply(BiographicalEntry person)
    {
       try
       {
@@ -70,7 +70,7 @@ public class SolrDocAdapter implements Function<Person, SolrInputDocument>
 
 
 
-   private BioSearchProxy toProxy(Person person)
+   private BioSearchProxy toProxy(BiographicalEntry person)
    {
       BioSearchProxy proxy = new BioSearchProxy();
       proxy.id = person.getId();
@@ -151,7 +151,7 @@ public class SolrDocAdapter implements Function<Person, SolrInputDocument>
     * @param person Person whose name to format.
     * @return Formatted name and lifespan.
     */
-   private String getFormattedName(Person person)
+   private String getFormattedName(BiographicalEntry person)
    {
       String displayName = "unnamed";
       PersonName name = getDisplayName(person);
@@ -178,7 +178,7 @@ public class SolrDocAdapter implements Function<Person, SolrInputDocument>
     * @param person
     * @return
     */
-   private PersonName getDisplayName(Person person)
+   private PersonName getDisplayName(BiographicalEntry person)
    {
       // use canonical name by default
       PersonName name = person.getCanonicalName();
@@ -199,7 +199,7 @@ public class SolrDocAdapter implements Function<Person, SolrInputDocument>
     * @param person
     * @return
     */
-   private String getSummaryExcerpt(Person person)
+   private String getSummaryExcerpt(BiographicalEntry person)
    {
       // remove HTML tags for sentence extraction
       String summary = person.getSummary();

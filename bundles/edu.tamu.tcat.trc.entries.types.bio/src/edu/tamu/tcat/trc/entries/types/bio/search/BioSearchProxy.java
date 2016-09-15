@@ -15,7 +15,7 @@
  */
 package edu.tamu.tcat.trc.entries.types.bio.search;
 
-import edu.tamu.tcat.trc.entries.types.bio.Person;
+import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 
 /**
  * JSON serializable summary information about a biographical entry (i.e. a person).
@@ -25,7 +25,7 @@ import edu.tamu.tcat.trc.entries.types.bio.Person;
 public class BioSearchProxy
 {
    /**
-    * ID corresponding to the {@link Person} object that this simple data vehicle represents.
+    * ID corresponding to the {@link BiographicalEntry} object that this simple data vehicle represents.
     */
    public String id;
 
@@ -35,7 +35,7 @@ public class BioSearchProxy
    public PersonNameDTO displayName = new PersonNameDTO();
 
    /**
-    * Formatted name to display e.g. when linking to the underlying {@link Person}.
+    * Formatted name to display e.g. when linking to the underlying {@link BiographicalEntry}.
     *
     * This is essentially a string representation of the display name plus the lifespan of the person.
     */
