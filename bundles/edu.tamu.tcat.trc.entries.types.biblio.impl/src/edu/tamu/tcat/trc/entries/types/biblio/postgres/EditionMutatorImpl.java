@@ -52,8 +52,8 @@ public class EditionMutatorImpl implements EditionMutator
       this.changes = edChanges;
 
       this.idFactoryProvider = idFactoryProvider;
-      this.volumeIds = idFactoryProvider.getIdFactory(WorkRepositoryService.ID_CONTEXT_VOLUMES);
-      this.copyRefIds = idFactoryProvider.getIdFactory(WorkRepositoryService.ID_CONTEXT_COPIES);
+      this.volumeIds = idFactoryProvider.getIdFactory(BiblioRepoService.ID_CONTEXT_VOLUMES);
+      this.copyRefIds = idFactoryProvider.getIdFactory(BiblioRepoService.ID_CONTEXT_COPIES);
    }
 
    private Function<EditionDTO, CopyReferenceDTO> makeCopySelector(String id)

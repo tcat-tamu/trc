@@ -35,8 +35,8 @@ public class EditWorkCommandFactory implements EditCommandFactory<WorkDTO, EditB
    {
       this.idFactoryProvider = idFactoryProvider;
 
-      this.editionIds = idFactoryProvider.getIdFactory(WorkRepositoryService.ID_CONTEXT_EDITIONS);
-      this.copyRefIds = idFactoryProvider.getIdFactory(WorkRepositoryService.ID_CONTEXT_COPIES);
+      this.editionIds = idFactoryProvider.getIdFactory(BiblioRepoService.ID_CONTEXT_EDITIONS);
+      this.copyRefIds = idFactoryProvider.getIdFactory(BiblioRepoService.ID_CONTEXT_COPIES);
    }
 
    @Override

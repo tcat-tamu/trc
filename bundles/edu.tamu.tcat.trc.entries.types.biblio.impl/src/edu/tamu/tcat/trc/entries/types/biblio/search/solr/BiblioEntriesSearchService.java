@@ -32,7 +32,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.search.WorkQueryCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkSearchService;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.IndexService;
-import edu.tamu.tcat.trc.search.solr.impl.BasicIndexService;
+import edu.tamu.tcat.trc.search.solr.impl.BasicIndexSvcBuilder;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
 /**
@@ -89,7 +89,7 @@ public class BiblioEntriesSearchService implements WorkSearchService
       Objects.requireNonNull(config, "No configuration properties provided.");
 
       // construct Solr core
-      BasicIndexService.Builder<BibliographicEntry> indexBuilder = new BasicIndexService.Builder<>(config, SOLR_CORE);
+      BasicIndexSvcBuilder<BibliographicEntry> indexBuilder = new BasicIndexSvcBuilder<>(config, SOLR_CORE);
       indexSvc = indexBuilder.setDataAdapter(IndexAdapter::createWork)
                   .setIdProvider(entry -> entry.getId())
                   .build();

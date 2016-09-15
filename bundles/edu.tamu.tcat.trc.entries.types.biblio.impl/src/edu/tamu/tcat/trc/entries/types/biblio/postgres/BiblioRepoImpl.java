@@ -15,12 +15,12 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.BibliographicEntryRepository;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand;
 
-public class WorkRepoImpl implements BibliographicEntryRepository
+public class BiblioRepoImpl implements BibliographicEntryRepository
 {
    private final Account account;
    private final BasicRepoDelegate<BibliographicEntry, WorkDTO, EditBibliographicEntryCommand> delegate;
 
-   WorkRepoImpl(BasicRepoDelegate<BibliographicEntry, WorkDTO, EditBibliographicEntryCommand> delegate, Account account)
+   BiblioRepoImpl(BasicRepoDelegate<BibliographicEntry, WorkDTO, EditBibliographicEntryCommand> delegate, Account account)
    {
       this.delegate = delegate;
       this.account = account;

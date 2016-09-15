@@ -2,7 +2,6 @@ package edu.tamu.tcat.trc.entries.types.biblio.postgres;
 
 import static java.text.MessageFormat.format;
 
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,9 +22,9 @@ import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.IdFactory;
 
-public class WorkRepositoryService
+public class BiblioRepoService
 {
-   private static final Logger logger = Logger.getLogger(WorkRepositoryService.class.getName());
+   private static final Logger logger = Logger.getLogger(BiblioRepoService.class.getName());
 
    public static final String ID_CONTEXT_WORKS = "works";
    public static final String ID_CONTEXT_EDITIONS = "editions";
@@ -43,6 +42,11 @@ public class WorkRepositoryService
 
    private BasicRepoDelegate<BibliographicEntry, WorkDTO, EditBibliographicEntryCommand> delegate;
 
+   public BiblioRepoService(RepositoryContext ctx)
+   {
+      this.context = ctx;
+   }
+
    public void setRepoContext(RepositoryContext context)
    {
       logger.fine(format("[{0}] setting repository context", getClass().getName()));
@@ -53,7 +57,7 @@ public class WorkRepositoryService
     * Lifecycle management method (usually called by framework service layer)
     * Called when all dependencies have been provided and the service is ready to run.
     */
-   public void activate(Map<String, Object> params)
+   public void activate()
    {
       try
       {
@@ -64,7 +68,7 @@ public class WorkRepositoryService
          initDocRepo();
          initDelegate();
 
-         context.registerRepository(BibliographicEntryRepository.class, account -> new WorkRepoImpl(delegate, account));
+         context.registerRepository(BibliographicEntryRepository.class, account -> new BiblioRepoImpl(delegate, account));
          context.registerResolver(new BibliographicEntryResolver());
 
          logger.fine("Activated " + getClass().getSimpleName());
