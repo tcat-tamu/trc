@@ -22,6 +22,9 @@ public class DbBackedObfuscatingIdFactoryProvider implements IdFactoryProvider
 
    public final static String PROP_GRANT_SIZE = "grant_size";
 
+   // note - These are currently configured through the OSGi registration process because they
+   //        should not change after deployment. Changes to these values will result in conflicts
+   //        within the ID space.
    public final static String PROP_ENABLE_OBFUSCATION = "obfuscate";
    public final static String PROP_ALPHABET = "alphabet";
    public final static String PROP_BLOCK_SIZE = "block_size";
