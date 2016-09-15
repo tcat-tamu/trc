@@ -5,7 +5,7 @@ import edu.tamu.tcat.trc.search.solr.IndexService;
 
 public class SolrSearchMediator
 {
-   public static <T> void index(IndexService<T> indexSvc, EntryUpdateRecord<T> ctx)
+   public static <T> void index(IndexService<T, ?> indexSvc, EntryUpdateRecord<T> ctx)
    {
       switch(ctx.getAction())
       {
