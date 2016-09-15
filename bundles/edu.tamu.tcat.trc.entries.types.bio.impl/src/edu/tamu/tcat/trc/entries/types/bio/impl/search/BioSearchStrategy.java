@@ -40,6 +40,9 @@ public class BioSearchStrategy implements IndexServiceStrategy<Person, PeopleQue
    {
       SentenceDetectorME detector;
       Path sentenceModelPath = config.getPropertyValue(OPENNLP_MODELS_SENTENCE_PATH, Path.class, null);
+      if (sentenceModelPath == null)
+         return null;
+
       try (InputStream modelInput = Files.newInputStream(sentenceModelPath))
       {
          SentenceModel sentenceModel = new SentenceModel(modelInput);
@@ -50,6 +53,7 @@ public class BioSearchStrategy implements IndexServiceStrategy<Person, PeopleQue
          detector = null;
          logger.log(Level.SEVERE, "Unable to open sentence detect model input file", e);
       }
+
       return detector;
    }
 

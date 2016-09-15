@@ -53,9 +53,9 @@ import edu.tamu.tcat.osgi.config.ConfigurationProperties;
  * <p>The core key will be used to lookup configuration properties.
  *
  */
-public class BasicIndexServiceFactory implements IndexServiceFactory
+public class BasicSearchSvcMgr implements SearchServiceManager
 {
-   private final static Logger logger = Logger.getLogger(BasicIndexService.class.getName());
+   private final static Logger logger = Logger.getLogger(BasicSearchService.class.getName());
 
    /** Configuration property key that defines the URI for the Solr server. */
    public static final String SOLR_API_ENDPOINT = "trc.search.solr.url";
@@ -74,30 +74,37 @@ public class BasicIndexServiceFactory implements IndexServiceFactory
    private String password;
 
    @SuppressWarnings("rawtypes")    // type consistency is enforced by controlled creation/access
-   private final ConcurrentHashMap<Class, BasicIndexService> cache =
+   private final ConcurrentHashMap<Class, BasicSearchService> cache =
             new ConcurrentHashMap<>();
-
-   public BasicIndexServiceFactory()
-   {
-
-   }
 
    public void setConfigurationProperties(ConfigurationProperties config)
    {
       this.config = config;
-      this.solrBaseUri = config.getPropertyValue(SOLR_API_ENDPOINT, URI.class);
-      this.solrEnabled = config.getPropertyValue(SOLR_ENABLED, Boolean.class, true);
-      this.username = config.getPropertyValue(SOLR_USERNAME, String.class, null);
-      this.password = config.getPropertyValue(SOLR_PASSWORD, String.class, null);
    }
 
    public void activate()
    {
+      logger.info("Starting " + getClass().getSimpleName());
 
+      this.solrBaseUri = config.getPropertyValue(SOLR_API_ENDPOINT, URI.class);
+      this.solrEnabled = config.getPropertyValue(SOLR_ENABLED, Boolean.class, true);
+      this.username = config.getPropertyValue(SOLR_USERNAME, String.class, null);
+      this.password = config.getPropertyValue(SOLR_PASSWORD, String.class, null);
+
+      if (solrBaseUri == null)
+         solrEnabled = false;
+
+      String msg = "Solr Search Service started with "
+            + "\n\tBase URI: {0}"
+            + "\n\tEnabled:  {1}"
+            + "\n\tUser:     {2}";
+      logger.info(format(msg, solrBaseUri, solrEnabled, username != null ? username : "No Authentication"));
    }
 
    public void close()
    {
+      logger.info("Shutting down " + getClass().getSimpleName());
+
       // shut down all active services
       cache.values().forEach(svc -> {
          if (svc.isEnabled())
@@ -116,30 +123,47 @@ public class BasicIndexServiceFactory implements IndexServiceFactory
    }
 
    @Override
-   @SuppressWarnings("unchecked")  // type safety maintained by controlled insertion
-   public <Entry, QueryCmd> IndexService<Entry> getIndexService(IndexServiceStrategy<Entry, QueryCmd> indexCfg)
+   public synchronized <Entry, QueryCmd> IndexService<Entry> configure(IndexServiceStrategy<Entry, QueryCmd> indexCfg)
    {
-      return cache.computeIfAbsent(indexCfg.getClass(),
-            type -> new BasicIndexService<>(indexCfg));
+      Class<Entry> type = indexCfg.getType();
+      if (cache.containsKey(type))
+         throw new IllegalStateException("A search service configuration has already been created for {0}");
+
+      BasicSearchService<Entry, QueryCmd> svc = new BasicSearchService<>(indexCfg);
+      cache.put(type, svc);
+      return svc;
+   }
+
+   @Override
+   @SuppressWarnings("unchecked")  // type safety maintained by controlled insertion
+   public <Entry> IndexService<Entry> getIndexService(Class<Entry> type)
+   {
+      if (!cache.containsKey(type))
+         throw new IllegalArgumentException("No search service has been configured for {0}");
+
+      return cache.get(type);
    }
 
    @Override
    @SuppressWarnings("unchecked")  // type safety maintained by controlled insertion
    public <Entry, QueryCmd> QueryService<QueryCmd> getQueryService(IndexServiceStrategy<Entry, QueryCmd> indexCfg)
    {
-      return cache.computeIfAbsent(indexCfg.getClass(),
-            type -> new BasicIndexService<>(indexCfg));
+      Class<Entry> type = indexCfg.getType();
+      if (!cache.containsKey(type))
+         throw new IllegalArgumentException("No search service has been configured for {0}");
+
+      return cache.get(type);
    }
 
    // TODO really a mediator
-   public class BasicIndexService<Entry, QueryCmd> implements IndexService<Entry>, QueryService<QueryCmd>
+   public class BasicSearchService<Entry, QueryCmd> implements IndexService<Entry>, QueryService<QueryCmd>
    {
       private final HttpSolrClient solr;
       private final IndexServiceStrategy<Entry, QueryCmd> indexCfg;
 
       private final AtomicBoolean enabled = new AtomicBoolean(true);
 
-      public BasicIndexService(IndexServiceStrategy<Entry, QueryCmd> indexCfg)
+      public BasicSearchService(IndexServiceStrategy<Entry, QueryCmd> indexCfg)
       {
          this.indexCfg = indexCfg;
 
