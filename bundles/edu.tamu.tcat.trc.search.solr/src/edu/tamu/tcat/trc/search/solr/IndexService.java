@@ -1,7 +1,5 @@
 package edu.tamu.tcat.trc.search.solr;
 
-import java.util.concurrent.TimeUnit;
-
 import org.apache.solr.client.solrj.SolrClient;
 
 /**
@@ -17,13 +15,23 @@ import org.apache.solr.client.solrj.SolrClient;
  *
  * @param <T> The Java type of object to be stored in the associated index.
  */
-public interface IndexService<T>
+public interface IndexService<T, QueryCmd>
 {
    /**
     * @return A Solr client configured to access the Solr core this index uses.
     *       Note that the returned client <em>must not</em> be closed by the caller.
     */
    SolrClient getSolrClient();
+
+   /**
+    * Indicates if this index service is enabled. Solr indices may be enabled
+    * or disabled either on a per-core basis or a global basis. Consequently,
+    * an index service may or may not be enabled at runtime. Operations will throw
+    * {@link IllegalStateException}s if the service is not enabled.
+    *
+    * @return <code>true</code> if this service is enabled.
+    */
+   boolean isEnabled();
 
    /**
     * Indicates whether the supplied object has been indexed. Note that this
@@ -57,10 +65,8 @@ public interface IndexService<T>
    void remove(String... ids);
 
    /**
-    * Shuts down this index services and releases any bound resources.
-    *
-    * @param time The amount of time to wait for the service to shutdown
-    * @param unit The time units associated with the amount of time to wait.
+    * @return A domain-specific query command that can be used to construct a query against
+    *       the underlying Solr index.
     */
-   void shutdown(long time, TimeUnit unit);
+   QueryCmd createQuery();
 }
