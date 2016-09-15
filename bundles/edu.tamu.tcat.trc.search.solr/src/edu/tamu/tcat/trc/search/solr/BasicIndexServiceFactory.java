@@ -117,14 +117,22 @@ public class BasicIndexServiceFactory implements IndexServiceFactory
 
    @Override
    @SuppressWarnings("unchecked")  // type safety maintained by controlled insertion
-   public <Entry, QueryCmd> IndexService<Entry, QueryCmd> getIndexService(IndexServiceStrategy<Entry, QueryCmd> indexCfg)
+   public <Entry, QueryCmd> IndexService<Entry> getIndexService(IndexServiceStrategy<Entry, QueryCmd> indexCfg)
+   {
+      return cache.computeIfAbsent(indexCfg.getClass(),
+            type -> new BasicIndexService<>(indexCfg));
+   }
+
+   @Override
+   @SuppressWarnings("unchecked")  // type safety maintained by controlled insertion
+   public <Entry, QueryCmd> QueryService<QueryCmd> getQueryService(IndexServiceStrategy<Entry, QueryCmd> indexCfg)
    {
       return cache.computeIfAbsent(indexCfg.getClass(),
             type -> new BasicIndexService<>(indexCfg));
    }
 
    // TODO really a mediator
-   public class BasicIndexService<Entry, QueryCmd> implements IndexService<Entry, QueryCmd>
+   public class BasicIndexService<Entry, QueryCmd> implements IndexService<Entry>, QueryService<QueryCmd>
    {
       private final HttpSolrClient solr;
       private final IndexServiceStrategy<Entry, QueryCmd> indexCfg;

@@ -6,8 +6,11 @@ package edu.tamu.tcat.trc.search.solr;
  */
 public interface IndexServiceFactory
 {
-
    boolean isEnabled();
 
-   <Entry, QueryCmd> IndexService<Entry, QueryCmd> getIndexService(IndexServiceStrategy<Entry, QueryCmd> indexCfg);
+   // TODO separate registration from retrieval
+
+   <Entry, QueryCmd> IndexService<Entry> getIndexService(IndexServiceStrategy<Entry, QueryCmd> indexCfg);
+
+   <Entry, QueryCmd> QueryService<QueryCmd> getQueryService(IndexServiceStrategy<Entry, QueryCmd> indexCfg);
 }

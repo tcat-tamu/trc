@@ -17,7 +17,6 @@ import edu.tamu.tcat.trc.entries.types.bio.impl.repo.EditPersonCommandFactory;
 import edu.tamu.tcat.trc.entries.types.bio.impl.search.BioSearchStrategy;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
-import edu.tamu.tcat.trc.entries.types.bio.search.PeopleQueryCommand;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.IdFactory;
@@ -44,7 +43,7 @@ public class BiographicalEntryService
    private BasicRepoDelegate<Person, DataModelV1.Person, EditPersonCommand> delegate;
 
    private BasicIndexServiceFactory indexSvcFactory;
-   private IndexService<Person, PeopleQueryCommand> indexSvc;
+   private IndexService<Person> indexSvc;
 
    public void setRepoContext(RepositoryContext ctx)
    {
@@ -70,6 +69,8 @@ public class BiographicalEntryService
 
          ctx.registerResolver(new BioEntryResolver(config, delegate));
          ctx.registerRepository(PeopleRepository.class, account -> new BioEntryRepoImpl(delegate, account));
+
+         // TODO need a way to get hold of the search service!
 
          logger.fine("Activated relationship repository service.");
 

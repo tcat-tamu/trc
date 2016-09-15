@@ -15,7 +15,7 @@ import org.apache.solr.client.solrj.SolrClient;
  *
  * @param <T> The Java type of object to be stored in the associated index.
  */
-public interface IndexService<T, QueryCmd>
+public interface IndexService<T>
 {
    /**
     * @return A Solr client configured to access the Solr core this index uses.
@@ -63,10 +63,4 @@ public interface IndexService<T, QueryCmd>
     * @param ids The ids of the object or objects to be removed from the index.
     */
    void remove(String... ids);
-
-   /**
-    * @return A domain-specific query command that can be used to construct a query against
-    *       the underlying Solr index.
-    */
-   QueryCmd createQuery();
 }
