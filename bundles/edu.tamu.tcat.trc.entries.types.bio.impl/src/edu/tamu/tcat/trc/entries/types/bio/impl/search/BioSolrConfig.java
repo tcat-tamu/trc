@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.bio.search.solr;
+package edu.tamu.tcat.trc.entries.types.bio.impl.search;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -22,6 +22,7 @@ import java.util.Collection;
 import org.apache.solr.client.solrj.SolrQuery;
 
 import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
+import edu.tamu.tcat.trc.entries.types.bio.search.solr.BioDocument;
 import edu.tamu.tcat.trc.search.solr.SolrIndexConfig;
 import edu.tamu.tcat.trc.search.solr.SolrIndexField;
 import edu.tamu.tcat.trc.search.solr.impl.BasicFields;

@@ -20,6 +20,7 @@ import java.util.function.Function;
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.trc.entries.types.bio.Person;
+import edu.tamu.tcat.trc.entries.types.bio.impl.search.SolrDocAdapter;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
 import edu.tamu.tcat.trc.search.SearchException;
 
@@ -29,6 +30,7 @@ import edu.tamu.tcat.trc.search.SearchException;
  *
  * @see {@link BioSearchProxy} which is the DTO stored in one of the fields of this proxy.
  */
+@Deprecated
 public class BioDocument
 {
    // TODO refactor this to extract properties and from a Person and store them in a format that

@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.bio.search.solr;
+package edu.tamu.tcat.trc.entries.types.bio.impl.search;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;

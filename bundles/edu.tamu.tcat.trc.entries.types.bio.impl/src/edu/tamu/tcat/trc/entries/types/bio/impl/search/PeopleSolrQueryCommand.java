@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.bio.search.solr;
+package edu.tamu.tcat.trc.entries.types.bio.impl.search;
 
 import java.util.List;
 
