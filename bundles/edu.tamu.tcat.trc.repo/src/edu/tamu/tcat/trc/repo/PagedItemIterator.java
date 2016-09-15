@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.bio.postgres;
+package edu.tamu.tcat.trc.repo;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -13,6 +13,9 @@ import java.util.function.Function;
  */
 public class PagedItemIterator<T> implements Iterator<T>
 {
+   // TODO this is a speculative implementation designed to support paged general access to paged
+   //     results. It is currently unused.
+
    public static interface JsonPageResolver
    {
       Future<List<String>> resolve(int offset, int size);
@@ -68,6 +71,7 @@ public class PagedItemIterator<T> implements Iterator<T>
 
       try
       {
+         // TODO add time delay
          currentPage = nextBlock.get();
       }
       catch (Exception ex)
