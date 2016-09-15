@@ -5,7 +5,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 
 /**
  * Defines a repository used to manage access to a specific class of entries within a
