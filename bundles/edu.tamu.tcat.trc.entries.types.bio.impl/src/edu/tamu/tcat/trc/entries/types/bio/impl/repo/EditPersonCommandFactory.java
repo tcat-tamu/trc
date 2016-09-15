@@ -1,11 +1,14 @@
-package edu.tamu.tcat.trc.entries.types.bio.postgres;
+package edu.tamu.tcat.trc.entries.types.bio.impl.repo;
 
 import static java.text.MessageFormat.format;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import edu.tamu.tcat.trc.entries.types.bio.repo.DateDescriptionMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.HistoricalEventMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNameMutator;
@@ -146,4 +149,114 @@ public class EditPersonCommandFactory implements EditCommandFactory<DataModelV1.
       }
    }
 
+   public static class PersonNameMutatorImpl implements PersonNameMutator
+   {
+      private final ChangeSet<DataModelV1.PersonName> changes;
+
+      public PersonNameMutatorImpl(ChangeSet<DataModelV1.PersonName> partial)
+      {
+         this.changes = partial;
+      }
+
+      @Override
+      public void setTitle(String title)
+      {
+         changes.add("Set title", name -> name.title = title);
+      }
+
+      @Override
+      public void setGivenName(String first)
+      {
+         changes.add("Set given", name -> name.givenName = first);
+      }
+
+      @Override
+      public void setMiddleName(String middle)
+      {
+         changes.add("Set middle", name -> name.middleName = middle);
+      }
+
+      @Override
+      public void setFamilyName(String family)
+      {
+         changes.add("Set family", name -> name.familyName = family);
+      }
+
+      @Override
+      public void setSuffix(String suffix)
+      {
+         changes.add("Set suffix", name -> name.suffix = suffix);
+      }
+
+      @Override
+      public void setDisplayName(String displayName)
+      {
+         changes.add("Set Display Name", name -> name.displayName = displayName);
+      }
+   }
+
+   public static class HistoricalEventMutatorImpl implements HistoricalEventMutator
+   {
+      private ChangeSet<DataModelV1.HistoricalEvent> changes;
+
+      public HistoricalEventMutatorImpl(ChangeSet<DataModelV1.HistoricalEvent> changes)
+      {
+         this.changes = changes;
+      }
+
+      @Override
+      public void setTitle(String title)
+      {
+         changes.add("Set title", event -> event.title = title);
+      }
+
+      @Override
+      public void setDescription(String description)
+      {
+         changes.add("description", event -> event.description = description);
+      }
+
+      @Override
+      public void setLocation(String location)
+      {
+         changes.add("location", event -> event.location = location);
+      }
+
+
+      @Override
+      public DateDescriptionMutator editDate()
+      {
+         ChangeSet<DataModelV1.DateDescription> partial = changes.partial("date", (event) -> {
+            if (event.date == null)
+               event.date = new DataModelV1.DateDescription();
+            return event.date;
+         });
+
+         return new DateDescriptionMutatorImpl(partial);
+      }
+
+      private class DateDescriptionMutatorImpl implements DateDescriptionMutator
+      {
+
+         private ChangeSet<DataModelV1.DateDescription> dateChangeSet;
+
+         public DateDescriptionMutatorImpl(ChangeSet<DataModelV1.DateDescription> dateChangeSet)
+         {
+            this.dateChangeSet = dateChangeSet;
+         }
+
+         @Override
+         public void setDescription(String description)
+         {
+            dateChangeSet.add("description", date -> date.description = description);
+         }
+
+         @Override
+         public void setCalendar(LocalDate calendar)
+         {
+            dateChangeSet.add("calendar",
+                  date -> date.calendar = DateTimeFormatter.ISO_LOCAL_DATE.format(calendar));
+         }
+      }
+   }
 }

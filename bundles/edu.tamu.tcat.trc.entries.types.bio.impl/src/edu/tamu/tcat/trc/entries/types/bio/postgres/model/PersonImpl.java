@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
-import edu.tamu.tcat.trc.entries.types.bio.postgres.DataModelV1;
+import edu.tamu.tcat.trc.entries.types.bio.impl.repo.DataModelV1;
 
 public class PersonImpl implements Person
 {

@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
-import edu.tamu.tcat.trc.entries.types.bio.postgres.DataModelV1;
+import edu.tamu.tcat.trc.entries.types.bio.impl.repo.DataModelV1;
 
 public class HistoricalEventImpl implements HistoricalEvent
 {

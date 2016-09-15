@@ -3,7 +3,7 @@ package edu.tamu.tcat.trc.entries.types.bio.postgres.model;
 import java.util.Objects;
 
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
-import edu.tamu.tcat.trc.entries.types.bio.postgres.DataModelV1;
+import edu.tamu.tcat.trc.entries.types.bio.impl.repo.DataModelV1;
 
 public class PersonNameImpl implements PersonName
 {

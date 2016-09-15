@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.bio.postgres;
+package edu.tamu.tcat.trc.entries.types.bio.impl.repo;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

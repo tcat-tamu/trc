@@ -9,12 +9,11 @@ import edu.tamu.tcat.trc.entries.core.repo.EntryUpdateRecord;
 import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
 import edu.tamu.tcat.trc.entries.core.search.SolrSearchMediator;
 import edu.tamu.tcat.trc.entries.types.bio.Person;
+import edu.tamu.tcat.trc.entries.types.bio.impl.repo.BioEntryRepoImpl;
+import edu.tamu.tcat.trc.entries.types.bio.impl.repo.BioEntryResolver;
+import edu.tamu.tcat.trc.entries.types.bio.impl.repo.DataModelV1;
+import edu.tamu.tcat.trc.entries.types.bio.impl.repo.EditPersonCommandFactory;
 import edu.tamu.tcat.trc.entries.types.bio.impl.search.BioSearchStrategy;
-import edu.tamu.tcat.trc.entries.types.bio.postgres.BioEntryRepoImpl;
-import edu.tamu.tcat.trc.entries.types.bio.postgres.BioEntryRepoService;
-import edu.tamu.tcat.trc.entries.types.bio.postgres.BioEntryResolver;
-import edu.tamu.tcat.trc.entries.types.bio.postgres.DataModelV1;
-import edu.tamu.tcat.trc.entries.types.bio.postgres.EditPersonCommandFactory;
 import edu.tamu.tcat.trc.entries.types.bio.postgres.model.PersonImpl;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
@@ -30,7 +29,7 @@ public class BiographicalEntryService
    // This centralizes the stitching to spin up all components of the biographical service,
    // include the repo and the indexing support
 
-   private static final Logger logger = Logger.getLogger(BioEntryRepoService.class.getName());
+   private static final Logger logger = Logger.getLogger(BiographicalEntryService.class.getName());
 
    public static final String ID_CONTEXT = "people";
    private static final String TABLE_NAME = "people";
@@ -94,7 +93,7 @@ public class BiographicalEntryService
       builder.setTableName(TABLE_NAME);
       builder.setDataColumn(SCHEMA_DATA_FIELD);
       builder.setEditCommandFactory(new EditPersonCommandFactory());
-      builder.setDataAdapter(BioEntryRepoService::adapt);
+      builder.setDataAdapter(PersonImpl::new);
       builder.setStorageType(DataModelV1.Person.class);
       builder.setEnableCreation(true);
 
@@ -109,7 +108,7 @@ public class BiographicalEntryService
       delegateBuilder.setEntryName("relationship");
       delegateBuilder.setIdFactory(bioIds);
       delegateBuilder.setEntryResolvers(ctx.getResolverRegistry());
-      delegateBuilder.setAdapter(BioEntryRepoService::adapt);
+      delegateBuilder.setAdapter(PersonImpl::new);
       delegateBuilder.setDocumentRepo(docRepo);
 
       delegate = delegateBuilder.build();
@@ -122,11 +121,11 @@ public class BiographicalEntryService
          logger.log(Level.WARNING, "No index support has been configured for " + getClass().getSimpleName());
          return;
       }
-   
+
       BioSearchStrategy indexCfg = new BioSearchStrategy(config);
       this.indexSvc = indexSvcFactory.getIndexService(indexCfg);
-   
-   
+
+
       BioEntryRepoImpl repo = new BioEntryRepoImpl(delegate, null);     // USE SEARCH ACCT
       repo.onUpdate(this::index);
    }
