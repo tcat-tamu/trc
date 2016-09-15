@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,7 +22,6 @@ import java.util.Collection;
 import org.apache.solr.client.solrj.SolrQuery;
 
 import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
-import edu.tamu.tcat.trc.entries.types.bio.search.solr.BioDocument;
 import edu.tamu.tcat.trc.search.solr.SolrIndexConfig;
 import edu.tamu.tcat.trc.search.solr.SolrIndexField;
 import edu.tamu.tcat.trc.search.solr.impl.BasicFields;
@@ -30,7 +29,7 @@ import edu.tamu.tcat.trc.search.solr.impl.BasicFields;
 public class BioSolrConfig implements SolrIndexConfig
 {
    public static final SolrIndexField<String> ID = new BasicFields.BasicString("id");
-   public static final BasicFields.SearchProxyField<BioSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<BioSearchProxy>("personInfo", BioSearchProxy.class);
+   public static final BasicFields.SearchProxyField<BioSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<>("personInfo", BioSearchProxy.class);
    public static final SolrIndexField<String> SYNTHETIC_NAME = new BasicFields.BasicString("syntheticName");
    public static final SolrIndexField<String> FAMILY_NAME = new BasicFields.BasicString("familyName");
    public static final SolrIndexField<String> DISPLAY_NAME = new BasicFields.BasicString("displayName");
@@ -73,12 +72,6 @@ public class BioSolrConfig implements SolrIndexConfig
    public Class<BioSearchProxy> getSearchProxyType()
    {
       return BioSearchProxy.class;
-   }
-
-   @Override
-   public Class<BioDocument> getIndexDocumentType()
-   {
-      return BioDocument.class;
    }
 
    @Override
