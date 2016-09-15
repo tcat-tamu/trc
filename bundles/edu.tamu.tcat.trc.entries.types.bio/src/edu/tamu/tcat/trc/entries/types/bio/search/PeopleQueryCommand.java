@@ -40,9 +40,12 @@ public interface PeopleQueryCommand
 
    void query(String q) throws SearchException;
 
+   void queryAll() throws SearchException;
+
    void queryFamilyName(String familyName) throws SearchException;
 
    void setOffset(int start);
 
    void setMaxResults(int max);
+
 }

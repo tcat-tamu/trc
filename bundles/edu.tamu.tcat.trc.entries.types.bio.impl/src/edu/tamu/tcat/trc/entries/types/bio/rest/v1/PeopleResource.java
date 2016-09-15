@@ -48,9 +48,9 @@ import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.ApiUtils;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RepoAdapter;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.SearchAdapter;
 import edu.tamu.tcat.trc.entries.types.bio.search.PeopleQueryCommand;
-import edu.tamu.tcat.trc.entries.types.bio.search.PeopleSearchService;
 import edu.tamu.tcat.trc.entries.types.bio.search.PersonSearchResult;
 import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.search.solr.QueryService;
 
 public class PeopleResource
 {
@@ -58,12 +58,12 @@ public class PeopleResource
    static final Logger errorLogger = Logger.getLogger(PeopleResource.class.getName());
 
    private PeopleRepository repo;
-   private PeopleSearchService peopleSearchService;
+   private QueryService<PeopleQueryCommand> queryService;
 
-   public PeopleResource(PeopleRepository repo, PeopleSearchService search)
+   public PeopleResource(PeopleRepository repo, QueryService<PeopleQueryCommand> queryService)
    {
       this.repo = repo;
-      peopleSearchService = search;
+      this.queryService = queryService;
    }
 
    @GET
@@ -73,11 +73,22 @@ public class PeopleResource
                 @QueryParam(value = "off") @DefaultValue("0")   int offset,
                 @QueryParam(value = "max") @DefaultValue("100") int numResults)
    {
+      if (queryService == null)
+      {
+         Response response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                 .entity("Searching is not currently configured")
+                 .type(MediaType.TEXT_XML)
+                 .build();
+         throw new WebApplicationException(response);
+      }
+
       try
       {
-         PeopleQueryCommand cmd = peopleSearchService.createQueryCommand();
+         PeopleQueryCommand cmd = queryService.createQuery();
          if (q != null)
             cmd.query(q);
+         else
+            cmd.queryAll();
          cmd.setOffset(offset);
          cmd.setMaxResults(numResults);
          PersonSearchResult results = cmd.execute();

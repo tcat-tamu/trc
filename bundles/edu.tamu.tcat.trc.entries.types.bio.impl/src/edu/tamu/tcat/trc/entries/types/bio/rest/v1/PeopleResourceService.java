@@ -15,34 +15,67 @@
  */
 package edu.tamu.tcat.trc.entries.types.bio.rest.v1;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.ws.rs.Path;
 
+import edu.tamu.tcat.account.Account;
+import edu.tamu.tcat.osgi.config.ConfigurationProperties;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
+import edu.tamu.tcat.trc.entries.types.bio.impl.search.BioSearchStrategy;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository;
-import edu.tamu.tcat.trc.entries.types.bio.search.PeopleSearchService;
+import edu.tamu.tcat.trc.entries.types.bio.search.PeopleQueryCommand;
+import edu.tamu.tcat.trc.search.solr.QueryService;
+import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
 
 @Path("/")
 public class PeopleResourceService
 {
-   private PeopleRepository repo;
-   private PeopleSearchService peopleSearchService;
 
-   private PeopleResource resource;
+   private final static Logger logger = Logger.getLogger(PeopleResourceService.class.getName());
+   // TODO make this core application logic
 
-   // called by DS
-   public void setRepository(PeopleRepository repo)
+   private EntryRepositoryRegistry registry;
+   private SearchServiceManager searchMgr;
+   private ConfigurationProperties config;
+   private QueryService<PeopleQueryCommand> queryService;
+
+   public void setConfig(ConfigurationProperties config)
    {
-      this.repo = repo;
+      this.config = config;
    }
 
-   public void setPeopleService(PeopleSearchService service)
+   public void setRepoRegistry(EntryRepositoryRegistry registry)
    {
-      this.peopleSearchService = service;
+      this.registry = registry;
+   }
+
+   public void setSearchSvcMgr(SearchServiceManager searchMgr)
+   {
+      this.searchMgr = searchMgr;
    }
 
    // called by DS
    public void activate()
    {
-      resource = new PeopleResource(repo, peopleSearchService);
+      logger.info("Activating " + getClass().getSimpleName());
+      if (searchMgr == null)
+      {
+         logger.warning("No search service has provided to " + getClass().getSimpleName());
+         return;
+      }
+
+      try
+      {
+         BioSearchStrategy indexCfg = new BioSearchStrategy(config);
+         queryService = searchMgr.getQueryService(indexCfg);
+      }
+      catch (Exception ex)
+      {
+         logger.log(Level.SEVERE, "Failed to load query service for bibographical entries REST servivce", ex);
+         throw ex;
+      }
    }
 
    // called by DS
@@ -54,7 +87,9 @@ public class PeopleResourceService
    @Path("/people")
    public PeopleResource delgate()
    {
-      // TODO add version selection on this?
-      return resource;
+      Account account = null;    // TODO get this from the request if this is possible here.
+
+      PeopleRepository repo = registry.getRepository(account, PeopleRepository.class);
+      return new PeopleResource(repo, queryService);
    }
 }

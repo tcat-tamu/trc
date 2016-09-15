@@ -15,7 +15,7 @@ Service-Component: OSGI-INF/db/datasource.xml,
  OSGI-INF/RepositoryContext.xml,
  OSGI-INF/SearchServiceManager.xml,
  OSGI-INF/BiographiesService.xml,
- OSGI-INF/people.rest.xml
+ OSGI-INF/BiographicalRestApi.xml
 Import-Package: com.fasterxml.jackson.annotation;version="2.3.1",
  com.fasterxml.jackson.core;version="2.3.1",
  com.fasterxml.jackson.databind;version="2.3.1",

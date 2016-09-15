@@ -63,6 +63,7 @@ public class PeopleSolrQueryCommand implements PeopleQueryCommand
       qb.basic(q);
    }
 
+   @Override
    public void queryAll() throws SearchException
    {
       qb.basic("*:*");

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="dispose" immediate="false" name="edu.tamu.tcat.trc.entries.types.trc.bio.restapi">
-   <implementation class="edu.tamu.tcat.trc.entries.types.bio.rest.v1.PeopleResourceService"/>
-   <service>
-      <provide interface="edu.tamu.tcat.trc.entries.types.bio.rest.v1.PeopleResourceService"/>
-   </service>
-   <reference bind="setRepository" cardinality="1..1" interface="edu.tamu.tcat.trc.entries.types.bio.repo.PeopleRepository" name="PeopleRepository" policy="static"/>
-   <reference bind="setPeopleService" cardinality="1..1" interface="edu.tamu.tcat.trc.entries.types.bio.search.PeopleSearchService" name="PeopleSearchService" policy="static"/>
-</scr:component>
