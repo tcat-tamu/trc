@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.bio.postgres.model;
+package edu.tamu.tcat.trc.entries.types.bio.impl.model;
 
 import static java.text.MessageFormat.format;
 

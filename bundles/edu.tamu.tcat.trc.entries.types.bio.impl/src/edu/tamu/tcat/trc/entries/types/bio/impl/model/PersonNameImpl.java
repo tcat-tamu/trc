@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.bio.postgres.model;
+package edu.tamu.tcat.trc.entries.types.bio.impl.model;
 
 import java.util.Objects;
 
