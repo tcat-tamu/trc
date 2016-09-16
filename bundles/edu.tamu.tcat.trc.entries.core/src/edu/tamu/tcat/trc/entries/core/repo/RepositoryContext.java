@@ -50,10 +50,6 @@ public interface RepositoryContext
     * @return A document repository with the supplied configuration.
     */
    <T, DTO, CMD> DocRepoBuilder<T, DTO, CMD> getDocRepoBuilder();
-//   buildDocumentRepo(String tablename,
-//                                                                   EditCommandFactory<DTO, CMD> factory,
-//                                                                   Function<DTO, T> adapter,
-//                                                                   Class<DTO> type);
 
    /**
     * Registers an entry repository. Duplicate registrations for the same type will result
@@ -67,14 +63,7 @@ public interface RepositoryContext
     *       considered to be performed by that account. Note that returned instances may be
     *       cached for performance purposes.
     */
-   <Repo> void registerRepository(Class<Repo> type, Function<Account, Repo> factory);
-
-   /**
-    * Remove a previously registered repository.
-    *
-    * @param type The Java interface associated with the repository to remove.
-    */
-   <Repo> void unregister(Class<Repo> type); // TODO seems like a bad idea - should supply registration handle?
+   <Repo> RepositoryContext.Registration registerRepository(Class<Repo> type, Function<Account, Repo> factory);
 
    /**
     * Register a new {@link EntryResolver} with the associated {@link EntryResolverRegistry}.
@@ -89,5 +78,16 @@ public interface RepositoryContext
     */
    <EntryType> EntryResolverRegistry.Registration registerResolver(EntryResolver<EntryType> resolver);
 
+
+   /**
+    * A handle that references a particular repository registration.
+    */
+   public interface Registration
+   {
+      /**
+       * Removes the associated {@link EntryRepository} from this registry.
+       */
+      void unregister();
+   }
 
 }

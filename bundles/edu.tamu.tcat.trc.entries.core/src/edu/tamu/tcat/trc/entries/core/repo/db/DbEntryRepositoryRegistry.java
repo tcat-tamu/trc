@@ -161,17 +161,15 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, Repos
    }
 
    @Override
-   public <Repo> void registerRepository(Class<Repo> type, Function<Account, Repo> factory)
+   public <Repo> RepositoryContext.Registration registerRepository(Class<Repo> type, Function<Account, Repo> factory)
    {
       if (repositories.containsKey(type))
             throw new IllegalArgumentException("A repository has already been registered for " + type);
 
       repositories.put(type, factory);
-   }
 
-   @Override
-   public <Repo> void unregister(Class<Repo> type)
-   {
-      repositories.remove(type);
+      return () -> {
+         repositories.remove(type);
+      };
    }
 }
