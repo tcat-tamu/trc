@@ -34,6 +34,11 @@ public interface RepositoryContext
     */
    IdFactory getIdFactory(String context);
 
+   /**
+    * @return The {@link EntryResolverRegistry} that is associated with this
+    *       repository context. Note that this will be the resolver registry that is
+    *       used by the {@link EntryRepositoryRegistry} this context is associated with.
+    */
    EntryResolverRegistry getResolverRegistry();
 
    /**
@@ -62,6 +67,7 @@ public interface RepositoryContext
     *       the supplied user account such that all actions on the returned repository are
     *       considered to be performed by that account. Note that returned instances may be
     *       cached for performance purposes.
+    * @return A registration handle to be used to unregister the associated repository.
     */
    <Repo> RepositoryContext.Registration registerRepository(Class<Repo> type, Function<Account, Repo> factory);
 
@@ -74,7 +80,7 @@ public interface RepositoryContext
     * needs to mediate resolver registration.
     *
     * @param resolver The resolver to be registered.
-    * @return A registration handle.
+    * @return A registration handle to be used to unregister the associated resolver.
     */
    <EntryType> EntryResolverRegistry.Registration registerResolver(EntryResolver<EntryType> resolver);
 
