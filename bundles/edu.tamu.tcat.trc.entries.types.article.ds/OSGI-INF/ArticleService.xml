@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" name="edu.tamu.tcat.trc.entries.types.article">
+   <implementation class="edu.tamu.tcat.trc.entries.types.article.impl.ArticleEntryService"/>
+   <service>
+      <provide interface="edu.tamu.tcat.trc.entries.types.article.impl.ArticleEntryService"/>
+   </service>
+   <reference bind="setRepoContext" cardinality="1..1" interface="edu.tamu.tcat.trc.entries.core.repo.RepositoryContext" name="RepositoryContext" policy="static"/>
+   <reference bind="setSearchSvcMgr" cardinality="0..1" interface="edu.tamu.tcat.trc.search.solr.SearchServiceManager" name="SearchServiceManager" policy="static"/>
+</scr:component>

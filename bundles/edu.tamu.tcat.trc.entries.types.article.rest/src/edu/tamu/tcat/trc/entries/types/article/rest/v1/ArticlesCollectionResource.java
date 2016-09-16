@@ -33,8 +33,8 @@ import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
-import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchService;
 import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.search.solr.QueryService;
 
 /**
  *  REST API sub-resource that represents a collection of articles and the actions that
@@ -46,17 +46,14 @@ public class ArticlesCollectionResource
 
    private final ObjectMapper mapper;
    private final EntryRepositoryRegistry repoSvc;
-   private final ArticleSearchService searchSvc;
+   private final QueryService<ArticleQueryCommand> queryService;
 
    private final URI endpoint;
 
-
-
-   public ArticlesCollectionResource(EntryRepositoryRegistry repoSvc, ArticleSearchService searchSvc, URI endpoint)
+   public ArticlesCollectionResource(EntryRepositoryRegistry repoSvc, QueryService<ArticleQueryCommand> queryService, URI endpoint)
    {
       this.repoSvc = repoSvc;
-      this.searchSvc = searchSvc;
-      // HACK FIXME should not hard code endpoint API. Must be configured
+      this.queryService = queryService;
       this.endpoint = endpoint != null ? endpoint : URI.create("http://localhost/articles/");
 
       this.mapper = new ObjectMapper();
@@ -71,12 +68,12 @@ public class ArticlesCollectionResource
           @QueryParam(value = "offset") @DefaultValue("0") int offset,
           @QueryParam(value = "max") @DefaultValue("100") int numResults)
    {
-      if (searchSvc == null)
+      if (queryService == null)
          throw new InternalServerErrorException("Searching for articles is not currently supported.");
 
       try
       {
-         ArticleQueryCommand articleQryCmd = searchSvc.createQuery();
+         ArticleQueryCommand articleQryCmd = queryService.createQuery();
 
          if (q != null && !q.trim().isEmpty())
             articleQryCmd.setQuery(q);

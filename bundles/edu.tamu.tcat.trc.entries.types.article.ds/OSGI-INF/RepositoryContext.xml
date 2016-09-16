@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="dispose" name="edu.tamu.tcat.trc.entries.repo.registry">
+   <implementation class="edu.tamu.tcat.trc.entries.core.repo.db.DbEntryRepositoryRegistry"/>
+
+   <service>
+      <provide interface="edu.tamu.tcat.trc.entries.core.repo.RepositoryContext"/>
+      <provide interface="edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry"/>
+      <provide interface="edu.tamu.tcat.trc.entries.core.repo.db.DbEntryRepositoryRegistry"/>
+   </service>
+   
+   <reference bind="setConfiguration" cardinality="1..1" interface="edu.tamu.tcat.osgi.config.ConfigurationProperties" name="ConfigurationProperties" policy="static"/>
+   <reference bind="setIdFactory" cardinality="1..1" interface="edu.tamu.tcat.trc.repo.IdFactoryProvider" name="IdFactoryProvider" policy="static"/>
+   <reference bind="setSqlExecutor" cardinality="1..1" interface="edu.tamu.tcat.db.exec.sql.SqlExecutor" name="SqlExecutor" policy="static"/>
+</scr:component>

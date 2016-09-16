@@ -8,9 +8,12 @@ import java.util.logging.Logger;
 import javax.ws.rs.Path;
 
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
+import edu.tamu.tcat.trc.entries.types.article.impl.search.ArticleSearchStrategy;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.rest.v1.ArticlesCollectionResource;
-import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchService;
+import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
+import edu.tamu.tcat.trc.search.solr.QueryService;
+import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
 
 /**
  * The primary REST end point for articles. This is intended to be
@@ -18,26 +21,25 @@ import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchService;
  * elements of the REST API as sub-resources.
  */
 @Path("/")
-public class RestApiService
+public class ArticleRestApiService
 {
-   private final static Logger logger = Logger.getLogger(RestApiService.class.getName());
+   private final static Logger logger = Logger.getLogger(ArticleRestApiService.class.getName());
 
    private URI endpoint;
    private EntryRepositoryRegistry repoSvc;
-   private ArticleSearchService searchSvc;
+   private SearchServiceManager searchMgr;
 
+   private QueryService<ArticleQueryCommand> queryService;
 
-   public void bindSearchService(ArticleSearchService searchSvc)
+   public void setRepoRegistry(EntryRepositoryRegistry repoSvc)
    {
-      this.searchSvc = searchSvc;
-   }
-
-   public void bindRepoRegistry(EntryRepositoryRegistry repoSvc)
-   {
-      URI endpoint = repoSvc.getApiEndpoint();
-
       this.repoSvc = repoSvc;
       this.endpoint = repoSvc.getApiEndpoint();
+   }
+
+   public void setSearchSvcMgr(SearchServiceManager searchMgr)
+   {
+      this.searchMgr = searchMgr;
    }
 
    public void activate()
@@ -49,6 +51,17 @@ public class RestApiService
          {
             logger.warning("No API endpoint for TRC is configured. Links returned via the REST API will not function correctly.");
             endpoint = URI.create("http://localhost/");
+         }
+
+         try
+         {
+            ArticleSearchStrategy indexCfg = new ArticleSearchStrategy();
+            queryService = searchMgr.getQueryService(indexCfg);
+         }
+         catch (Exception ex)
+         {
+            logger.log(Level.SEVERE, "Failed to load query service for bibographical entries REST servivce", ex);
+            throw ex;
          }
       }
       catch (Exception ex)
@@ -66,6 +79,7 @@ public class RestApiService
    @Path(ArticleRepository.ENTRY_URI_BASE)
    public ArticlesCollectionResource getArticles()
    {
-      return new ArticlesCollectionResource(repoSvc, searchSvc, endpoint.resolve(ArticleRepository.ENTRY_URI_BASE));
+      URI resolve = endpoint.resolve(ArticleRepository.ENTRY_URI_BASE);
+      return new ArticlesCollectionResource(repoSvc, queryService, resolve);
    }
 }
