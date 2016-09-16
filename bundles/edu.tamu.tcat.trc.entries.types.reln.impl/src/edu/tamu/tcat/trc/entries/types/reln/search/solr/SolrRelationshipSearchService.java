@@ -33,6 +33,7 @@ import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchIndexManage
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchService;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.BasicIndexService;
+import edu.tamu.tcat.trc.search.solr.impl.BasicIndexSvcBuilder;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
 public class SolrRelationshipSearchService implements RelationshipSearchIndexManager, RelationshipSearchService
@@ -78,7 +79,7 @@ public class SolrRelationshipSearchService implements RelationshipSearchIndexMan
       Objects.requireNonNull(config, "No configuration properties provided.");
 
       // construct Solr core
-      BasicIndexService.Builder<Relationship> indexBuilder = new BasicIndexService.Builder<>(config, SOLR_CORE);
+      BasicIndexSvcBuilder<Relationship> indexBuilder = new BasicIndexSvcBuilder<>(config, SOLR_CORE);
       indexSvc = indexBuilder.setDataAdapter(RelnDocument::create)
                   .setIdProvider(entry -> entry.getId())
                   .build();
