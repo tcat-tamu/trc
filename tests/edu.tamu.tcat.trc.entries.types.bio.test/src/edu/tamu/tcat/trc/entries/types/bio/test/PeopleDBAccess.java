@@ -18,7 +18,7 @@ import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
 import edu.tamu.tcat.trc.entries.repo.CatalogRepoException;
-import edu.tamu.tcat.trc.entries.types.bio.Person;
+import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 import edu.tamu.tcat.trc.entries.types.bio.dto.DateDescriptionDTO;
 import edu.tamu.tcat.trc.entries.types.bio.dto.HistoricalEventDTO;
@@ -122,7 +122,7 @@ public class PeopleDBAccess
 
       String id = future.get();
 
-      Person person = repo.get(id);
+      BiographicalEntry person = repo.get(id);
       PersonName name = person.getCanonicalName();
 
       assertEquals("ids do not match", person.getId(), dto.id);
@@ -155,10 +155,10 @@ public class PeopleDBAccess
    @Test
    public void testGetAll() throws RepositoryException, CatalogRepoException
    {
-      Iterator<Person> peopleIterator = repo.listAll();
+      Iterator<BiographicalEntry> peopleIterator = repo.listAll();
       while (peopleIterator.hasNext())
       {
-         Person person = peopleIterator.next();
+         BiographicalEntry person = peopleIterator.next();
       }
    }
    private void checkDate(HistoricalEvent death, HistoricalEventDTO dto)

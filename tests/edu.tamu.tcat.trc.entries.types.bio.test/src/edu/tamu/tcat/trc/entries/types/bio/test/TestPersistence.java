@@ -22,9 +22,9 @@ import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.DateDescriptionDTO;
-import edu.tamu.tcat.trc.entries.types.bio.Person;
+import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
-import edu.tamu.tcat.trc.entries.types.bio.postgres.PeopleRepositoryService;
+import edu.tamu.tcat.trc.entries.types.bio.postgres.BioEntryRepoService;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.repo.RepositoryException;
@@ -36,7 +36,7 @@ public class TestPersistence
    private ClosableSqlExecutor exec;
    private ConfigurationProperties config;
 
-   private PeopleRepositoryService repo;
+   private BioEntryRepoService repo;
    private IdFactory idFactory;
    private boolean canWrite = false;
 
@@ -44,12 +44,12 @@ public class TestPersistence
    public void setupTest() throws DataSourceException
    {
       IdFactoryProvider idFactoryProvider = TestUtils.makeIdFactoryProvider();
-      idFactory = idFactoryProvider.getIdFactory(PeopleRepositoryService.ID_CONTEXT);
+      idFactory = idFactoryProvider.getIdFactory(BioEntryRepoService.ID_CONTEXT);
 
       config = TestUtils.loadConfigFile();
       exec = TestUtils.initPostgreSqlExecutor(config);
 
-      this.repo = new PeopleRepositoryService();
+      this.repo = new BioEntryRepoService();
       repo.setDatabaseExecutor(exec);
       repo.setIdFactory(idFactoryProvider);
       repo.activate();
@@ -191,10 +191,10 @@ public class TestPersistence
    @Test
    public void testGetAll() throws RepositoryException, JsonProcessingException
    {
-      Iterator<Person> peopleIterator = repo.listAll();
+      Iterator<BiographicalEntry> peopleIterator = repo.listAll();
       while (peopleIterator.hasNext())
       {
-         Person person = peopleIterator.next();
+         BiographicalEntry person = peopleIterator.next();
          person.getId();
 
          PersonCsvRecord record = makeCsvRecord(person);
@@ -213,7 +213,7 @@ public class TestPersistence
 
    }
 
-   private PersonCsvRecord makeCsvRecord(Person person)
+   private PersonCsvRecord makeCsvRecord(BiographicalEntry person)
    {
       PersonCsvRecord record = new PersonCsvRecord();
       record.id = person.getId();

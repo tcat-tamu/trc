@@ -20,11 +20,11 @@ import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
-import edu.tamu.tcat.trc.entries.types.bio.Person;
+import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
-import edu.tamu.tcat.trc.entries.types.bio.postgres.PeopleRepositoryService;
+import edu.tamu.tcat.trc.entries.types.bio.postgres.BioEntryRepoService;
 import edu.tamu.tcat.trc.entries.types.bio.repo.DateDescriptionMutator;
-import edu.tamu.tcat.trc.entries.types.bio.repo.EditPersonCommand;
+import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.HistoricalEventMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNameMutator;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.RestApiV1;
@@ -36,7 +36,7 @@ public class TestDocumentRepository
 {
    private SqlExecutor exec;
    private ConfigurationProperties config;
-   private PeopleRepositoryService repo;
+   private BioEntryRepoService repo;
 
    @Before
    public void setupTest() throws DataSourceException
@@ -46,7 +46,7 @@ public class TestDocumentRepository
       config = TestUtils.loadConfigFile();
       exec = TestUtils.initPostgreSqlExecutor(config);
 
-      this.repo = new PeopleRepositoryService();
+      this.repo = new BioEntryRepoService();
       repo.setDatabaseExecutor(exec);
       repo.setIdFactory(idFactoryProvider);
       repo.activate();
@@ -81,7 +81,7 @@ public class TestDocumentRepository
    {
       RestApiV1.Person personData = addRestAPIDataModel();
       String personId = createPerson(personData);
-      Person person = repo.get(personId);
+      BiographicalEntry person = repo.get(personId);
       validateData(personData, person);
    }
 
@@ -90,10 +90,10 @@ public class TestDocumentRepository
    {
       RestApiV1.Person personData = addRestAPIDataModel();
       String personId = createPerson(personData);
-      Person person = repo.get(personId);
+      BiographicalEntry person = repo.get(personId);
 
       updatePerson(personId);
-      Person personUpdated = repo.get(personId);
+      BiographicalEntry personUpdated = repo.get(personId);
 
       assertEquals(person.getId(), personUpdated.getId());
 
@@ -141,7 +141,7 @@ public class TestDocumentRepository
    @SuppressWarnings("deprecation")
    private String createPerson(RestApiV1.Person personData) throws InterruptedException, ExecutionException
    {
-      EditPersonCommand command = repo.create();
+      EditBiographicalEntryCommand command = repo.create();
 
       PersonNameMutator personName = command.editCanonicalName();
       personName.setDisplayName(personData.name.label);
@@ -194,7 +194,7 @@ public class TestDocumentRepository
    @SuppressWarnings("deprecation")
    private void updatePerson(String personId) throws InterruptedException, ExecutionException
    {
-      EditPersonCommand update = repo.update(personId);
+      EditBiographicalEntryCommand update = repo.update(personId);
       PersonNameMutator setPersonName = update.editCanonicalName();
       setPersonName.setDisplayName("Changed The Name");
       setPersonName.setFamilyName("Name");
@@ -234,7 +234,7 @@ public class TestDocumentRepository
       update.execute().get();
    }
 
-   private void validateData(RestApiV1.Person data, Person person)
+   private void validateData(RestApiV1.Person data, BiographicalEntry person)
    {
       validatePersonName(person.getCanonicalName(), data.name);
       validateEvent(person.getBirth(), data.birth);

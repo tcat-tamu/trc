@@ -38,7 +38,7 @@ import org.junit.Test;
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
-import edu.tamu.tcat.trc.entries.types.bio.Person;
+import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.postgres.PsqlPeopleRepo;
 import edu.tamu.tcat.trc.entries.types.bio.search.solr.BioDocument;
 import edu.tamu.tcat.trc.repo.postgres.PostgresDataSourceProvider;
@@ -120,10 +120,10 @@ public class PeopleReIndex
       Collection<SolrInputDocument> solrDocs = new ArrayList<>();
       try
       {
-         Iterator<Person> people = repo.listAll();
+         Iterator<BiographicalEntry> people = repo.listAll();
          while (people.hasNext())
          {
-            Person person = people.next();
+            BiographicalEntry person = people.next();
             // HACK second argument should ideally be first sentence extractor
             BioDocument peopleProxy = BioDocument.create(person, s -> s);
             solrDocs.add(peopleProxy.getDocument());

@@ -40,7 +40,7 @@ import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
-import edu.tamu.tcat.trc.entries.types.biblio.postgres.WorkRepositoryService;
+import edu.tamu.tcat.trc.entries.types.biblio.postgres.BiblioRepoService;
 import edu.tamu.tcat.trc.entries.types.biblio.search.solr.BiblioDocument;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.repo.postgres.PostgresDataSourceProvider;
@@ -53,7 +53,7 @@ public class WorkReIndex
    private PostgreSqlExecutor exec;
    private SimpleFileConfigurationProperties config;
    private PostgresDataSourceProvider dsp;
-   private WorkRepositoryService repo;
+   private BiblioRepoService repo;
    private IdFactoryProvider idFactoryProvider;
 
    private SolrClient solr;
@@ -77,7 +77,7 @@ public class WorkReIndex
 
       idFactoryProvider = new MockIdFactoryProvider();
 
-      repo = new WorkRepositoryService();
+      repo = new BiblioRepoService();
       repo.setSqlExecutor(exec);
       repo.setIdFactory(idFactoryProvider);
       repo.activate();
