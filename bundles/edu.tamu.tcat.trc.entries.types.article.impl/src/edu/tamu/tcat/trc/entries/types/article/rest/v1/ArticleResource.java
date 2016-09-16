@@ -34,9 +34,8 @@ import javax.ws.rs.core.MediaType;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
 import edu.tamu.tcat.trc.entries.types.article.Article;
-import edu.tamu.tcat.trc.entries.types.article.ArticleRepoFacade;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.repo.NoSuchEntryException;
@@ -49,17 +48,15 @@ public class ArticleResource
    private static final String ERR_NOT_FOUND = "Could not find an article with the supplied id {0}";
    private static final String ERR_UNKNOWN_GET = "That's embrassing. Something went wrong while trying to retrieve {0}.";
 
-   private final ArticleRepoFacade repo;
+   private final EntryRepositoryRegistry repo;
    private final ObjectMapper mapper;
 
    private final String articleId;
 
-   private final EntryResolverRegistry resolvers;
 
-   public ArticleResource(ArticleRepoFacade repo, EntryResolverRegistry resolvers, String articleId)
+   public ArticleResource(EntryRepositoryRegistry repoSvc, String articleId)
    {
-      this.repo = repo;
-      this.resolvers = resolvers;
+      this.repo = repoSvc;
       this.articleId = articleId;
 
       mapper = new ObjectMapper();
@@ -72,9 +69,9 @@ public class ArticleResource
    {
       try
       {
-         ArticleRepository articleRepo = repo.getArticleRepo(null);
+         ArticleRepository articleRepo = repo.getRepository(null, ArticleRepository.class);
          Article article = articleRepo.get(articleId);
-         return ModelAdapter.adapt(article, resolvers);
+         return ModelAdapter.adapt(article, repo.getResolverRegistry());
       }
       catch (NoSuchEntryException e)
       {
@@ -94,7 +91,7 @@ public class ArticleResource
    public RestApiV1.Article update(RestApiV1.Article article)
    {
       // TODO add support for partial updates
-      ArticleRepository articleRepo = repo.getArticleRepo(null);
+      ArticleRepository articleRepo = repo.getRepository(null, ArticleRepository.class);
       try
       {
          EditArticleCommand editCmd = articleRepo.edit(articleId);
@@ -106,7 +103,7 @@ public class ArticleResource
          // both the changes that were applied in this update (already present in article)
          // and any changes that may have been applied prior to this.
          Article current = articleRepo.get(articleId);
-         return ModelAdapter.adapt(current, resolvers);
+         return ModelAdapter.adapt(current, repo.getResolverRegistry());
       }
       catch (NoSuchEntryException noEx)
       {
@@ -124,7 +121,7 @@ public class ArticleResource
    @DELETE
    public void delete()
    {
-      ArticleRepository articleRepo = repo.getArticleRepo(null);
+      ArticleRepository articleRepo = repo.getRepository(null, ArticleRepository.class);
       try
       {
          // TODO send appropriate response.

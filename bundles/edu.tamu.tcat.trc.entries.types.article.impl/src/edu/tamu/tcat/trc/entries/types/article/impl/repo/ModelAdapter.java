@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.article.docrepo;
+package edu.tamu.tcat.trc.entries.types.article.impl.repo;
 
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;

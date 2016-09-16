@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.article.docrepo;
+package edu.tamu.tcat.trc.entries.types.article.impl.repo;
 
 import java.util.List;
 import java.util.stream.Collectors;

@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.article.docrepo;
+package edu.tamu.tcat.trc.entries.types.article.impl.repo;
 
 import java.net.URI;
 import java.util.Iterator;
@@ -18,7 +18,7 @@ public class ArticleRepoImpl implements ArticleRepository
    private final Account account;
    private final BasicRepoDelegate<Article, DataModelV1.Article, EditArticleCommand> delegate;
 
-   ArticleRepoImpl(BasicRepoDelegate<Article, DataModelV1.Article, EditArticleCommand> delegate, Account account)
+   public ArticleRepoImpl(BasicRepoDelegate<Article, DataModelV1.Article, EditArticleCommand> delegate, Account account)
    {
       this.delegate = delegate;
       this.account = account;

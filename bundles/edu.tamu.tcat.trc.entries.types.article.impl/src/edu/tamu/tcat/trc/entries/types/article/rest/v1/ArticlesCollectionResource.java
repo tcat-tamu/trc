@@ -27,9 +27,8 @@ import javax.ws.rs.core.UriInfo;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
 import edu.tamu.tcat.trc.entries.types.article.Article;
-import edu.tamu.tcat.trc.entries.types.article.ArticleRepoFacade;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
@@ -46,15 +45,17 @@ public class ArticlesCollectionResource
    private final static Logger logger = Logger.getLogger(ArticlesCollectionResource.class.getName());
 
    private final ObjectMapper mapper;
-   private final ArticleRepoFacade repoSvc;
-   private final EntryResolverRegistry resolvers;
+   private final EntryRepositoryRegistry repoSvc;
+   private final ArticleSearchService searchSvc;
+
    private final URI endpoint;
 
 
-   public ArticlesCollectionResource(ArticleRepoFacade repoSvc, EntryResolverRegistry resolvers, URI endpoint)
+
+   public ArticlesCollectionResource(EntryRepositoryRegistry repoSvc, ArticleSearchService searchSvc, URI endpoint)
    {
       this.repoSvc = repoSvc;
-      this.resolvers = resolvers;
+      this.searchSvc = searchSvc;
       // HACK FIXME should not hard code endpoint API. Must be configured
       this.endpoint = endpoint != null ? endpoint : URI.create("http://localhost/articles/");
 
@@ -70,7 +71,6 @@ public class ArticlesCollectionResource
           @QueryParam(value = "offset") @DefaultValue("0") int offset,
           @QueryParam(value = "max") @DefaultValue("100") int numResults)
    {
-      ArticleSearchService searchSvc = repoSvc.getSearchService();
       if (searchSvc == null)
          throw new InternalServerErrorException("Searching for articles is not currently supported.");
 
@@ -109,14 +109,14 @@ public class ArticlesCollectionResource
       // TODO need to assess and fix error handling.
       try
       {
-         ArticleRepository articleRepo = repoSvc.getArticleRepo(null);
+         ArticleRepository articleRepo = repoSvc.getRepository(null, ArticleRepository.class);
          EditArticleCommand editCmd = articleRepo.create();
          ArticleResource.apply(editCmd, article);
 
          article.id = editCmd.execute().get(10, TimeUnit.SECONDS);
          Article stored = articleRepo.get(article.id);
 
-         return buildResponse(ModelAdapter.adapt(stored, resolvers));
+         return buildResponse(ModelAdapter.adapt(stored, repoSvc.getResolverRegistry()));
       }
       catch (ExecutionException ex)
       {
@@ -134,7 +134,7 @@ public class ArticlesCollectionResource
    @Path("{articleId}")
    public ArticleResource get(@PathParam(value="articleId") String articleId)
    {
-      return new ArticleResource(repoSvc, resolvers, articleId);
+      return new ArticleResource(repoSvc, articleId);
    }
 
    private Response buildResponse(RestApiV1.Article dto)

@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.article.search.solr;
+package edu.tamu.tcat.trc.entries.types.article.impl.search;
 
 import java.util.Collections;
 import java.util.List;

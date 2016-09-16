@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.article.docrepo;
+package edu.tamu.tcat.trc.entries.types.article.impl.model;
 
 import java.util.Collections;
 import java.util.List;
@@ -10,6 +10,7 @@ import edu.tamu.tcat.trc.entries.types.article.ArticleLink;
 import edu.tamu.tcat.trc.entries.types.article.Bibliography;
 import edu.tamu.tcat.trc.entries.types.article.Citation;
 import edu.tamu.tcat.trc.entries.types.article.Footnote;
+import edu.tamu.tcat.trc.entries.types.article.impl.repo.DataModelV1;
 
 public class ArticleImpl implements Article
 {
