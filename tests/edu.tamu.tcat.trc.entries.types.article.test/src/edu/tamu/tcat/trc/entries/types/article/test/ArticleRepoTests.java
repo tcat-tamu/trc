@@ -22,8 +22,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.PreparedStatement;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Future;
 
 import org.junit.After;
@@ -40,7 +38,7 @@ import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolver;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.entries.types.article.Article;
-import edu.tamu.tcat.trc.entries.types.article.docrepo.ArticleRepoService;
+import edu.tamu.tcat.trc.entries.types.article.impl.ArticleEntryService;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
@@ -60,31 +58,20 @@ public class ArticleRepoTests
    private static final String ABSTRACT = "This is the abstract for an article";
    private static final String BODY = "This is the body text of an article";
 
-   private ClosableSqlExecutor exec;
-   private ConfigurationProperties config;
-   private ArticleRepoService svc;
+   private static ClosableSqlExecutor exec;
+   private static ConfigurationProperties config;
 
-   private EntryResolverRegistry resolvers;
-
-   private DbEntryRepositoryRegistry repoCtx;
+   private static DbEntryRepositoryRegistry repoCtx;
+   private static ArticleEntryService svc;
+   private static EntryResolverRegistry resolvers;
 
    @BeforeClass
-   public static void setUp()
+   public static void setUp() throws DataSourceException
    {
       // TODO spin up DB, etc
-   }
-
-   @AfterClass
-   public static void tearDown()
-   {
-
-   }
-
-   @Before
-   public void setupTest() throws DataSourceException
-   {
       config = TestUtils.loadConfigFile();
       exec = TestUtils.initPostgreSqlExecutor(config);
+
       IdFactoryProvider idProvider = TestUtils.makeIdFactoryProvider();
 
       repoCtx = new DbEntryRepositoryRegistry();
@@ -94,14 +81,24 @@ public class ArticleRepoTests
       resolvers = repoCtx.getResolverRegistry();
       repoCtx.activate();
 
-      svc = new ArticleRepoService();
+      svc = new ArticleEntryService();
       svc.setRepoContext(repoCtx);
-      // TODO configure search
+      svc.activate();
+   }
 
-      Map<String, Object> props = new HashMap<>();
-      props.put(ArticleRepoService.PARAM_ID_CTX, "trc.articles");
-      props.put(ArticleRepoService.PARAM_TABLE_NAME, TBL_NAME);
-      svc.activate(props);
+   @AfterClass
+   public static void tearDown() throws Exception
+   {
+      svc.dispose();
+      exec.close();
+
+      if (config instanceof SimpleFileConfigurationProperties)
+         ((SimpleFileConfigurationProperties)config).dispose();
+   }
+
+   @Before
+   public void setupTest() throws DataSourceException
+   {
    }
 
    @After
@@ -116,12 +113,6 @@ public class ArticleRepoTests
       });
 
       future.get();
-
-      svc.dispose();
-      exec.close();
-
-      if (config instanceof SimpleFileConfigurationProperties)
-         ((SimpleFileConfigurationProperties)config).dispose();
    }
 
    private EditArticleCommand createStandardArticle(ArticleRepository repo)
