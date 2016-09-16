@@ -1,11 +1,13 @@
 package edu.tamu.tcat.trc.entries.types.bio.impl;
 
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.entries.core.search.SolrSearchMediator;
 import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.impl.model.PersonImpl;
@@ -38,6 +40,8 @@ public class BiographicalEntryService
    private DocumentRepository<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> docRepo;
    private BasicRepoDelegate<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> delegate;
 
+   private EntryResolverRegistry.Registration resolverReg;
+   private RepositoryContext.Registration repoReg;
    private EntryRepository.ObserverRegistration searchReg;
 
    public void setRepoContext(RepositoryContext ctx)
@@ -57,6 +61,13 @@ public class BiographicalEntryService
          logger.info("Activating " + getClass().getSimpleName());
 
          initRepo();
+
+         // make sure these are all set up and fail fast if not.
+         Objects.requireNonNull(delegate);
+         Objects.requireNonNull(docRepo);
+         Objects.requireNonNull(resolverReg);
+         Objects.requireNonNull(repoReg);
+
          initSearch();
 
          logger.fine("Activated " + getClass().getSimpleName());
@@ -75,10 +86,13 @@ public class BiographicalEntryService
       {
          logger.info("Stopping " + getClass().getSimpleName());
 
+         resolverReg.unregister();
+         repoReg.unregister();
          docRepo.dispose();
          delegate.dispose();
 
-         searchReg.close();
+         if (searchReg != null)
+            searchReg.close();
 
          logger.fine("Stopped " + getClass().getSimpleName());
 
@@ -95,8 +109,10 @@ public class BiographicalEntryService
       initDocumentStore();
       initDelegate();
 
-      ctx.registerResolver(new BioEntryResolver(ctx.getConfig(), delegate));
-      ctx.registerRepository(BiographicalEntryRepository.class, account -> new BioEntryRepoImpl(delegate, account));
+      BioEntryResolver resolver = new BioEntryResolver(ctx.getConfig(), delegate);
+      resolverReg = ctx.registerResolver(resolver);
+      repoReg = ctx.registerRepository(BiographicalEntryRepository.class,
+            account -> new BioEntryRepoImpl(delegate, account));
    }
 
    private void initDocumentStore()
