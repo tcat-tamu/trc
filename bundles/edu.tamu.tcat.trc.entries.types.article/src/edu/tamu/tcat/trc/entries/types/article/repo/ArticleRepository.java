@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
+import edu.tamu.tcat.trc.entries.core.repo.NoSuchEntryException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
-import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 
 
 public interface ArticleRepository extends EntryRepository<Article>
