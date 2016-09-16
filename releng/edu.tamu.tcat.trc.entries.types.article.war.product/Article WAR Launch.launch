@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.pde.ui.EquinoxLauncher">
+<setAttribute key="additional_plugins"/>
+<booleanAttribute key="append.args" value="true"/>
+<booleanAttribute key="automaticAdd" value="true"/>
+<booleanAttribute key="automaticValidate" value="false"/>
+<stringAttribute key="bootstrap" value=""/>
+<stringAttribute key="checked" value="[NONE]"/>
+<booleanAttribute key="clearConfig" value="false"/>
+<stringAttribute key="configLocation" value="${workspace_loc}/.metadata/.plugins/org.eclipse.pde.core/Article WAR Launch"/>
+<booleanAttribute key="default" value="false"/>
+<booleanAttribute key="default_auto_start" value="true"/>
+<intAttribute key="default_start_level" value="5"/>
+<stringAttribute key="featureDefaultLocation" value="workspace"/>
+<stringAttribute key="featurePluginResolution" value="workspace"/>
+<booleanAttribute key="includeOptional" value="true"/>
+<stringAttribute key="org.eclipse.debug.ui.ATTR_CONSOLE_ENCODING" value="UTF-8"/>
+<booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_START_ON_FIRST_THREAD" value="true"/>
+<stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-os ${target.os} -ws ${target.ws} -arch ${target.arch} -nl ${target.nl} -consoleLog -console"/>
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dorg.osgi.service.http.port=9999&#13;&#10;-Dosgi.noShutdown=true&#13;&#10;-Declipse.ignoreApp=true&#13;&#10;-Dorg.eclipse.equinox.http.jetty.context.path=/catalog&#13;&#10;-Dconfig.file=${workspace_loc:edu.tamu.tcat.trc.entries.types.article.war.product}/config/config.properties&#13;&#10;-Djava.util.logging=${workspace_loc:edu.tamu.tcat.trc.entries.types.article.war.product}/catalog_war/logging.properties&#13;&#10;-Dlogback.configurationFile=${workspace_loc:edu.tamu.tcat.trc.entries.types.article.war.product}/config/logback.xml"/>
+<stringAttribute key="pde.version" value="3.3"/>
+<setAttribute key="selected_features">
+<setEntry value="edu.tamu.tcat.oss.jetty.feature:default"/>
+<setEntry value="edu.tamu.tcat.trc.base.feature:default"/>
+<setEntry value="edu.tamu.tcat.trc.entries.types.article.war.feature:default"/>
+</setAttribute>
+<booleanAttribute key="show_selected_only" value="true"/>
+<booleanAttribute key="tracing" value="false"/>
+<booleanAttribute key="useCustomFeatures" value="true"/>
+<booleanAttribute key="useDefaultConfigArea" value="true"/>
+<stringAttribute key="workspace_bundles" value="edu.tamu.tcat.account.db@default:default,edu.tamu.tcat.account.jaas@default:default,edu.tamu.tcat.account.jaxrs@default:default,edu.tamu.tcat.account.test@default:default,edu.tamu.tcat.account@default:default,edu.tamu.tcat.db.core@default:default,edu.tamu.tcat.db.exec@default:default,edu.tamu.tcat.db.postgresql.exec@default:default,edu.tamu.tcat.db.postgresql@default:default,edu.tamu.tcat.hathitrust.basic.tests@default:default,edu.tamu.tcat.hathitrust.basic@default:default,edu.tamu.tcat.hathitrust@default:default,edu.tamu.tcat.pairtree@default:default,edu.tamu.tcat.sda.catalog.rest@default:default,edu.tamu.tcat.trc.categorization.tests@default:default,edu.tamu.tcat.trc.categorization@default:default,edu.tamu.tcat.trc.digires.books.hathitrust@default:default,edu.tamu.tcat.trc.digires.rest@default:default,edu.tamu.tcat.trc.digires@default:default,edu.tamu.tcat.trc.entries.core@default:default,edu.tamu.tcat.trc.entries.types.article.ds@default:default,edu.tamu.tcat.trc.entries.types.article.impl@default:default,edu.tamu.tcat.trc.entries.types.article.test@default:default,edu.tamu.tcat.trc.entries.types.article@default:default,edu.tamu.tcat.trc.entries.types.biblio.impl@default:default,edu.tamu.tcat.trc.entries.types.biblio.test@default:default,edu.tamu.tcat.trc.entries.types.biblio@default:default,edu.tamu.tcat.trc.entries.types.bio.client.java@default:default,edu.tamu.tcat.trc.entries.types.bio.ds@default:default,edu.tamu.tcat.trc.entries.types.bio.impl@default:default,edu.tamu.tcat.trc.entries.types.bio.test@default:default,edu.tamu.tcat.trc.entries.types.bio@default:default,edu.tamu.tcat.trc.entries.types.reln.impl@default:default,edu.tamu.tcat.trc.entries.types.reln@default:default,edu.tamu.tcat.trc.notes.impl@default:default,edu.tamu.tcat.trc.notes.test@default:default,edu.tamu.tcat.trc.notes@default:default,edu.tamu.tcat.trc.refman.postgres@default:default,edu.tamu.tcat.trc.refman.types.zotero@default:default,edu.tamu.tcat.trc.refman@default:default,edu.tamu.tcat.trc.repo@default:default,edu.tamu.tcat.trc.search.solr@default:default,edu.tamu.tcat.trc.test@default:default,edu.tamu.tcat.trc@default:default,edu.tamu.tcat.zotero@default:default"/>
+</launchConfiguration>
