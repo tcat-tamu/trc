@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.bio.rest.v1;
+package edu.tamu.tcat.trc.entries.types.bio.rest;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,6 +25,7 @@ import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
 import edu.tamu.tcat.trc.entries.types.bio.impl.search.BioSearchStrategy;
 import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
+import edu.tamu.tcat.trc.entries.types.bio.rest.v1.PeopleResource;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioEntryQueryCommand;
 import edu.tamu.tcat.trc.search.solr.QueryService;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
