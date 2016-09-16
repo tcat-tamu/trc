@@ -4,7 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
-import edu.tamu.tcat.trc.entries.core.repo.EntryRepository.ObserverRegistration;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
 import edu.tamu.tcat.trc.entries.core.search.SolrSearchMediator;
 import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
@@ -14,8 +14,8 @@ import edu.tamu.tcat.trc.entries.types.bio.impl.repo.BioEntryResolver;
 import edu.tamu.tcat.trc.entries.types.bio.impl.repo.DataModelV1;
 import edu.tamu.tcat.trc.entries.types.bio.impl.repo.EditPersonCommandFactory;
 import edu.tamu.tcat.trc.entries.types.bio.impl.search.BioSearchStrategy;
-import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
+import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.search.solr.IndexService;
@@ -38,7 +38,7 @@ public class BiographicalEntryService
    private DocumentRepository<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> docRepo;
    private BasicRepoDelegate<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> delegate;
 
-   private ObserverRegistration searchReg;
+   private EntryRepository.ObserverRegistration searchReg;
 
    public void setRepoContext(RepositoryContext ctx)
    {

@@ -18,12 +18,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import edu.tamu.tcat.trc.entries.core.repo.NoSuchEntryException;
 import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
-import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
+import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.ApiUtils;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RepoAdapter;
-import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 
 public class PersonResource
 {

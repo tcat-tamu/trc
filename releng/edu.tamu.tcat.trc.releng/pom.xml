@@ -58,6 +58,7 @@
 
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.bio</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.bio.impl</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.bio.rest</module>
 
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.reln</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.reln.impl</module>
