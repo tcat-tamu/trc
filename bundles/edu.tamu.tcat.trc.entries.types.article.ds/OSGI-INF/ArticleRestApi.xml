@@ -6,4 +6,5 @@
       <provide interface="edu.tamu.tcat.trc.entries.types.article.rest.ArticleRestApiService"/>
    </service>
    <reference bind="setSearchSvcMgr" cardinality="1..1" interface="edu.tamu.tcat.trc.search.solr.SearchServiceManager" name="SearchServiceManager" policy="static"/>
+   <reference bind="setRepoFactory" cardinality="1..1" interface="edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepositoryFactory" name="ArticleRepositoryFactory" policy="static"/>
 </scr:component>

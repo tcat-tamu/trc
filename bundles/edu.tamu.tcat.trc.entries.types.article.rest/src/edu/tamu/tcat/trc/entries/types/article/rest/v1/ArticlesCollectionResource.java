@@ -96,6 +96,14 @@ public class ArticlesCollectionResource
          logger.log(Level.SEVERE, msg, e);
          throw new InternalServerErrorException(msg);
       }
+      catch (Exception ex)
+      {
+         String msg = MessageFormat.format("That's embrassing. Something went wrong while trying "
+               + "to search for articles.\n\tQuery: {0}.", q);
+
+         logger.log(Level.SEVERE, msg, ex);
+         throw new InternalServerErrorException(msg);
+      }
    }
 
    @POST

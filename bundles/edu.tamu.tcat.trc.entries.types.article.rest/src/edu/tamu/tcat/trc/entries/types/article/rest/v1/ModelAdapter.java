@@ -56,14 +56,20 @@ public class ModelAdapter
       dto.title = article.title;
 //      dto.pubInfo = convertPubInfo(article.info);
 
-      List<RestApiV1.ArticleAuthor> authors = new ArrayList<>();
-      article.authors.forEach((auth)->
-      {
-         authors.add(convertAuthor(auth));
-      });
-      dto.authors = new ArrayList<>(authors);
+//      if (article.authors != null)
+      dto.authors = getArticleList(article);
 
       return dto;
+   }
+
+   private static List<RestApiV1.ArticleAuthor> getArticleList(ArticleSearchProxy article)
+   {
+      if (article.authors == null)
+         return new ArrayList<>();
+
+      return article.authors.stream()
+            .map(ModelAdapter::convertAuthor)
+            .collect(Collectors.toList());
    }
 
    public static  RestApiV1.QueryDetail toQueryDetail(URI baseUri, ArticleSearchResult result)
@@ -252,6 +258,9 @@ public class ModelAdapter
 
    private static List<RestApiV1.ArticleAuthor> convertAuthors(List<ArticleAuthor> authors)
    {
+      if (authors == null)
+         return new ArrayList<>();
+
       return authors.stream()
             .map(ModelAdapter::adapt)
             .collect(Collectors.toList());

@@ -10,6 +10,7 @@ import javax.ws.rs.Path;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
 import edu.tamu.tcat.trc.entries.types.article.impl.search.ArticleSearchStrategy;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
+import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepositoryFactory;
 import edu.tamu.tcat.trc.entries.types.article.rest.v1.ArticlesCollectionResource;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.search.solr.QueryService;
@@ -30,6 +31,11 @@ public class ArticleRestApiService
    private SearchServiceManager searchMgr;
 
    private QueryService<ArticleQueryCommand> queryService;
+
+   public void setRepoFactory(ArticleRepositoryFactory factory)
+   {
+      // ensures that the repo has been registered with the core TRC service
+   }
 
    public void setRepoRegistry(EntryRepositoryRegistry repoSvc)
    {

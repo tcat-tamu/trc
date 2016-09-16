@@ -15,6 +15,7 @@
  */
 package edu.tamu.tcat.trc.entries.types.article.search;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ArticleSearchProxy
@@ -23,7 +24,7 @@ public class ArticleSearchProxy
    public String id;
    public String title;
    public String articleType;
-   public List<AuthorRef> authors;
+   public List<AuthorRef> authors = new ArrayList<>();
 
    public static class AuthorRef
    {
