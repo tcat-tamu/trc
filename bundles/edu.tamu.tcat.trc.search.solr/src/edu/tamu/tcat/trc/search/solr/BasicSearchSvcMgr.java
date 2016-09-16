@@ -150,7 +150,7 @@ public class BasicSearchSvcMgr implements SearchServiceManager
    {
       Class<Entry> type = indexCfg.getType();
       if (!cache.containsKey(type))
-         throw new IllegalArgumentException("No search service has been configured for {0}");
+         throw new IllegalArgumentException(format("No search service has been configured for {0}", indexCfg.getCoreId()));
 
       return cache.get(type);
    }
