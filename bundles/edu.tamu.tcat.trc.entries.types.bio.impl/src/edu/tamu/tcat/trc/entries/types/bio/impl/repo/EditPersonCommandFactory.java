@@ -49,7 +49,7 @@ public class EditPersonCommandFactory implements EditCommandFactory<DataModelV1.
       public PersonNameMutator editCanonicalName()
       {
 
-         ChangeSet<DataModelV1.PersonName> partial = changes.partial("displayName [Edit]", p -> {
+         ChangeSet<DataModelV1.PersonName> partial = changes.partial("displayName", p -> {
             if (p.displayName == null)
                p.displayName = new DataModelV1.PersonName();
 
