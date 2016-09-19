@@ -27,13 +27,13 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.model.BasicAuthorList;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.model.BasicAuthorReference;
+import edu.tamu.tcat.trc.entries.types.biblio.impl.model.BasicCopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.model.BasicEdition;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.model.BasicPublicationInfo;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.model.BasicTitle;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.model.BasicTitleDefinition;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.model.BasicVolume;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.model.BasicWork;
-import edu.tamu.tcat.trc.entries.types.biblio.postgres.copies.BasicCopyReference;
 
 public class ModelAdapter
 {

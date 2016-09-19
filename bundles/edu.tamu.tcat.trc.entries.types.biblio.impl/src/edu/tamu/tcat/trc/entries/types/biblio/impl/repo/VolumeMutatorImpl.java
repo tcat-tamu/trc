@@ -28,7 +28,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.CopyReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDTO;
-import edu.tamu.tcat.trc.entries.types.biblio.postgres.BiblioRepoService;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.BibliographicEntryRepository;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.CopyReferenceMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.VolumeMutator;
 import edu.tamu.tcat.trc.repo.ChangeSet;
@@ -46,7 +46,7 @@ public class VolumeMutatorImpl implements VolumeMutator
    {
       this.id = id;
       this.changes = volChanges;
-      this.copyRefIds = idFactoryProvider.getIdFactory(BiblioRepoService.ID_CONTEXT_COPIES);
+      this.copyRefIds = idFactoryProvider.getIdFactory(BibliographicEntryRepository.ID_CONTEXT_COPIES);
    }
 
    private Function<VolumeDTO, CopyReferenceDTO> makeCopySelector(String id)

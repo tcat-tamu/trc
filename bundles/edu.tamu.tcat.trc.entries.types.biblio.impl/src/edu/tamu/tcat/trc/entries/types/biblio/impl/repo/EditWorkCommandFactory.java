@@ -13,7 +13,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.CopyReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
-import edu.tamu.tcat.trc.entries.types.biblio.postgres.BiblioRepoService;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.BibliographicEntryRepository;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.CopyReferenceMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
@@ -36,8 +36,8 @@ public class EditWorkCommandFactory implements EditCommandFactory<WorkDTO, EditB
    {
       this.idFactoryProvider = idFactoryProvider;
 
-      this.editionIds = idFactoryProvider.getIdFactory(BiblioRepoService.ID_CONTEXT_EDITIONS);
-      this.copyRefIds = idFactoryProvider.getIdFactory(BiblioRepoService.ID_CONTEXT_COPIES);
+      this.editionIds = idFactoryProvider.getIdFactory(BibliographicEntryRepository.ID_CONTEXT_EDITIONS);
+      this.copyRefIds = idFactoryProvider.getIdFactory(BibliographicEntryRepository.ID_CONTEXT_COPIES);
    }
 
    @Override

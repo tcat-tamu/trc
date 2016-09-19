@@ -17,6 +17,19 @@ public interface BibliographicEntryRepository extends EntryRepository<Bibliograp
     *  a bibliographic entry and its sub-elements. */
    public final static String ENTRY_URI_BASE = "entries/bibliographic";
 
+   /** Id context for generating unique identifiers for works. */
+   public static final String ID_CONTEXT_WORKS = "works";
+
+   /** Id context for generating unique identifiers for editions. */
+   public static final String ID_CONTEXT_EDITIONS = "editions";
+
+   /** Id context for generating unique identifiers for volumes. */
+   public static final String ID_CONTEXT_VOLUMES = "volumes";
+
+   /** Id context for generating unique identifiers for copies. */
+   public static final String ID_CONTEXT_COPIES = "copies";
+
+
    /**
     * @return An iterator over all works in the repository.
     */

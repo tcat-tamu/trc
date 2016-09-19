@@ -29,7 +29,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDTO;
-import edu.tamu.tcat.trc.entries.types.biblio.postgres.BiblioRepoService;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.BibliographicEntryRepository;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.CopyReferenceMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.VolumeMutator;
@@ -53,8 +53,8 @@ public class EditionMutatorImpl implements EditionMutator
       this.changes = edChanges;
 
       this.idFactoryProvider = idFactoryProvider;
-      this.volumeIds = idFactoryProvider.getIdFactory(BiblioRepoService.ID_CONTEXT_VOLUMES);
-      this.copyRefIds = idFactoryProvider.getIdFactory(BiblioRepoService.ID_CONTEXT_COPIES);
+      this.volumeIds = idFactoryProvider.getIdFactory(BibliographicEntryRepository.ID_CONTEXT_VOLUMES);
+      this.copyRefIds = idFactoryProvider.getIdFactory(BibliographicEntryRepository.ID_CONTEXT_COPIES);
    }
 
    private Function<EditionDTO, CopyReferenceDTO> makeCopySelector(String id)
