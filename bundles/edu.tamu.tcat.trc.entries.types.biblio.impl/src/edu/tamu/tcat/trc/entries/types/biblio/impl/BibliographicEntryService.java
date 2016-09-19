@@ -101,32 +101,32 @@ public class BibliographicEntryService
    }
 
    /**
-       * Lifecycle management method (usually called by framework service layer)
-       * Called when this service is no longer required.
-       */
-      public void dispose()
+    * Lifecycle management method (usually called by framework service layer)
+    * Called when this service is no longer required.
+    */
+   public void dispose()
+   {
+      try
       {
-         try
-         {
-            logger.info("Stopping " + getClass().getSimpleName());
+         logger.info("Stopping " + getClass().getSimpleName());
 
-            resolverReg.unregister();
-            repoReg.unregister();
-            docRepo.dispose();
-            delegate.dispose();
+         resolverReg.unregister();
+         repoReg.unregister();
+         docRepo.dispose();
+         delegate.dispose();
 
-            if (searchReg != null)
-               searchReg.close();
+         if (searchReg != null)
+            searchReg.close();
 
-            logger.fine("Stopped " + getClass().getSimpleName());
+         logger.fine("Stopped " + getClass().getSimpleName());
 
-         }
-         catch (Exception ex)
-         {
-            logger.log(Level.SEVERE, "Failed to stop" + getClass().getSimpleName(), ex);
-            throw ex;
-         }
       }
+      catch (Exception ex)
+      {
+         logger.log(Level.SEVERE, "Failed to stop" + getClass().getSimpleName(), ex);
+         throw ex;
+      }
+   }
 
    private void initRepo()
    {
