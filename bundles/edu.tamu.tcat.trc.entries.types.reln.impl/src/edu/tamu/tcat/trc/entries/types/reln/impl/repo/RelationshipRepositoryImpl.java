@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.reln.postgres;
+package edu.tamu.tcat.trc.entries.types.reln.impl.repo;
 
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
@@ -11,7 +11,7 @@ import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 
-class RelationshipRepositoryImpl implements RelationshipRepository
+public class RelationshipRepositoryImpl implements RelationshipRepository
 {
 
    private final Account account;

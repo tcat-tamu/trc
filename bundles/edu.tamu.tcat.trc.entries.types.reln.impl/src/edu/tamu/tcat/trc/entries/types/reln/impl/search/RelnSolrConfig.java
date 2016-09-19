@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.reln.search.solr;
+package edu.tamu.tcat.trc.entries.types.reln.impl.search;
 
 import java.time.Instant;
 import java.util.Arrays;

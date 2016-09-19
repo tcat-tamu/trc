@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.reln.postgres;
+package edu.tamu.tcat.trc.entries.types.reln.impl.repo;
 
 import static java.text.MessageFormat.format;
 

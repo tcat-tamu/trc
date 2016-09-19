@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.reln.postgres;
+package edu.tamu.tcat.trc.entries.types.reln.impl.model;
 
 import java.util.HashSet;
 import java.util.Objects;
