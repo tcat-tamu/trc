@@ -7,11 +7,11 @@ import java.util.Set;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.types.biblio.AuthorList;
+import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.PublicationInfo;
 import edu.tamu.tcat.trc.entries.types.biblio.TitleDefinition;
-import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 
 public class BasicWork implements BibliographicEntry
 {
@@ -49,7 +49,6 @@ public class BasicWork implements BibliographicEntry
            copyReferences);
    }
 
-   @Deprecated // see note on Work#getType()
    public BasicWork(String id,
                     String type,
                     AuthorList authors,
