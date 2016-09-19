@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="close" name="edu.tamu.tcat.trc.search.manager">
+   <implementation class="edu.tamu.tcat.trc.search.solr.BasicSearchSvcMgr"/>
+   <service>
+      <provide interface="edu.tamu.tcat.trc.search.solr.SearchServiceManager"/>
+   </service>
+   <reference bind="setConfigurationProperties" cardinality="1..1" interface="edu.tamu.tcat.osgi.config.ConfigurationProperties" name="ConfigurationProperties" policy="static"/>
+</scr:component>
