@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.DataModelV1;
+
 public abstract class DataModelV2
 {
    // NOTE this is (loosely based on the bibliographic description formats used by Zotero
@@ -20,7 +22,7 @@ public abstract class DataModelV2
       /** The bibliographic type of this item (such as book, article). */
       public String bibType;
 
-      public List<AuthorReferenceDTO> creators;
+      public List<DataModelV1.AuthorReferenceDTO> creators;
 
       public Map<String, String> fieldValues;
    }
