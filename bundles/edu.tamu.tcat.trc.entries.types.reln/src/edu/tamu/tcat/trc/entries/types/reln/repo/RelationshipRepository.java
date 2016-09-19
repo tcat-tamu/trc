@@ -62,7 +62,7 @@ public interface RelationshipRepository extends EntryRepository<Relationship>
     *    are errors accessing the persistence layer.
     */
    @Override
-   Relationship get(String id) throws RepositoryException;
+   Relationship get(String id);
 
    // Relationship get(URI relnUri);
 
@@ -75,10 +75,10 @@ public interface RelationshipRepository extends EntryRepository<Relationship>
     *       created.
     */
    @Override
-   EditRelationshipCommand create() throws RepositoryException;
+   EditRelationshipCommand create();
 
    @Override
-   EditRelationshipCommand create(String id) throws RepositoryException;
+   EditRelationshipCommand create(String id);
 
    /**
     * Construct an {@link EditRelationshipCommand} to modify an existing relationship.
@@ -89,7 +89,7 @@ public interface RelationshipRepository extends EntryRepository<Relationship>
     * @throws RepositoryException If the identified relationship does not exist or there are errors accessing the persistence layer.
     */
    @Override
-   EditRelationshipCommand edit(String id) throws RepositoryException;
+   EditRelationshipCommand edit(String id);
 
    /**
     * Delete an existing {@link Relationship}.
@@ -98,7 +98,7 @@ public interface RelationshipRepository extends EntryRepository<Relationship>
     * @throws RepositoryException If the identified relationship does not exist or there are errors accessing the persistence layer.
     */
    @Override
-   CompletableFuture<Boolean> remove(String id) throws RepositoryException;
+   CompletableFuture<Boolean> remove(String id);
 
    @Override
    EntryRepository.ObserverRegistration onUpdate(EntryRepository.UpdateObserver<Relationship> observer);

@@ -123,6 +123,7 @@ public class RestApiV1
             }
             catch (Exception iea)
             {
+               // TODO use String.join
                Joiner joiner = Joiner.on(", ");
                //FIXME: this needs to build a Response to properly report to the client
                throw new BadRequestException("Invalid value for query parameter 'direction' [" + d + "]. Must be one of the following: " + joiner.join(RelationshipDirection.values()));

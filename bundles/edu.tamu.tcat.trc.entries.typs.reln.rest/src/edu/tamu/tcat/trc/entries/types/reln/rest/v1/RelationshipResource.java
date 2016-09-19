@@ -25,7 +25,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -35,10 +34,8 @@ import javax.ws.rs.core.MediaType;
 
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
-import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipPersistenceException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchService;
-import edu.tamu.tcat.trc.repo.RepositoryException;
 
 @Path("/relationships/{id}")
 public class RelationshipResource
@@ -76,17 +73,12 @@ public class RelationshipResource
          Relationship reln = repo.get(id);
          return RepoAdapter.toDTO(reln);
       }
-      catch (RelationshipPersistenceException perEx)
+      catch (Exception perEx)
       {
          logger.log(Level.SEVERE, "Data access error trying to retrieve relationship [relationship/" + id + "]", perEx);
          throw new InternalServerErrorException("Failed to retrive relationship [relationship/" + id + "]");
       }
-      catch (RepositoryException nae)
-      {
-         String msg = "Relationship not found [relationship/" + id + "]";
-         logger.info(msg);
-         throw new NotFoundException(msg);
-      }
+
    }
 
    @PUT
@@ -129,7 +121,7 @@ public class RelationshipResource
    }
 
    @DELETE
-   public void remove(@PathParam(value = "id") String id) throws RepositoryException
+   public void remove(@PathParam(value = "id") String id)
    {
       try
       {
@@ -137,7 +129,7 @@ public class RelationshipResource
       }
       catch (InterruptedException | ExecutionException | TimeoutException e)
       {
-         throw new RepositoryException("Failed to remove relations " + id, e);
+         throw new InternalServerErrorException("Failed to remove relations " + id, e);
       }
    }
 }
