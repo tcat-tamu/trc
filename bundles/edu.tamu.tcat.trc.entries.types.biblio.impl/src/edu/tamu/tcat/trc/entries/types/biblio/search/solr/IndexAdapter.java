@@ -8,7 +8,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
-import edu.tamu.tcat.trc.entries.types.biblio.postgres.ModelAdapter;
+import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.ModelAdapter;
 import edu.tamu.tcat.trc.entries.types.biblio.search.BiblioSearchProxy;
 import edu.tamu.tcat.trc.search.SearchException;
 

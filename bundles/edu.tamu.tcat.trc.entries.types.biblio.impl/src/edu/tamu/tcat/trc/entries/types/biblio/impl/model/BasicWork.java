@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.biblio.postgres;
+package edu.tamu.tcat.trc.entries.types.biblio.impl.model;
 
 import java.time.LocalDate;
 import java.util.Comparator;

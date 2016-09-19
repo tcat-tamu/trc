@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.biblio.postgres;
+package edu.tamu.tcat.trc.entries.types.biblio.impl.repo;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -28,6 +28,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.CopyReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.postgres.BiblioRepoService;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.CopyReferenceMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.VolumeMutator;
 import edu.tamu.tcat.trc.repo.ChangeSet;
