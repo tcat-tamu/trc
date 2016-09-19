@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
 import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
 import edu.tamu.tcat.trc.entries.core.repo.UnauthorziedException;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
@@ -49,10 +50,8 @@ public class BibliographicEntryService
    private BasicRepoDelegate<BibliographicEntry, WorkDTO, EditBibliographicEntryCommand> delegate;
 
    private EntryResolverRegistry.Registration resolverReg;
-
    private RepositoryContext.Registration repoReg;
-
-   private Object searchReg;
+   private EntryRepository.ObserverRegistration searchReg;
 
 
    public BibliographicEntryService()
@@ -116,8 +115,8 @@ public class BibliographicEntryService
             docRepo.dispose();
             delegate.dispose();
 
-   //         if (searchReg != null)
-   //            searchReg.close();
+            if (searchReg != null)
+               searchReg.close();
 
             logger.fine("Stopped " + getClass().getSimpleName());
 
