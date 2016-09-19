@@ -20,7 +20,7 @@ public class BiblioRepoImpl implements BibliographicEntryRepository
    private final Account account;
    private final BasicRepoDelegate<BibliographicEntry, WorkDTO, EditBibliographicEntryCommand> delegate;
 
-   BiblioRepoImpl(BasicRepoDelegate<BibliographicEntry, WorkDTO, EditBibliographicEntryCommand> delegate, Account account)
+   public BiblioRepoImpl(BasicRepoDelegate<BibliographicEntry, WorkDTO, EditBibliographicEntryCommand> delegate, Account account)
    {
       this.delegate = delegate;
       this.account = account;
