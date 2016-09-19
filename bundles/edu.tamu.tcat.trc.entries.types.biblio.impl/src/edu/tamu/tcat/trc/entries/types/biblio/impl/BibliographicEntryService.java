@@ -15,21 +15,23 @@ import edu.tamu.tcat.trc.entries.core.repo.UnauthorziedException;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverBase;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
+import edu.tamu.tcat.trc.entries.core.search.SolrSearchMediator;
 import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.BiblioRepoImpl;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.EditWorkCommandFactory;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.ModelAdapter;
-import edu.tamu.tcat.trc.entries.types.biblio.postgres.BiblioRepoService;
+import edu.tamu.tcat.trc.entries.types.biblio.impl.search.BibliographicSearchStrategy;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.BibliographicEntryRepository;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
+import edu.tamu.tcat.trc.search.solr.IndexService;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
 
 public class BibliographicEntryService
 {
-   private static final Logger logger = Logger.getLogger(BiblioRepoService.class.getName());
+   private static final Logger logger = Logger.getLogger(BibliographicEntryService.class.getName());
 
    public static final String ID_CONTEXT_WORKS = "works";
    public static final String ID_CONTEXT_EDITIONS = "editions";
@@ -49,6 +51,8 @@ public class BibliographicEntryService
    private EntryResolverRegistry.Registration resolverReg;
 
    private RepositoryContext.Registration repoReg;
+
+   private Object searchReg;
 
 
    public BibliographicEntryService()
@@ -86,7 +90,7 @@ public class BibliographicEntryService
          Objects.requireNonNull(resolverReg);
          Objects.requireNonNull(repoReg);
 
-//         initSearch();
+         initSearch();
 
          logger.fine("Activated " + getClass().getSimpleName());
       }
@@ -96,6 +100,34 @@ public class BibliographicEntryService
          throw ex;
       }
    }
+
+   /**
+       * Lifecycle management method (usually called by framework service layer)
+       * Called when this service is no longer required.
+       */
+      public void dispose()
+      {
+         try
+         {
+            logger.info("Stopping " + getClass().getSimpleName());
+
+            resolverReg.unregister();
+            repoReg.unregister();
+            docRepo.dispose();
+            delegate.dispose();
+
+   //         if (searchReg != null)
+   //            searchReg.close();
+
+            logger.fine("Stopped " + getClass().getSimpleName());
+
+         }
+         catch (Exception ex)
+         {
+            logger.log(Level.SEVERE, "Failed to stop" + getClass().getSimpleName(), ex);
+            throw ex;
+         }
+      }
 
    private void initRepo()
    {
@@ -132,32 +164,18 @@ public class BibliographicEntryService
       delegate = delegateBuilder.build();
    }
 
-   /**
-    * Lifecycle management method (usually called by framework service layer)
-    * Called when this service is no longer required.
-    */
-   public void dispose()
+   private void initSearch()
    {
-      try
+      if (indexSvcMgr == null)
       {
-         logger.info("Stopping " + getClass().getSimpleName());
-
-         resolverReg.unregister();
-         repoReg.unregister();
-         docRepo.dispose();
-         delegate.dispose();
-
-//         if (searchReg != null)
-//            searchReg.close();
-
-         logger.fine("Stopped " + getClass().getSimpleName());
-
+         logger.log(Level.WARNING, "Index support has not been configured for " + getClass().getSimpleName());
+         return;
       }
-      catch (Exception ex)
-      {
-         logger.log(Level.SEVERE, "Failed to stop" + getClass().getSimpleName(), ex);
-         throw ex;
-      }
+      BibliographicSearchStrategy indexCfg = new BibliographicSearchStrategy();
+      IndexService<BibliographicEntry> indexSvc = indexSvcMgr.configure(indexCfg);
+
+      BiblioRepoImpl repo = new BiblioRepoImpl(delegate, null);     // USE SEARCH ACCT
+      searchReg = repo.onUpdate(ctx -> SolrSearchMediator.index(indexSvc, ctx));
    }
 
    private class BibliographicEntryResolver extends EntryResolverBase<BibliographicEntry>

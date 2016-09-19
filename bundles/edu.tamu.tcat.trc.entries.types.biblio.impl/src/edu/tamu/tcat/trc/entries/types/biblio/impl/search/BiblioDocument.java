@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.biblio.search.solr;
+package edu.tamu.tcat.trc.entries.types.biblio.impl.search;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -42,6 +42,8 @@ import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
  */
 public class BiblioDocument
 {
+
+   // TODO this is of dubious value -- is part of the adapter logic
    // is this a proxy, mutator or builder
    private final static Logger logger = Logger.getLogger(BiblioDocument.class.getName());
 
@@ -58,7 +60,7 @@ public class BiblioDocument
       return indexDocument.build();
    }
 
-   void addAuthors(List<AuthorReferenceDTO> authors) throws SearchException
+   public void addAuthors(List<AuthorReferenceDTO> authors) throws SearchException
    {
       for (AuthorReferenceDTO author : authors)
       {
@@ -71,7 +73,7 @@ public class BiblioDocument
       }
    }
 
-   void updateAuthors(List<AuthorReferenceDTO> authors) throws SearchException
+   public void updateAuthors(List<AuthorReferenceDTO> authors) throws SearchException
    {
       Collection<String> allIds = new ArrayList<>();
       Collection<String> allNames = new ArrayList<>();
@@ -92,7 +94,7 @@ public class BiblioDocument
       indexDocument.update(BiblioSolrConfig.AUTHOR_ROLES, allRoles);
    }
 
-   void addTitles(Collection<TitleDTO> titlesDV) throws SearchException
+   public void addTitles(Collection<TitleDTO> titlesDV) throws SearchException
    {
       for (TitleDTO title : titlesDV)
       {
@@ -103,7 +105,7 @@ public class BiblioDocument
       }
    }
 
-   void updateTitles(Collection<TitleDTO> titlesDV) throws SearchException
+   public void updateTitles(Collection<TitleDTO> titlesDV) throws SearchException
    {
       Collection<String> allTypes = new ArrayList<>();
       Collection<String> allLangs = new ArrayList<>();
@@ -124,7 +126,7 @@ public class BiblioDocument
       indexDocument.update(BiblioSolrConfig.SUBTITLES, allSubTitles);
    }
 
-   void addPublication(PublicationInfoDTO publication) throws SearchException
+   public void addPublication(PublicationInfoDTO publication) throws SearchException
    {
       if (publication.publisher != null)
          indexDocument.set(BiblioSolrConfig.PUBLISHER, publication.publisher);
@@ -166,7 +168,7 @@ public class BiblioDocument
       }
    }
 
-   void updatePublication(PublicationInfoDTO publication) throws SearchException
+   public void updatePublication(PublicationInfoDTO publication) throws SearchException
    {
       if (publication.publisher != null)
          indexDocument.update(BiblioSolrConfig.PUBLISHER, publication.publisher);
