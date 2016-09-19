@@ -24,26 +24,28 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 
 import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
-import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand;
+import edu.tamu.tcat.trc.entries.types.biblio.impl.search.WorkSolrQueryCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.BibliographicEntryRepository;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityPersistenceAdapter;
 import edu.tamu.tcat.trc.entries.types.biblio.search.BiblioSearchProxy;
 import edu.tamu.tcat.trc.entries.types.biblio.search.SearchWorksResult;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkQueryCommand;
-import edu.tamu.tcat.trc.entries.types.biblio.search.WorkSearchService;
 import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.search.solr.QueryService;
 
 public class WorkCollectionResource
 {
    private static final Logger logger = Logger.getLogger(WorkCollectionResource.class.getName());
 
    private final BibliographicEntryRepository repo;
-   private final WorkSearchService workSearchService;
 
-   public WorkCollectionResource(BibliographicEntryRepository repo, WorkSearchService searchSvc)
+   private QueryService<WorkSolrQueryCommand> queryService;
+
+   public WorkCollectionResource(BibliographicEntryRepository repo, QueryService<WorkSolrQueryCommand> queryService)
    {
       this.repo = repo;
-      this.workSearchService = searchSvc;
+      this.queryService = queryService;
    }
 
    /**
@@ -72,30 +74,19 @@ public class WorkCollectionResource
 
       try
       {
-         WorkQueryCommand cmd = workSearchService.createQueryCommand();
+         WorkQueryCommand cmd = queryService.createQuery();
 
          // First, set query parameters
          //NOTE: a query can work without any parameters, so no need to validate that at least a 'q'
          //      or other advanced criteria was supplied
          if (query != null)
-         {
             cmd.query(query);
-         }
 
          if (type != null)
-         {
             cmd.queryType(type);
-         }
 
-         for (String n : authorNames)
-         {
-            cmd.queryAuthorName(n);
-         }
-
-         for (String t : titles)
-         {
-            cmd.queryTitle(t);
-         }
+         authorNames.stream().forEach(cmd::queryAuthorName);
+         titles.stream().forEach(cmd::queryTitle);
 
          // now filters/facets
          cmd.addFilterAuthor(authorIds);
