@@ -22,7 +22,7 @@ import edu.tamu.tcat.trc.services.types.bibref.repo.BibliographicItemReferenceMu
 import edu.tamu.tcat.trc.services.types.bibref.repo.CitationMutator;
 import edu.tamu.tcat.trc.services.types.bibref.repo.EditBibliographyCommand;
 
-public class EditBibliographyCommandFactory implements EditCommandFactory<DataModelV1.Bibliography, EditBibliographyCommand>
+public class EditBibliographyCommandFactory implements EditCommandFactory<DataModelV1.ReferenceCollection, EditBibliographyCommand>
 {
    private final EntryResolverRegistry entryResolverRegistry;
 
@@ -32,13 +32,13 @@ public class EditBibliographyCommandFactory implements EditCommandFactory<DataMo
    }
 
    @Override
-   public EditBibliographyCommand create(String id, UpdateStrategy<DataModelV1.Bibliography> strategy)
+   public EditBibliographyCommand create(String id, UpdateStrategy<DataModelV1.ReferenceCollection> strategy)
    {
       return new EditBibliographyCommandImpl(id, strategy);
    }
 
    @Override
-   public EditBibliographyCommand edit(String id, UpdateStrategy<DataModelV1.Bibliography> strategy)
+   public EditBibliographyCommand edit(String id, UpdateStrategy<DataModelV1.ReferenceCollection> strategy)
    {
       return new EditBibliographyCommandImpl(id, strategy);
    }
@@ -46,10 +46,10 @@ public class EditBibliographyCommandFactory implements EditCommandFactory<DataMo
    public class EditBibliographyCommandImpl implements EditBibliographyCommand
    {
       private final String bibId;
-      private final UpdateStrategy<DataModelV1.Bibliography> strategy;
-      private final ApplicableChangeSet<DataModelV1.Bibliography> changes = new BasicChangeSet<>();
+      private final UpdateStrategy<DataModelV1.ReferenceCollection> strategy;
+      private final ApplicableChangeSet<DataModelV1.ReferenceCollection> changes = new BasicChangeSet<>();
 
-      public EditBibliographyCommandImpl(String bibId, UpdateStrategy<DataModelV1.Bibliography> strategy)
+      public EditBibliographyCommandImpl(String bibId, UpdateStrategy<DataModelV1.ReferenceCollection> strategy)
       {
          this.bibId = bibId;
          this.strategy = strategy;
@@ -132,9 +132,9 @@ public class EditBibliographyCommandFactory implements EditCommandFactory<DataMo
       @Override
       public CompletableFuture<String> execute()
       {
-         CompletableFuture<DataModelV1.Bibliography> modified = strategy.update(updateContext -> {
-            DataModelV1.Bibliography original = updateContext.getOriginal();
-            DataModelV1.Bibliography clone = new DataModelV1.Bibliography();
+         CompletableFuture<DataModelV1.ReferenceCollection> modified = strategy.update(updateContext -> {
+            DataModelV1.ReferenceCollection original = updateContext.getOriginal();
+            DataModelV1.ReferenceCollection clone = new DataModelV1.ReferenceCollection();
 
             if (original == null)
             {
@@ -144,7 +144,7 @@ public class EditBibliographyCommandFactory implements EditCommandFactory<DataMo
             else
             {
                // we are editing an existing bibliography
-               DataModelV1.Bibliography.copy(clone, original);
+               DataModelV1.ReferenceCollection.copy(clone, original);
             }
 
             return this.changes.apply(clone);
@@ -157,7 +157,7 @@ public class EditBibliographyCommandFactory implements EditCommandFactory<DataMo
        * @param citationId The id of the citation to select
        * @return A function that, when given a bibliography instance, returns the citation identified by the given {@code citationId} or throws an {@link IllegalArgumentException} if no such citation exists on the bibliography.
        */
-      private Function<DataModelV1.Bibliography, DataModelV1.Citation> makeCitationSelector(String citationId)
+      private Function<DataModelV1.ReferenceCollection, DataModelV1.Citation> makeCitationSelector(String citationId)
       {
          return bib -> {
             DataModelV1.Citation citation = bib.citations.get(citationId);
@@ -172,7 +172,7 @@ public class EditBibliographyCommandFactory implements EditCommandFactory<DataMo
        * @param itemId The id of the item to select
        * @return A function that, when given a bibliography instance, returns the bibliographic item identified by the given {@code itemId} or throws an {@link IllegalArgumentException} if no such item exists on the bibliography.
        */
-      private Function<DataModelV1.Bibliography, DataModelV1.BibliographicItem> makeItemSelector(String itemId)
+      private Function<DataModelV1.ReferenceCollection, DataModelV1.BibliographicItem> makeItemSelector(String itemId)
       {
          return bib -> {
             DataModelV1.BibliographicItem item = bib.items.get(itemId);

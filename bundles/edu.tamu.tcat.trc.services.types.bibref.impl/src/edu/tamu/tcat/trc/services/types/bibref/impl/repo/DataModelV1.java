@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public abstract class DataModelV1
 {
-   public static class Bibliography
+   public static class ReferenceCollection
    {
       public String id;
       public final Map<String, Citation> citations = new HashMap<>();
@@ -16,11 +16,11 @@ public abstract class DataModelV1
 
       /**
        * @param original The instance to copy.
-       * @return A new copy of the given bibliography.
+       * @return A new copy of the given reference collection.
        */
-      public static Bibliography copy(Bibliography original)
+      public static ReferenceCollection copy(ReferenceCollection original)
       {
-         return copy(new Bibliography(), original);
+         return copy(new ReferenceCollection(), original);
       }
 
       /**
@@ -28,7 +28,7 @@ public abstract class DataModelV1
        * @param source The instance from which to copy values
        * @return The destination containing all copied values.
        */
-      public static Bibliography copy(Bibliography dest, Bibliography source)
+      public static ReferenceCollection copy(ReferenceCollection dest, ReferenceCollection source)
       {
          Objects.requireNonNull(dest, "destination must not be null");
          Objects.requireNonNull(source, "source must not be null");

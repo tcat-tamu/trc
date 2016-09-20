@@ -58,7 +58,7 @@ public class ReferenceCollectionImpl implements ReferenceCollection
                .forEach(item -> items.put(item.getId(), item));
    }
 
-   public ReferenceCollectionImpl(DataModelV1.Bibliography dto)
+   public ReferenceCollectionImpl(DataModelV1.ReferenceCollection dto)
    {
       if (dto == null)
          return;
