@@ -10,6 +10,7 @@ import edu.tamu.tcat.trc.services.types.bibref.BibliographicItemReference;
 import edu.tamu.tcat.trc.services.types.bibref.Citation;
 import edu.tamu.tcat.trc.services.types.bibref.Creator;
 import edu.tamu.tcat.trc.services.types.bibref.ReferenceCollection;
+import edu.tamu.tcat.trc.services.types.bibref.repo.BibliographicItemMutator;
 import edu.tamu.tcat.trc.services.types.bibref.rest.v1.RestApiV1;
 
 /**
@@ -115,6 +116,21 @@ public class RepoAdapter
       dto.name = orig.getName();
 
       return dto;
+   }
+
+   public static BibliographicItemMutator.Creator toRepo(RestApiV1.Creator restDto)
+   {
+      if (restDto == null)
+         return null;
+
+      BibliographicItemMutator.Creator modelDto = new BibliographicItemMutator.Creator();
+
+      modelDto.role = restDto.role;
+      modelDto.firstName = restDto.firstName;
+      modelDto.lastName = restDto.lastName;
+      modelDto.name = restDto.name;
+
+      return modelDto;
    }
 
    private static RestApiV1.BibliographicItemMeta adaptOnto(RestApiV1.BibliographicItemMeta dest, BibliographicItemMeta source)
