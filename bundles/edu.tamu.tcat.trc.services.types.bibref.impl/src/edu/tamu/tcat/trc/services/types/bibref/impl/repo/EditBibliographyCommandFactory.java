@@ -1,7 +1,6 @@
 package edu.tamu.tcat.trc.services.types.bibref.impl.repo;
 
 import java.text.MessageFormat;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -326,7 +325,7 @@ public class EditBibliographyCommandFactory implements EditCommandFactory<DataMo
       }
 
       @Override
-      public void setCreators(Collection<BibliographicItemMutator.Creator> creators)
+      public void setCreators(List<BibliographicItemMutator.Creator> creators)
       {
          Objects.requireNonNull(creators, "creators must not be null");
 

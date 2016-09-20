@@ -1,6 +1,6 @@
 package edu.tamu.tcat.trc.services.types.bibref.repo;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public interface BibliographicItemMutator
@@ -26,7 +26,7 @@ public interface BibliographicItemMutator
     * @param id The id of the creator to create.
     * @return A mutator to set values on the new creator item.
     */
-   void setCreators(Collection<Creator> creators);
+   void setCreators(List<Creator> creators);
 
    /**
     * Sets an individual bibliographic item field to the specified value.
