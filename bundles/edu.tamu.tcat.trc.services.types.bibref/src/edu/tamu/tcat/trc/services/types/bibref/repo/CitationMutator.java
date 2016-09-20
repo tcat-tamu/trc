@@ -26,5 +26,10 @@ public interface CitationMutator
     */
    void removeItemRef(String itemId);
 
+   /**
+    * Removes all bibliographic item references from the citation.
+    */
+   void removeAllItemRefs();
+
    // TODO declare methods to set the order of item references
 }

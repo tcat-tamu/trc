@@ -31,6 +31,11 @@ public interface EditBibliographyCommand extends EditEntryCommand<ReferenceColle
    void removeCitation(String citationId);
 
    /**
+    * Removes all citations from the bibliography
+    */
+   void removeAllCitations();
+
+   /**
     * Creates a new bibliographic item with the given id and adds it to the bibliography.
     * @param itemId The id of the bibliographic item to create.
     * @return A mutator to set values on the newly created bibliographic item.
@@ -48,4 +53,9 @@ public interface EditBibliographyCommand extends EditEntryCommand<ReferenceColle
     * @param itemId The id of the bibliographic item to remove.
     */
    void removeItem(String itemId);
+
+   /**
+    * Removes all items from the bibliography
+    */
+   void removeAllItems();
 }

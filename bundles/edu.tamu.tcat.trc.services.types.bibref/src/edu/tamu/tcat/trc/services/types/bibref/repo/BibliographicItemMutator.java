@@ -24,9 +24,13 @@ public interface BibliographicItemMutator
    /**
     * Adds a creator to this bibliographic item's list of creators.
     * @param id The id of the creator to create.
-    * @return A mutator to set values on the new creator item.
     */
    void setCreators(List<Creator> creators);
+
+   /**
+    * Removes all creators from this bibliographic item
+    */
+   void removeAllCreators();
 
    /**
     * Sets an individual bibliographic item field to the specified value.
@@ -36,16 +40,21 @@ public interface BibliographicItemMutator
    void setField(String field, String value);
 
    /**
+    * Sets all field-value pairs in the provided map, adding new fields and removing missing fields.
+    * @param fields
+    */
+   void setAllFields(Map<String, String> fields);
+
+   /**
     * Removes the specified field from the bibliographic item's field mapping.
     * @param field The field to remove.
     */
    void unsetField(String field);
 
    /**
-    * Sets all field-value pairs in the provided map, adding new fields and removing missing fields.
-    * @param fields
+    * Unsets all field-value pairs.
     */
-   void setAllFields(Map<String, String> fields);
+   void unsetAllFields();
 
    public static class Creator
    {

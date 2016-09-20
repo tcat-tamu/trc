@@ -96,6 +96,12 @@ public class EditBibliographyCommandFactory implements EditCommandFactory<DataMo
       }
 
       @Override
+      public void removeAllCitations()
+      {
+         changes.add("citations [clear]", bib -> bib.citations.clear());
+      }
+
+      @Override
       public BibliographicItemMutator addItem(String itemId)
       {
          Objects.requireNonNull(itemId, "item id must not be null");
@@ -126,6 +132,12 @@ public class EditBibliographyCommandFactory implements EditCommandFactory<DataMo
       public void removeItem(String itemId)
       {
          changes.add(MessageFormat.format("items.{0} [remove]", itemId), bib -> bib.items.remove(itemId));
+      }
+
+      @Override
+      public void removeAllItems()
+      {
+         changes.add("items [clear]", bib -> bib.items.clear());
       }
 
       @Override
@@ -237,6 +249,12 @@ public class EditBibliographyCommandFactory implements EditCommandFactory<DataMo
          changes.add(MessageFormat.format("citedItems.{0} [remove]", itemId), citation -> citation.citedItems.removeIf(ref -> ref.itemId == itemId));
       }
 
+      @Override
+      public void removeAllItemRefs()
+      {
+         changes.add("citedItems [clear]", citation -> citation.citedItems.clear());
+      }
+
       /**
        * @param itemId The referenced item id of the item reference to select
        * @return A function that, when given a citation instance, returns the bibliographic item reference that points to the given {@code itemId} or throws an {@link IllegalArgumentException} if no such item reference exists on the citation.
@@ -338,19 +356,17 @@ public class EditBibliographyCommandFactory implements EditCommandFactory<DataMo
       }
 
       @Override
+      public void removeAllCreators()
+      {
+         changes.add("creators [clear]", item -> item.creators.clear());
+      }
+
+      @Override
       public void setField(String field, String value)
       {
          Objects.requireNonNull(field, "field must not be null");
 
          changes.add(MessageFormat.format("fields.{0}", field), item -> item.fields.put(field, value));
-      }
-
-      @Override
-      public void unsetField(String field)
-      {
-         Objects.requireNonNull(field, "field must not be null");
-
-         changes.add(MessageFormat.format("fields.{0} [remove]", field), item -> item.fields.remove(field));
       }
 
       @Override
@@ -362,6 +378,20 @@ public class EditBibliographyCommandFactory implements EditCommandFactory<DataMo
             item.fields.clear();
             item.fields.putAll(fields);
          });
+      }
+
+      @Override
+      public void unsetField(String field)
+      {
+         Objects.requireNonNull(field, "field must not be null");
+
+         changes.add(MessageFormat.format("fields.{0} [remove]", field), item -> item.fields.remove(field));
+      }
+
+      @Override
+      public void unsetAllFields()
+      {
+         changes.add("fields [clear]", item -> item.fields.clear());
       }
 
       /**
