@@ -9,14 +9,14 @@ public abstract class RestApiV1
 {
    public static class ReferenceCollection
    {
-      public Map<String, Citation> citations = new HashMap<>();
-      public Map<String, BibliographicItem> bibliography = new HashMap<>();
+      public final Map<String, Citation> citations = new HashMap<>();
+      public final Map<String, BibliographicItem> bibliography = new HashMap<>();
    }
 
    public static class Citation
    {
       public String id;
-      public List<BibliographicItemReference> items = new ArrayList<>();
+      public final List<BibliographicItemReference> items = new ArrayList<>();
    }
 
    public static class BibliographicItemReference
@@ -31,9 +31,9 @@ public abstract class RestApiV1
    {
       public String id;
       public String type;
-      public BibliographicItemMeta meta = new BibliographicItemMeta();
-      public List<Creator> creators = new ArrayList<>();
-      public Map<String, String> fields = new HashMap<>();
+      public final BibliographicItemMeta meta = new BibliographicItemMeta();
+      public final List<Creator> creators = new ArrayList<>();
+      public final Map<String, String> fields = new HashMap<>();
    }
 
    public static class BibliographicItemMeta
