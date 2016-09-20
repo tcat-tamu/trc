@@ -12,6 +12,7 @@ import java.util.Map;
 import edu.tamu.tcat.trc.services.types.bibref.BibliographicItem;
 import edu.tamu.tcat.trc.services.types.bibref.Citation;
 import edu.tamu.tcat.trc.services.types.bibref.ReferenceCollection;
+import edu.tamu.tcat.trc.services.types.bibref.impl.repo.DataModelV1;
 
 /**
  * @author matthew.barry
@@ -49,6 +50,26 @@ public class ReferenceCollectionImpl implements ReferenceCollection
          otherCitations.stream()
                .map(CitationImpl::new)
                .forEach(citations::add);
+
+      Collection<BibliographicItem> otherItems = other.getItems();
+      if (otherItems != null && !otherItems.isEmpty())
+         otherItems.stream()
+               .map(BibliographicItemImpl::new)
+               .forEach(item -> items.put(item.getId(), item));
+   }
+
+   public ReferenceCollectionImpl(DataModelV1.Bibliography dto)
+   {
+      if (dto == null)
+         return;
+
+      dto.citations.values().stream()
+            .map(CitationImpl::new)
+            .forEach(citations::add);
+
+      dto.items.values().stream()
+            .map(BibliographicItemImpl::new)
+            .forEach(item -> items.put(item.getId(), item));
    }
 
    @Override

@@ -1,6 +1,7 @@
 package edu.tamu.tcat.trc.services.types.bibref.impl.model;
 
 import edu.tamu.tcat.trc.services.types.bibref.BibliographicItemMeta;
+import edu.tamu.tcat.trc.services.types.bibref.impl.repo.DataModelV1;
 
 public class BibliographicItemMetaImpl implements BibliographicItemMeta
 {
@@ -28,11 +29,23 @@ public class BibliographicItemMetaImpl implements BibliographicItemMeta
       if (other == null)
          return;
 
-      this.key = other.getKey();
-      this.creatorSummary = other.getCreatorSummary();
-      this.parsedDate = other.getParsedDate();
-      this.dateAdded = other.getDateAdded();
-      this.dateModified = other.getDateModified();
+      key = other.getKey();
+      creatorSummary = other.getCreatorSummary();
+      parsedDate = other.getParsedDate();
+      dateAdded = other.getDateAdded();
+      dateModified = other.getDateModified();
+   }
+
+   public BibliographicItemMetaImpl(DataModelV1.BibliographicItemMeta dto)
+   {
+      if (dto == null)
+         return;
+
+      key = dto.key;
+      creatorSummary = dto.creatorSummary;
+      parsedDate = dto.parsedDate;
+      dateAdded = dto.dateAdded;
+      dateModified = dto.dateModified;
    }
 
    @Override

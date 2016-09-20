@@ -9,6 +9,7 @@ import java.util.Map;
 import edu.tamu.tcat.trc.services.types.bibref.BibliographicItem;
 import edu.tamu.tcat.trc.services.types.bibref.BibliographicItemMeta;
 import edu.tamu.tcat.trc.services.types.bibref.Creator;
+import edu.tamu.tcat.trc.services.types.bibref.impl.repo.DataModelV1;
 
 public class BibliographicItemImpl implements BibliographicItem
 {
@@ -55,6 +56,25 @@ public class BibliographicItemImpl implements BibliographicItem
       Map<String, String> otherFields = other.getFields();
       if (otherFields != null && !otherFields.isEmpty())
          fields.putAll(otherFields);
+   }
+
+   public BibliographicItemImpl(DataModelV1.BibliographicItem dto)
+   {
+      if (dto == null)
+      {
+         meta = new BibliographicItemMetaImpl();
+         return;
+      }
+
+      id = dto.id;
+      type = dto.type;
+      meta = new BibliographicItemMetaImpl(dto.meta);
+
+      dto.creators.stream()
+            .map(CreatorImpl::new)
+            .forEach(creators::add);
+
+      fields.putAll(dto.fields);
    }
 
    @Override

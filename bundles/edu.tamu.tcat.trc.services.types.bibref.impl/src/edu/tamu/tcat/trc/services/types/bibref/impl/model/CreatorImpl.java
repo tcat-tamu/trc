@@ -1,6 +1,7 @@
 package edu.tamu.tcat.trc.services.types.bibref.impl.model;
 
 import edu.tamu.tcat.trc.services.types.bibref.Creator;
+import edu.tamu.tcat.trc.services.types.bibref.impl.repo.DataModelV1;
 
 public class CreatorImpl implements Creator
 {
@@ -26,10 +27,21 @@ public class CreatorImpl implements Creator
       if (other == null)
          return;
 
-      this.role = other.getRole();
-      this.firstName = other.getFirstName();
-      this.lastName = other.getLastName();
-      this.name = other.getName();
+      role = other.getRole();
+      firstName = other.getFirstName();
+      lastName = other.getLastName();
+      name = other.getName();
+   }
+
+   public CreatorImpl(DataModelV1.Creator dto)
+   {
+      if (dto == null)
+         return;
+
+      role = dto.role;
+      firstName = dto.firstName;
+      lastName = dto.lastName;
+      name = dto.name;
    }
 
    @Override

@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import edu.tamu.tcat.trc.services.types.bibref.BibliographicItemReference;
 import edu.tamu.tcat.trc.services.types.bibref.Citation;
+import edu.tamu.tcat.trc.services.types.bibref.impl.repo.DataModelV1;
 
 public class CitationImpl implements Citation
 {
@@ -32,13 +33,24 @@ public class CitationImpl implements Citation
    {
       Objects.requireNonNull(other);
 
-      this.id = other.getId();
+      id = other.getId();
 
       List<BibliographicItemReference> otherCitedItems = other.getCitedItems();
       if (otherCitedItems != null && !otherCitedItems.isEmpty())
          otherCitedItems.stream()
                .map(BibliographicItemReferenceImpl::new)
                .forEach(citedItems::add);
+   }
+
+   public CitationImpl(DataModelV1.Citation dto)
+   {
+      Objects.requireNonNull(dto);
+
+      id = dto.id;
+
+      dto.citedItems.stream()
+            .map(BibliographicItemReferenceImpl::new)
+            .forEach(citedItems::add);
    }
 
    @Override

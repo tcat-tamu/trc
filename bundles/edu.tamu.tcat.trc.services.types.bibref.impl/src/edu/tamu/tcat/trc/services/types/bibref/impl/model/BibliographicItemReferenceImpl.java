@@ -1,6 +1,7 @@
 package edu.tamu.tcat.trc.services.types.bibref.impl.model;
 
 import edu.tamu.tcat.trc.services.types.bibref.BibliographicItemReference;
+import edu.tamu.tcat.trc.services.types.bibref.impl.repo.DataModelV1;
 
 public class BibliographicItemReferenceImpl implements BibliographicItemReference
 {
@@ -26,10 +27,21 @@ public class BibliographicItemReferenceImpl implements BibliographicItemReferenc
       if (other == null)
          return;
 
-      this.itemId = other.getItemId();
-      this.label = other.getLabel();
-      this.locatorType = other.getLocatorType();
-      this.locator = other.getLocator();
+      itemId = other.getItemId();
+      label = other.getLabel();
+      locatorType = other.getLocatorType();
+      locator = other.getLocator();
+   }
+
+   public BibliographicItemReferenceImpl(DataModelV1.BibliographicItemReference dto)
+   {
+      if (dto == null)
+         return;
+
+      itemId = dto.itemId;
+      label = dto.label;
+      locatorType = dto.locatorType;
+      locator = dto.locator;
    }
 
    @Override
