@@ -52,7 +52,7 @@ public class ReferenceRepositoryImpl implements ReferenceRepository
 
    /**
     * @param id
-    * @return the document repo identified by the given id or null if the document does not exist
+    * @return the document repo identified by the given id or umpty if the document does not exist
     */
    private Optional<ReferenceCollection> getDoc(String id)
    {
