@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.services.types.bibref.impl;
+package edu.tamu.tcat.trc.services.types.bibref.impl.model;
 
 import edu.tamu.tcat.trc.services.types.bibref.Creator;
 
