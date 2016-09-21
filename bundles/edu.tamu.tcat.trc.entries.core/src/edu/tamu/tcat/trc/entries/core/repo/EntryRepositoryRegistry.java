@@ -16,9 +16,6 @@ import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
  */
 public interface EntryRepositoryRegistry
 {
-   // TODO provide access to DocumentFactory, IdFactory, etc as needed.
-
-   // TODO provide factory to create a document repo
    /**
     * Configuration parameter that specifies the REST API endpoint for use in
     * creating and interpreting TRC entry URIs.
@@ -26,7 +23,7 @@ public interface EntryRepositoryRegistry
    static final String API_ENDPOINT_PARAM = "trc.api.endpoint";
 
    /**
-    * @return The configured REST API endpoint associated with this application. 
+    * @return The configured REST API endpoint associated with this application.
     */
    URI getApiEndpoint();
 
@@ -44,9 +41,6 @@ public interface EntryRepositoryRegistry
     * @param type The type of repository to obtain.
     * @return The requested repository.
     * @throws IllegalArgumentException If no repository is registered for this type.
-    *
-    * @apiNote This is designed to be implemented such that an repository implementation
-    *    provides ac
     */
    <Repo> Repo getRepository(Account account, Class<Repo> type) throws IllegalArgumentException;
 

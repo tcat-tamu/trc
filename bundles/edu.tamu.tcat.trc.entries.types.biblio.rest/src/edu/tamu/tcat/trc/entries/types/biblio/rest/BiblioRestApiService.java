@@ -17,13 +17,10 @@ import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
 @Path("/")
 public class BiblioRestApiService
 {
-
    private final static Logger logger = Logger.getLogger(BiblioRestApiService.class.getName());
-
 
    private EntryRepositoryRegistry registry;
    private SearchServiceManager searchMgr;
-
 
    private QueryService<WorkSolrQueryCommand> queryService;
 

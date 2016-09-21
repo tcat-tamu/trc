@@ -53,17 +53,11 @@ public class BibliographicEntryService
    private RepositoryContext.Registration repoReg;
    private EntryRepository.ObserverRegistration searchReg;
 
-
-   public BibliographicEntryService()
-   {
-   }
-
    public void setRepoContext(RepositoryContext context)
    {
       logger.fine(format("[{0}] setting repository context", getClass().getName()));
       this.context = context;
    }
-
 
    public void setSearchSvcMgr(SearchServiceManager indexSvcFactory)
    {
@@ -173,7 +167,7 @@ public class BibliographicEntryService
       BibliographicSearchStrategy indexCfg = new BibliographicSearchStrategy();
       IndexService<BibliographicEntry> indexSvc = indexSvcMgr.configure(indexCfg);
 
-      BiblioRepoImpl repo = new BiblioRepoImpl(delegate, null);     // USE SEARCH ACCT
+      BiblioRepoImpl repo = new BiblioRepoImpl(delegate, null);     // TODO USE SEARCH ACCT
       searchReg = repo.onUpdate(ctx -> SolrSearchMediator.index(indexSvc, ctx));
    }
 

@@ -13,6 +13,7 @@ public class SolrSearchMediator
             indexSvc.index(ctx.getModifiedState());
             break;
          case UPDATE:
+            // TODO perform update
             indexSvc.index(ctx.getModifiedState());
             break;
          case REMOVE:
