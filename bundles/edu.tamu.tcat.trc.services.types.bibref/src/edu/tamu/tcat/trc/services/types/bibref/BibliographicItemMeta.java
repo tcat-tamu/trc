@@ -13,7 +13,7 @@ public interface BibliographicItemMeta
    public String getCreatorSummary();
 
    /**
-    * @return A human-readable label to summerize the creation date field on the bibliographic item.
+    * @return A human-readable label to summarize the creation date field on the bibliographic item.
     */
    public String getParsedDate();
 

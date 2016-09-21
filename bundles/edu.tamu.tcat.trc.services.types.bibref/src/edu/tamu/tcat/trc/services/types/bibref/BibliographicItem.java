@@ -9,13 +9,13 @@ import java.util.Map;
 public interface BibliographicItem
 {
    /**
-    * @return A unique identifier for this bibliographic item to be used in citations.
+    * @return A unique identifier for this bibliographic item to be used in citations. Must never be {@code null}.
     */
    String getItemId();
 
    /**
     * Identifies the type of item referenced in this bibliographic item, e.g. a book, an article, or an audio recording.
-    * This value is vendor-specific to the source of this item's data (e.g. Zotero, Mendeley, or something internal tothe TRC framework).
+    * This value is vendor-specific to the source of this item's data (e.g. Zotero, Mendeley, or something internal to the TRC framework).
     * @return
     */
    String getType();
