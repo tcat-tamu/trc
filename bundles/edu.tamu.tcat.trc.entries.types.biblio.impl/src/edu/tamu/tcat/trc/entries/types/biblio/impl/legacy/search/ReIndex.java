@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.biblio.search.solr;
+package edu.tamu.tcat.trc.entries.types.biblio.impl.legacy.search;
 
 public class ReIndex
 {

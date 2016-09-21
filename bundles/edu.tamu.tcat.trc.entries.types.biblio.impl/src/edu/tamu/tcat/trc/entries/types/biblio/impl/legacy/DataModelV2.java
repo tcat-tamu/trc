@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.biblio.postgres.dto;
+package edu.tamu.tcat.trc.entries.types.biblio.impl.legacy;
 
 import java.util.ArrayList;
 import java.util.HashMap;

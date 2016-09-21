@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.biblio.search.solr.copies;
+package edu.tamu.tcat.trc.entries.types.biblio.impl.legacy.search.copies;
 
 import java.util.Arrays;
 import java.util.Collection;
