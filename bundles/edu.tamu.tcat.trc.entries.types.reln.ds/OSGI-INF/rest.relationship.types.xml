@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" name="edu.tamu.tcat.trc.types.relationship.rest.types">
-   <implementation class="edu.tamu.tcat.trc.entries.types.reln.rest.v1.RelationshipTypeResource"/>
-   <reference bind="setRegistry" cardinality="1..1" interface="edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry" name="RelationshipTypeRegistry" policy="dynamic" unbind="clearRegistry"/>
-   <service>
-      <provide interface="edu.tamu.tcat.trc.entries.types.reln.rest.v1.RelationshipTypeResource"/>
-   </service>
-</scr:component>

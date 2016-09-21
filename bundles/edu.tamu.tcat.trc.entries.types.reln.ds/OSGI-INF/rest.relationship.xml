@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="dispose" name="edu.tamu.tcat.trc.entries.reln.rest.relationshipService">
-   <implementation class="edu.tamu.tcat.trc.entries.types.reln.rest.v1.RelationshipResource"/>
-   <service>
-      <provide interface="edu.tamu.tcat.trc.entries.types.reln.rest.v1.RelationshipResource"/>
-   </service>
-   <reference bind="setRepository" cardinality="1..1" interface="edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository" name="RelationshipRepository" policy="static"/>
-   <reference bind="setSearch" cardinality="1..1" interface="edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchService" name="RelationshipSearchService" policy="static"/>
-</scr:component>
