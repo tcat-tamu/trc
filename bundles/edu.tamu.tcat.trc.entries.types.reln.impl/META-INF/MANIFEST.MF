@@ -5,23 +5,10 @@ Bundle-SymbolicName: edu.tamu.tcat.trc.entries.types.reln.impl
 Bundle-Version: 1.3.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: Texas A&M Engineering Experiment Station
-Export-Package: edu.tamu.tcat.trc.entries.types.reln.postgres;version="1.3.0";
-  uses:="edu.tamu.tcat.db.exec.sql,
-   edu.tamu.tcat.trc.repo,
-   org.eclipse.core.runtime,
-   edu.tamu.tcat.trc.entries.types.reln.dto,
-   edu.tamu.tcat.trc.entries.types.reln.repo,
-   edu.tamu.tcat.trc.entries.types.reln,
-   com.fasterxml.jackson.databind",
- edu.tamu.tcat.trc.entries.types.reln.search.solr;version="1.3.0";
-  uses:="edu.tamu.tcat.trc.search.solr,
-   edu.tamu.tcat.trc.search.solr.impl,
-   edu.tamu.tcat.osgi.config,
-   edu.tamu.tcat.trc.entries.types.reln.repo,
-   org.apache.solr.client.solrj,
-   org.apache.solr.common,
-   edu.tamu.tcat.trc.entries.types.reln,
-   edu.tamu.tcat.trc.entries.types.reln.search"
+Export-Package: edu.tamu.tcat.trc.entries.types.reln.impl;version="1.3.0",
+ edu.tamu.tcat.trc.entries.types.reln.impl.model;version="1.3.0",
+ edu.tamu.tcat.trc.entries.types.reln.impl.repo;version="1.3.0",
+ edu.tamu.tcat.trc.entries.types.reln.impl.search;version="1.3.0"
 Import-Package: com.fasterxml.jackson.databind;version="[2.3.1,3.0.0)",
  com.google.common.base;version="[11.0.0,12.0.0)",
  com.google.common.util.concurrent;version="[11.0.0,12.0.0)",
