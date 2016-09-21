@@ -269,9 +269,9 @@ public abstract class CategorizationRepositoryTests
       mockRef.id = "3XthwW";
       String token = repos.getResolverRegistry().tokenize(mockRef);
       System.out.println(token);
-      EntryReference resored = repos.getResolverRegistry().decodeToken(token);
-      assertEquals(mockRef.id, resored.id);
-      assertEquals(mockRef.type, resored.type);
+      EntryReference restored = repos.getResolverRegistry().decodeToken(token);
+      assertEquals(mockRef.id, restored.id);
+      assertEquals(mockRef.type, restored.type);
    }
 
    protected abstract Strategy getStrategy();

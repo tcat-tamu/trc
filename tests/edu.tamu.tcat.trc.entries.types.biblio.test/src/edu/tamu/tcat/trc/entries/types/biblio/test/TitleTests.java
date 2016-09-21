@@ -27,7 +27,7 @@ import org.junit.Test;
 
 import edu.tamu.tcat.trc.entries.types.biblio.Title;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
-import edu.tamu.tcat.trc.entries.types.biblio.postgres.ModelAdapter;
+import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.ModelAdapter;
 
 /**
  *  Tests data serialization/deserialization for basic domain model implementation. For each
