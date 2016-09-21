@@ -5,39 +5,13 @@ import edu.tamu.tcat.trc.services.types.bibref.impl.repo.DataModelV1;
 
 public class CreatorImpl implements Creator
 {
-   private String role;
-   private String firstName;
-   private String lastName;
-   private String name;
-
-   public CreatorImpl()
-   {
-   }
-
-   public CreatorImpl(String role, String firstName, String lastName, String name)
-   {
-      this.role = role;
-      this.firstName = firstName;
-      this.lastName = lastName;
-      this.name = name;
-   }
-
-   public CreatorImpl(Creator other)
-   {
-      if (other == null)
-         return;
-
-      role = other.getRole();
-      firstName = other.getFirstName();
-      lastName = other.getLastName();
-      name = other.getName();
-   }
+   private final String role;
+   private final String firstName;
+   private final String lastName;
+   private final String name;
 
    public CreatorImpl(DataModelV1.Creator dto)
    {
-      if (dto == null)
-         return;
-
       role = dto.role;
       firstName = dto.firstName;
       lastName = dto.lastName;

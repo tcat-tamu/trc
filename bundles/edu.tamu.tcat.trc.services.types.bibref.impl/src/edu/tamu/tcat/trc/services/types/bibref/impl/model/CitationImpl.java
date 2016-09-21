@@ -3,7 +3,6 @@ package edu.tamu.tcat.trc.services.types.bibref.impl.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import edu.tamu.tcat.trc.services.types.bibref.BibliographicItemReference;
 import edu.tamu.tcat.trc.services.types.bibref.Citation;
@@ -16,8 +15,6 @@ public class CitationImpl implements Citation
 
    public CitationImpl(DataModelV1.Citation dto)
    {
-      Objects.requireNonNull(dto);
-
       id = dto.id;
 
       dto.citedItems.stream()

@@ -103,8 +103,5 @@ public class BiographicReferenceService
       return builder.build();
    }
 
-//   public ReferenceRepository getReferenceRepository(Account account)
-//   {
-//
-//   }
+   // TODO need a way to provide ReferenceRepository instance(s)
 }

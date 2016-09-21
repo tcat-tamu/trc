@@ -14,9 +14,6 @@ import edu.tamu.tcat.trc.services.types.bibref.Citation;
 import edu.tamu.tcat.trc.services.types.bibref.ReferenceCollection;
 import edu.tamu.tcat.trc.services.types.bibref.impl.repo.DataModelV1;
 
-/**
- *
- */
 public class ReferenceCollectionImpl implements ReferenceCollection
 {
    private final Collection<Citation> citations = new ArrayList<>();
@@ -24,7 +21,6 @@ public class ReferenceCollectionImpl implements ReferenceCollection
 
    public ReferenceCollectionImpl()
    {
-
    }
 
    public ReferenceCollectionImpl(DataModelV1.ReferenceCollection dto)

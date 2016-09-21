@@ -5,17 +5,14 @@ import edu.tamu.tcat.trc.services.types.bibref.impl.repo.DataModelV1;
 
 public class BibliographicItemMetaImpl implements BibliographicItemMeta
 {
-   private String key;
-   private String creatorSummary;
-   private String parsedDate;
-   private String dateAdded;
-   private String dateModified;
+   private final String key;
+   private final String creatorSummary;
+   private final String parsedDate;
+   private final String dateAdded;
+   private final String dateModified;
 
    public BibliographicItemMetaImpl(DataModelV1.BibliographicItemMeta dto)
    {
-      if (dto == null)
-         return;
-
       key = dto.key;
       creatorSummary = dto.creatorSummary;
       parsedDate = dto.parsedDate;

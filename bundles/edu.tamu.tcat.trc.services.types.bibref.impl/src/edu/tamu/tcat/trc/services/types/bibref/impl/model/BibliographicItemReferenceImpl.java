@@ -5,16 +5,13 @@ import edu.tamu.tcat.trc.services.types.bibref.impl.repo.DataModelV1;
 
 public class BibliographicItemReferenceImpl implements BibliographicItemReference
 {
-   private String itemId;
-   private String label;
-   private String locatorType;
-   private String locator;
+   private final String itemId;
+   private final String label;
+   private final String locatorType;
+   private final String locator;
 
    public BibliographicItemReferenceImpl(DataModelV1.BibliographicItemReference dto)
    {
-      if (dto == null)
-         return;
-
       itemId = dto.itemId;
       label = dto.label;
       locatorType = dto.locatorType;
