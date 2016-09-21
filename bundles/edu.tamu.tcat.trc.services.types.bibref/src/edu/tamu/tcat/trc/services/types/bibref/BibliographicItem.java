@@ -11,7 +11,7 @@ public interface BibliographicItem
    /**
     * @return A unique identifier for this bibliographic item to be used in citations.
     */
-   String getId();
+   String getItemId();
 
    /**
     * Identifies the type of item referenced in this bibliographic item, e.g. a book, an article, or an audio recording.

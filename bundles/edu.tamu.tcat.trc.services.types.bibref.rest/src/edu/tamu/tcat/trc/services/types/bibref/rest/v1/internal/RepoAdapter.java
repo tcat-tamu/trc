@@ -83,7 +83,7 @@ public class RepoAdapter
 
       RestApiV1.BibliographicItem dto = new RestApiV1.BibliographicItem();
 
-      dto.id = orig.getId();
+      dto.id = orig.getItemId();
       dto.type = orig.getType();
 
       adaptOnto(dto.meta, orig.getMetadata());
