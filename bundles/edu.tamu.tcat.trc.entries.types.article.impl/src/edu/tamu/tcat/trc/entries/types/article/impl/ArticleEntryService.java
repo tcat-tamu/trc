@@ -4,7 +4,6 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
@@ -18,14 +17,13 @@ import edu.tamu.tcat.trc.entries.types.article.impl.repo.DataModelV1;
 import edu.tamu.tcat.trc.entries.types.article.impl.repo.EditArticleCommandFactory;
 import edu.tamu.tcat.trc.entries.types.article.impl.search.ArticleSearchStrategy;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
-import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepositoryFactory;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.search.solr.IndexService;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
 
-public class ArticleEntryService implements ArticleRepositoryFactory
+public class ArticleEntryService
 {
    private final static Logger logger = Logger.getLogger(ArticleEntryService.class.getName());
 
@@ -121,7 +119,7 @@ public class ArticleEntryService implements ArticleRepositoryFactory
       initDelegate();
 
       resolverReg = context.registerResolver(new ArticleResolver(context.getConfig(), delegate));
-      repoReg = context.registerRepository(ArticleRepository.class, this::getArticleRepository);
+      repoReg = context.registerRepository(ArticleRepository.class, account -> new ArticleRepoImpl(delegate, account));
    }
 
 
@@ -165,11 +163,4 @@ public class ArticleEntryService implements ArticleRepositoryFactory
       ArticleRepoImpl repo = new ArticleRepoImpl(delegate, null);     // USE SEARCH ACCT
       searchReg = repo.onUpdate(ctx -> SolrSearchMediator.index(indexSvc, ctx));
    }
-
-   @Override
-   public ArticleRepository getArticleRepository(Account account)
-   {
-      return new ArticleRepoImpl(delegate, account);
-   }
-
 }
