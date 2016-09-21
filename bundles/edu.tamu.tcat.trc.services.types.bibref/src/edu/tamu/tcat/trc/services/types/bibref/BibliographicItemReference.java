@@ -8,17 +8,20 @@ public interface BibliographicItemReference
    String getItemId();
 
    /**
-    * @return A human-readable display label to identify this item reference to the user.
+    * @return A display label to identify this item reference.
     */
    String getLabel();
 
    /**
-    * @return The unit of reference for identifying a specific point within the referenced bibliographic Item.
+    * @return The unit of reference for identifying a specific location within the referenced
+    *    item (e.g., page, section, chapter).
     */
    String getLocatorType();
 
    /**
-    * @return A scale for the locator to a point within the referenced bibliographic item
+    * @return An identifier for a specific location within the referenced item that is
+    *    pertinent for this citation, such as a page range or chapter. The unit of reference is
+    *    given by the locator type.
     */
    String getLocator();
 }

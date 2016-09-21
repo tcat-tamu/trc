@@ -8,16 +8,20 @@ import edu.tamu.tcat.trc.services.types.bibref.ReferenceCollection;
 public interface ReferenceRepository
 {
    /**
-    * Retrieves the bibliography associated with the given reference or creates a new bibliography if one does not already exist.
-    * @param ref
-    * @return
+    * Retrieves the reference collection associated with the given entry. Note that all
+    * entries are assumed to have a reference collection. On the first attempt to retrieve
+    * a reference collection for a given entry, a new (empty) reference collection will
+    * be created.
+    *
+    * @param ref A reference to an entry whose reference collection is to be retrieved
+    * @return The reference collection for the supplied entry.
     */
    ReferenceCollection get(EntryReference ref);
 
    /**
-    * Edits an existing bibliography associated with the given reference or creates a new bibliography if one does not already exist.
-    * @param ref
-    * @return
+    * Edits the reference collection associated with the referenced entry.
+    * @param ref A reference to an entry whose reference collection should be edited
+    * @return A command to edit the associated reference collection
     */
    EditBibliographyCommand edit(EntryReference ref);
 

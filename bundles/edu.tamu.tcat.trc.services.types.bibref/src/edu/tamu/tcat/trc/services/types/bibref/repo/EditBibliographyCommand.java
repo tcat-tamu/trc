@@ -37,6 +37,7 @@ public interface EditBibliographyCommand extends EditEntryCommand<ReferenceColle
 
    /**
     * Creates a new bibliographic item with the given id and adds it to the bibliography.
+    *
     * @param itemId The id of the bibliographic item to create.
     * @return A mutator to set values on the newly created bibliographic item.
     */
