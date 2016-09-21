@@ -1,5 +1,5 @@
 <assembly>
-  <id>relationships.war</id>
+  <id>articles.war</id>
   <formats>
     <format>war</format>
   </formats>
