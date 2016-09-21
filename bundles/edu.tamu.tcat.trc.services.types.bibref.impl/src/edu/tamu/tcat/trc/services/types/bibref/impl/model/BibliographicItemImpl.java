@@ -13,59 +13,14 @@ import edu.tamu.tcat.trc.services.types.bibref.impl.repo.DataModelV1;
 
 public class BibliographicItemImpl implements BibliographicItem
 {
-   private String id;
-   private String type;
+   private final String id;
+   private final String type;
    private final BibliographicItemMeta meta;
    private final List<Creator> creators = new ArrayList<>();
    private final Map<String, String> fields = new HashMap<>();
 
-   public BibliographicItemImpl()
-   {
-      meta = new BibliographicItemMetaImpl();
-   }
-
-   public BibliographicItemImpl(String id, String type, BibliographicItemMeta meta, List<Creator> creators, Map<String, String> fields)
-   {
-      this.id = id;
-      this.type = type;
-      this.meta = new BibliographicItemMetaImpl(meta);
-
-      if (creators != null)
-         creators.stream().map(CreatorImpl::new).forEach(this.creators::add);
-
-      if (fields != null)
-         this.fields.putAll(fields);
-   }
-
-   public BibliographicItemImpl(BibliographicItem other)
-   {
-      if (other == null)
-      {
-         meta = new BibliographicItemMetaImpl();
-         return;
-      }
-
-      id = other.getId();
-      type = other.getType();
-      meta = new BibliographicItemMetaImpl(other.getMetadata());
-
-      List<Creator> otherCreators = other.getCreators();
-      if (otherCreators != null && !otherCreators.isEmpty())
-         otherCreators.stream().map(CreatorImpl::new).forEach(creators::add);
-
-      Map<String, String> otherFields = other.getFields();
-      if (otherFields != null && !otherFields.isEmpty())
-         fields.putAll(otherFields);
-   }
-
    public BibliographicItemImpl(DataModelV1.BibliographicItem dto)
    {
-      if (dto == null)
-      {
-         meta = new BibliographicItemMetaImpl();
-         return;
-      }
-
       id = dto.id;
       type = dto.type;
       meta = new BibliographicItemMetaImpl(dto.meta);
@@ -78,7 +33,7 @@ public class BibliographicItemImpl implements BibliographicItem
    }
 
    @Override
-   public String getId()
+   public String getItemId()
    {
       return id;
    }
@@ -106,5 +61,4 @@ public class BibliographicItemImpl implements BibliographicItem
    {
       return Collections.unmodifiableMap(fields);
    }
-
 }

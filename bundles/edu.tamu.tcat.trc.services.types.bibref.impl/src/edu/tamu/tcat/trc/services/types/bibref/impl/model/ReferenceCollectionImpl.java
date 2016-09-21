@@ -15,7 +15,6 @@ import edu.tamu.tcat.trc.services.types.bibref.ReferenceCollection;
 import edu.tamu.tcat.trc.services.types.bibref.impl.repo.DataModelV1;
 
 /**
- * @author matthew.barry
  *
  */
 public class ReferenceCollectionImpl implements ReferenceCollection
@@ -25,37 +24,7 @@ public class ReferenceCollectionImpl implements ReferenceCollection
 
    public ReferenceCollectionImpl()
    {
-   }
 
-   public ReferenceCollectionImpl(Collection<Citation> citations, Collection<BibliographicItem> items)
-   {
-      if (citations != null && !citations.isEmpty())
-         citations.stream()
-               .map(CitationImpl::new)
-               .forEach(this.citations::add);
-
-      if (items != null && !items.isEmpty())
-         items.stream()
-               .map(BibliographicItemImpl::new)
-               .forEach(item -> this.items.put(item.getId(), item));
-   }
-
-   public ReferenceCollectionImpl(ReferenceCollection other)
-   {
-      if (other == null)
-         return;
-
-      Collection<Citation> otherCitations = other.getCitations();
-      if (otherCitations != null && !otherCitations.isEmpty())
-         otherCitations.stream()
-               .map(CitationImpl::new)
-               .forEach(citations::add);
-
-      Collection<BibliographicItem> otherItems = other.getItems();
-      if (otherItems != null && !otherItems.isEmpty())
-         otherItems.stream()
-               .map(BibliographicItemImpl::new)
-               .forEach(item -> items.put(item.getId(), item));
    }
 
    public ReferenceCollectionImpl(DataModelV1.ReferenceCollection dto)
@@ -69,7 +38,7 @@ public class ReferenceCollectionImpl implements ReferenceCollection
 
       dto.items.values().stream()
             .map(BibliographicItemImpl::new)
-            .forEach(item -> items.put(item.getId(), item));
+            .forEach(item -> items.put(item.getItemId(), item));
    }
 
    @Override

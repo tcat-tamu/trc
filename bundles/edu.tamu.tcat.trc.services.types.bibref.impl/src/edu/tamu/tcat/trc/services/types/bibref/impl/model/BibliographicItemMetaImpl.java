@@ -11,31 +11,6 @@ public class BibliographicItemMetaImpl implements BibliographicItemMeta
    private String dateAdded;
    private String dateModified;
 
-   public BibliographicItemMetaImpl()
-   {
-   }
-
-   public BibliographicItemMetaImpl(String key, String creatorSummary, String parsedDate, String dateAdded, String dateModified)
-   {
-      this.key = key;
-      this.creatorSummary = creatorSummary;
-      this.parsedDate = parsedDate;
-      this.dateAdded = dateAdded;
-      this.dateModified = dateModified;
-   }
-
-   public BibliographicItemMetaImpl(BibliographicItemMeta other)
-   {
-      if (other == null)
-         return;
-
-      key = other.getKey();
-      creatorSummary = other.getCreatorSummary();
-      parsedDate = other.getParsedDate();
-      dateAdded = other.getDateAdded();
-      dateModified = other.getDateModified();
-   }
-
    public BibliographicItemMetaImpl(DataModelV1.BibliographicItemMeta dto)
    {
       if (dto == null)

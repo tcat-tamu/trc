@@ -14,34 +14,6 @@ public class CitationImpl implements Citation
    private final String id;
    private final List<BibliographicItemReference> citedItems = new ArrayList<>();
 
-   public CitationImpl(String id)
-   {
-      this(id, Collections.emptyList());
-   }
-
-   public CitationImpl(String id, List<BibliographicItemReference> citedItems)
-   {
-      this.id = id;
-
-      if (citedItems != null && !citedItems.isEmpty())
-         citedItems.stream()
-               .map(BibliographicItemReferenceImpl::new)
-               .forEach(this.citedItems::add);
-   }
-
-   public CitationImpl(Citation other)
-   {
-      Objects.requireNonNull(other);
-
-      id = other.getId();
-
-      List<BibliographicItemReference> otherCitedItems = other.getCitedItems();
-      if (otherCitedItems != null && !otherCitedItems.isEmpty())
-         otherCitedItems.stream()
-               .map(BibliographicItemReferenceImpl::new)
-               .forEach(citedItems::add);
-   }
-
    public CitationImpl(DataModelV1.Citation dto)
    {
       Objects.requireNonNull(dto);

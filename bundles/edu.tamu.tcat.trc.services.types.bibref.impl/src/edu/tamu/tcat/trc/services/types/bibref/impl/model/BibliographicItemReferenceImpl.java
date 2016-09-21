@@ -10,29 +10,6 @@ public class BibliographicItemReferenceImpl implements BibliographicItemReferenc
    private String locatorType;
    private String locator;
 
-   public BibliographicItemReferenceImpl()
-   {
-   }
-
-   public BibliographicItemReferenceImpl(String itemId, String label, String locatorType, String locator)
-   {
-      this.itemId = itemId;
-      this.label = label;
-      this.locatorType = locatorType;
-      this.locator = locator;
-   }
-
-   public BibliographicItemReferenceImpl(BibliographicItemReference other)
-   {
-      if (other == null)
-         return;
-
-      itemId = other.getItemId();
-      label = other.getLabel();
-      locatorType = other.getLocatorType();
-      locator = other.getLocator();
-   }
-
    public BibliographicItemReferenceImpl(DataModelV1.BibliographicItemReference dto)
    {
       if (dto == null)
