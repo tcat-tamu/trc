@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +17,6 @@ package edu.tamu.tcat.trc.entries.types.reln.rest.v1;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,30 +33,15 @@ import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 
-@Path("/relationships/types")
 public class RelationshipTypeResource
 {
    private static final Logger logger = Logger.getLogger(RelationshipTypeResource.class.getName());
 
-   private RelationshipTypeRegistry registry;
+   private final RelationshipTypeRegistry registry;
 
-   public void setRegistry(RelationshipTypeRegistry registry)
+   public RelationshipTypeResource(RelationshipTypeRegistry registry)
    {
       this.registry = registry;
-   }
-
-   public void clearRegistry(RelationshipTypeRegistry reg)
-   {
-      this.registry = null;
-   }
-
-   public void activate()
-   {
-      Objects.requireNonNull(registry, "No type registry provided");
-   }
-
-   public void dispose()
-   {
    }
 
    @GET

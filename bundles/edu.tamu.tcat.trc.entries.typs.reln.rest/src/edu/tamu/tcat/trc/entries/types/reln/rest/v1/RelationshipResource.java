@@ -27,7 +27,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -35,7 +34,8 @@ import javax.ws.rs.core.MediaType;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
-import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchService;
+import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
+import edu.tamu.tcat.trc.search.solr.QueryService;
 
 @Path("/relationships/{id}")
 public class RelationshipResource
@@ -43,40 +43,30 @@ public class RelationshipResource
    // FIXME improve error handling
    private static final Logger logger = Logger.getLogger(RelationshipResource.class.getName());
 
-   private RelationshipRepository repo;
-   private RelationshipSearchService svcSearch;
+   private final String relnId;
+   private final RelationshipRepository repo;
+   private final QueryService<RelationshipQueryCommand> queryService;
 
-   public void setRepository(RelationshipRepository repo)
+   public RelationshipResource(String relnId, RelationshipRepository repo, QueryService<RelationshipQueryCommand> queryService)
    {
+      this.relnId = relnId;
       this.repo = repo;
-   }
-
-   public void setSearch(RelationshipSearchService svc)
-   {
-      svcSearch = svc;
-   }
-
-   public void activate()
-   {
-   }
-
-   public void dispose()
-   {
+      this.queryService = queryService;
    }
 
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.Relationship get(@PathParam(value = "id") String id)
+   public RestApiV1.Relationship get()
    {
-      logger.fine(() -> "Retrieving relationship [relationship/" + id + "]");
+      logger.fine(() -> "Retrieving relationship [relationship/" + relnId + "]");
       try {
-         Relationship reln = repo.get(id);
+         Relationship reln = repo.get(relnId);
          return RepoAdapter.toDTO(reln);
       }
       catch (Exception perEx)
       {
-         logger.log(Level.SEVERE, "Data access error trying to retrieve relationship [relationship/" + id + "]", perEx);
-         throw new InternalServerErrorException("Failed to retrive relationship [relationship/" + id + "]");
+         logger.log(Level.SEVERE, "Data access error trying to retrieve relationship [relationship/" + relnId + "]", perEx);
+         throw new InternalServerErrorException("Failed to retrive relationship [relationship/" + relnId + "]");
       }
 
    }
@@ -84,27 +74,26 @@ public class RelationshipResource
    @PUT
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.RelationshipId update(@PathParam(value = "id") String id, RestApiV1.Relationship relationship)
+   public RestApiV1.Relationship update(RestApiV1.Relationship relationship)
    {
-      logger.fine(() -> "Updating relationship [relationship/" + id + "]\n" + relationship);
+      logger.fine(() -> "Updating relationship [relationship/" + relnId + "]\n" + relationship);
 
-      checkRelationshipValidity(relationship, id);
+      checkRelationshipValidity(relationship, relnId);
       try
       {
-         EditRelationshipCommand updateCommand = repo.edit(id);
+         EditRelationshipCommand updateCommand = repo.edit(relnId);
          updateCommand.setAll(RepoAdapter.toRepo(relationship));
-         updateCommand.execute().get();
+         updateCommand.execute().get(10, TimeUnit.SECONDS);
 
-         RestApiV1.RelationshipId result = new RestApiV1.RelationshipId();
-         result.id = id;
-         return result;
+         Relationship reln = repo.get(relnId);
+         return RepoAdapter.toDTO(reln);
       }
       catch (Exception e)
       {
          // TODO Might check underlying cause of the exception and ensure that this isn't
          //      the result of malformed data.
          logger.log(Level.SEVERE, "An error occured during the udpating process.", e);
-         throw new WebApplicationException("Failed to update relationship [" + id + "]", e.getCause(), 500);
+         throw new WebApplicationException("Failed to update relationship [" + relnId + "]", e.getCause(), 500);
       }
    }
 
@@ -121,15 +110,15 @@ public class RelationshipResource
    }
 
    @DELETE
-   public void remove(@PathParam(value = "id") String id)
+   public void remove()
    {
       try
       {
-         repo.remove(id).get(10, TimeUnit.SECONDS);
+         repo.remove(relnId).get(10, TimeUnit.SECONDS);
       }
       catch (InterruptedException | ExecutionException | TimeoutException e)
       {
-         throw new InternalServerErrorException("Failed to remove relations " + id, e);
+         throw new InternalServerErrorException("Failed to remove relations " + relnId, e);
       }
    }
 }

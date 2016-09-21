@@ -19,7 +19,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.List;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,6 +28,7 @@ import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
@@ -39,40 +39,27 @@ import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipDirection;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchResult;
-import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchService;
 import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.search.solr.QueryService;
 
-@Path("/relationships")
 public class RelationshipsResource
 {
    private static final Logger debug = Logger.getLogger(RelationshipsResource.class.getName());
 
-   private RelationshipRepository repo;
-   private RelationshipSearchService relnSearchService;
+   private final RelationshipRepository repo;
+   private final QueryService<RelationshipQueryCommand> queryService;
 
-   public void setRepository(RelationshipRepository repo)
+   public RelationshipsResource(RelationshipRepository repo, QueryService<RelationshipQueryCommand> queryService)
    {
       this.repo = repo;
+      this.queryService = queryService;
    }
 
-   public void setRelationshipService(RelationshipSearchService service)
-   {
-      this.relnSearchService = service;
-   }
-
-   public void activate()
-   {
-   }
-
-   public void dispose()
-   {
-   }
 
    // /relationships?entity=<uri>      return all entities related to the supplied entity
    // /relationships?entity=<uri>[&type=<type_id>][&direction=from|to|any]
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-//   public RestApiV1.RelationshipSearchResultSet
    public List<RestApiV1.RelationshipSearchResult>
    searchRelationships(@QueryParam(value="entity") URI entity,
                        @QueryParam(value="type") String type,
@@ -83,11 +70,10 @@ public class RelationshipsResource
    {
       if (entity == null)
          throw new BadRequestException("No \"entity\" parameter value was provided.");
-      Objects.requireNonNull(relnSearchService, "relationship search service is not available");
 
       try
       {
-         RelationshipQueryCommand cmd = relnSearchService.createQueryCommand();
+         RelationshipQueryCommand cmd = queryService.createQuery();
          RelationshipDirection dir = RelationshipDirection.any;
          if (direction != null)
             dir = direction.dir;
@@ -171,5 +157,11 @@ public class RelationshipsResource
          debug.severe("An error occured during the creating relationship process. Exception: " + e);
          throw new WebApplicationException("Failed to create a new relationship:", e.getCause(), 500);
       }
+   }
+
+   @Path("/{id}")
+   public RelationshipResource getRelationship(@PathParam("id") String relnId)
+   {
+      return new RelationshipResource(relnId, repo, queryService);
    }
 }

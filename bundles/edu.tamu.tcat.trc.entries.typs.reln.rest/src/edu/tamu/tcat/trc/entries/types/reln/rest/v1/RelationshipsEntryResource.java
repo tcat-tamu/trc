@@ -24,6 +24,7 @@ import edu.tamu.tcat.trc.search.SearchException;
  */
 public class RelationshipsEntryResource
 {
+   // TODO currently unused. Need to stitch in if desired.
    // TODO extend to allow filtering by relationship type, type of entry referenced by the relationship, etc.
 
    private static final Logger logger = Logger.getLogger(RelationshipsEntryResource.class.getName());
