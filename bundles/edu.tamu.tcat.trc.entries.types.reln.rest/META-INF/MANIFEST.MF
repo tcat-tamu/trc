@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: REST API for TRC Relationships Entry
 Bundle-SymbolicName: edu.tamu.tcat.trc.entries.types.reln.rest
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.3.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: edu.tamu.tcat.trc.entries.types.reln.rest;version="1.3.0",
  edu.tamu.tcat.trc.entries.types.reln.rest.v1;version="1.3.0"
@@ -11,8 +11,8 @@ Import-Package: com.google.common.base;version="11.0.2",
  edu.tamu.tcat.trc.entries.core.repo;version="1.3.0",
  edu.tamu.tcat.trc.entries.types.reln;version="1.3.0",
  edu.tamu.tcat.trc.entries.types.reln.dto;version="1.3.0",
- edu.tamu.tcat.trc.entries.types.reln.impl.search,
- edu.tamu.tcat.trc.entries.types.reln.repo,
+ edu.tamu.tcat.trc.entries.types.reln.impl.search;version="1.3.0",
+ edu.tamu.tcat.trc.entries.types.reln.repo;version="1.3.0",
  edu.tamu.tcat.trc.entries.types.reln.search;version="1.3.0",
  edu.tamu.tcat.trc.search;version="1.3.0",
  edu.tamu.tcat.trc.search.solr;version="1.3.0",

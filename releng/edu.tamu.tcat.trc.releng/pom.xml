@@ -48,13 +48,16 @@
     
     <module>oss.trc/bundles/edu.tamu.tcat.trc.base.feature</module>
 
+    <!-- TRC Core Framework -->
     <module>oss.trc/bundles/edu.tamu.tcat.trc</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.core</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.repo</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.search.solr</module>
 
+    <!-- TRC Entries -->
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio.impl</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.biblio.rest</module>
 
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.bio</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.bio.impl</module>
@@ -62,10 +65,13 @@
 
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.reln</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.reln.impl</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.reln.rest</module>
 
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.article</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.article.impl</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.article.rest</module>
 
+    <!-- TRC Services  -->
     <module>oss.trc/bundles/edu.tamu.tcat.trc.categorization</module>
 
     <module>oss.trc/bundles/edu.tamu.tcat.trc.digires</module>
