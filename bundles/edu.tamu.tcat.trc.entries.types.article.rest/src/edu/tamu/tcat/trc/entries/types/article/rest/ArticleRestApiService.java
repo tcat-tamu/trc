@@ -46,6 +46,7 @@ public class ArticleRestApiService
    {
       try
       {
+         logger.info(() -> "Activating " + getClass().getSimpleName());
          Objects.requireNonNull(repoSvc, "Article repository service is not configured.");
          if (endpoint == null)
          {
@@ -60,7 +61,7 @@ public class ArticleRestApiService
          }
          catch (Exception ex)
          {
-            logger.log(Level.SEVERE, "Failed to load query service for bibographical entries REST servivce", ex);
+            logger.log(Level.SEVERE, "Failed to load query service for articlesREST servivce", ex);
             throw ex;
          }
       }

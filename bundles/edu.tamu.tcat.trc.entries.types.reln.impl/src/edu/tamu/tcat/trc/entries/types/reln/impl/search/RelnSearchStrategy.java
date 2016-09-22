@@ -13,6 +13,8 @@ import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 public class RelnSearchStrategy implements IndexServiceStrategy<Relationship, RelationshipQueryCommand>
 {
 
+   public static final String SOLR_CORE = "relationships";
+
    @Override
    public Class<Relationship> getType()
    {
@@ -22,8 +24,7 @@ public class RelnSearchStrategy implements IndexServiceStrategy<Relationship, Re
    @Override
    public String getCoreId()
    {
-      // TODO Auto-generated method stub
-      return null;
+      return SOLR_CORE;
    }
 
    @Override

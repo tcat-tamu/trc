@@ -74,7 +74,7 @@ public class PeopleResourceService
       }
       catch (Exception ex)
       {
-         logger.log(Level.SEVERE, "Failed to load query service for bibographical entries REST servivce", ex);
+         logger.log(Level.SEVERE, "Failed to load query service for biographical entries REST servivce", ex);
          throw ex;
       }
    }

@@ -89,7 +89,7 @@ public class RelationshipEntryService
       }
       catch (Exception ex)
       {
-         logger.log(Level.SEVERE, "Failed to activate bibliographic entry repository service.", ex);
+         logger.log(Level.SEVERE, "Failed to activate relationship entry repository service.", ex);
          throw ex;
       }
    }

@@ -15,9 +15,9 @@ import edu.tamu.tcat.trc.services.types.bibref.impl.repo.EditBibliographyCommand
 import edu.tamu.tcat.trc.services.types.bibref.repo.EditBibliographyCommand;
 import edu.tamu.tcat.trc.services.types.bibref.repo.ReferenceRepository;
 
-public class BiographicReferenceService
+public class BibliographicReferenceService
 {
-   private static final Logger logger = Logger.getLogger(BiographicReferenceService.class.getName());
+   private static final Logger logger = Logger.getLogger(BibliographicReferenceService.class.getName());
 
    private static final String TABLE_NAME = "bibrefs";
    private static final String SCHEMA_DATA_FIELD = "data";
@@ -61,7 +61,7 @@ public class BiographicReferenceService
 
    /**
     * Stops the bibliographic reference repository service, releasing allocated resources.
-    * Once stopped, the service must be re-initialized and {@link BiographicReferenceService#start} must be called in order to restart.
+    * Once stopped, the service must be re-initialized and {@link BibliographicReferenceService#start} must be called in order to restart.
     */
    public void stop()
    {
