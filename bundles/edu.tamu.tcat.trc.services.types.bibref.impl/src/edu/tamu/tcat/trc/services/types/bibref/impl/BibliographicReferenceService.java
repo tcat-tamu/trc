@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
@@ -12,10 +13,12 @@ import edu.tamu.tcat.trc.services.types.bibref.ReferenceCollection;
 import edu.tamu.tcat.trc.services.types.bibref.impl.model.ReferenceCollectionImpl;
 import edu.tamu.tcat.trc.services.types.bibref.impl.repo.DataModelV1;
 import edu.tamu.tcat.trc.services.types.bibref.impl.repo.EditBibliographyCommandFactory;
+import edu.tamu.tcat.trc.services.types.bibref.impl.repo.ReferenceRepositoryImpl;
 import edu.tamu.tcat.trc.services.types.bibref.repo.EditBibliographyCommand;
 import edu.tamu.tcat.trc.services.types.bibref.repo.ReferenceRepository;
+import edu.tamu.tcat.trc.services.types.bibref.repo.ReferenceRepositoryFactory;
 
-public class BibliographicReferenceService
+public class BibliographicReferenceService implements ReferenceRepositoryFactory
 {
    private static final Logger logger = Logger.getLogger(BibliographicReferenceService.class.getName());
 
@@ -103,5 +106,10 @@ public class BibliographicReferenceService
       return builder.build();
    }
 
-   // TODO need a way to provide ReferenceRepository instance(s)
+   @Override
+   public ReferenceRepository getRepo(Account account)
+   {
+      // TODO need a way to provide ReferenceRepository instance(s)
+      return new ReferenceRepositoryImpl(docRepo, context.getResolverRegistry(), account);
+   }
 }
