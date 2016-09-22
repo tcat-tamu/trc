@@ -9,7 +9,7 @@ import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
-import edu.tamu.tcat.trc.repo.NoSuchEntryException;
+import edu.tamu.tcat.trc.repo.DocumentNotFoundException;
 import edu.tamu.tcat.trc.repo.RepositoryException;
 
 public class BioEntryRepoImpl implements BiographicalEntryRepository
@@ -24,7 +24,7 @@ public class BioEntryRepoImpl implements BiographicalEntryRepository
    }
 
    @Override
-   public BiographicalEntry get(String id) throws NoSuchEntryException
+   public BiographicalEntry get(String id) throws DocumentNotFoundException
    {
       return delegate.get(account, id);
    }
@@ -48,13 +48,13 @@ public class BioEntryRepoImpl implements BiographicalEntryRepository
    }
 
    @Override
-   public EditBiographicalEntryCommand edit(String id) throws NoSuchEntryException
+   public EditBiographicalEntryCommand edit(String id) throws DocumentNotFoundException
    {
       return delegate.edit(account, id);
    }
 
    @Override
-   public CompletableFuture<Boolean> remove(String id) throws NoSuchEntryException
+   public CompletableFuture<Boolean> remove(String id) throws DocumentNotFoundException
    {
       return delegate.remove(account, id);
    }

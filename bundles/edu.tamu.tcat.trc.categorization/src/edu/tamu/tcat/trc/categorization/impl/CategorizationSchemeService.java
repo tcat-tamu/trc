@@ -34,7 +34,7 @@ import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
-import edu.tamu.tcat.trc.repo.NoSuchEntryException;
+import edu.tamu.tcat.trc.repo.DocumentNotFoundException;
 import edu.tamu.tcat.trc.repo.RepositorySchema;
 import edu.tamu.tcat.trc.repo.SchemaBuilder;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepo;
@@ -310,7 +310,7 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
          {
             return DocumentRepository.unwrap(future, () -> format(err, key, scopeId));
          }
-         catch (NoSuchEntryException nsee)
+         catch (DocumentNotFoundException nsee)
          {
             String message = "No categorization scheme is available for key {0} within scope {1}";
             throw new IllegalArgumentException(format(message, key, scopeId), nsee);
@@ -326,7 +326,7 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
 
             ResultSet rs = ps.executeQuery();
             if (!rs.next())
-               throw new NoSuchEntryException(format("No categorization scheme for key {0} within scope {1}", key, scope.getScopeId()));
+               throw new DocumentNotFoundException(format("No categorization scheme for key {0} within scope {1}", key, scope.getScopeId()));
 
             String json = rs.getString("json");
             String s = rs.getString("strategy");
@@ -381,7 +381,7 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
             //      user is authorized to access it
             return scheme;
          }
-         catch (NoSuchEntryException ex)
+         catch (DocumentNotFoundException ex)
          {
             String msg = "The requested categorization scheme [{0}] could not be found";
             throw new IllegalArgumentException(format(msg, id), ex);

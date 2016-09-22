@@ -29,7 +29,7 @@ import edu.tamu.tcat.trc.entries.types.bio.repo.HistoricalEventMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNameMutator;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.RestApiV1;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
-import edu.tamu.tcat.trc.repo.NoSuchEntryException;
+import edu.tamu.tcat.trc.repo.DocumentNotFoundException;
 import edu.tamu.tcat.trc.test.TestUtils;
 
 public class TestDocumentRepository
@@ -131,7 +131,7 @@ public class TestDocumentRepository
          repo.delete(personId).get();
          repo.get(personId);
       }
-      catch (NoSuchEntryException e)
+      catch (DocumentNotFoundException e)
       {
          assertFalse(false);
       }

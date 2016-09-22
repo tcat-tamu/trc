@@ -42,7 +42,7 @@ import edu.tamu.tcat.trc.entries.types.article.impl.ArticleEntryService;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
-import edu.tamu.tcat.trc.repo.NoSuchEntryException;
+import edu.tamu.tcat.trc.repo.DocumentNotFoundException;
 import edu.tamu.tcat.trc.test.ClosableSqlExecutor;
 import edu.tamu.tcat.trc.test.TestUtils;
 
@@ -208,7 +208,7 @@ public class ArticleRepoTests
       try {
          repo.get(articleId);
          assertFalse("Was able to retrieve removed entry", true);
-      } catch (NoSuchEntryException ex) {
+      } catch (DocumentNotFoundException ex) {
          // this is the expected behavior
       }
    }

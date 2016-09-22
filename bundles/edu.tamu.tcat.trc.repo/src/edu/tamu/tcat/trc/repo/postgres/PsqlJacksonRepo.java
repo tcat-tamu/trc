@@ -47,7 +47,7 @@ import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.EditCommandFactory.UpdateStrategy;
 import edu.tamu.tcat.trc.repo.EntryUpdateObserver;
-import edu.tamu.tcat.trc.repo.NoSuchEntryException;
+import edu.tamu.tcat.trc.repo.DocumentNotFoundException;
 import edu.tamu.tcat.trc.repo.RepositoryException;
 import edu.tamu.tcat.trc.repo.RepositorySchema;
 import edu.tamu.tcat.trc.repo.UpdateContext;
@@ -247,8 +247,8 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       catch (ExecutionException | UncheckedExecutionException ex)
       {
          Throwable cause = ex.getCause();
-         if (cause instanceof NoSuchEntryException)
-            throw (NoSuchEntryException)cause;
+         if (cause instanceof DocumentNotFoundException)
+            throw (DocumentNotFoundException)cause;
          if (cause instanceof RepositoryException)
             throw (RepositoryException)cause;
          if (cause instanceof RuntimeException)
@@ -423,7 +423,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    }
 
    private boolean exists(Connection conn, String id)
-         throws NoSuchEntryException, RepositoryException
+         throws DocumentNotFoundException, RepositoryException
    {
       String sqlTemplate = "SELECT {0} FROM {1} WHERE {2} = ? {3}";
       String sql = format(sqlTemplate, schema.getIdField(), tablename, schema.getIdField(), buildNotRemovedClause());
@@ -447,13 +447,13 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
     * @param id
     * @return
     *
-    * @throws NoSuchEntryException If there is no entry for the supplied id
+    * @throws DocumentNotFoundException If there is no entry for the supplied id
     *       or if that entry has been flagged as removed.
     * @throws RepositoryException If an unknown internal error occurred.
     * @throws InterruptedException If the execution was interrupted
     */
    private String loadJson(Connection conn, String id)
-         throws NoSuchEntryException, RepositoryException
+         throws DocumentNotFoundException, RepositoryException
    {
       try (PreparedStatement ps = conn.prepareStatement(getRecordSql))
       {
@@ -461,7 +461,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          try (ResultSet rs = ps.executeQuery())
          {
             if (!rs.next())
-               throw new NoSuchEntryException("Could not find record for id = '" + id + "'");
+               throw new DocumentNotFoundException("Could not find record for id = '" + id + "'");
 
             PGobject pgo = (PGobject)rs.getObject(schema.getDataField());
             return pgo.toString();

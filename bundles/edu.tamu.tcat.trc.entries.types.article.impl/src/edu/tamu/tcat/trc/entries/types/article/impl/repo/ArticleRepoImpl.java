@@ -11,7 +11,7 @@ import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
-import edu.tamu.tcat.trc.repo.NoSuchEntryException;
+import edu.tamu.tcat.trc.repo.DocumentNotFoundException;
 
 public class ArticleRepoImpl implements ArticleRepository
 {
@@ -37,7 +37,7 @@ public class ArticleRepoImpl implements ArticleRepository
    }
 
    @Override
-   public List<Article> getArticles(URI entityURI) throws NoSuchEntryException
+   public List<Article> getArticles(URI entityURI) throws DocumentNotFoundException
    {
    // This seems like a query rather than part of the article repo impl.
       throw new UnsupportedOperationException();

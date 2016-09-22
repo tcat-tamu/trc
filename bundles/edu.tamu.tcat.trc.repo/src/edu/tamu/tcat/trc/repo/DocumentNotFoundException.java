@@ -20,30 +20,30 @@ package edu.tamu.tcat.trc.repo;
  * details) does not exist. Typically thrown when attempting to access an entry by
  * a unique identifier.
  */
-public class NoSuchEntryException extends RepositoryException
+public class DocumentNotFoundException extends RepositoryException
 {
    // FIXME should clarify the exception hierarchy to ensure that this exception is not
    //       propagated via the entry repo API
-   public NoSuchEntryException()
+   public DocumentNotFoundException()
    {
    }
 
-   public NoSuchEntryException(String message)
+   public DocumentNotFoundException(String message)
    {
       super(message);
    }
 
-   public NoSuchEntryException(Throwable cause)
+   public DocumentNotFoundException(Throwable cause)
    {
       super(cause);
    }
 
-   public NoSuchEntryException(String message, Throwable cause)
+   public DocumentNotFoundException(String message, Throwable cause)
    {
       super(message, cause);
    }
 
-   public NoSuchEntryException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
+   public DocumentNotFoundException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
    {
       super(message, cause, enableSuppression, writableStackTrace);
    }
