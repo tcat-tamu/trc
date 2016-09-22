@@ -81,6 +81,10 @@
 
     <module>oss.trc/bundles/edu.tamu.tcat.trc.notes</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.notes.impl</module>
+
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.services.types.bibref</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.services.types.bibref.impl</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.services.types.bibref.rest</module>
   </modules>
 
   <repositories>
