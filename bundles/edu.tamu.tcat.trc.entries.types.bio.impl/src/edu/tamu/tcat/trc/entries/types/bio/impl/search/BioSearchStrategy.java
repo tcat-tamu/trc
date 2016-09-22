@@ -25,7 +25,7 @@ public class BioSearchStrategy implements IndexServiceStrategy<BiographicalEntry
    private final static Logger logger = Logger.getLogger(BioSearchStrategy.class.getName());
 
    // TODO generalized sentence parser
-   private static final String OPENNLP_MODELS_SENTENCE_PATH = "opennlp.models.sentence.path";
+   public static final String OPENNLP_MODELS_SENTENCE_PATH = "opennlp.models.sentence.path";
 
    public static final String SOLR_CORE = "biographical";
 
