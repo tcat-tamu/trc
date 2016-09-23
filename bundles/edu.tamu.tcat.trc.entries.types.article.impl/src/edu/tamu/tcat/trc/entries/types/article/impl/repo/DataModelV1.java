@@ -21,9 +21,11 @@ public abstract class DataModelV1
          article.articleAbstract = original.articleAbstract;
          article.body = original.body;
 
-         article.authors = original.authors.stream()
-               .map(ArticleAuthor::copy)
-               .collect(Collectors.toList());
+         if (original.authors != null)
+            article.authors = original.authors.stream()
+                  .map(ArticleAuthor::copy)
+                  .collect(Collectors.toList());
+
          return article;
       }
 

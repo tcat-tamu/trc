@@ -93,9 +93,7 @@ public class ArticleResource
       }
    }
 
-   @GET
    @Path("references")
-   @Produces(MediaType.APPLICATION_JSON)
    public ReferenceCollectionResource getReferences()
    {
       EntryReference entryRef = new EntryReference();

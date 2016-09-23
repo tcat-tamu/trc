@@ -58,7 +58,7 @@ public class ArticleRepoImpl implements ArticleRepository
    @Override
    public EditArticleCommand edit(String id)
    {
-      return delegate.create(account, id);
+      return delegate.edit(account, id);
 
    }
 

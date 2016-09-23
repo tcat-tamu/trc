@@ -47,6 +47,13 @@ public class ReferenceCollectionResource
    }
 
    @PUT
+   @Consumes(MediaType.APPLICATION_JSON)
+   @Produces(MediaType.APPLICATION_JSON)
+   public BibRefRestApiV1.ReferenceCollection put(BibRefRestApiV1.ReferenceCollection dto)
+   {
+      return save(dto);
+   }
+
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
