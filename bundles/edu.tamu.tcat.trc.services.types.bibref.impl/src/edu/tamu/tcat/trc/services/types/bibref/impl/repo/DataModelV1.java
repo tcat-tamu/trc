@@ -90,6 +90,7 @@ public abstract class DataModelV1
       public String locatorType;
       public String locator;
       public String label;
+      public boolean suppressAuthor;
 
       /**
        * @param original The instance to copy.
@@ -114,6 +115,7 @@ public abstract class DataModelV1
          dest.locatorType = source.locatorType;
          dest.locator = source.locator;
          dest.label = source.label;
+         dest.suppressAuthor = source.suppressAuthor;
 
          return dest;
       }

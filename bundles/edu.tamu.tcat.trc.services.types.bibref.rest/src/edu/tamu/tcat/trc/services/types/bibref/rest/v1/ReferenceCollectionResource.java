@@ -125,6 +125,7 @@ public class ReferenceCollectionResource
       mutator.setLocatorType(dto.locatorType);
       mutator.setLocator(dto.locator);
       mutator.setLabel(dto.label);
+      mutator.supppressAuthorName(dto.suppressAuthor);
    }
 
    private void apply(BibliographicItemMutator mutator, BibRefRestApiV1.BibliographicItem dto)

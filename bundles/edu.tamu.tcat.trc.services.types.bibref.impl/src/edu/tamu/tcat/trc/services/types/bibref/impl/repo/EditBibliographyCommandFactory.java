@@ -310,6 +310,12 @@ public class EditBibliographyCommandFactory implements EditCommandFactory<DataMo
       {
          changes.add("label", ref -> ref.label = label);
       }
+
+      @Override
+      public void supppressAuthorName(boolean suppress)
+      {
+         changes.add("suppressAuthor", ref -> ref.suppressAuthor = suppress);
+      }
    }
 
    private static class BibliographicItemMutatorImpl implements BibliographicItemMutator

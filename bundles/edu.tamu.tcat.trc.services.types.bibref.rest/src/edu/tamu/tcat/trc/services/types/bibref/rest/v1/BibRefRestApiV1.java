@@ -25,6 +25,7 @@ public abstract class BibRefRestApiV1
       public String locatorType;
       public String locator;
       public String label;
+      public boolean suppressAuthor;
    }
 
    public static class BibliographicItem

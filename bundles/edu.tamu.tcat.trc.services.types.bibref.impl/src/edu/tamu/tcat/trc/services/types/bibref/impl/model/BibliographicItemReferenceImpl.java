@@ -9,6 +9,7 @@ public class BibliographicItemReferenceImpl implements BibliographicItemReferenc
    private final String label;
    private final String locatorType;
    private final String locator;
+   private final boolean suppressAuthor;
 
    public BibliographicItemReferenceImpl(DataModelV1.BibliographicItemReference dto)
    {
@@ -16,6 +17,7 @@ public class BibliographicItemReferenceImpl implements BibliographicItemReferenc
       label = dto.label;
       locatorType = dto.locatorType;
       locator = dto.locator;
+      suppressAuthor = dto.suppressAuthor;
    }
 
    @Override
@@ -42,4 +44,9 @@ public class BibliographicItemReferenceImpl implements BibliographicItemReferenc
       return locator;
    }
 
+   @Override
+   public boolean isAuthorNameSuppressed()
+   {
+      return suppressAuthor;
+   }
 }

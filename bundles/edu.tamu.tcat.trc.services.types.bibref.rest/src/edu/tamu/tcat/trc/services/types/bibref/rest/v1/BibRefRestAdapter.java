@@ -71,6 +71,7 @@ public class BibRefRestAdapter
       dto.locatorType = orig.getLocatorType();
       dto.locator = orig.getLocator();
       dto.label = orig.getLabel();
+      dto.suppressAuthor = orig.isAuthorNameSuppressed();
 
       return dto;
    }

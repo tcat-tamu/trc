@@ -24,4 +24,9 @@ public interface BibliographicItemReference
     *    given by the locator type.
     */
    String getLocator();
+
+   /**
+    * @return Whether the author name should be suppressed in this containing reference's citation.
+    */
+   boolean isAuthorNameSuppressed();
 }

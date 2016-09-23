@@ -24,4 +24,10 @@ public interface BibliographicItemReferenceMutator
     * @param label
     */
    void setLabel(String label);
+
+   /**
+    * Sets whether the author name should be suppressed in this item reference's citation.
+    * @param suppress
+    */
+   void supppressAuthorName(boolean suppress);
 }
