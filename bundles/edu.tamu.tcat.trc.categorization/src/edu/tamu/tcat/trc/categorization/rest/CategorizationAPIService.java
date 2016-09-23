@@ -2,6 +2,7 @@ package edu.tamu.tcat.trc.categorization.rest;
 
 import static java.text.MessageFormat.format;
 
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,7 +35,16 @@ public class CategorizationAPIService
 
    public void activate()
    {
-      logger.info("Activating Categorization REST API service");
+      try
+      {
+         logger.info(() -> "Activating " + getClass().getSimpleName());
+
+         Objects.requireNonNull(repoProvider, "no categorization repo factory provided");
+      }
+      catch (Exception e)
+      {
+         logger.log(Level.SEVERE, "failed to activate categorizations REST API service.", e);
+      }
    }
 
    @Path("/categorizations/{scope}")
