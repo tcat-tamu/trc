@@ -95,8 +95,6 @@ public abstract class RestApiV1
       public String body;
 
       public List<Footnote> footnotes;
-      public List<Citation> citations;
-      public List<Bibliography> bibliography;
       public List<LinkedResource> links;
    }
 

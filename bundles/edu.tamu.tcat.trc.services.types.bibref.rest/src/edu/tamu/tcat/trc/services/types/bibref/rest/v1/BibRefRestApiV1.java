@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class RestApiV1
+public abstract class BibRefRestApiV1
 {
    public static class ReferenceCollection
    {

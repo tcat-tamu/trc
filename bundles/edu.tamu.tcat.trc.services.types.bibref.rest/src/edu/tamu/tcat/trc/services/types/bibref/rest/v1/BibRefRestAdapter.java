@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.services.types.bibref.rest.v1.internal;
+package edu.tamu.tcat.trc.services.types.bibref.rest.v1;
 
 import java.util.Collection;
 import java.util.List;
@@ -11,43 +11,42 @@ import edu.tamu.tcat.trc.services.types.bibref.Citation;
 import edu.tamu.tcat.trc.services.types.bibref.Creator;
 import edu.tamu.tcat.trc.services.types.bibref.ReferenceCollection;
 import edu.tamu.tcat.trc.services.types.bibref.repo.BibliographicItemMutator;
-import edu.tamu.tcat.trc.services.types.bibref.rest.v1.RestApiV1;
 
 /**
- * An encapsulation of adapter methods to convert between repository API and the {@link RestApiV1} schema DTOs.
+ * An encapsulation of adapter methods to convert between repository API and the {@link BibRefRestApiV1} schema DTOs.
  */
-public class RepoAdapter
+public class BibRefRestAdapter
 {
-   public static RestApiV1.ReferenceCollection toDTO(ReferenceCollection orig)
+   public static BibRefRestApiV1.ReferenceCollection toDTO(ReferenceCollection orig)
    {
       if (orig == null)
          return null;
 
-      RestApiV1.ReferenceCollection dto = new RestApiV1.ReferenceCollection();
+      BibRefRestApiV1.ReferenceCollection dto = new BibRefRestApiV1.ReferenceCollection();
 
       dto.citations.clear();
       Collection<Citation> citations = orig.getCitations();
       if (citations != null && !citations.isEmpty())
          citations.stream()
-               .map(RepoAdapter::toDTO)
+               .map(BibRefRestAdapter::toDTO)
                .forEach(citation -> dto.citations.put(citation.id, citation));
 
       dto.bibliography.clear();
       Collection<BibliographicItem> items = orig.getItems();
       if (items != null && !items.isEmpty())
          items.stream()
-               .map(RepoAdapter::toDTO)
+               .map(BibRefRestAdapter::toDTO)
                .forEach(item -> dto.bibliography.put(item.id, item));
 
       return dto;
    }
 
-   public static RestApiV1.Citation toDTO(Citation orig)
+   public static BibRefRestApiV1.Citation toDTO(Citation orig)
    {
       if (orig == null)
          return null;
 
-      RestApiV1.Citation dto = new RestApiV1.Citation();
+      BibRefRestApiV1.Citation dto = new BibRefRestApiV1.Citation();
 
       dto.id = orig.getId();
 
@@ -55,18 +54,18 @@ public class RepoAdapter
       List<BibliographicItemReference> citedItems = orig.getCitedItems();
       if (citedItems != null && !citedItems.isEmpty())
          citedItems.stream()
-               .map(RepoAdapter::toDTO)
+               .map(BibRefRestAdapter::toDTO)
                .forEach(dto.items::add);
 
       return dto;
    }
 
-   public static RestApiV1.BibliographicItemReference toDTO(BibliographicItemReference orig)
+   public static BibRefRestApiV1.BibliographicItemReference toDTO(BibliographicItemReference orig)
    {
       if (orig == null)
          return null;
 
-      RestApiV1.BibliographicItemReference dto = new RestApiV1.BibliographicItemReference();
+      BibRefRestApiV1.BibliographicItemReference dto = new BibRefRestApiV1.BibliographicItemReference();
 
       dto.id = orig.getItemId();
       dto.locatorType = orig.getLocatorType();
@@ -76,12 +75,12 @@ public class RepoAdapter
       return dto;
    }
 
-   public static RestApiV1.BibliographicItem toDTO(BibliographicItem orig)
+   public static BibRefRestApiV1.BibliographicItem toDTO(BibliographicItem orig)
    {
       if (orig == null)
          return null;
 
-      RestApiV1.BibliographicItem dto = new RestApiV1.BibliographicItem();
+      BibRefRestApiV1.BibliographicItem dto = new BibRefRestApiV1.BibliographicItem();
 
       dto.id = orig.getItemId();
       dto.type = orig.getType();
@@ -92,7 +91,7 @@ public class RepoAdapter
       List<Creator> creators = orig.getCreators();
       if (creators != null && !creators.isEmpty())
          creators.stream()
-               .map(RepoAdapter::toDTO)
+               .map(BibRefRestAdapter::toDTO)
                .forEach(dto.creators::add);
 
       dto.fields.clear();
@@ -103,12 +102,12 @@ public class RepoAdapter
       return dto;
    }
 
-   public static RestApiV1.Creator toDTO(Creator orig)
+   public static BibRefRestApiV1.Creator toDTO(Creator orig)
    {
       if (orig == null)
          return null;
 
-      RestApiV1.Creator dto = new RestApiV1.Creator();
+      BibRefRestApiV1.Creator dto = new BibRefRestApiV1.Creator();
 
       dto.role = orig.getRole();
       dto.firstName = orig.getFirstName();
@@ -118,7 +117,7 @@ public class RepoAdapter
       return dto;
    }
 
-   public static BibliographicItemMutator.Creator toRepo(RestApiV1.Creator restDto)
+   public static BibliographicItemMutator.Creator toRepo(BibRefRestApiV1.Creator restDto)
    {
       if (restDto == null)
          return null;
@@ -133,7 +132,7 @@ public class RepoAdapter
       return modelDto;
    }
 
-   private static RestApiV1.BibliographicItemMeta adaptOnto(RestApiV1.BibliographicItemMeta dest, BibliographicItemMeta source)
+   private static BibRefRestApiV1.BibliographicItemMeta adaptOnto(BibRefRestApiV1.BibliographicItemMeta dest, BibliographicItemMeta source)
    {
       if (dest != null && source != null)
       {

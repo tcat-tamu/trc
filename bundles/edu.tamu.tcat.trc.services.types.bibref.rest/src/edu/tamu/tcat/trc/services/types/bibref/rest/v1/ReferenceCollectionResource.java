@@ -26,7 +26,6 @@ import edu.tamu.tcat.trc.services.types.bibref.repo.CitationMutator;
 import edu.tamu.tcat.trc.services.types.bibref.repo.EditBibliographyCommand;
 import edu.tamu.tcat.trc.services.types.bibref.repo.ReferenceRepository;
 import edu.tamu.tcat.trc.services.types.bibref.rest.v1.internal.ApiUtils;
-import edu.tamu.tcat.trc.services.types.bibref.rest.v1.internal.RepoAdapter;
 
 public class ReferenceCollectionResource
 {
@@ -41,17 +40,17 @@ public class ReferenceCollectionResource
 
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.ReferenceCollection get()
+   public BibRefRestApiV1.ReferenceCollection get()
    {
       ReferenceCollection referenceCollection = repo.get(targetRef);
-      return RepoAdapter.toDTO(referenceCollection);
+      return BibRefRestAdapter.toDTO(referenceCollection);
    }
 
    @PUT
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.ReferenceCollection save(RestApiV1.ReferenceCollection dto)
+   public BibRefRestApiV1.ReferenceCollection save(BibRefRestApiV1.ReferenceCollection dto)
    {
       EditBibliographyCommand editCommand = repo.edit(targetRef);
       apply(editCommand, dto);
@@ -64,7 +63,7 @@ public class ReferenceCollectionResource
       repo.delete(targetRef);
    }
 
-   private void apply(EditBibliographyCommand command, RestApiV1.ReferenceCollection dto)
+   private void apply(EditBibliographyCommand command, BibRefRestApiV1.ReferenceCollection dto)
    {
       if (dto == null)
          return;
@@ -106,7 +105,7 @@ public class ReferenceCollectionResource
       });
    }
 
-   private void apply(CitationMutator mutator, RestApiV1.Citation dto)
+   private void apply(CitationMutator mutator, BibRefRestApiV1.Citation dto)
    {
       if (dto == null)
          return;
@@ -118,7 +117,7 @@ public class ReferenceCollectionResource
       });
    }
 
-   private void apply(BibliographicItemReferenceMutator mutator, RestApiV1.BibliographicItemReference dto)
+   private void apply(BibliographicItemReferenceMutator mutator, BibRefRestApiV1.BibliographicItemReference dto)
    {
       if (dto == null)
          return;
@@ -128,7 +127,7 @@ public class ReferenceCollectionResource
       mutator.setLabel(dto.label);
    }
 
-   private void apply(BibliographicItemMutator mutator, RestApiV1.BibliographicItem dto)
+   private void apply(BibliographicItemMutator mutator, BibRefRestApiV1.BibliographicItem dto)
    {
       if (dto == null)
          return;
@@ -139,14 +138,14 @@ public class ReferenceCollectionResource
       apply(metaMutator, dto.meta);
 
       List<BibliographicItemMutator.Creator> creators = dto.creators.stream()
-            .map(RepoAdapter::toRepo)
+            .map(BibRefRestAdapter::toRepo)
             .collect(Collectors.toList());
       mutator.setCreators(creators);
 
       mutator.setAllFields(dto.fields);
    }
 
-   private void apply(BibliographicItemMetaMutator mutator, RestApiV1.BibliographicItemMeta dto)
+   private void apply(BibliographicItemMetaMutator mutator, BibRefRestApiV1.BibliographicItemMeta dto)
    {
       if (dto == null)
          return;
@@ -158,13 +157,13 @@ public class ReferenceCollectionResource
       mutator.setDateModified(dto.dateModified);
    }
 
-   private RestApiV1.ReferenceCollection execute(EditBibliographyCommand command)
+   private BibRefRestApiV1.ReferenceCollection execute(EditBibliographyCommand command)
    {
       try
       {
          command.execute().get(10, TimeUnit.SECONDS);
          ReferenceCollection referenceCollection = repo.get(targetRef);
-         return RepoAdapter.toDTO(referenceCollection);
+         return BibRefRestAdapter.toDTO(referenceCollection);
       }
       catch(InterruptedException | TimeoutException e)
       {

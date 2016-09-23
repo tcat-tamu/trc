@@ -23,7 +23,7 @@ import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
 /**
  * @since 1.1
  */
-public class ModelAdapter
+public abstract class ModelAdapter
 {
    public static List<RestApiV1.ArticleSearchResult> toDTO(ArticleSearchResult results)
    {
@@ -141,9 +141,9 @@ public class ModelAdapter
       dto.authors = convertAuthors(article.getAuthors());
       dto.articleAbstract = article.getAbstract();
       dto.body = article.getBody();
+
+
       dto.footnotes = convertFootnotes(article.getFootnotes());
-      dto.citations = null; // convertCitations(article.getCitations());
-      dto.bibliography = null; // convertBiblios(article.getBibliographies());
       dto.links = convertLinks(article.getLinks());
 
       return dto;

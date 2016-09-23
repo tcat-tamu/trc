@@ -14,6 +14,8 @@ import edu.tamu.tcat.trc.entries.types.article.rest.v1.ArticlesCollectionResourc
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.search.solr.QueryService;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
+import edu.tamu.tcat.trc.services.types.bibref.repo.ReferenceRepository;
+import edu.tamu.tcat.trc.services.types.bibref.repo.ReferenceRepositoryFactory;
 
 /**
  * The primary REST end point for articles. This is intended to be
@@ -31,6 +33,8 @@ public class ArticleRestApiService
 
    private QueryService<ArticleQueryCommand> queryService;
 
+   private ReferenceRepositoryFactory refRepoFactory;
+
    public void setRepoRegistry(EntryRepositoryRegistry repoSvc)
    {
       this.repoSvc = repoSvc;
@@ -40,6 +44,11 @@ public class ArticleRestApiService
    public void setSearchSvcMgr(SearchServiceManager searchMgr)
    {
       this.searchMgr = searchMgr;
+   }
+
+   public void setRefRepoFactory(ReferenceRepositoryFactory refRepoFactory)
+   {
+      this.refRepoFactory = refRepoFactory;
    }
 
    public void activate()
@@ -80,7 +89,8 @@ public class ArticleRestApiService
    @Path(ArticleRepository.ENTRY_URI_BASE)
    public ArticlesCollectionResource getArticles()
    {
+      ReferenceRepository refRepo = refRepoFactory.getRepo(null);
       URI resolve = endpoint.resolve(ArticleRepository.ENTRY_URI_BASE);
-      return new ArticlesCollectionResource(repoSvc, queryService, resolve);
+      return new ArticlesCollectionResource(repoSvc, queryService, refRepo, resolve);
    }
 }

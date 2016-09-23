@@ -28,6 +28,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
@@ -35,6 +37,8 @@ import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.QueryService;
+import edu.tamu.tcat.trc.services.types.bibref.ReferenceCollection;
+import edu.tamu.tcat.trc.services.types.bibref.repo.ReferenceRepository;
 
 /**
  *  REST API sub-resource that represents a collection of articles and the actions that
@@ -50,10 +54,16 @@ public class ArticlesCollectionResource
 
    private final URI endpoint;
 
-   public ArticlesCollectionResource(EntryRepositoryRegistry repoSvc, QueryService<ArticleQueryCommand> queryService, URI endpoint)
+   private ReferenceRepository refRepo;
+
+   public ArticlesCollectionResource(EntryRepositoryRegistry repoSvc,
+                                     QueryService<ArticleQueryCommand> queryService,
+                                     ReferenceRepository refRepo,
+                                     URI endpoint)
    {
       this.repoSvc = repoSvc;
       this.queryService = queryService;
+      this.refRepo = refRepo;
       this.endpoint = endpoint != null ? endpoint : URI.create("http://localhost/articles/");
 
       this.mapper = new ObjectMapper();
@@ -139,7 +149,7 @@ public class ArticlesCollectionResource
    @Path("{articleId}")
    public ArticleResource get(@PathParam(value="articleId") String articleId)
    {
-      return new ArticleResource(repoSvc, articleId);
+      return new ArticleResource(repoSvc, refRepo, articleId);
    }
 
    private Response buildResponse(RestApiV1.Article dto)

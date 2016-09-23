@@ -28,6 +28,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
@@ -36,9 +37,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
 import edu.tamu.tcat.trc.entries.core.repo.NoSuchEntryException;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
+import edu.tamu.tcat.trc.services.types.bibref.ReferenceCollection;
+import edu.tamu.tcat.trc.services.types.bibref.repo.ReferenceRepository;
+import edu.tamu.tcat.trc.services.types.bibref.rest.v1.ReferenceCollectionResource;
 
 
 public class ArticleResource
@@ -49,14 +55,15 @@ public class ArticleResource
    private static final String ERR_UNKNOWN_GET = "That's embrassing. Something went wrong while trying to retrieve {0}.";
 
    private final EntryRepositoryRegistry repo;
-   private final ObjectMapper mapper;
-
+   private final ReferenceRepository refRepo;
    private final String articleId;
 
+   private final ObjectMapper mapper;
 
-   public ArticleResource(EntryRepositoryRegistry repoSvc, String articleId)
+   public ArticleResource(EntryRepositoryRegistry repoSvc, ReferenceRepository refRepo, String articleId)
    {
       this.repo = repoSvc;
+      this.refRepo = refRepo;
       this.articleId = articleId;
 
       mapper = new ObjectMapper();
@@ -71,6 +78,7 @@ public class ArticleResource
       {
          ArticleRepository articleRepo = repo.getRepository(null, ArticleRepository.class);
          Article article = articleRepo.get(articleId);
+
          return ModelAdapter.adapt(article, repo.getResolverRegistry());
       }
       catch (NoSuchEntryException e)
@@ -83,6 +91,25 @@ public class ArticleResource
          logger.log(Level.SEVERE, msg, ex);
          throw new InternalServerErrorException(msg);
       }
+   }
+
+   @GET
+   @Path("references")
+   @Produces(MediaType.APPLICATION_JSON)
+   public ReferenceCollectionResource getReferences()
+   {
+      EntryReference entryRef = new EntryReference();
+      entryRef.id = articleId;
+      entryRef.type = ArticleRepository.ENTRY_TYPE_ID;
+      return new ReferenceCollectionResource(refRepo, entryRef);
+   }
+
+   private ReferenceCollection getRefCollection(Article article)
+   {
+      EntryResolverRegistry resolvers = repo.getResolverRegistry();
+      EntryReference entryRef = resolvers.getResolver(article).makeReference(article);
+      ReferenceCollection refCollection = refRepo.get(entryRef);
+      return refCollection;
    }
 
    @PUT
@@ -140,6 +167,8 @@ public class ArticleResource
       editCmd.setTitle(article.title);
       editCmd.setAbstract(article.articleAbstract);
       editCmd.setBody(article.body);
+
+      // TODO set references
 
 //      editCmd.setPublicationInfo(getPublication(article.pubInfo));
 //      editCmd.setAuthors(getAuthors(article.authors));
