@@ -307,7 +307,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    @Override
    public CompletableFuture<Boolean> delete(Account account, String id) throws UnsupportedOperationException
    {
-      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.REMOVE, null, () -> null);
+      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.REMOVE, account, () -> loadStoredRecord(id));
       UpdateStrategyImpl updater = new UpdateStrategyImpl(context, (dto) -> doDelete(id));
 
       return updater.update(dto -> null).thenApply(dto -> Boolean.TRUE);

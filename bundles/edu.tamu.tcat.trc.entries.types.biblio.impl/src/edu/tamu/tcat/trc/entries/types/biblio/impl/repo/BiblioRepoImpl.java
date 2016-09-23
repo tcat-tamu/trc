@@ -53,8 +53,7 @@ public class BiblioRepoImpl implements BibliographicEntryRepository
    @Override
    public EditBibliographicEntryCommand edit(String id)
    {
-      return delegate.create(account, id);
-
+      return delegate.edit(account, id);
    }
 
    @Override

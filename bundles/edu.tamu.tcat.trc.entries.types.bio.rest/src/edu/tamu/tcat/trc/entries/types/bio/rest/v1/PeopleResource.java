@@ -39,10 +39,10 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.DateDescriptionMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.HistoricalEventMutator;
-import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNameMutator;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.ApiUtils;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RepoAdapter;
@@ -137,7 +137,8 @@ public class PeopleResource
       EditBiographicalEntryCommand command = repo.create();
       apply(command, person);
 
-      return execute(repo, command, person.name.label);
+      errorLogger.log(Level.INFO, format("Creating new biographic entry for {0}", person.name.label));
+      return execute(repo, command);
    }
 
 
@@ -166,18 +167,16 @@ public class PeopleResource
     *
     * @param repo T
     * @param command
-    * @param name The anme of the person being created (for logging purposes
     *
     * @return A REST API representation of the data that was saved.
     *
     * @throws WebApplicationException For problems encountered during execution
     */
-   static RestApiV1.Person execute(BiographicalEntryRepository repo, EditBiographicalEntryCommand command, String name)
+   static RestApiV1.Person execute(BiographicalEntryRepository repo, EditBiographicalEntryCommand command)
    {
       try
       {
          String id = command.execute().get(10, TimeUnit.SECONDS);
-         errorLogger.log(Level.INFO, format("Creating new bibliographic entry for {0} [{1}]", name, id));
 
          // presumably we could just return the person that was supplied, but this ensures that we get
          // the result as stored locally.
@@ -185,7 +184,7 @@ public class PeopleResource
       }
       catch (InterruptedException | TimeoutException e)
       {
-         String msg = "Oops. Things seem to be a bit busy now and we could not update the bibliographic entry in a timely manner. Please try again.";
+         String msg = "Oops. Things seem to be a bit busy now and we could not update the biographic entry in a timely manner. Please try again.";
          throw ApiUtils.raise(Response.Status.SERVICE_UNAVAILABLE, msg, Level.WARNING, e);
       }
       catch (ExecutionException ex)

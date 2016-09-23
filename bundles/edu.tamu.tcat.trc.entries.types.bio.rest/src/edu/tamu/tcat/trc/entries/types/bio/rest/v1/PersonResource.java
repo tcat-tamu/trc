@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
@@ -27,6 +28,8 @@ import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RepoAdapter;
 
 public class PersonResource
 {
+   private static final Logger logger = Logger.getLogger(PersonResource.class.getName());
+
    private final String personId;
    private BiographicalEntryRepository repo;
 
@@ -57,7 +60,7 @@ public class PersonResource
    public RestApiV1.Person updatePerson(RestApiV1.Person person)
    {
       if (person.id == null)
-         person.id = this.personId;
+         person.id = personId;
 
       if (!Objects.equals(personId, person.id))
          throw new BadRequestException("The id of the supplied person data does not match the URL");
@@ -66,7 +69,9 @@ public class PersonResource
       {
          EditBiographicalEntryCommand command = repo.edit(person.id);
          PeopleResource.apply(command, person);
-         return PeopleResource.execute(repo, command, person.name.label);
+
+         logger.log(Level.INFO, format("Updating biographic entry for {0} [{1}]", person.name.label, personId));
+         return PeopleResource.execute(repo, command);
       }
       catch (NoSuchEntryException ex)
       {

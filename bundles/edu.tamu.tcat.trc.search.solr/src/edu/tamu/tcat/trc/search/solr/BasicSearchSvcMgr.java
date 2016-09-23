@@ -286,8 +286,7 @@ public class BasicSearchSvcMgr implements SearchServiceManager
 
       private void index(SolrInputDocument... docs)
       {
-         if (enabled.get())
-            throw new IllegalStateException("The index service has been stopped.");
+         checkEnabled();
 
          addIndexTask(() -> {
             try

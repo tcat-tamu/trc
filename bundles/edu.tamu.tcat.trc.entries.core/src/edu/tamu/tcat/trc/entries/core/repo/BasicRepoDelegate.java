@@ -252,7 +252,15 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
       @Override
       public EntryReference getEntryReference()
       {
+         // HACK should be able to construct an entry reference from the id; need semantic type of entry.
          EntryType entry = getModifiedState();
+
+         if (entry == null)
+            entry = getOriginalState();
+
+         if (entry == null)
+            throw new IllegalStateException("No entry reference available for " + ctx.getId());
+
          EntryResolver<EntryType> resolver = resolvers.getResolver(entry);
 
          return resolver.makeReference(entry);
@@ -261,15 +269,19 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
       @Override
       public EntryType getModifiedState()
       {
-         return original.computeIfAbsent("modified",
-               key -> adapter.apply(ctx.getModified()));
+         return original.computeIfAbsent("modified", key -> {
+            StorageType modified = ctx.getModified();
+            return modified != null ? adapter.apply(modified) : null;
+         });
       }
 
       @Override
       public EntryType getOriginalState()
       {
-         return original.computeIfAbsent("original",
-               key -> adapter.apply(ctx.getModified()));
+         return original.computeIfAbsent("original", key -> {
+            StorageType original = ctx.getOriginal();
+            return original != null ? adapter.apply(original) : null;
+         });
       }
    }
 

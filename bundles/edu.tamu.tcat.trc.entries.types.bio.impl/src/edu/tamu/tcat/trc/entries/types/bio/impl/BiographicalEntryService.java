@@ -133,7 +133,7 @@ public class BiographicalEntryService
       BasicRepoDelegate.Builder<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> delegateBuilder =
             new BasicRepoDelegate.Builder<>();
 
-      delegateBuilder.setEntryName("relationship");
+      delegateBuilder.setEntryName("biographical entry");
       delegateBuilder.setIdFactory(ctx.getIdFactory(ID_CONTEXT));
       delegateBuilder.setEntryResolvers(ctx.getResolverRegistry());
       delegateBuilder.setAdapter(PersonImpl::new);

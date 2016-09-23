@@ -255,7 +255,7 @@ public class EditPersonCommandFactory implements EditCommandFactory<DataModelV1.
          public void setCalendar(LocalDate calendar)
          {
             dateChangeSet.add("calendar",
-                  date -> date.calendar = DateTimeFormatter.ISO_LOCAL_DATE.format(calendar));
+                  date -> date.calendar = calendar == null ? null : DateTimeFormatter.ISO_LOCAL_DATE.format(calendar));
          }
       }
    }
