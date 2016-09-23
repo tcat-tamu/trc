@@ -290,7 +290,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    public EditCommandType create(Account account, String id) throws UnsupportedOperationException
    {
       UpdateContextImpl context = new UpdateContextImpl(id, ActionType.CREATE, account, () -> null);
-      UpdateStrategyImpl updater = new UpdateStrategyImpl(context, (dto) -> doCreate(id, dto));
+      UpdateStrategyImpl updater = new UpdateStrategyImpl(context, dto -> doCreate(id, dto));
 
       return this.cmdFactory.create(id, updater);
    }
@@ -299,7 +299,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    public EditCommandType edit(Account account, String id) throws RepositoryException
    {
       UpdateContextImpl context = new UpdateContextImpl(id, ActionType.EDIT, account, () -> loadStoredRecord(id));
-      UpdateStrategyImpl updater = new UpdateStrategyImpl(context, (dto) -> doEdit(id, dto));
+      UpdateStrategyImpl updater = new UpdateStrategyImpl(context, dto -> doEdit(id, dto));
 
       return this.cmdFactory.edit(id, updater);
    }
@@ -307,10 +307,30 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    @Override
    public CompletableFuture<Boolean> delete(Account account, String id) throws UnsupportedOperationException
    {
-      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.REMOVE, account, () -> loadStoredRecord(id));
-      UpdateStrategyImpl updater = new UpdateStrategyImpl(context, (dto) -> doDelete(id));
+      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.REMOVE, account, () -> {
+         try
+         {
+            return loadStoredRecord(id);
+         }
+         catch (NoSuchEntryException e)
+         {
+            // removing a non-existent record is okay, but future should resolve to {@code false}.
+            return null;
+         }
+      });
 
-      return updater.update(dto -> null).thenApply(dto -> Boolean.TRUE);
+      // HACK it would be nice if we could directly return the result of doDelete,
+      //      UpdateStrategy would then have to support a custom result type
+      CompletableFuture<Boolean> resultFuture = new CompletableFuture<>();
+
+      UpdateStrategyImpl updater = new UpdateStrategyImpl(context, dto -> doDelete(id).thenApply(result -> {
+         resultFuture.complete(result);
+         return null;
+      }));
+
+      updater.update(ctx -> null);
+
+      return resultFuture;
    }
 
    @Override
@@ -480,17 +500,15 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       });
    }
 
-   private CompletableFuture<DTO> doDelete(String id)
+   private CompletableFuture<Boolean> doDelete(String id)
    {
       return exec.submit((conn) -> {
          try (PreparedStatement ps = conn.prepareStatement(removeRecordSql))
          {
             ps.setString(1, id);
-            ps.executeUpdate();
+            int ct = ps.executeUpdate();
             cache.invalidate(id);
-            // boolean removed = Boolean.valueOf(ct == 1);
-
-            return null;
+            return Boolean.valueOf(ct == 1);
          }
          catch (SQLException e)
          {
