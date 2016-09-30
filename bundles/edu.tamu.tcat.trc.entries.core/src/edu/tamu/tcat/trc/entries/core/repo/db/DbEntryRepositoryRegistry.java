@@ -13,7 +13,6 @@ import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
 import edu.tamu.tcat.trc.entries.core.resolver.BasicResolverRegistry;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolver;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
-import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
@@ -152,7 +151,7 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, Repos
     * @return A document repository with the supplied configuration.
     */
    @Override
-   public <T, DTO, CMD> DocRepoBuilder<T, DTO, CMD> getDocRepoBuilder()
+   public <T, DTO, CMD> PsqlJacksonRepoBuilder<T, DTO, CMD> getDocRepoBuilder()
    {
       PsqlJacksonRepoBuilder<T, DTO, CMD> repoBuilder = new PsqlJacksonRepoBuilder<>();
 

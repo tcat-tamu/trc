@@ -43,11 +43,11 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
+import edu.tamu.tcat.trc.repo.DocumentNotFoundException;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.EditCommandFactory.UpdateStrategy;
 import edu.tamu.tcat.trc.repo.EntryUpdateObserver;
-import edu.tamu.tcat.trc.repo.DocumentNotFoundException;
 import edu.tamu.tcat.trc.repo.RepositoryException;
 import edu.tamu.tcat.trc.repo.RepositorySchema;
 import edu.tamu.tcat.trc.repo.UpdateContext;
@@ -305,14 +305,15 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    }
 
    @Override
-   public CompletableFuture<Boolean> delete(Account account, String id) throws UnsupportedOperationException
+   public CompletableFuture<Boolean> delete(Account account, String id)
    {
+      // FIXME this looks like a mess
       UpdateContextImpl context = new UpdateContextImpl(id, ActionType.REMOVE, account, () -> {
          try
          {
             return loadStoredRecord(id);
          }
-         catch (NoSuchEntryException e)
+         catch (Exception e)
          {
             // removing a non-existent record is okay, but future should resolve to {@code false}.
             return null;

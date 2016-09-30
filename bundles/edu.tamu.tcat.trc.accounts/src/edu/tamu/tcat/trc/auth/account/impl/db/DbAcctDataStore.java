@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -30,7 +31,6 @@ import edu.tamu.tcat.trc.auth.account.TrcAccount;
 import edu.tamu.tcat.trc.auth.account.TrcAccountDataStore;
 import edu.tamu.tcat.trc.auth.account.impl.db.DataModelV1.AccountData;
 import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
-import edu.tamu.tcat.trc.repo.NoSuchEntryException;
 import edu.tamu.tcat.trc.repo.RepositorySchema;
 import edu.tamu.tcat.trc.repo.SchemaBuilder;
 import edu.tamu.tcat.trc.repo.db.ColumnDefinition;
@@ -210,7 +210,13 @@ public class DbAcctDataStore implements TrcAccountDataStore
    @Override
    public DbTrcAccount lookup(LoginData data)
    {
-      CompletableFuture<DbTrcAccount> future = sqlExecutor.submit(conn -> doAccountLookup(conn, data));
+      return lookupAccount(data).orElse(null);
+   }
+
+   public Optional<DbTrcAccount> lookupAccount(LoginData data)
+   {
+      CompletableFuture<Optional<DbTrcAccount>> future =
+            sqlExecutor.submit(conn -> doAccountLookup(conn, data));
 
       String msg = "Unexpected internal error looking up account data for login user [{0}] for provider [{1}]";
       return unwrap(future, (ex -> format(msg, data.getLoginUserId(), data.getLoginProviderId())));
@@ -406,7 +412,7 @@ public class DbAcctDataStore implements TrcAccountDataStore
       }
    }
 
-   private DbTrcAccount doAccountLookup(Connection conn, LoginData data)
+   private Optional<DbTrcAccount> doAccountLookup(Connection conn, LoginData data)
    {
       String sqlTemplate = "SELECT acct.{0} AS json"
             + " FROM {1} AS acct LEFT JOIN "
@@ -426,15 +432,14 @@ public class DbAcctDataStore implements TrcAccountDataStore
 
          ResultSet rs = stmt.executeQuery();
          if (!rs.next())
-         {
-            throw new NoSuchEntryException("");
-         }
+            return Optional.empty();
 
          String json = rs.getString("json");
          ObjectMapper mapper = new ObjectMapper();
 
          AccountData dto = mapper.readValue(json, DataModelV1.AccountData.class);
-         return new DbTrcAccount(dto);
+         DbTrcAccount account = new DbTrcAccount(dto);
+         return Optional.of(account);
       }
       catch (SQLException | IOException ex)
       {
