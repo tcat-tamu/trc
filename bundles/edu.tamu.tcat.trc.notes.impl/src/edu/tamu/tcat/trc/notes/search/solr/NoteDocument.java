@@ -17,9 +17,11 @@ package edu.tamu.tcat.trc.notes.search.solr;
 
 import org.apache.solr.common.SolrInputDocument;
 
+import edu.tamu.tcat.account.Account;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.notes.Note;
-import edu.tamu.tcat.trc.notes.dto.NoteDTO;
-import edu.tamu.tcat.trc.notes.search.NotesSearchProxy;
+import edu.tamu.tcat.trc.notes.NotesSearchProxy;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 
@@ -37,21 +39,22 @@ public class NoteDocument
       return indexDoc.build();
    }
 
-   public static NoteDocument create(Note note)
+   public static SolrInputDocument create(Note note, EntryResolverRegistry resolvers)
    {
       try
       {
-         NoteDocument doc = new NoteDocument();
-         NoteDTO dto = NoteDTO.create(note);
+         Account author = note.getAuthor();
+         EntryReference ref = note.getAssociatedEntry();
+         TrcDocument indexDoc = new TrcDocument(new NotesSolrConfig());
 
-         doc.indexDoc.set(NotesSolrConfig.SEARCH_PROXY, new NotesSearchProxy(note));
-         doc.indexDoc.set(NotesSolrConfig.ID, dto.id.toString());
-         doc.indexDoc.set(NotesSolrConfig.AUTHOR_ID, guardNull(dto.authorId));
-         doc.indexDoc.set(NotesSolrConfig.ASSOCIATED_ENTRY, guardNull(dto.associatedEntity.toString()));
-         doc.indexDoc.set(NotesSolrConfig.NOTE_MIME_TYPE, guardNull(dto.mimeType));
-         doc.indexDoc.set(NotesSolrConfig.NOTE_CONTENT, guardNull(dto.content));
+         indexDoc.set(NotesSolrConfig.SEARCH_PROXY, toProxy(note));
+         indexDoc.set(NotesSolrConfig.ID, note.getId());
+         indexDoc.set(NotesSolrConfig.AUTHOR_ID, author != null ? author.getId().toString() : "");
+         indexDoc.set(NotesSolrConfig.ASSOCIATED_ENTRY, ref != null ? resolvers.tokenize(ref) : "");
+         indexDoc.set(NotesSolrConfig.NOTE_MIME_TYPE, guardNull(note.getMimeType()));
+         indexDoc.set(NotesSolrConfig.NOTE_CONTENT, guardNull(note.getContent()));
 
-         return doc;
+         return indexDoc.build();
       }
       catch (SearchException ex)
       {
@@ -59,23 +62,28 @@ public class NoteDocument
       }
    }
 
-   public static NoteDocument update(Note note)
+   private static NotesSearchProxy toProxy(Note note)
+   {
+      return null;
+   }
+
+   public static SolrInputDocument update(Note note, EntryResolverRegistry resolvers)
    {
 
       try
       {
-         NoteDocument doc = new NoteDocument();
-         NoteDTO dto = NoteDTO.create(note);
+         Account author = note.getAuthor();
+         EntryReference ref = note.getAssociatedEntry();
+         TrcDocument indexDoc = new TrcDocument(new NotesSolrConfig());
 
-         doc.indexDoc.set(NotesSolrConfig.ID, dto.id.toString());
+         indexDoc.update(NotesSolrConfig.SEARCH_PROXY, toProxy(note));
+         indexDoc.update(NotesSolrConfig.ID, note.getId());
+         indexDoc.update(NotesSolrConfig.AUTHOR_ID, author != null ? author.getId().toString() : "");
+         indexDoc.update(NotesSolrConfig.ASSOCIATED_ENTRY, ref != null ? resolvers.tokenize(ref) : "");
+         indexDoc.update(NotesSolrConfig.NOTE_MIME_TYPE, guardNull(note.getMimeType()));
+         indexDoc.update(NotesSolrConfig.NOTE_CONTENT, guardNull(note.getContent()));
 
-         doc.indexDoc.update(NotesSolrConfig.SEARCH_PROXY, new NotesSearchProxy(note));
-         doc.indexDoc.update(NotesSolrConfig.AUTHOR_ID, guardNull(dto.authorId));
-         doc.indexDoc.update(NotesSolrConfig.ASSOCIATED_ENTRY, guardNull(dto.associatedEntity.toString()));
-         doc.indexDoc.update(NotesSolrConfig.NOTE_MIME_TYPE, guardNull(dto.mimeType));
-         doc.indexDoc.update(NotesSolrConfig.NOTE_CONTENT, guardNull(dto.content));
-
-         return doc;
+         return indexDoc.build();
       }
       catch (Exception e)
       {

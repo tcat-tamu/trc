@@ -18,7 +18,7 @@ package edu.tamu.tcat.trc.notes.search.solr;
 import java.util.Arrays;
 import java.util.Collection;
 
-import edu.tamu.tcat.trc.notes.search.NotesSearchProxy;
+import edu.tamu.tcat.trc.notes.NotesSearchProxy;
 import edu.tamu.tcat.trc.search.solr.SolrIndexConfig;
 import edu.tamu.tcat.trc.search.solr.SolrIndexField;
 import edu.tamu.tcat.trc.search.solr.impl.BasicFields;
