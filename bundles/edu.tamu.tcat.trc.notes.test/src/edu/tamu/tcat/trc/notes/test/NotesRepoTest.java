@@ -20,6 +20,7 @@ import java.net.URI;
 import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -33,11 +34,12 @@ import org.junit.Test;
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
+import edu.tamu.tcat.trc.entries.core.repo.db.DbEntryRepositoryRegistry;
+import edu.tamu.tcat.trc.notes.EditNoteCommand;
 import edu.tamu.tcat.trc.notes.Note;
-import edu.tamu.tcat.trc.notes.dto.NoteDTO;
-import edu.tamu.tcat.trc.notes.postgres.PsqlNotesRepo;
-import edu.tamu.tcat.trc.notes.repo.EditNoteCommand;
-import edu.tamu.tcat.trc.repo.NoSuchEntryException;
+import edu.tamu.tcat.trc.notes.NotesRepository;
+import edu.tamu.tcat.trc.notes.impl.NotesService;
+import edu.tamu.tcat.trc.repo.DocumentNotFoundException;
 import edu.tamu.tcat.trc.repo.postgres.PostgresDataSourceProvider;
 
 public class NotesRepoTest
@@ -46,7 +48,7 @@ public class NotesRepoTest
    private PostgreSqlExecutor exec;
    private SimpleFileConfigurationProperties config;
    private PostgresDataSourceProvider dsp;
-   private PsqlNotesRepo repo;
+   private NotesRepository repo;
 
 
    @BeforeClass
@@ -76,8 +78,19 @@ public class NotesRepoTest
       exec = new PostgreSqlExecutor();
       exec.init(dsp);
 
-      repo = new PsqlNotesRepo();
-      repo.setDatabaseExecutor(exec);
+      DbEntryRepositoryRegistry repoRegistry = new DbEntryRepositoryRegistry();
+      repoRegistry.setConfiguration(config);
+      repoRegistry.setIdFactory(ctx -> {
+         return () -> UUID.randomUUID().toString();
+      });
+      repoRegistry.setSqlExecutor(exec);
+      repoRegistry.activate();
+
+      NotesService repo = new NotesService();
+      repo.setRepoContext(repoRegistry);
+      repo.setSearchSvcMgr(indexSvcFactory);
+      repo.setAccountStore(null);
+
       repo.activate();
    }
 
@@ -161,7 +174,7 @@ public class NotesRepoTest
          repo.get(note.id);
          Assert.fail();
       }
-      catch(NoSuchEntryException e)
+      catch(DocumentNotFoundException e)
       {
          Assert.assertTrue("Article has been removed", true);
       }
