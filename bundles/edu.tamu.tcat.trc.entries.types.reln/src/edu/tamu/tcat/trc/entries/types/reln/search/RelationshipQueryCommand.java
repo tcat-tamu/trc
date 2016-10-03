@@ -17,7 +17,7 @@ package edu.tamu.tcat.trc.entries.types.reln.search;
 
 import java.net.URI;
 
-import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.SearchException;
 
 public interface RelationshipQueryCommand
 {

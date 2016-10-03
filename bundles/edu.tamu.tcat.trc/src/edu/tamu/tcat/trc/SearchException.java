@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.search;
+package edu.tamu.tcat.trc;
 
 /**
  * A base exception type for entry types to use within their search modules.
  */
-public class SearchException extends RuntimeException
+public class SearchException extends TrcException
 {
    public SearchException()
    {

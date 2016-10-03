@@ -26,7 +26,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.SolrParams;
 
-import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.SearchException;
 import edu.tamu.tcat.trc.search.solr.SolrIndexConfig;
 import edu.tamu.tcat.trc.search.solr.SolrIndexField;
 import edu.tamu.tcat.trc.search.solr.SolrQueryBuilder;

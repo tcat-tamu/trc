@@ -17,7 +17,7 @@ package edu.tamu.tcat.trc.entries.types.bio.search;
 
 import java.util.concurrent.CompletableFuture;
 
-import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.SearchException;
 
 /**
  * Command for use in querying the associated {@link BioEntrySearchService} which provides

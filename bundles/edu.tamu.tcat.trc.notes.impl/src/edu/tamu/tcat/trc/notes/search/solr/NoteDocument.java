@@ -18,11 +18,11 @@ package edu.tamu.tcat.trc.notes.search.solr;
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.account.Account;
+import edu.tamu.tcat.trc.SearchException;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.NotesSearchProxy;
-import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 
 public class NoteDocument

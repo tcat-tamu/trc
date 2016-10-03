@@ -3,10 +3,10 @@ package edu.tamu.tcat.trc.entries.types.article.impl.search;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.common.SolrInputDocument;
 
+import edu.tamu.tcat.trc.SearchException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQuery;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
-import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.IndexServiceStrategy;
 import edu.tamu.tcat.trc.search.solr.SolrIndexConfig;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;

@@ -19,7 +19,7 @@ import java.time.Period;
 import java.time.Year;
 import java.util.Collection;
 
-import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.SearchException;
 
 
 /**

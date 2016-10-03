@@ -23,7 +23,7 @@ import java.util.Objects;
 
 import org.apache.solr.common.SolrInputDocument;
 
-import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.SearchException;
 import edu.tamu.tcat.trc.search.solr.DocumentBuilder;
 import edu.tamu.tcat.trc.search.solr.SolrIndexConfig;
 import edu.tamu.tcat.trc.search.solr.SolrIndexField;

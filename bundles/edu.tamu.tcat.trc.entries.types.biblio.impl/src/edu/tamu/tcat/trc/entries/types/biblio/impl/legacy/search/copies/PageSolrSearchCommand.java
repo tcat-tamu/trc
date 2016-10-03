@@ -24,10 +24,10 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 
+import edu.tamu.tcat.trc.SearchException;
 import edu.tamu.tcat.trc.entries.types.biblio.search.copies.PageSearchCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.search.copies.PageSearchProxy;
 import edu.tamu.tcat.trc.entries.types.biblio.search.copies.PageSearchResult;
-import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
 public class PageSolrSearchCommand implements PageSearchCommand

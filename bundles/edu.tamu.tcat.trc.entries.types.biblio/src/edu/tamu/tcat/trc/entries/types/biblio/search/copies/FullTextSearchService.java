@@ -15,7 +15,7 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio.search.copies;
 
-import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.SearchException;
 
 public interface FullTextSearchService
 {

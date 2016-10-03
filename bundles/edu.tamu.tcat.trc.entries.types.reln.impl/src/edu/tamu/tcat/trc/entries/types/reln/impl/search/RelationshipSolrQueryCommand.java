@@ -27,10 +27,10 @@ import org.apache.solr.common.SolrDocumentList;
 
 import com.google.common.base.Joiner;
 
+import edu.tamu.tcat.trc.SearchException;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipDirection;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelnSearchProxy;
-import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
 public class RelationshipSolrQueryCommand implements RelationshipQueryCommand

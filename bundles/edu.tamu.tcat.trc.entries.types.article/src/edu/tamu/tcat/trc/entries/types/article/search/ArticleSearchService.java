@@ -1,6 +1,6 @@
 package edu.tamu.tcat.trc.entries.types.article.search;
 
-import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.SearchException;
 
 /**
  * Supports search based discovery of articles.

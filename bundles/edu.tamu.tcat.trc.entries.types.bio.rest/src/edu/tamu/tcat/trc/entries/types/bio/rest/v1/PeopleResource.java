@@ -39,6 +39,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import edu.tamu.tcat.trc.SearchException;
 import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.DateDescriptionMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
@@ -49,7 +50,6 @@ import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RepoAdapter;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.SearchAdapter;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioEntryQueryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.search.PersonSearchResult;
-import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.QueryService;
 
 public class PeopleResource

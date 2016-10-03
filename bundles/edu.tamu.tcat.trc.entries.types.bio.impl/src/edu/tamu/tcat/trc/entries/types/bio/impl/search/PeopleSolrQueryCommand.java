@@ -22,8 +22,8 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 
 import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
+import edu.tamu.tcat.trc.SearchException;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioEntryQueryCommand;
-import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
 public class PeopleSolrQueryCommand implements BioEntryQueryCommand

@@ -33,9 +33,9 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 
+import edu.tamu.tcat.trc.SearchException;
 import edu.tamu.tcat.trc.entries.types.biblio.search.BiblioSearchProxy;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkQueryCommand;
-import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.DateRangeDTO;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 

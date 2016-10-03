@@ -22,12 +22,12 @@ import java.util.Set;
 
 import org.apache.solr.common.SolrInputDocument;
 
+import edu.tamu.tcat.trc.SearchException;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDTO;
 import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDTO;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelnSearchProxy;
-import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.SolrIndexField;
 import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 

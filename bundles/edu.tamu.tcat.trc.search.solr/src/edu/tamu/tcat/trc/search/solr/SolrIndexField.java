@@ -15,7 +15,7 @@
  */
 package edu.tamu.tcat.trc.search.solr;
 
-import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.SearchException;
 
 public interface SolrIndexField<FieldType>
 {

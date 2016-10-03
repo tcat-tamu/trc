@@ -15,7 +15,7 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio.search;
 
-import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.SearchException;
 
 /**
  * The main API for searching a {@link BibliographicEntryRepository}.

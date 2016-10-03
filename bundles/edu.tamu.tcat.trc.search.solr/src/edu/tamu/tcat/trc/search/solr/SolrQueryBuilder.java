@@ -20,7 +20,7 @@ import java.util.Collections;
 
 import org.apache.solr.common.params.SolrParams;
 
-import edu.tamu.tcat.trc.search.SearchException;
+import edu.tamu.tcat.trc.SearchException;
 
 /**
  * A query builder for a SOLR query. This API is intended to wrap the basic REST API

@@ -15,8 +15,8 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio.search.copies;
 
+import edu.tamu.tcat.trc.SearchException;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkQueryCommand;
-import edu.tamu.tcat.trc.search.SearchException;
 
 public interface PageSearchCommand
 {
