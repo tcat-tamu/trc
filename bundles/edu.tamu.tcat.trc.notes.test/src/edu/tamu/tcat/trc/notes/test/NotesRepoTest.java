@@ -34,7 +34,7 @@ import org.junit.Test;
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
-import edu.tamu.tcat.trc.entries.core.repo.db.DbEntryRepositoryRegistry;
+import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
 import edu.tamu.tcat.trc.notes.EditNoteCommand;
 import edu.tamu.tcat.trc.notes.Note;
 import edu.tamu.tcat.trc.notes.NotesRepository;
