@@ -35,8 +35,8 @@ import edu.tamu.tcat.trc.services.categorization.strategies.tree.EditTreeCategor
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeCategorization;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeNode;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeNodeMutator;
+import edu.tamu.tcat.trc.services.rest.ApiUtils;
 import edu.tamu.tcat.trc.services.rest.categorizations.v1.RestApiV1.BasicNode;
-import edu.tamu.tcat.trc.services.rest.internal.ApiUtils;
 
 /**
  *  Represents a single entry within a categorization.

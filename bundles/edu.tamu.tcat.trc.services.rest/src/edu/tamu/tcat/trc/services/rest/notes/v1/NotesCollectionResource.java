@@ -43,7 +43,7 @@ import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.notes.EditNoteCommand;
 import edu.tamu.tcat.trc.services.notes.Note;
 import edu.tamu.tcat.trc.services.notes.NotesRepository;
-import edu.tamu.tcat.trc.services.rest.internal.ApiUtils;
+import edu.tamu.tcat.trc.services.rest.ApiUtils;
 
 
 public class NotesCollectionResource

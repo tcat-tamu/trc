@@ -1,5 +1,6 @@
 package edu.tamu.tcat.trc.services.rest.categorizations.v1;
 
+import static edu.tamu.tcat.trc.services.rest.categorizations.v1.CategorizationSchemesResource.checkUniqueKey;
 import static java.text.MessageFormat.format;
 
 import java.util.List;
@@ -29,8 +30,8 @@ import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScope;
 import edu.tamu.tcat.trc.services.categorization.EditCategorizationCommand;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeCategorization;
+import edu.tamu.tcat.trc.services.rest.ApiUtils;
 import edu.tamu.tcat.trc.services.rest.categorizations.v1.CategorizationNodeResource.TreeNodeResource;
-import edu.tamu.tcat.trc.services.rest.internal.ApiUtils;
 
 /**
  *  REST API for working with a categorization scheme.
@@ -162,7 +163,7 @@ public abstract class CategorizationResource
 
       setIfDefined("key", fields, key -> {
          checkKeyNotEmpty(key);
-         ApiUtils.checkUniqueKey(repo, key);
+         checkUniqueKey(repo, key);
          command.setKey(key);
       });
       setIfDefined("label", fields, label -> {

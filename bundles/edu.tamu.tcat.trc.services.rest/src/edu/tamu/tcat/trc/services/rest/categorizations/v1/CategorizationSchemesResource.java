@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
@@ -21,8 +22,8 @@ import edu.tamu.tcat.trc.services.categorization.CategorizationRepo;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.services.categorization.EditCategorizationCommand;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeCategorization;
+import edu.tamu.tcat.trc.services.rest.ApiUtils;
 import edu.tamu.tcat.trc.services.rest.categorizations.v1.CategorizationResource.TreeCategorizationResource;
-import edu.tamu.tcat.trc.services.rest.internal.ApiUtils;
 
 /**
  *  Represents categorization schemes. A categorization is a user-defined structure designed
@@ -80,6 +81,26 @@ public class CategorizationSchemesResource
 
    private final CategorizationRepo repo;
 
+   public static void checkUniqueKey(CategorizationRepo repo, String key)
+   {
+      // TODO may move into repo.
+      if (key == null || key.trim().isEmpty())
+         throw new BadRequestException("A key must be supplied for the categorization.");
+
+      try
+      {
+         String errMsg = "The key [{0}] is already in use by scheme {1}.";
+         CategorizationScheme scheme = repo.get(key);
+
+         throw ApiUtils.raise(Response.Status.CONFLICT, format(errMsg, key, scheme.getLabel()), null, null);
+      }
+      catch (IllegalArgumentException ex)
+      {
+         // no-op this is the expected behavior since the key should not be in use
+      }
+   }
+
+
    public CategorizationSchemesResource(CategorizationRepo repo)
    {
       this.repo = repo;
@@ -104,7 +125,7 @@ public class CategorizationSchemesResource
 
       try
       {
-         ApiUtils.checkUniqueKey(repo, categorization.key);
+         checkUniqueKey(repo, categorization.key);
 
          String errBadType = "Cannot create new categorization. Categorizatons of the requested type {0} are not supported.";
          switch (categorization.type)

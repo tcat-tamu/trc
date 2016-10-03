@@ -25,7 +25,7 @@ import edu.tamu.tcat.trc.services.bibref.repo.BibliographicItemReferenceMutator;
 import edu.tamu.tcat.trc.services.bibref.repo.CitationMutator;
 import edu.tamu.tcat.trc.services.bibref.repo.EditBibliographyCommand;
 import edu.tamu.tcat.trc.services.bibref.repo.ReferenceRepository;
-import edu.tamu.tcat.trc.services.rest.internal.ApiUtils;
+import edu.tamu.tcat.trc.services.rest.ApiUtils;
 
 public class ReferenceCollectionResource
 {

@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.services.rest.internal;
+package edu.tamu.tcat.trc.services.rest;
 
 import static java.text.MessageFormat.format;
 
@@ -7,14 +7,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
-
-import edu.tamu.tcat.trc.services.categorization.CategorizationRepo;
-import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
 
 /**
  * This utils class was copied from edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal...
@@ -23,25 +19,6 @@ import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
 public abstract class ApiUtils
 {
    private final static Logger logger = Logger.getLogger(ApiUtils.class.getName());
-
-   public static void checkUniqueKey(CategorizationRepo repo, String key)
-   {
-      // TODO may move into repo.
-      if (key == null || key.trim().isEmpty())
-         throw new BadRequestException("A key must be supplied for the categorization.");
-
-      try
-      {
-         String errMsg = "The key [{0}] is already in use by scheme {1}.";
-         CategorizationScheme scheme = repo.get(key);
-
-         throw raise(Response.Status.CONFLICT, format(errMsg, key, scheme.getLabel()), null, null);
-      }
-      catch (IllegalArgumentException ex)
-      {
-         // no-op this is the expected behavior since the key should not be in use
-      }
-   }
 
    /**
     * Raises a {@link WebApplicationException} with the supplied status and error message.
