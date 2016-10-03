@@ -15,7 +15,6 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio.impl.legacy.search.copies;
 
-import edu.tamu.tcat.trc.entries.notification.UpdateEvent;
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.repo.RepositoryException;
 
@@ -24,7 +23,7 @@ import edu.tamu.tcat.trc.repo.RepositoryException;
 // full-features change notification system for bibliographic entries that includes information
 // about what specific changes were made.
 @Deprecated
-public interface CopyChangeEvent extends UpdateEvent
+public interface CopyChangeEvent // extends UpdateEvent
 {
    /**
     * Retrieves the element that was changed. Implementations should attempt to return
@@ -32,7 +31,7 @@ public interface CopyChangeEvent extends UpdateEvent
     *
     * @return the element that was changed.
     * @throws RepositoryException If the element cannot be retrieved. This is expected
-    *    in the case of {@link UpdateAction#DELETED} events. In other cases, this is not
+    *    in the case of {@code UpdateAction#DELETED} events. In other cases, this is not
     *    expected but due to an internal error.
     */
    /*

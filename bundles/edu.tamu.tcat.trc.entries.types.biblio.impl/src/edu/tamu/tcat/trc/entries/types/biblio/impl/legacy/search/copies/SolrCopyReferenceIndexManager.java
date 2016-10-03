@@ -35,12 +35,10 @@ import edu.tamu.tcat.hathitrust.HathiTrustClientException;
 import edu.tamu.tcat.hathitrust.htrc.features.simple.ExtractedFeatures;
 import edu.tamu.tcat.hathitrust.htrc.features.simple.impl.DefaultExtractedFeaturesProvider;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.notification.UpdateEvent.UpdateAction;
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.search.copies.FullTextSearchService;
 import edu.tamu.tcat.trc.entries.types.biblio.search.copies.PageSearchCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.search.copies.VolumeSearchCommand;
-import edu.tamu.tcat.trc.repo.RepositoryException;
 import edu.tamu.tcat.trc.search.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
@@ -157,24 +155,24 @@ public class SolrCopyReferenceIndexManager implements FullTextSearchService
    private void onUpdate(CopyChangeEvent evt)
    {
       // TODO Auto-generated method stub
-      UpdateAction action = evt.getUpdateAction();
-      try
-      {
-         String entryId = evt.getAssociatedEntry();
-         switch (action)
-         {
-            case CREATE: onCreate(evt.getOriginal(), entryId);
-               break;
-            case UPDATE: onUpdate(evt.get(), entryId);
-               break;
-            case DELETE: onDelete(evt.get(), entryId);
-               break;
-         }
-      }
-      catch (RepositoryException e)
-      {
-         logger.log(Level.WARNING, "Failed to update full text index for digital copy '" + evt.getEntityId() + "' on update action " + action, e);
-      }
+//      UpdateAction action = evt.getUpdateAction();
+//      try
+//      {
+//         String entryId = evt.getAssociatedEntry();
+//         switch (action)
+//         {
+//            case CREATE: onCreate(evt.getOriginal(), entryId);
+//               break;
+//            case UPDATE: onUpdate(evt.get(), entryId);
+//               break;
+//            case DELETE: onDelete(evt.get(), entryId);
+//               break;
+//         }
+//      }
+//      catch (RepositoryException e)
+//      {
+//         logger.log(Level.WARNING, "Failed to update full text index for digital copy '" + evt.getEntityId() + "' on update action " + action, e);
+//      }
    }
 
    private void onCreate(CopyReference copyRef, String entryId)
