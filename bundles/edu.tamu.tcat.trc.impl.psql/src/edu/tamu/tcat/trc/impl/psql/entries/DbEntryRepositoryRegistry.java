@@ -9,7 +9,7 @@ import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
-import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistrar;
 import edu.tamu.tcat.trc.entries.core.resolver.BasicResolverRegistry;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolver;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
@@ -22,7 +22,7 @@ import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
  *  common across repositories.
  *
  */
-public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, RepositoryContext
+public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, EntryRepositoryRegistrar
 {
 //   NOTE This is really a PsqlJacksonRepoRegistry - may provide different flavors of repo or (perhaps better) allow
 //        internal mechanisms to support different DB technologies.
@@ -160,7 +160,7 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, Repos
    }
 
    @Override
-   public <Repo> RepositoryContext.Registration registerRepository(Class<Repo> type, Function<Account, Repo> factory)
+   public <Repo> EntryRepositoryRegistrar.Registration registerRepository(Class<Repo> type, Function<Account, Repo> factory)
    {
       if (repositories.containsKey(type))
             throw new IllegalArgumentException("A repository has already been registered for " + type);

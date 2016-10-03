@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
-import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistrar;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.impl.model.ArticleImpl;
@@ -34,17 +34,17 @@ public class ArticleEntryService
    private static final String TABLE_NAME = "articles";
    private static final String SCHEMA_DATA_FIELD = "data";
 
-   private RepositoryContext context;
+   private EntryRepositoryRegistrar context;
    private SearchServiceManager indexSvcMgr;
 
-   private RepositoryContext.Registration repoReg;
+   private EntryRepositoryRegistrar.Registration repoReg;
    private EntryResolverRegistry.Registration resolverReg;
    private EntryRepository.ObserverRegistration searchReg;
 
    private DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> docRepo;
    private BasicRepoDelegate<Article, DataModelV1.Article, EditArticleCommand> delegate;
 
-   public void setRepoContext(RepositoryContext ctx)
+   public void setRepoContext(EntryRepositoryRegistrar ctx)
    {
       this.context = ctx;
    }

@@ -10,7 +10,12 @@ import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.IdFactory;
 
-public interface RepositoryContext
+/**
+ *  Provided to {@link EntryRepository} implementations to provide access to core
+ *  application resources and to provide API to support the registration of repository
+ *  factories and entry resolvers.
+ */
+public interface EntryRepositoryRegistrar
 {
    /**
     * @return The configured public API endpoint for this deployment.
@@ -69,7 +74,7 @@ public interface RepositoryContext
     *       cached for performance purposes.
     * @return A registration handle to be used to unregister the associated repository.
     */
-   <Repo> RepositoryContext.Registration registerRepository(Class<Repo> type, Function<Account, Repo> factory);
+   <Repo> EntryRepositoryRegistrar.Registration registerRepository(Class<Repo> type, Function<Account, Repo> factory);
 
    /**
     * Register a new {@link EntryResolver} with the associated {@link EntryResolverRegistry}.

@@ -25,6 +25,7 @@ import edu.tamu.tcat.trc.ResourceNotFoundException;
 public class NoSuchEntryException extends ResourceNotFoundException
 {
    // FIXME -- never actually instantiated
+   // FIXME -- rename to EntryNotFoundException
    // FIXME should clarify the exception hierarchy to ensure that this exception is not
    //       propagated via the entry repo API
    public NoSuchEntryException()

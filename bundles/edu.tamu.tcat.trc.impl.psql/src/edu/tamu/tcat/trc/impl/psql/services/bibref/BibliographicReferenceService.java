@@ -5,7 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistrar;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.impl.psql.services.bibref.model.ReferenceCollectionImpl;
 import edu.tamu.tcat.trc.impl.psql.services.bibref.repo.DataModelV1;
@@ -25,14 +25,14 @@ public class BibliographicReferenceService implements ReferenceRepositoryFactory
    private static final String TABLE_NAME = "bibrefs";
    private static final String SCHEMA_DATA_FIELD = "data";
 
-   private RepositoryContext context;
+   private EntryRepositoryRegistrar context;
    private DocumentRepository<ReferenceCollection, DataModelV1.ReferenceCollection, EditBibliographyCommand> docRepo;
 
    /**
-    * Provides a {@link RepositoryContext} in which the {@link ReferenceRepository} will operate. This should be provided prior to starting the service.
+    * Provides a {@link EntryRepositoryRegistrar} in which the {@link ReferenceRepository} will operate. This should be provided prior to starting the service.
     * @param context
     */
-   public void setRepositoryContext(RepositoryContext context)
+   public void setRepositoryContext(EntryRepositoryRegistrar context)
    {
       this.context = context;
    }
@@ -90,7 +90,7 @@ public class BibliographicReferenceService implements ReferenceRepositoryFactory
     * @param context
     * @return A document repository for persisting and retrieving {@link ReferenceCollection} instances.
     */
-   private DocumentRepository<ReferenceCollection, DataModelV1.ReferenceCollection, EditBibliographyCommand> initDocRepo(RepositoryContext context)
+   private DocumentRepository<ReferenceCollection, DataModelV1.ReferenceCollection, EditBibliographyCommand> initDocRepo(EntryRepositoryRegistrar context)
    {
       EntryResolverRegistry resolverRegistry = context.getResolverRegistry();
       EditBibliographyCommandFactory editCommandFactory = new EditBibliographyCommandFactory(resolverRegistry);

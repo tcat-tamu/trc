@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
-import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistrar;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
@@ -39,17 +39,17 @@ public class RelationshipEntryService
 
    private RelationshipTypeRegistry typeReg;
 
-   private RepositoryContext ctx;
+   private EntryRepositoryRegistrar ctx;
    private SearchServiceManager indexSvcMgr;
 
    private DocumentRepository<Relationship, RelationshipDTO, EditRelationshipCommand> docRepo;
 
    private EntryResolverRegistry.Registration resolverReg;
-   private RepositoryContext.Registration repoReg;
+   private EntryRepositoryRegistrar.Registration repoReg;
    private EntryRepository.ObserverRegistration searchReg;
 
 
-   public void setRepoContext(RepositoryContext ctx)
+   public void setRepoContext(EntryRepositoryRegistrar ctx)
    {
       this.ctx = ctx;
    }

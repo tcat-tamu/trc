@@ -1,6 +1,7 @@
 package edu.tamu.tcat.trc.entries.core.repo;
 
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -30,12 +31,29 @@ import edu.tamu.tcat.account.Account;
 public interface EntryRepository<EntryType>
 {
    /**
-    *
     * @param id The id of the entry to return.
     * @return The entry to be returned
     * @throws NoSuchEntryException If the no entry with the supplied id exists.
     */
+   @Deprecated // will be replaced by getOptionally (which will be renamed)
    EntryType get(String id) throws NoSuchEntryException;
+
+   /**
+    *
+    * @param id
+    * @return
+    */
+   default Optional<EntryType> getOptionally(String id)
+   {
+      try
+      {
+         return Optional.of(this.get(id));
+      }
+      catch (NoSuchEntryException | IllegalArgumentException ex)
+      {
+         return Optional.empty();
+      }
+   }
 
    /**
     * @return an iterator over all entries in the repository.

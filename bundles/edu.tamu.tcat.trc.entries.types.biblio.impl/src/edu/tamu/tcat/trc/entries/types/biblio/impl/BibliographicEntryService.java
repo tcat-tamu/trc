@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
-import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistrar;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverBase;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
@@ -42,17 +42,17 @@ public class BibliographicEntryService
    private static final String SCHEMA_DATA_FIELD = "work";
 
 
-   private RepositoryContext context;
+   private EntryRepositoryRegistrar context;
    private SearchServiceManager indexSvcMgr;
 
    private DocumentRepository<BibliographicEntry, WorkDTO, EditBibliographicEntryCommand> docRepo;
    private BasicRepoDelegate<BibliographicEntry, WorkDTO, EditBibliographicEntryCommand> delegate;
 
    private EntryResolverRegistry.Registration resolverReg;
-   private RepositoryContext.Registration repoReg;
+   private EntryRepositoryRegistrar.Registration repoReg;
    private EntryRepository.ObserverRegistration searchReg;
 
-   public void setRepoContext(RepositoryContext context)
+   public void setRepoContext(EntryRepositoryRegistrar context)
    {
       logger.fine(format("[{0}] setting repository context", getClass().getName()));
       this.context = context;

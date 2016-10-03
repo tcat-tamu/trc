@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
-import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistrar;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.impl.model.PersonImpl;
@@ -34,17 +34,17 @@ public class BiographicalEntryService
    private static final String TABLE_NAME = "people";
    private static final String SCHEMA_DATA_FIELD = "historical_figure";
 
-   private RepositoryContext ctx;
+   private EntryRepositoryRegistrar ctx;
    private SearchServiceManager indexSvcMgr;
 
    private DocumentRepository<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> docRepo;
    private BasicRepoDelegate<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> delegate;
 
    private EntryResolverRegistry.Registration resolverReg;
-   private RepositoryContext.Registration repoReg;
+   private EntryRepositoryRegistrar.Registration repoReg;
    private EntryRepository.ObserverRegistration searchReg;
 
-   public void setRepoContext(RepositoryContext ctx)
+   public void setRepoContext(EntryRepositoryRegistrar ctx)
    {
       this.ctx = ctx;
    }
