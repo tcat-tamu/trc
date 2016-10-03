@@ -42,9 +42,9 @@ import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
-import edu.tamu.tcat.trc.services.types.bibref.ReferenceCollection;
-import edu.tamu.tcat.trc.services.types.bibref.repo.ReferenceRepository;
-import edu.tamu.tcat.trc.services.types.bibref.rest.v1.ReferenceCollectionResource;
+import edu.tamu.tcat.trc.services.bibref.ReferenceCollection;
+import edu.tamu.tcat.trc.services.bibref.repo.ReferenceRepository;
+import edu.tamu.tcat.trc.services.rest.bibref.ReferenceCollectionResource;
 
 
 public class ArticleResource

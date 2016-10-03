@@ -29,16 +29,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.trc.SearchException;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
 import edu.tamu.tcat.trc.search.solr.QueryService;
-import edu.tamu.tcat.trc.services.types.bibref.ReferenceCollection;
-import edu.tamu.tcat.trc.services.types.bibref.repo.ReferenceRepository;
+import edu.tamu.tcat.trc.services.bibref.repo.ReferenceRepository;
 
 /**
  *  REST API sub-resource that represents a collection of articles and the actions that

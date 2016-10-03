@@ -14,8 +14,8 @@ import edu.tamu.tcat.trc.entries.types.article.rest.v1.ArticlesCollectionResourc
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.search.solr.QueryService;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
-import edu.tamu.tcat.trc.services.types.bibref.repo.ReferenceRepository;
-import edu.tamu.tcat.trc.services.types.bibref.repo.ReferenceRepositoryFactory;
+import edu.tamu.tcat.trc.services.bibref.repo.ReferenceRepository;
+import edu.tamu.tcat.trc.services.bibref.repo.ReferenceRepositoryFactory;
 
 /**
  * The primary REST end point for articles. This is intended to be
