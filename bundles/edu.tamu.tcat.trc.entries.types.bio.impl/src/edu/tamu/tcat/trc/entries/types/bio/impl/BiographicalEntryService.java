@@ -8,7 +8,6 @@ import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
-import edu.tamu.tcat.trc.entries.core.search.SolrSearchMediator;
 import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.impl.model.PersonImpl;
 import edu.tamu.tcat.trc.entries.types.bio.impl.repo.BioEntryRepoImpl;
@@ -22,6 +21,7 @@ import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.search.solr.IndexService;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
+import edu.tamu.tcat.trc.search.solr.impl.SolrSearchMediator;
 
 public class BiographicalEntryService
 {

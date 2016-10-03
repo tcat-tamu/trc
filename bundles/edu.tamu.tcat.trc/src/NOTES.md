@@ -11,6 +11,3 @@ edu.tamu.tcat.trc.entries
          .reln
          
          
-to remove
-     .common
-     .notification

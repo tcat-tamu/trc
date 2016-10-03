@@ -16,7 +16,6 @@ import edu.tamu.tcat.trc.entries.core.repo.UnauthorziedException;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverBase;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
-import edu.tamu.tcat.trc.entries.core.search.SolrSearchMediator;
 import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.BiblioRepoImpl;
@@ -29,6 +28,7 @@ import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.search.solr.IndexService;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
+import edu.tamu.tcat.trc.search.solr.impl.SolrSearchMediator;
 
 public class BibliographicEntryService
 {

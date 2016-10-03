@@ -10,7 +10,6 @@ import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.core.repo.RepositoryContext;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
-import edu.tamu.tcat.trc.entries.core.search.SolrSearchMediator;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.impl.repo.EditRelationshipCommandFactory;
@@ -25,6 +24,7 @@ import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.search.solr.IndexService;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
+import edu.tamu.tcat.trc.search.solr.impl.SolrSearchMediator;
 
 public class RelationshipEntryService
 {

@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.core.search;
+package edu.tamu.tcat.trc.search.solr.impl;
 
 import edu.tamu.tcat.trc.entries.core.repo.EntryUpdateRecord;
 import edu.tamu.tcat.trc.search.solr.IndexService;
