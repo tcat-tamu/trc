@@ -1,7 +1,5 @@
 package edu.tamu.tcat.trc.entries.core.resolver;
 
-import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
-
 /**
  * Maintains a registry of {@link EntryResolver}s for the various entry types
  * defined by the system.

@@ -5,8 +5,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
-import edu.tamu.tcat.trc.entries.core.repo.UnauthorziedException;
 
 
 /**
@@ -49,12 +47,10 @@ public interface EntryResolver<T>
     *       {@link ExecutionException}.
     *
     * @throws InvalidReferenceException If the supplied reference cannot be resolved.
-    * @throws UnauthorziedException If the referenced entry cannot be removed by
-    *       the supplied account.
     * @throws UnsupportedOperationException If this resolver does not support removal.
     */
    default CompletableFuture<Boolean> remove(Account account, EntryReference reference)
-         throws InvalidReferenceException, UnauthorziedException, UnsupportedOperationException
+         throws InvalidReferenceException, UnsupportedOperationException
    {
       throw new UnsupportedOperationException();
    }

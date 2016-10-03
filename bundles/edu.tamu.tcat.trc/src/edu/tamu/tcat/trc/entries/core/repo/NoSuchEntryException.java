@@ -15,13 +15,16 @@
  */
 package edu.tamu.tcat.trc.entries.core.repo;
 
+import edu.tamu.tcat.trc.ResourceNotFoundException;
+
 /**
  * Indicates that a TRC entry (such as a bibliographic entry or biographical
  * details) does not exist. Typically thrown when attempting to access an entry by
  * a unique identifier.
  */
-public class NoSuchEntryException extends EntryRepoException
+public class NoSuchEntryException extends ResourceNotFoundException
 {
+   // FIXME -- never actually instantiated
    // FIXME should clarify the exception hierarchy to ensure that this exception is not
    //       propagated via the entry repo API
    public NoSuchEntryException()

@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
-
 /**
  * A basic implementation of the {@link EntryResolverRegistry}. Intended to be registered as
  * a declarative service or otherwise accessed through dependency injection in order to ensure

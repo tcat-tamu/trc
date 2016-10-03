@@ -3,7 +3,6 @@ package edu.tamu.tcat.trc.entries.core.resolver;
 import java.net.URI;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
 
 /**

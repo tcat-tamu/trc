@@ -1,16 +1,16 @@
-package edu.tamu.tcat.trc.entries.core;
+package edu.tamu.tcat.trc.entries.core.resolver;
 
 import static java.text.MessageFormat.format;
 
 import java.net.URI;
 
-import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
+import edu.tamu.tcat.trc.TrcException;
 
 /**
  * Thrown when an attempt to resolve an {@link EntryReference} fails or the
  * reference is otherwise determined to be invalid.
  */
-public class InvalidReferenceException extends RuntimeException
+public class InvalidReferenceException extends TrcException
 {
    private static final String ERR_BAD_REFERENCE = "The supplied entry reference '{0}' could not be resolved: {2}";
    private static final String ERR_BAD_ENTRY = "The supplied entry [{0}] cannot be resolved: {1}";

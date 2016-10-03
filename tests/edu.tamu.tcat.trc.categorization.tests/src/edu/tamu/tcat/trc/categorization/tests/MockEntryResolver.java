@@ -7,9 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.entries.core.InvalidReferenceException;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolver;
+import edu.tamu.tcat.trc.entries.core.resolver.InvalidReferenceException;
 
 class MockEntryResolver implements EntryResolver<MockEntry>
 {
