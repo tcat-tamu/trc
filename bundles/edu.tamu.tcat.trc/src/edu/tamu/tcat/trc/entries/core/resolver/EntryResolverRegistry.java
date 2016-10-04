@@ -21,6 +21,7 @@ public interface EntryResolverRegistry
     * @param resolver The resolver to register.
     * @return A handle to use to unregister this resolver.
     */
+   @Deprecated // use EntryResolverRegistrar instead
    <T> Registration register(EntryResolver<T> resolver);
 
    /**
@@ -59,6 +60,7 @@ public interface EntryResolverRegistry
    /**
     * A handle that references a particular resolver registration.
     */
+   @Deprecated // use EntryResolverRegistrar instead
    public interface Registration
    {
       /**
