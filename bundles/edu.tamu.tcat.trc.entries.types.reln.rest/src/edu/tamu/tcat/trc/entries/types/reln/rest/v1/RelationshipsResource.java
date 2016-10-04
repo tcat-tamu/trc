@@ -154,7 +154,7 @@ public class RelationshipsResource
       }
       catch (Exception e)
       {
-         debug.severe("An error occured during the creating relationship process. Exception: " + e);
+         debug.log(Level.SEVERE, "An error occured during the creating relationship process.", e);
          throw new WebApplicationException("Failed to create a new relationship:", e.getCause(), 500);
       }
    }
