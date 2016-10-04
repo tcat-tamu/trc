@@ -238,19 +238,20 @@ public abstract class ModelAdapter
 //      return citeDTOs;
 //   }
 
-   private static List<RestApiV1.Footnote> convertFootnotes(List<Footnote> footnotes)
+   private static Map<String, RestApiV1.Footnote> convertFootnotes(List<Footnote> footnotes)
    {
 
-      List<RestApiV1.Footnote> footnoteDTOs = new ArrayList<>();
+      Map<String, RestApiV1.Footnote> footnoteDTOs = new HashMap<>();
       if (footnotes != null)
       {
          footnotes.forEach((ftn) ->
          {
             RestApiV1.Footnote dto = new RestApiV1.Footnote();
             dto.id = ftn.getId();
-            dto.text = ftn.getText();
+            dto.content = ftn.getContent();
+            dto.mimeType = ftn.getMimeType();
 
-            footnoteDTOs.add(dto);
+            footnoteDTOs.put(dto.id, dto);
          });
       }
       return footnoteDTOs;

@@ -18,6 +18,7 @@ package edu.tamu.tcat.trc.entries.types.article.rest.v1;
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -94,7 +95,7 @@ public abstract class RestApiV1
       /** The main content of the article. */
       public String body;
 
-      public List<Footnote> footnotes;
+      public Map<String, Footnote> footnotes;
       public List<LinkedResource> links;
    }
 
@@ -121,7 +122,8 @@ public abstract class RestApiV1
    public static class Footnote
    {
       public String id;
-      public String text;
+      public String content;
+      public String mimeType;
    }
 
    public static class Citation
