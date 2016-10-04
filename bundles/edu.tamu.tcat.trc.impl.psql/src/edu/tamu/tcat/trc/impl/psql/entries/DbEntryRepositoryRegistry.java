@@ -8,8 +8,9 @@ import java.util.function.Function;
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
+import edu.tamu.tcat.trc.ConfigParams;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistrar;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
 import edu.tamu.tcat.trc.entries.core.resolver.BasicResolverRegistry;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolver;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
@@ -134,7 +135,7 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, Entry
    @Override
    public URI getApiEndpoint()
    {
-      return config.getPropertyValue(API_ENDPOINT_PARAM, URI.class, URI.create(""));
+      return config.getPropertyValue(ConfigParams.API_ENDPOINT_PARAM, URI.class, URI.create(""));
    }
 
    /**

@@ -17,12 +17,6 @@ import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 public interface EntryRepositoryRegistry
 {
    /**
-    * Configuration parameter that specifies the REST API endpoint for use in
-    * creating and interpreting TRC entry URIs.
-    */
-   static final String API_ENDPOINT_PARAM = "trc.api.endpoint";
-
-   /**
     * @return The configured REST API endpoint associated with this application.
     */
    URI getApiEndpoint();
