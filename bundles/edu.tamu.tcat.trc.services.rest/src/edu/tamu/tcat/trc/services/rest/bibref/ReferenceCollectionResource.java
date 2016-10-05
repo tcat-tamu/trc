@@ -24,15 +24,15 @@ import edu.tamu.tcat.trc.services.bibref.repo.BibliographicItemMutator;
 import edu.tamu.tcat.trc.services.bibref.repo.BibliographicItemReferenceMutator;
 import edu.tamu.tcat.trc.services.bibref.repo.CitationMutator;
 import edu.tamu.tcat.trc.services.bibref.repo.EditBibliographyCommand;
-import edu.tamu.tcat.trc.services.bibref.repo.ReferenceRepository;
+import edu.tamu.tcat.trc.services.bibref.repo.RefCollectionService;
 import edu.tamu.tcat.trc.services.rest.ApiUtils;
 
 public class ReferenceCollectionResource
 {
-   private final ReferenceRepository repo;
+   private final RefCollectionService repo;
    private final EntryReference targetRef;
 
-   public ReferenceCollectionResource(ReferenceRepository repo, EntryReference targetRef)
+   public ReferenceCollectionResource(RefCollectionService repo, EntryReference targetRef)
    {
       this.repo = repo;
       this.targetRef = targetRef;

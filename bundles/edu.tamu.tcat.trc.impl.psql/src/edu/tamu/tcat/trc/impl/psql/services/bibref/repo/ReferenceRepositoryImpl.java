@@ -12,20 +12,20 @@ import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.bibref.ReferenceCollection;
 import edu.tamu.tcat.trc.services.bibref.repo.EditBibliographyCommand;
-import edu.tamu.tcat.trc.services.bibref.repo.ReferenceRepository;
+import edu.tamu.tcat.trc.services.bibref.repo.RefCollectionService;
 
-public class ReferenceRepositoryImpl implements ReferenceRepository
+public class ReferenceRepositoryImpl implements RefCollectionService
 {
 
    private final DocumentRepository<ReferenceCollection, DataModelV1.ReferenceCollection, EditBibliographyCommand> docRepo;
    private final EntryResolverRegistry resolverRegistry;
-   private final ServiceContext<ReferenceRepository> context;
+   private final ServiceContext<RefCollectionService> context;
 
    private final Account account;
 
    public ReferenceRepositoryImpl(DocumentRepository<ReferenceCollection,
                                   DataModelV1.ReferenceCollection, EditBibliographyCommand> docRepo, EntryResolverRegistry resolverRegistry,
-                                  ServiceContext<ReferenceRepository> context)
+                                  ServiceContext<RefCollectionService> context)
    {
       this.docRepo = docRepo;
       this.resolverRegistry = resolverRegistry;

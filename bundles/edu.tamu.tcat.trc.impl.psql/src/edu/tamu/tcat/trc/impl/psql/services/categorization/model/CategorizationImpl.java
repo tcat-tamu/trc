@@ -9,7 +9,7 @@ import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.resolver.InvalidReferenceException;
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.categorization.CategorizationNode;
-import edu.tamu.tcat.trc.services.categorization.CategorizationRepo;
+import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
 
 public abstract class CategorizationImpl implements CategorizationScheme
@@ -21,7 +21,7 @@ public abstract class CategorizationImpl implements CategorizationScheme
    private final String title;
    private final String description;
 
-   private ServiceContext<CategorizationRepo> context;
+   private ServiceContext<CategorizationService> context;
 
    public CategorizationImpl(PersistenceModelV1.CategorizationScheme scheme)
    {
@@ -34,7 +34,7 @@ public abstract class CategorizationImpl implements CategorizationScheme
       this.description = scheme.description;
    }
 
-   public void setContext(ServiceContext<CategorizationRepo> context)
+   public void setContext(ServiceContext<CategorizationService> context)
    {
       this.context = context;
    }

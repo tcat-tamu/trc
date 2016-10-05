@@ -36,7 +36,7 @@ import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
 import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.ServiceContext;
-import edu.tamu.tcat.trc.services.categorization.CategorizationRepo;
+import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.services.categorization.EditCategorizationCommand;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.EditTreeCategorizationCommand;
@@ -45,7 +45,7 @@ import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeCategorizat
 /**
  *
  */
-public class CategorizationServiceFactory implements ServiceFactory<CategorizationRepo>
+public class CategorizationServiceFactory implements ServiceFactory<CategorizationService>
 {
    private final static Logger logger = Logger.getLogger(CategorizationServiceFactory.class.getName());
 
@@ -119,9 +119,9 @@ public class CategorizationServiceFactory implements ServiceFactory<Categorizati
    }
 
    @Override
-   public Class<CategorizationRepo> getType()
+   public Class<CategorizationService> getType()
    {
-      return CategorizationRepo.class;
+      return CategorizationService.class;
    }
 
    @Override
@@ -183,20 +183,20 @@ public class CategorizationServiceFactory implements ServiceFactory<Categorizati
    }
 
    @Override
-   public CategorizationRepo getService(ServiceContext<CategorizationRepo> ctx)
+   public CategorizationService getService(ServiceContext<CategorizationService> ctx)
    {
       return new CategorizationRepoImpl(ctx);
    }
 
    // TODO this needs to be worked so that categorization implementations can be registered
    //      and we can avoid the myriad switch statements
-   private class CategorizationRepoImpl implements CategorizationRepo
+   private class CategorizationRepoImpl implements CategorizationService
    {
-      private final ServiceContext<CategorizationRepo> svcContext;
+      private final ServiceContext<CategorizationService> svcContext;
       private final String scopeId;
       private final Optional<Account> account;
 
-      public CategorizationRepoImpl(ServiceContext<CategorizationRepo> scope)
+      public CategorizationRepoImpl(ServiceContext<CategorizationService> scope)
       {
          this.svcContext = scope;
          this.scopeId = (String)scope.getProperty(CTX_SCOPE_ID);
@@ -204,7 +204,7 @@ public class CategorizationServiceFactory implements ServiceFactory<Categorizati
       }
 
       @Override
-      public ServiceContext<CategorizationRepo> getContext()
+      public ServiceContext<CategorizationService> getContext()
       {
          return svcContext;
       }

@@ -19,7 +19,7 @@ import edu.tamu.tcat.trc.services.ServiceContext;
  * @see CategorizationScheme for detailed documentation on the design and intent of
  *       categorizations.
  */
-public interface CategorizationRepo
+public interface CategorizationService
 {
    static final String CTX_SCOPE_ID = "scopeId";
 
@@ -33,17 +33,17 @@ public interface CategorizationRepo
     *       creating the scheme
     * @return A configured {@link ServiceContext}.
     */
-   static ServiceContext<CategorizationRepo> makeContext(Account account, String scopeId)
+   static ServiceContext<CategorizationService> makeContext(Account account, String scopeId)
    {
       Map<String, Object> props = new HashMap<>();
       props.put(CTX_SCOPE_ID, Objects.requireNonNull(scopeId));
-      return new BasicServiceContext<>(CategorizationRepo.class, account, props);
+      return new BasicServiceContext<>(CategorizationService.class, account, props);
    }
 
    /**
     * @return The context associated with this service.
     */
-   ServiceContext<CategorizationRepo> getContext();
+   ServiceContext<CategorizationService> getContext();
 
    /**
     * @return The scope id associated with this service instance.

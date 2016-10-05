@@ -9,7 +9,7 @@ import edu.tamu.tcat.trc.impl.psql.services.notes.NotesServiceFactory;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.TrcServiceManager;
-import edu.tamu.tcat.trc.services.notes.NotesRepository;
+import edu.tamu.tcat.trc.services.notes.NotesService;
 import edu.tamu.tcat.trc.services.rest.notes.v1.NotesCollectionResource;
 
 
@@ -51,8 +51,8 @@ public class NotesApiService
    @Path("services/notes")
    public NotesCollectionResource getNotes()
    {
-      ServiceContext<NotesRepository> ctx = NotesRepository.makeContext(null, "sda");
-      NotesRepository service = svcManager.getService(ctx);
+      ServiceContext<NotesService> ctx = NotesService.makeContext(null, "sda");
+      NotesService service = svcManager.getService(ctx);
       return new NotesCollectionResource(service, resolvers, null);
    }
 }

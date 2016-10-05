@@ -43,7 +43,7 @@ import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.bibref.ReferenceCollection;
-import edu.tamu.tcat.trc.services.bibref.repo.ReferenceRepository;
+import edu.tamu.tcat.trc.services.bibref.repo.RefCollectionService;
 import edu.tamu.tcat.trc.services.rest.bibref.ReferenceCollectionResource;
 
 
@@ -55,12 +55,12 @@ public class ArticleResource
    private static final String ERR_UNKNOWN_GET = "That's embrassing. Something went wrong while trying to retrieve {0}.";
 
    private final EntryRepositoryRegistry repo;
-   private final ReferenceRepository refRepo;
+   private final RefCollectionService refRepo;
    private final String articleId;
 
    private final ObjectMapper mapper;
 
-   public ArticleResource(EntryRepositoryRegistry repoSvc, ReferenceRepository refRepo, String articleId)
+   public ArticleResource(EntryRepositoryRegistry repoSvc, RefCollectionService refRepo, String articleId)
    {
       this.repo = repoSvc;
       this.refRepo = refRepo;

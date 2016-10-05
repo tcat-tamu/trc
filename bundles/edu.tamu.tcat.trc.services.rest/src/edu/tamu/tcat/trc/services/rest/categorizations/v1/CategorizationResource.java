@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.services.ServiceContext;
-import edu.tamu.tcat.trc.services.categorization.CategorizationRepo;
+import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.services.categorization.EditCategorizationCommand;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeCategorization;
@@ -41,10 +41,10 @@ public abstract class CategorizationResource
 
    // TODO Rename SchemeResrouce
 
-   protected final CategorizationRepo repo;
+   protected final CategorizationService repo;
    protected final CategorizationScheme scheme;
 
-   public CategorizationResource(CategorizationRepo repo, CategorizationScheme scheme)
+   public CategorizationResource(CategorizationService repo, CategorizationScheme scheme)
    {
       this.repo = repo;
       this.scheme = scheme;
@@ -143,7 +143,7 @@ public abstract class CategorizationResource
 
       String id = scheme.getId();
 
-      ServiceContext<CategorizationRepo> context = repo.getContext();
+      ServiceContext<CategorizationService> context = repo.getContext();
       String uname = context.getAccount().map(Account::getDisplayName).orElse("anonymous");
       String formatedMsg = format(errMsg, id, repo.getScopeId(), uname);
 
@@ -205,7 +205,7 @@ public abstract class CategorizationResource
        */
       public static final String TYPE = "hierarchical";
 
-      public TreeCategorizationResource(CategorizationRepo repo, TreeCategorization scheme)
+      public TreeCategorizationResource(CategorizationService repo, TreeCategorization scheme)
       {
          super(repo, scheme);
       }

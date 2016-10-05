@@ -18,7 +18,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import edu.tamu.tcat.trc.services.categorization.CategorizationRepo;
+import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.services.categorization.EditCategorizationCommand;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeCategorization;
@@ -79,9 +79,9 @@ public class CategorizationSchemesResource
 {
    private final static Logger logger = Logger.getLogger(CategorizationSchemesResource.class.getName());
 
-   private final CategorizationRepo repo;
+   private final CategorizationService repo;
 
-   public static void checkUniqueKey(CategorizationRepo repo, String key)
+   public static void checkUniqueKey(CategorizationService repo, String key)
    {
       // TODO may move into repo.
       if (key == null || key.trim().isEmpty())
@@ -101,7 +101,7 @@ public class CategorizationSchemesResource
    }
 
 
-   public CategorizationSchemesResource(CategorizationRepo repo)
+   public CategorizationSchemesResource(CategorizationService repo)
    {
       this.repo = repo;
    }

@@ -42,7 +42,7 @@ import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.notes.EditNoteCommand;
 import edu.tamu.tcat.trc.services.notes.Note;
-import edu.tamu.tcat.trc.services.notes.NotesRepository;
+import edu.tamu.tcat.trc.services.notes.NotesService;
 import edu.tamu.tcat.trc.services.rest.ApiUtils;
 
 
@@ -50,7 +50,7 @@ public class NotesCollectionResource
 {
    private final static Logger logger = Logger.getLogger(NotesCollectionResource.class.getName());
 
-   private final NotesRepository repo;
+   private final NotesService repo;
    private final EntryResolverRegistry reg;
 
    private final ObjectMapper mapper;
@@ -58,7 +58,7 @@ public class NotesCollectionResource
    private final EntryReference ref;
 
 
-   public NotesCollectionResource(NotesRepository repo,
+   public NotesCollectionResource(NotesService repo,
                                   EntryResolverRegistry reg,
                                   EntryReference ref)
    {

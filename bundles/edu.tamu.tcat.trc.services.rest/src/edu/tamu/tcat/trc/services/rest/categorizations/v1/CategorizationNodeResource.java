@@ -28,7 +28,7 @@ import javax.ws.rs.core.Response;
 import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.services.categorization.CategorizationNode;
 import edu.tamu.tcat.trc.services.categorization.CategorizationNodeMutator;
-import edu.tamu.tcat.trc.services.categorization.CategorizationRepo;
+import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.services.categorization.EditCategorizationCommand;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.EditTreeCategorizationCommand;
@@ -44,11 +44,11 @@ import edu.tamu.tcat.trc.services.rest.categorizations.v1.RestApiV1.BasicNode;
  */
 public abstract class CategorizationNodeResource<SchemeType extends CategorizationScheme>
 {
-   protected final CategorizationRepo repo;
+   protected final CategorizationService repo;
    protected final SchemeType scheme;
    protected final String nodeId;
 
-   public CategorizationNodeResource(CategorizationRepo repo, SchemeType scheme, String nodeId)
+   public CategorizationNodeResource(CategorizationService repo, SchemeType scheme, String nodeId)
    {
       this.repo = repo;
       this.scheme = scheme;
@@ -189,7 +189,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
 
    public static class TreeNodeResource extends CategorizationNodeResource<TreeCategorization>
    {
-      public TreeNodeResource(CategorizationRepo repo, TreeCategorization scheme, String nodeId)
+      public TreeNodeResource(CategorizationService repo, TreeCategorization scheme, String nodeId)
       {
          super(repo, scheme, nodeId);
       }

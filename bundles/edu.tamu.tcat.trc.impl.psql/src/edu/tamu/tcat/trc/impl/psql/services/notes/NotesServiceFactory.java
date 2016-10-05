@@ -36,9 +36,9 @@ import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.notes.EditNoteCommand;
 import edu.tamu.tcat.trc.services.notes.Note;
-import edu.tamu.tcat.trc.services.notes.NotesRepository;
+import edu.tamu.tcat.trc.services.notes.NotesService;
 
-public class NotesServiceFactory implements ServiceFactory<NotesRepository>
+public class NotesServiceFactory implements ServiceFactory<NotesService>
 {
    private final static Logger logger = Logger.getLogger(NotesServiceFactory.class.getName());
 
@@ -82,9 +82,9 @@ public class NotesServiceFactory implements ServiceFactory<NotesRepository>
    }
 
    @Override
-   public Class<NotesRepository> getType()
+   public Class<NotesService> getType()
    {
-      return NotesRepository.class;
+      return NotesService.class;
    }
 
    /**
@@ -98,17 +98,17 @@ public class NotesServiceFactory implements ServiceFactory<NotesRepository>
    }
 
    @Override
-   public NotesRepoImpl getService(ServiceContext<NotesRepository> svcCtx)
+   public NotesRepoImpl getService(ServiceContext<NotesService> svcCtx)
    {
       return new NotesRepoImpl(svcCtx, docRepo);
    }
 
-   public class NotesRepoImpl implements NotesRepository
+   public class NotesRepoImpl implements NotesService
    {
-      private final ServiceContext<NotesRepository> svcCtx;
+      private final ServiceContext<NotesService> svcCtx;
       private final PsqlJacksonRepo<Note, DataModelV1.Note, EditNoteCommand> docRepo;
 
-      public NotesRepoImpl(ServiceContext<NotesRepository> svcCtx,
+      public NotesRepoImpl(ServiceContext<NotesService> svcCtx,
                            PsqlJacksonRepo<Note, DataModelV1.Note, EditNoteCommand> docRepo)
       {
          this.svcCtx = svcCtx;

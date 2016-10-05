@@ -16,7 +16,7 @@ import edu.tamu.tcat.trc.search.solr.QueryService;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.TrcServiceManager;
-import edu.tamu.tcat.trc.services.bibref.repo.ReferenceRepository;
+import edu.tamu.tcat.trc.services.bibref.repo.RefCollectionService;
 
 /**
  * The primary REST end point for articles. This is intended to be
@@ -90,9 +90,9 @@ public class ArticleRestApiService
    @Path(ArticleRepository.ENTRY_URI_BASE)
    public ArticlesCollectionResource getArticles()
    {
-      ServiceContext<ReferenceRepository> ctx = ReferenceRepository.makeContext(null);
+      ServiceContext<RefCollectionService> ctx = RefCollectionService.makeContext(null);
       
-      ReferenceRepository refRepo = svcMgr.getService(ctx);
+      RefCollectionService refRepo = svcMgr.getService(ctx);
       URI resolve = endpoint.resolve(ArticleRepository.ENTRY_URI_BASE);
       return new ArticlesCollectionResource(repoSvc, queryService, refRepo, resolve);
    }

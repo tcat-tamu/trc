@@ -30,7 +30,7 @@ import edu.tamu.tcat.trc.categorization.impl.CategorizationSchemeService;
 import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.resolver.EntryReference;
-import edu.tamu.tcat.trc.services.categorization.CategorizationRepo;
+import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScope;
 import edu.tamu.tcat.trc.services.categorization.EditCategorizationCommand;
@@ -136,14 +136,14 @@ public abstract class CategorizationRepositoryTests
       String scopeId = "test.categorizations";
       CategorizationScope scope = svc.createScope(account, scopeId);
 
-      CategorizationRepo repository = svc.getRepository(scope);
+      CategorizationService repository = svc.getRepository(scope);
       assertNotNull("No categorization repo created", repository);
    }
 
    @Test
    public void testCreateCategorization() throws Exception
    {
-      CategorizationRepo repository = getDefaultRepo();
+      CategorizationService repository = getDefaultRepo();
 
       String key = "test";
       String label = "Hierarchical Test Categorization";
@@ -166,7 +166,7 @@ public abstract class CategorizationRepositoryTests
    @Test
    public void testGetByKey() throws Exception
    {
-      CategorizationRepo repository = getDefaultRepo();
+      CategorizationService repository = getDefaultRepo();
 
       String key = "test";
       String label = "Hierarchical Test Categorization";
@@ -188,7 +188,7 @@ public abstract class CategorizationRepositoryTests
    @Test
    public void testEditCategorization() throws Exception
    {
-      CategorizationRepo repository = getDefaultRepo();
+      CategorizationService repository = getDefaultRepo();
 
       String key = "test";
       String label = "Hierarchical Test Categorization";
@@ -232,7 +232,7 @@ public abstract class CategorizationRepositoryTests
    @Test
    public void testRemoveCategorization() throws Exception
    {
-      CategorizationRepo repository = getDefaultRepo();
+      CategorizationService repository = getDefaultRepo();
 
       String key = "test";
       String label = "Hierarchical Test Categorization";
@@ -276,11 +276,11 @@ public abstract class CategorizationRepositoryTests
 
    protected abstract Strategy getStrategy();
 
-   protected CategorizationRepo getDefaultRepo()
+   protected CategorizationService getDefaultRepo()
    {
       String scopeId = "test.categorizations";
       CategorizationScope scope = svc.createScope(account, scopeId);
-      CategorizationRepo repository = svc.getRepository(scope);
+      CategorizationService repository = svc.getRepository(scope);
       return repository;
    }
 
@@ -294,7 +294,7 @@ public abstract class CategorizationRepositoryTests
          return CategorizationScheme.Strategy.TREE;
       }
 
-      private TreeCategorization getDefaultScheme(CategorizationRepo repository)
+      private TreeCategorization getDefaultScheme(CategorizationService repository)
       {
          EditCategorizationCommand cmd = repository.create(getStrategy(), "test");
          cmd.setLabel("Hierarchical Test Categorization");
@@ -314,7 +314,7 @@ public abstract class CategorizationRepositoryTests
       @Test
       public void testCreateNodes() throws Exception
       {
-         CategorizationRepo repository = getDefaultRepo();
+         CategorizationService repository = getDefaultRepo();
          TreeCategorization scheme = getDefaultScheme(repository);
          buildDefaultTree(repository, scheme);
 
@@ -341,7 +341,7 @@ public abstract class CategorizationRepositoryTests
          MockEntry mockEntry = entryResolver.create(entryDesc);
          EntryReference mockRef = entryResolver.makeReference(mockEntry);
 
-         CategorizationRepo repository = getDefaultRepo();
+         CategorizationService repository = getDefaultRepo();
          TreeCategorization scheme = getDefaultScheme(repository);
          buildDefaultTree(repository, scheme);
 
@@ -371,7 +371,7 @@ public abstract class CategorizationRepositoryTests
       @Test
       public void testRemoveNode() throws Exception
       {
-         CategorizationRepo repository = getDefaultRepo();
+         CategorizationService repository = getDefaultRepo();
          TreeCategorization scheme = getDefaultScheme(repository);
          buildDefaultTree(repository, scheme);
 
@@ -403,7 +403,7 @@ public abstract class CategorizationRepositoryTests
       @Test
       public void testMoveNode() throws Exception
       {
-         CategorizationRepo repository = getDefaultRepo();
+         CategorizationService repository = getDefaultRepo();
          TreeCategorization scheme = getDefaultScheme(repository);
          buildDefaultTree(repository, scheme);
 
@@ -440,7 +440,7 @@ public abstract class CategorizationRepositoryTests
       // D E F     G   H
       //               I
       @SuppressWarnings("unused")
-      private void buildDefaultTree(CategorizationRepo repository, TreeCategorization scheme) throws InterruptedException, ExecutionException, TimeoutException
+      private void buildDefaultTree(CategorizationService repository, TreeCategorization scheme) throws InterruptedException, ExecutionException, TimeoutException
       {
          // TODO note that we shouldn't be able to edit various properties of the root node . . .
          //      not sure how to handle this.

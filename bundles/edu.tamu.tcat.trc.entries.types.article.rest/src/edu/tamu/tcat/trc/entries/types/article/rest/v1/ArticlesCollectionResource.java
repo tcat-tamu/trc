@@ -35,7 +35,7 @@ import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
 import edu.tamu.tcat.trc.search.solr.QueryService;
-import edu.tamu.tcat.trc.services.bibref.repo.ReferenceRepository;
+import edu.tamu.tcat.trc.services.bibref.repo.RefCollectionService;
 
 /**
  *  REST API sub-resource that represents a collection of articles and the actions that
@@ -51,11 +51,11 @@ public class ArticlesCollectionResource
 
    private final URI endpoint;
 
-   private ReferenceRepository refRepo;
+   private RefCollectionService refRepo;
 
    public ArticlesCollectionResource(EntryRepositoryRegistry repoSvc,
                                      QueryService<ArticleQueryCommand> queryService,
-                                     ReferenceRepository refRepo,
+                                     RefCollectionService refRepo,
                                      URI endpoint)
    {
       this.repoSvc = repoSvc;

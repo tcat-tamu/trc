@@ -27,15 +27,15 @@ import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.services.BasicServiceContext;
 import edu.tamu.tcat.trc.services.ServiceContext;
 
-public interface NotesRepository
+public interface NotesService
 {
    static final String CTX_SCOPE_ID = "scopeId";
 
-   static ServiceContext<NotesRepository> makeContext(Account account, String scopeId)
+   static ServiceContext<NotesService> makeContext(Account account, String scopeId)
    {
       Map<String, Object> props = new HashMap<>();
       props.put(CTX_SCOPE_ID, Objects.requireNonNull(scopeId));
-      return new BasicServiceContext<>(NotesRepository.class, account, props);
+      return new BasicServiceContext<>(NotesService.class, account, props);
    }
 
    /**

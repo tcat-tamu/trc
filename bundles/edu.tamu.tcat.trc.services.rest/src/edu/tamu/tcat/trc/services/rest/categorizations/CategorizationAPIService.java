@@ -13,7 +13,7 @@ import javax.ws.rs.PathParam;
 
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.TrcServiceManager;
-import edu.tamu.tcat.trc.services.categorization.CategorizationRepo;
+import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 import edu.tamu.tcat.trc.services.rest.categorizations.v1.CategorizationSchemesResource;
 
 /**
@@ -61,8 +61,8 @@ public class CategorizationAPIService
          if (scopeId.startsWith("@"))
             scopeId = adaptUsernameScope(scopeId);
 
-         ServiceContext<CategorizationRepo> ctx = CategorizationRepo.makeContext(null, scopeId);
-         CategorizationRepo repository = svcManager.getService(ctx);
+         ServiceContext<CategorizationService> ctx = CategorizationService.makeContext(null, scopeId);
+         CategorizationService repository = svcManager.getService(ctx);
 
          return new CategorizationSchemesResource(repository);
       }

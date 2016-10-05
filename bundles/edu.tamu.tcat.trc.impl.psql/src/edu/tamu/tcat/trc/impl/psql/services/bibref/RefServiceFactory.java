@@ -14,9 +14,9 @@ import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.bibref.ReferenceCollection;
 import edu.tamu.tcat.trc.services.bibref.repo.EditBibliographyCommand;
-import edu.tamu.tcat.trc.services.bibref.repo.ReferenceRepository;
+import edu.tamu.tcat.trc.services.bibref.repo.RefCollectionService;
 
-public class RefServiceFactory implements ServiceFactory<ReferenceRepository>
+public class RefServiceFactory implements ServiceFactory<RefCollectionService>
 {
    private static final Logger logger = Logger.getLogger(RefServiceFactory.class.getName());
 
@@ -54,9 +54,9 @@ public class RefServiceFactory implements ServiceFactory<ReferenceRepository>
    }
 
    @Override
-   public Class<ReferenceRepository> getType()
+   public Class<RefCollectionService> getType()
    {
-      return ReferenceRepository.class;
+      return RefCollectionService.class;
    }
 
    /**
@@ -70,7 +70,7 @@ public class RefServiceFactory implements ServiceFactory<ReferenceRepository>
    }
 
    @Override
-   public ReferenceRepository getService(ServiceContext<ReferenceRepository> context)
+   public RefCollectionService getService(ServiceContext<RefCollectionService> context)
    {
       return new ReferenceRepositoryImpl(docRepo, repoRegistry.getResolverRegistry(), context);
    }

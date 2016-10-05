@@ -30,7 +30,7 @@ import edu.tamu.tcat.trc.categorization.rest.v1.ModelAdapterV1;
 import edu.tamu.tcat.trc.categorization.rest.v1.RestApiV1;
 import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
-import edu.tamu.tcat.trc.services.categorization.CategorizationRepo;
+import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScope;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.EditTreeCategorizationCommand;
@@ -127,14 +127,14 @@ public class ApiDataGenerator
       String scopeId = "test.categorizations";
       CategorizationScope scope = svc.createScope(account, scopeId);
 
-      CategorizationRepo repository = svc.getRepository(scope);
+      CategorizationService repository = svc.getRepository(scope);
       TreeCategorization overviews = createCategorization(repository, node);
 
       RestApiV1.Categorization apiScheme = ModelAdapterV1.adapt(overviews);
       mapper.writeValue(outfile, apiScheme);
    }
 
-   private TreeCategorization createCategorization(CategorizationRepo repository, Node node) throws InterruptedException, ExecutionException, TimeoutException
+   private TreeCategorization createCategorization(CategorizationService repository, Node node) throws InterruptedException, ExecutionException, TimeoutException
    {
       String schemeKey = "overviews";
       EditTreeCategorizationCommand command =
