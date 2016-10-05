@@ -25,9 +25,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import edu.tamu.tcat.account.Account;
+import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.categorization.CategorizationRepo;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
-import edu.tamu.tcat.trc.services.categorization.CategorizationScope;
 import edu.tamu.tcat.trc.services.categorization.EditCategorizationCommand;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeCategorization;
 import edu.tamu.tcat.trc.services.rest.ApiUtils;
@@ -143,10 +143,9 @@ public abstract class CategorizationResource
 
       String id = scheme.getId();
 
-      CategorizationScope scope = repo.getScope();
-      Account account = scope.getAccount();
-      String uname = account == null ? "anonymous" : account.getDisplayName();
-      String formatedMsg = format(errMsg, id, scope.getScopeId(), uname);
+      ServiceContext<CategorizationRepo> context = repo.getContext();
+      String uname = context.getAccount().map(Account::getDisplayName).orElse("anonymous");
+      String formatedMsg = format(errMsg, id, repo.getScopeId(), uname);
 
       return ApiUtils.raise(Response.Status.INTERNAL_SERVER_ERROR, formatedMsg, Level.SEVERE, (Exception)e.getCause());
    }

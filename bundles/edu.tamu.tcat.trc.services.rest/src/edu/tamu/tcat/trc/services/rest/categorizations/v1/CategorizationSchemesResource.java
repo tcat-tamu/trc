@@ -121,7 +121,7 @@ public class CategorizationSchemesResource
    public RestApiV1.Categorization createCategorization(RestApiV1.CategorizationDesc categorization)
    {
       String logEntryMsg = "Attempting to create new categorization scheme {0}/{1} ({2}).";
-      logger.fine(() -> format(logEntryMsg, repo.getScope().getScopeId(), categorization.key, categorization.label));
+      logger.fine(() -> format(logEntryMsg, repo.getScopeId(), categorization.key, categorization.label));
 
       try
       {
@@ -141,7 +141,7 @@ public class CategorizationSchemesResource
       catch (WebApplicationException ex)
       {
          String logMsg = "Error attempting to create a categorization scheme: {0}/{1} ({2}).";
-         String msg = format(logMsg, repo.getScope().getScopeId(), categorization.key, categorization.label);
+         String msg = format(logMsg, repo.getScopeId(), categorization.key, categorization.label);
          logger.log(Level.INFO, msg, ex);
          throw ex;
       }
@@ -194,7 +194,7 @@ public class CategorizationSchemesResource
 
          String schemeId = command.execute().get();
          String logSuccessMsg = "Created new categorization scheme {0}: {1}/{2} ({3}).";
-         logger.info(() -> format(logSuccessMsg, schemeId, repo.getScope().getScopeId(), categorization.key, categorization.label));
+         logger.info(() -> format(logSuccessMsg, schemeId, repo.getScopeId(), categorization.key, categorization.label));
 
          CategorizationScheme scheme = repo.getById(schemeId);
          if (!TreeCategorization.class.isInstance(scheme))
