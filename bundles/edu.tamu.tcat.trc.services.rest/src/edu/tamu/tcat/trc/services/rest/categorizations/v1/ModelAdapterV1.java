@@ -3,7 +3,7 @@ package edu.tamu.tcat.trc.services.rest.categorizations.v1;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeCategorization;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeNode;

@@ -3,7 +3,7 @@ package edu.tamu.tcat.trc.services.bibref.repo;
 import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.services.BasicServiceContext;
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.bibref.ReferenceCollection;

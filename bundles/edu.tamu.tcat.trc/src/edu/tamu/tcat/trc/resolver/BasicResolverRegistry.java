@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.core.resolver;
+package edu.tamu.tcat.trc.resolver;
 
 import static java.text.MessageFormat.format;
 

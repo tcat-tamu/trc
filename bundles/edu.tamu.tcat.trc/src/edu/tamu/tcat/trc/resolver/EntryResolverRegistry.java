@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.core.resolver;
+package edu.tamu.tcat.trc.resolver;
 
 /**
  * Maintains a registry of {@link EntryResolver}s for the various entry types

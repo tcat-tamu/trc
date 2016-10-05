@@ -5,10 +5,10 @@ import java.util.function.Function;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryResolver;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.IdFactory;
+import edu.tamu.tcat.trc.resolver.EntryResolver;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
 /**
  *  Provided to {@link EntryRepository} implementations to provide access to core

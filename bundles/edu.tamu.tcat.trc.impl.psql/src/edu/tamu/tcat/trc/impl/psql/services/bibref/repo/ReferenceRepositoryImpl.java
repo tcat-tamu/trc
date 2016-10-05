@@ -4,11 +4,11 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.impl.psql.services.bibref.model.ReferenceCollectionImpl;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.RepositoryException;
+import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.bibref.ReferenceCollection;
 import edu.tamu.tcat.trc.services.bibref.repo.EditBibliographyCommand;

@@ -6,10 +6,10 @@ import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.account.store.AccountStore;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.repo.BasicChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
+import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.UpdateContext;
 import edu.tamu.tcat.trc.services.notes.EditNoteCommand;

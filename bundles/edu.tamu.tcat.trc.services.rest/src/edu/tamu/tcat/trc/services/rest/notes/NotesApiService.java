@@ -5,8 +5,8 @@ import java.util.Objects;
 import javax.ws.rs.Path;
 
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.impl.psql.services.notes.NotesServiceFactory;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.TrcServiceManager;
 import edu.tamu.tcat.trc.services.notes.NotesRepository;

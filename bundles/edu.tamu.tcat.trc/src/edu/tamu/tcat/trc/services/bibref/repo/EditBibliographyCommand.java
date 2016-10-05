@@ -3,7 +3,7 @@ package edu.tamu.tcat.trc.services.bibref.repo;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryReference;
 
 public interface EditBibliographyCommand
 {

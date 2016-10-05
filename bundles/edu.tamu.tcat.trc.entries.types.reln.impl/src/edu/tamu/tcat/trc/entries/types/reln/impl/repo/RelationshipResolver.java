@@ -5,13 +5,13 @@ import java.util.concurrent.CompletableFuture;
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverBase;
-import edu.tamu.tcat.trc.entries.core.resolver.InvalidReferenceException;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
+import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryResolverBase;
+import edu.tamu.tcat.trc.resolver.InvalidReferenceException;
 
 public class RelationshipResolver extends EntryResolverBase<Relationship>
 {

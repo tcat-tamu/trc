@@ -2,7 +2,6 @@ package edu.tamu.tcat.trc.impl.psql.services.bibref;
 
 import java.util.logging.Logger;
 
-import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
 import edu.tamu.tcat.trc.impl.psql.services.ServiceFactory;
 import edu.tamu.tcat.trc.impl.psql.services.bibref.model.ReferenceCollectionImpl;
@@ -11,6 +10,7 @@ import edu.tamu.tcat.trc.impl.psql.services.bibref.repo.EditBibliographyCommandF
 import edu.tamu.tcat.trc.impl.psql.services.bibref.repo.ReferenceRepositoryImpl;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.bibref.ReferenceCollection;
 import edu.tamu.tcat.trc.services.bibref.repo.EditBibliographyCommand;

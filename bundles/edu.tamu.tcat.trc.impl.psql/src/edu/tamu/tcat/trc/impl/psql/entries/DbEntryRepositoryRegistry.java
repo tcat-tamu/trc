@@ -11,12 +11,12 @@ import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.ConfigParams;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistrar;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
-import edu.tamu.tcat.trc.entries.core.resolver.BasicResolverRegistry;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryResolver;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
+import edu.tamu.tcat.trc.resolver.BasicResolverRegistry;
+import edu.tamu.tcat.trc.resolver.EntryResolver;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
 /**
  *  Provides a unified service for accessing the service dependencies that are

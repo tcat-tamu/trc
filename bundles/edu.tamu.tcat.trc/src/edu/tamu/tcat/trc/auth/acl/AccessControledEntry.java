@@ -3,7 +3,7 @@ package edu.tamu.tcat.trc.auth.acl;
 import java.util.UUID;
 
 import edu.tamu.tcat.trc.auth.account.TrcAccount;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryReference;
 
 public interface AccessControledEntry
 {

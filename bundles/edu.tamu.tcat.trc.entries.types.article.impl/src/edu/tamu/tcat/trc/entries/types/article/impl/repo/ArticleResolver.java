@@ -5,12 +5,12 @@ import java.util.concurrent.CompletableFuture;
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverBase;
-import edu.tamu.tcat.trc.entries.core.resolver.InvalidReferenceException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
+import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryResolverBase;
+import edu.tamu.tcat.trc.resolver.InvalidReferenceException;
 
 public class ArticleResolver extends EntryResolverBase<Article>
 {

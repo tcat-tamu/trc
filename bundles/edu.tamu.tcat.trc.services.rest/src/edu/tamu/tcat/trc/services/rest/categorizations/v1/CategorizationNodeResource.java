@@ -25,7 +25,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.services.categorization.CategorizationNode;
 import edu.tamu.tcat.trc.services.categorization.CategorizationNodeMutator;
 import edu.tamu.tcat.trc.services.categorization.CategorizationRepo;

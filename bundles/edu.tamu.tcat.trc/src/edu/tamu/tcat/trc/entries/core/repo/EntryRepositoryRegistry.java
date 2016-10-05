@@ -3,7 +3,7 @@ package edu.tamu.tcat.trc.entries.core.repo;
 import java.net.URI;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
 /**
  *  Provides an interface for accessing repository instances and a few related

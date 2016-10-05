@@ -13,15 +13,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryResolver;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.PersistenceModelV1.TreeCategorizationStrategy;
 import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.PersistenceModelV1.TreeNode;
 import edu.tamu.tcat.trc.repo.ChangeSet;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.UpdateContext;
+import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryResolver;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.EditTreeCategorizationCommand;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeNodeMutator;

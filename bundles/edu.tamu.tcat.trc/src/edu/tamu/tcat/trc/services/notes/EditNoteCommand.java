@@ -20,7 +20,7 @@ import java.util.concurrent.Future;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.entries.core.repo.EditEntryCommand;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryReference;
 
 /**
  *  Encapsulates a single transaction for editing a note (either newly created or existing).

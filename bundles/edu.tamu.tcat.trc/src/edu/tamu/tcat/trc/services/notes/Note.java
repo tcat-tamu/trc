@@ -18,7 +18,7 @@ package edu.tamu.tcat.trc.services.notes;
 import java.time.ZonedDateTime;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryReference;
 
 public interface Note
 {

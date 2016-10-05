@@ -3,10 +3,10 @@ package edu.tamu.tcat.trc.impl.psql.services.categorization.model;
 import static java.text.MessageFormat.format;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
-import edu.tamu.tcat.trc.entries.core.resolver.InvalidReferenceException;
 import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.PersistenceModelV1;
+import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
+import edu.tamu.tcat.trc.resolver.InvalidReferenceException;
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.categorization.CategorizationNode;
 import edu.tamu.tcat.trc.services.categorization.CategorizationRepo;

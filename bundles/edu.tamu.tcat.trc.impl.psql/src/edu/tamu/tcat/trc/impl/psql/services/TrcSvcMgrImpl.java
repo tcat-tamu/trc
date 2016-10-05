@@ -9,11 +9,11 @@ import java.util.logging.Logger;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.account.store.AccountStore;
-import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
 import edu.tamu.tcat.trc.impl.psql.services.bibref.RefServiceFactory;
 import edu.tamu.tcat.trc.impl.psql.services.categorization.CategorizationServiceFactory;
 import edu.tamu.tcat.trc.impl.psql.services.notes.NotesServiceFactory;
+import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.services.EntryMediator;
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.TrcServiceException;

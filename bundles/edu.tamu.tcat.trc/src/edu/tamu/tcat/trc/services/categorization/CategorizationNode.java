@@ -1,6 +1,6 @@
 package edu.tamu.tcat.trc.services.categorization;
 
-import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryReference;
 
 /**
  * Represents an individual entry within a categorization. The specific categorization
