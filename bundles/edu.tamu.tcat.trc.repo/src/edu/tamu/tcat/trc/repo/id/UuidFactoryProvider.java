@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.repo;
+package edu.tamu.tcat.trc.repo.id;
 
 import java.util.UUID;
 

@@ -29,7 +29,7 @@ import edu.tamu.tcat.trc.categorization.impl.CategorizationSchemeService;
 import edu.tamu.tcat.trc.categorization.rest.v1.ModelAdapterV1;
 import edu.tamu.tcat.trc.categorization.rest.v1.RestApiV1;
 import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
-import edu.tamu.tcat.trc.repo.IdFactoryProvider;
+import edu.tamu.tcat.trc.repo.id.IdFactoryProvider;
 import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScope;

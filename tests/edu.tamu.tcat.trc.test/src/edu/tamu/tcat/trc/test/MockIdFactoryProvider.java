@@ -3,8 +3,8 @@ package edu.tamu.tcat.trc.test;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import edu.tamu.tcat.trc.repo.IdFactory;
-import edu.tamu.tcat.trc.repo.IdFactoryProvider;
+import edu.tamu.tcat.trc.repo.id.IdFactory;
+import edu.tamu.tcat.trc.repo.id.IdFactoryProvider;
 
 public class MockIdFactoryProvider implements IdFactoryProvider
 {

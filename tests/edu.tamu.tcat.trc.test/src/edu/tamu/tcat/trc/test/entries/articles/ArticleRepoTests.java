@@ -38,11 +38,11 @@ import edu.tamu.tcat.trc.entries.types.article.impl.ArticleEntryService;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
-import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.resolver.EntryResolver;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.repo.DocumentNotFoundException;
+import edu.tamu.tcat.trc.repo.id.IdFactoryProvider;
 import edu.tamu.tcat.trc.test.ClosableSqlExecutor;
 import edu.tamu.tcat.trc.test.TestUtils;
 

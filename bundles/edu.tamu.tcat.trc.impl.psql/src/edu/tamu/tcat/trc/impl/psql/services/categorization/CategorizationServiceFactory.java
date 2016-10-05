@@ -28,9 +28,9 @@ import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.PersistenceModel
 import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
 import edu.tamu.tcat.trc.repo.DocumentNotFoundException;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
-import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.RepositorySchema;
 import edu.tamu.tcat.trc.repo.SchemaBuilder;
+import edu.tamu.tcat.trc.repo.id.IdFactory;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepo;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
 import edu.tamu.tcat.trc.resolver.EntryReference;

@@ -6,6 +6,7 @@ package edu.tamu.tcat.trc.repo;
  *
  * @param <StorageType>
  */
+@FunctionalInterface
 public interface EntryUpdateObserver<StorageType>
 {
    /**

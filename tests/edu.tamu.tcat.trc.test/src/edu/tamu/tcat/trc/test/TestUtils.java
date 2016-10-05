@@ -8,7 +8,7 @@ import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
-import edu.tamu.tcat.trc.repo.IdFactoryProvider;
+import edu.tamu.tcat.trc.repo.id.IdFactoryProvider;
 import edu.tamu.tcat.trc.repo.postgres.PostgresDataSourceProvider;
 
 public class TestUtils

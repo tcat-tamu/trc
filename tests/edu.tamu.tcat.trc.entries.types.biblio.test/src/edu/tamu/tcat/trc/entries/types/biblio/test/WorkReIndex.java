@@ -42,7 +42,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.search.BiblioDocument;
 import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.postgres.BiblioRepoService;
-import edu.tamu.tcat.trc.repo.IdFactoryProvider;
+import edu.tamu.tcat.trc.repo.id.IdFactoryProvider;
 import edu.tamu.tcat.trc.repo.postgres.PostgresDataSourceProvider;
 import edu.tamu.tcat.trc.test.MockIdFactoryProvider;
 

@@ -17,8 +17,8 @@ import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.PersistenceModel
 import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.PersistenceModelV1.TreeNode;
 import edu.tamu.tcat.trc.repo.ChangeSet;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
-import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.UpdateContext;
+import edu.tamu.tcat.trc.repo.id.IdFactory;
 import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.resolver.EntryResolver;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;

@@ -28,7 +28,7 @@ import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.trc.categorization.impl.CategorizationSchemeService;
 import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
-import edu.tamu.tcat.trc.repo.IdFactoryProvider;
+import edu.tamu.tcat.trc.repo.id.IdFactoryProvider;
 import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
