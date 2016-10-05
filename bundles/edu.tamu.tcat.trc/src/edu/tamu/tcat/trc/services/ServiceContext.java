@@ -7,8 +7,8 @@ import edu.tamu.tcat.account.Account;
 
 /**
  *  The context in which a TRC Service Reference is supplied to the client. TRC Services are
- *  instantiated within the context of a user account and possibly other scoping and
- *  configuration parameters. The service context is used to obtain a reference to a service
+ *  instantiated within the context of a user account and possibly other scoping and 
+ *  configuration parameters. The service context is used to obtain a reference to a service 
  *  from the {@link TrcServiceManager}.
  *
  *  <p>Instances of a service context are typically obtained using a factory method or builder
