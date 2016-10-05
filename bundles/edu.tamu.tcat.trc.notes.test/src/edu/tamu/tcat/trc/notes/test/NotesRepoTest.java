@@ -121,7 +121,7 @@ public class NotesRepoTest
       note.id = command.execute().get();
 
 
-      Note note2 = repo.get(note.id);
+      Note note2 = repo.getUnsafe(note.id);
       NoteDTO noteDTO = NoteDTO.create(note2);
 
       Assert.assertEquals("Notes do not match", note.id, noteDTO.id);
@@ -148,7 +148,7 @@ public class NotesRepoTest
       updateCommand.setAll(note);
       updateCommand.execute();
 
-      Note note2 = repo.get(note.id);
+      Note note2 = repo.getUnsafe(note.id);
       NoteDTO noteDTO = NoteDTO.create(note2);
 
       Assert.assertEquals("Notes do not match", note.id, noteDTO.id);
@@ -171,7 +171,7 @@ public class NotesRepoTest
       Assert.assertEquals("Note was not removed", Boolean.TRUE, removed);
       try
       {
-         repo.get(note.id);
+         repo.getUnsafe(note.id);
          Assert.fail();
       }
       catch(DocumentNotFoundException e)

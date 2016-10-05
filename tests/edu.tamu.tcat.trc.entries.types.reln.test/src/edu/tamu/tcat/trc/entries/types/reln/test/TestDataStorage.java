@@ -101,7 +101,7 @@ public class TestDataStorage
    {
       RelationshipDTO relndto = createDTO();
       String relnId = createRelationship(relndto);
-      Relationship relationship = repo.get(relnId);
+      Relationship relationship = repo.getUnsafe(relnId);
       
       assertEquals(relndto.typeId, relationship.getType().getIdentifier());
       assertEquals(relndto.description, relationship.getDescription());
@@ -118,11 +118,11 @@ public class TestDataStorage
    {
       RelationshipDTO relndto = createDTO();
       String relnId = createRelationship(relndto);
-      Relationship orig = repo.get(relnId);
+      Relationship orig = repo.getUnsafe(relnId);
       
       editRelationship(relnId);
       
-      Relationship updated = repo.get(relnId);
+      Relationship updated = repo.getUnsafe(relnId);
       
       assertEquals(orig.getId(), updated.getId());
       assertNotEquals("Descriptions have not changed",orig.getDescription(), updated.getDescription());
@@ -136,7 +136,7 @@ public class TestDataStorage
          RelationshipDTO relndto = createDTO();
          String relnId = createRelationship(relndto);
          repo.delete(relnId);
-         repo.get(relnId);
+         repo.getUnsafe(relnId);
          assertFalse("An IllegalArgumentException should have been thrown.", true);
       }
       catch (IllegalArgumentException e)

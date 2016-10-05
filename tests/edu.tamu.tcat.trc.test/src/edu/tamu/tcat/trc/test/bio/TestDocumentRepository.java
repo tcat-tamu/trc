@@ -81,7 +81,7 @@ public class TestDocumentRepository
    {
       RestApiV1.Person personData = addRestAPIDataModel();
       String personId = createPerson(personData);
-      BiographicalEntry person = repo.get(personId);
+      BiographicalEntry person = repo.getUnsafe(personId);
       validateData(personData, person);
    }
 
@@ -90,10 +90,10 @@ public class TestDocumentRepository
    {
       RestApiV1.Person personData = addRestAPIDataModel();
       String personId = createPerson(personData);
-      BiographicalEntry person = repo.get(personId);
+      BiographicalEntry person = repo.getUnsafe(personId);
 
       updatePerson(personId);
-      BiographicalEntry personUpdated = repo.get(personId);
+      BiographicalEntry personUpdated = repo.getUnsafe(personId);
 
       assertEquals(person.getId(), personUpdated.getId());
 
@@ -129,7 +129,7 @@ public class TestDocumentRepository
       {
          String personId = createPerson(personData);
          repo.delete(personId).get();
-         repo.get(personId);
+         repo.getUnsafe(personId);
       }
       catch (DocumentNotFoundException e)
       {

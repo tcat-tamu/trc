@@ -117,7 +117,7 @@ public class PeopleDBAccess
 
       String id = future.get();
 
-      BiographicalEntry person = repo.get(id);
+      BiographicalEntry person = repo.getUnsafe(id);
       PersonName name = person.getCanonicalName();
 
       assertEquals("ids do not match", person.getId(), dto.id);
