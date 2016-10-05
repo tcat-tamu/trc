@@ -9,8 +9,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.types.article.impl.repo.DataModelV1.ArticleAuthor;
+import edu.tamu.tcat.trc.entries.types.article.impl.repo.DataModelV1.Footnote;
 import edu.tamu.tcat.trc.entries.types.article.repo.AuthorMutator;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
+import edu.tamu.tcat.trc.entries.types.article.repo.FootnoteMutator;
 import edu.tamu.tcat.trc.repo.BasicChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
@@ -159,6 +161,26 @@ public class EditArticleCommandFactory implements EditCommandFactory<DataModelV1
       }
 
       @Override
+      public void clearFootnotes()
+      {
+         changes.add("footnotes [clear]", article -> {
+            article.footnotes.clear();
+         });
+      }
+
+      @Override
+      public FootnoteMutator editFootnote(String footnoteId)
+      {
+         ChangeSet<Footnote> partial = changes.partial(format("footnotes.{0} [edit]", footnoteId), article -> article.footnotes.computeIfAbsent(footnoteId, id -> {
+            DataModelV1.Footnote footnote = new DataModelV1.Footnote();
+            footnote.id = id;
+            return footnote;
+         }));
+
+         return new FootnoteMutatorImpl(footnoteId, partial);
+      }
+
+      @Override
       public CompletableFuture<String> execute()
       {
          CompletableFuture<DataModelV1.Article> modified = exec.update(ctx -> {
@@ -232,6 +254,42 @@ public class EditArticleCommandFactory implements EditCommandFactory<DataModelV1
 
             author.contact.email = email;
          });
+      }
+   }
+
+   private static class FootnoteMutatorImpl implements FootnoteMutator
+   {
+      private final String id;
+      private final ChangeSet<Footnote> changes;
+
+      public FootnoteMutatorImpl(String id, ChangeSet<DataModelV1.Footnote> changes)
+      {
+         this.id = id;
+         this.changes = changes;
+      }
+
+      @Override
+      public String getId()
+      {
+         return id;
+      }
+
+      @Override
+      public void setBacklinkId(String backlinkId)
+      {
+         changes.add("backlinkId", footnote -> footnote.backlinkId = backlinkId);
+      }
+
+      @Override
+      public void setContent(String content)
+      {
+         changes.add("content", footnote -> footnote.content = content);
+      }
+
+      @Override
+      public void setMimeType(String mimeType)
+      {
+         changes.add("mimeType", footnote -> footnote.mimeType = mimeType);
       }
    }
 }

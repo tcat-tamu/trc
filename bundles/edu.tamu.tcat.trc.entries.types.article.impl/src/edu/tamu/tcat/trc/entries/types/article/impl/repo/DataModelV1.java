@@ -1,6 +1,8 @@
 package edu.tamu.tcat.trc.entries.types.article.impl.repo;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -40,12 +42,11 @@ public abstract class DataModelV1
       public String body;
 
       public List<ArticleAuthor> authors;
+      public final Map<String, Footnote> footnotes = new HashMap<>();
       // public PublicationDTO info;
       // public List<CitationDTO> citation;
-      // public List<FootnoteDTO> footnotes;
       // public List<BibliographyDTO> bibliographies;
       // public List<LinkDTO> links;
-
    }
 
    public static class ArticleAuthor
@@ -84,6 +85,14 @@ public abstract class DataModelV1
 
          return info;
       }
+   }
+
+   public static class Footnote
+   {
+      public String id;
+      public String backlinkId;
+      public String content;
+      public String mimeType;
    }
 
 }

@@ -122,6 +122,7 @@ public abstract class RestApiV1
    public static class Footnote
    {
       public String id;
+      public String backlinkId;
       public String content;
       public String mimeType;
    }

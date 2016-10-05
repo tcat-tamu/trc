@@ -100,6 +100,18 @@ public interface EditArticleCommand extends EditEntryCommand<Article>
     */
    void setBody(String body);
 
+   /**
+    * Removes all footnotes from the article
+    */
+   void clearFootnotes();
+
+   /**
+    * Edits an existing footnote with the given id or creates a new footnote with the given id.
+    * @param id
+    * @return A mutator for the footnote
+    */
+   FootnoteMutator editFootnote(String id);
+
 //   /**
 //    *
 //    * @param ftNotes Footnotes added to the article
@@ -123,6 +135,7 @@ public interface EditArticleCommand extends EditEntryCommand<Article>
     * @return The id of the resulting article. If the underlying update fails, the
     *       {@link Future#get()} method will propagate that exception.
     */
+   @Override
    CompletableFuture<String> execute();
 
 

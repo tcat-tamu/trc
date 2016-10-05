@@ -2,6 +2,7 @@ package edu.tamu.tcat.trc.entries.types.article.rest.v1;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +18,8 @@ import edu.tamu.tcat.trc.entries.types.article.Footnote;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQuery;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy.AuthorRef;
-import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
 /**
  * @since 1.1
@@ -142,7 +143,6 @@ public abstract class ModelAdapter
       dto.articleAbstract = article.getAbstract();
       dto.body = article.getBody();
 
-
       dto.footnotes = convertFootnotes(article.getFootnotes());
       dto.links = convertLinks(article.getLinks());
 
@@ -238,7 +238,7 @@ public abstract class ModelAdapter
 //      return citeDTOs;
 //   }
 
-   private static Map<String, RestApiV1.Footnote> convertFootnotes(List<Footnote> footnotes)
+   private static Map<String, RestApiV1.Footnote> convertFootnotes(Collection<Footnote> footnotes)
    {
 
       Map<String, RestApiV1.Footnote> footnoteDTOs = new HashMap<>();
@@ -248,6 +248,7 @@ public abstract class ModelAdapter
          {
             RestApiV1.Footnote dto = new RestApiV1.Footnote();
             dto.id = ftn.getId();
+            dto.backlinkId = ftn.getBacklinkId();
             dto.content = ftn.getContent();
             dto.mimeType = ftn.getMimeType();
 

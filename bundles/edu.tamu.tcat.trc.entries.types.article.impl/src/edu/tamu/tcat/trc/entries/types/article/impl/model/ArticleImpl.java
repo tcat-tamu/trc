@@ -1,8 +1,12 @@
 package edu.tamu.tcat.trc.entries.types.article.impl.model;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
@@ -23,6 +27,7 @@ public class ArticleImpl implements Article
    private final String slug;
    private final String articleAbstract;
    private final String body;
+   private final Map<String, Footnote> footnotes;
 
    public ArticleImpl(DataModelV1.Article dto)
    {
@@ -33,6 +38,9 @@ public class ArticleImpl implements Article
       this.articleAbstract = dto.articleAbstract;
       this.body = dto.body;
       this.slug = dto.slug;
+      this.footnotes = dto.footnotes.values().stream()
+            .map(FootnoteImpl::new)
+            .collect(Collectors.toMap(Footnote::getId, Function.identity()));
    }
 
    @Override
@@ -92,11 +100,9 @@ public class ArticleImpl implements Article
    }
 
    @Override
-   public List<Footnote> getFootnotes()
+   public Collection<Footnote> getFootnotes()
    {
-      // TODO Auto-generated method stub
-      logger.warning("Footnotes are not currently supported");
-      return Collections.emptyList();
+      return footnotes.values();
    }
 
    @Override

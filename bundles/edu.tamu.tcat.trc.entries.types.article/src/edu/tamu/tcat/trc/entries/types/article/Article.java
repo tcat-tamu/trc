@@ -15,6 +15,7 @@
  */
 package edu.tamu.tcat.trc.entries.types.article;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -81,9 +82,9 @@ public interface Article
 
    /**
     *
-    * @return A list of footnotes from the article.
+    * @return Footnotes from the article.
     */
-   List<Footnote> getFootnotes();
+   Collection<Footnote> getFootnotes();
 
    /**
     *

@@ -18,10 +18,12 @@ package edu.tamu.tcat.trc.entries.types.article.rest.v1;
 import static java.text.MessageFormat.format;
 
 import java.text.MessageFormat;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -40,6 +42,7 @@ import edu.tamu.tcat.trc.entries.core.repo.NoSuchEntryException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
+import edu.tamu.tcat.trc.entries.types.article.repo.FootnoteMutator;
 import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.bibref.ReferenceCollection;
@@ -165,6 +168,19 @@ public class ArticleResource
       editCmd.setTitle(article.title);
       editCmd.setAbstract(article.articleAbstract);
       editCmd.setBody(article.body);
+
+      editCmd.clearFootnotes();
+      article.footnotes.forEach((key, dto) -> {
+         if (!Objects.equals(key, dto.id))
+         {
+            throw new BadRequestException(MessageFormat.format("Footnote key {0} must match footnote id {1}.", key, dto.id));
+         }
+
+         FootnoteMutator footnoteMutator = editCmd.editFootnote(dto.id);
+         footnoteMutator.setBacklinkId(dto.backlinkId);
+         footnoteMutator.setContent(dto.content);
+         footnoteMutator.setMimeType(dto.mimeType);
+      });
 
       // TODO set references
 
