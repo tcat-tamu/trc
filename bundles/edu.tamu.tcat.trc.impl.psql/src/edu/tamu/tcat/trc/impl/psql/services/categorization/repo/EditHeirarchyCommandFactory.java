@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.impl.psql.services.categorization;
+package edu.tamu.tcat.trc.impl.psql.services.categorization.repo;
 
 import static java.text.MessageFormat.format;
 
@@ -14,8 +14,10 @@ import java.util.stream.Stream;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
+import edu.tamu.tcat.trc.entries.core.resolver.EntryResolver;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
-import edu.tamu.tcat.trc.impl.psql.services.categorization.PersistenceModelV1.TreeNode;
+import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.PersistenceModelV1.TreeCategorizationStrategy;
+import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.PersistenceModelV1.TreeNode;
 import edu.tamu.tcat.trc.repo.ChangeSet;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.IdFactory;
@@ -146,25 +148,40 @@ public class EditHeirarchyCommandFactory
       @Override
       public void removeNode(String nodeId, boolean removeRef)
       {
-         String pattern = "Failed to delete node {0}. This node's parent could not be found.";
          changes.add("delete child#" + nodeId, dto -> {
-            // TODO find all child nodes, collect non-null references and remove them, ignoring errors
-
-            Map<String, TreeNode> nodes = dto.nodes;
-
-            PersistenceModelV1.TreeNode toRemove = nodes.get(nodeId);
-            Objects.requireNonNull(toRemove.parentId, "Cannot delete the root node of a TreeCategorization");
-
-            PersistenceModelV1.TreeNode parent = nodes.get(toRemove.parentId);
-            Objects.requireNonNull(parent, () -> format(pattern, nodeId));
-
-            Consumer<String> remover = makeRemoveFn(dto, removeRef);
-            if (parent.children.remove(nodeId))
-            {
-               getDescendents(nodes, nodeId).forEach(remover::accept);
-               remover.accept(nodeId);
-            } // TODO otherwise, something has gone horribly wrong
+            doRemoveNode(dto, nodeId, removeRef);
          });
+      }
+
+      private void doRemoveNode(TreeCategorizationStrategy dto, String nodeId, boolean removeRef)
+      {
+         String childNotFoundErr = "Failed to delete node {0}. Not found as child of parent {1}";
+         String rootNodeErr = "Cannot delete the root node of a TreeCategorization. id: {0}";
+         String noParentErr = "Failed to delete node {0}. This node's parent could not be found.";
+
+         Map<String, TreeNode> nodes = dto.nodes;
+
+         PersistenceModelV1.TreeNode toRemove = nodes.get(nodeId);
+         Objects.requireNonNull(toRemove.parentId, () -> format(rootNodeErr, nodeId));
+
+         PersistenceModelV1.TreeNode parent = nodes.get(toRemove.parentId);
+         Objects.requireNonNull(parent, () -> format(noParentErr, nodeId));
+
+         Consumer<String> remover = makeRemoveFn(dto, removeRef);
+         if (parent.children.remove(nodeId))
+         {
+            getDescendents(nodes, nodeId).forEach(remover::accept);
+            remover.accept(nodeId);
+         }
+         else
+         {
+            // log the fact that we are missing the node that we're trying to delete.
+            // this is likley a consistency error that results from multiple simultaneous
+            // edits, with the end result being that the node is no longer here.
+
+            // TODO need a way to record warnings and errors in progress.
+            logger.log(Level.INFO, () -> format(childNotFoundErr, nodeId, parent.id));
+         }
       }
 
       @Override
@@ -175,27 +192,49 @@ public class EditHeirarchyCommandFactory
          return (original != null) ? copy(original) : create();
       }
 
+      /**
+       *
+       * @param dto
+       * @param removeRef Indicates whether the assoicated reference should be removed.
+       * @return
+       */
       private Consumer<String> makeRemoveFn(PersistenceModelV1.TreeCategorizationStrategy dto, boolean removeRef)
       {
          return nodeId -> {
             PersistenceModelV1.TreeNode removed = dto.nodes.remove(nodeId);
             if (removeRef && removed.ref != null)
-            {
-               try
-               {
-                  // NOTE calling #get on the returned Future may deadlock
-                  //      would be nice to know if this fails and log that, because that is bad.
-                  Account account = scope.getAccount();
-                  resolvers.getResolver(removed.ref)
-                           .remove(account, removed.ref);
-               }
-               catch (Exception ex)
-               {
-                  String errTemplate = "Failed to remove associated reference for {0} [{1}]:\n{2}";
-                  logger.log(Level.WARNING, format(errTemplate, dto.title, dto.id, removed.ref), ex);
-               }
-            }
+               removeReferencedEntry(removed, dto);
          };
+      }
+
+      /**
+       * Removes the entry associated with a deleted tree node.
+       * @param removed The node that was removed.
+       * @param dto For logging purposes
+       */
+      private void removeReferencedEntry(PersistenceModelV1.TreeNode removed,
+                                         PersistenceModelV1.TreeCategorizationStrategy dto)
+      {
+         String noResolverErr = "Failed to remove associated reference for node {0} [{1}]. No resolver found:\n{2}";
+         String unknownErr = "Failed to remove associated reference for node {0} [{1}]:\n{2}";
+         try
+         {
+            Account account = svcContext.getAccount().orElse(null);
+            EntryResolver<Object> resolver = resolvers.getResolver(removed.ref);
+            if (resolver == null)
+            {
+               logger.log(Level.WARNING, format(noResolverErr, removed.label, removed.id, removed.ref));
+               return;
+            }
+
+            // NOTE calling #get on the Future returned by resolversetResolvermay deadlock
+            //      would be nice to capture this information for logging.
+            resolver.remove(account, removed.ref);
+         }
+         catch (Exception ex)
+         {
+            logger.log(Level.WARNING, format(unknownErr, removed.label, removed.id, removed.ref), ex);
+         }
       }
 
       private PersistenceModelV1.TreeCategorizationStrategy create()

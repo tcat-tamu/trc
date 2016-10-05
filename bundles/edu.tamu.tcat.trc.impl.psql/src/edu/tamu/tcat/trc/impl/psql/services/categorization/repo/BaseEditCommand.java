@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.impl.psql.services.categorization;
+package edu.tamu.tcat.trc.impl.psql.services.categorization.repo;
 
 import static java.text.MessageFormat.format;
 
@@ -10,6 +10,8 @@ import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.UpdateContext;
+import edu.tamu.tcat.trc.services.ServiceContext;
+import edu.tamu.tcat.trc.services.categorization.CategorizationRepo;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScope;
 import edu.tamu.tcat.trc.services.categorization.EditCategorizationCommand;
 
@@ -22,7 +24,9 @@ implements EditCategorizationCommand
    protected final IdFactory nodeIds;
    protected final ApplicableChangeSet<StorageType> changes = new BasicChangeSet<>();
 
-   protected CategorizationScope scope;
+   protected String scopeId;
+
+   protected ServiceContext<CategorizationRepo> svcContext;
 
 
    public BaseEditCommand(String id, IdFactory nodeIds, EditCommandFactory.UpdateStrategy<StorageType> context)
@@ -40,7 +44,14 @@ implements EditCategorizationCommand
 
    public final void setScope(CategorizationScope scope)
    {
-      this.scope = scope;
+      this.svcContext = CategorizationRepo.makeContext(scope.getAccount(), scope.getScopeId());
+      this.scopeId = scope.getScopeId();
+   }
+
+   public final void setContext(ServiceContext<CategorizationRepo> ctx)
+   {
+      this.svcContext = ctx;
+      this.scopeId = (String)ctx.getProperty(CategorizationRepo.CTX_SCOPE_ID);
    }
 
    @Override
@@ -73,10 +84,8 @@ implements EditCategorizationCommand
       String ERR_UNDEFINED_SCOPE = "No categorization scope has been configured for this command.";
       String ERR_SCOPE_MISMATCH = "Scope id of categorization to be edited ({0} does not match the scope of the command ({1}).";
 
-      if (this.scope == null)
+      if (this.scopeId == null)
          throw new IllegalStateException(ERR_UNDEFINED_SCOPE);
-
-      String scopeId = this.scope.getScopeId();
 
       StorageType data = prepareData(ctx);
       if (data.scopeId == null)

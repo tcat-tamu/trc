@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.impl.psql.services.categorization;
+package edu.tamu.tcat.trc.impl.psql.services.categorization.repo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,6 +44,7 @@ public abstract class PersistenceModelV1
       public String label = "";
       public String description = "";
 
+      // TODO should replace with tokenization?
       public EntryReference ref;
 
       @Override

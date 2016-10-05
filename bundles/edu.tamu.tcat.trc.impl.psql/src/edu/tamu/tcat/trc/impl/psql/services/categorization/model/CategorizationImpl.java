@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.impl.psql.services.categorization;
+package edu.tamu.tcat.trc.impl.psql.services.categorization.model;
 
 import static java.text.MessageFormat.format;
 
@@ -6,20 +6,23 @@ import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.entries.core.resolver.InvalidReferenceException;
+import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.PersistenceModelV1;
+import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.categorization.CategorizationNode;
+import edu.tamu.tcat.trc.services.categorization.CategorizationRepo;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScope;
 
 public abstract class CategorizationImpl implements CategorizationScheme
 {
-   private CategorizationScope scope;
-
    private final String id;
    private final String scopeId;
    private final String key;
    private final Strategy strategy;
    private final String title;
    private final String description;
+
+   private ServiceContext<CategorizationRepo> context;
 
    public CategorizationImpl(PersistenceModelV1.CategorizationScheme scheme)
    {
@@ -32,17 +35,23 @@ public abstract class CategorizationImpl implements CategorizationScheme
       this.description = scheme.description;
    }
 
+   public void setContext(ServiceContext<CategorizationRepo> context)
+   {
+      this.context = context;
+   }
+
+   @Deprecated // use #setContext
    public void setScope(CategorizationScope scope)
    {
-      this.scope = scope;
+      this.context = CategorizationRepo.makeContext(scope.getAccount(), scope.getScopeId());
    }
 
    protected Account getAccount()
    {
-      if (scope == null)
+      if (context == null)
          throw new IllegalStateException("No categorization scope has been provided.");
 
-      return scope.getAccount();
+      return context.getAccount().orElse(null);
    }
 
    @Override

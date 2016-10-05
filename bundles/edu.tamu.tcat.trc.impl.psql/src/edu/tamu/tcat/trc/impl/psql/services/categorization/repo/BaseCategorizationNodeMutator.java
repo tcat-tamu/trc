@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.impl.psql.services.categorization;
+package edu.tamu.tcat.trc.impl.psql.services.categorization.repo;
 
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.repo.ChangeSet;

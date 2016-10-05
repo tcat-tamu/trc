@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.impl.psql.services.categorization;
+package edu.tamu.tcat.trc.impl.psql.services.categorization.model;
 
 import static java.text.MessageFormat.format;
 
@@ -9,6 +9,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
+import edu.tamu.tcat.trc.impl.psql.services.categorization.model.CategorizationImpl.CategorizationNodeImpl;
+import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.PersistenceModelV1;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeCategorization;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeNode;
 
