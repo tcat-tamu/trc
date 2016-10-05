@@ -11,7 +11,6 @@ import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.categorization.CategorizationNode;
 import edu.tamu.tcat.trc.services.categorization.CategorizationRepo;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
-import edu.tamu.tcat.trc.services.categorization.CategorizationScope;
 
 public abstract class CategorizationImpl implements CategorizationScheme
 {
@@ -38,12 +37,6 @@ public abstract class CategorizationImpl implements CategorizationScheme
    public void setContext(ServiceContext<CategorizationRepo> context)
    {
       this.context = context;
-   }
-
-   @Deprecated // use #setContext
-   public void setScope(CategorizationScope scope)
-   {
-      this.context = CategorizationRepo.makeContext(scope.getAccount(), scope.getScopeId());
    }
 
    protected Account getAccount()

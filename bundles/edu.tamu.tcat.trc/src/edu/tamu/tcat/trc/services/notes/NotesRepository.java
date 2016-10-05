@@ -16,13 +16,28 @@
 package edu.tamu.tcat.trc.services.notes;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Future;
 
+import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
+import edu.tamu.tcat.trc.services.BasicServiceContext;
+import edu.tamu.tcat.trc.services.ServiceContext;
 
 public interface NotesRepository
 {
+   static final String CTX_SCOPE_ID = "scopeId";
+
+   static ServiceContext<NotesRepository> makeContext(Account account, String scopeId)
+   {
+      Map<String, Object> props = new HashMap<>();
+      props.put(CTX_SCOPE_ID, Objects.requireNonNull(scopeId));
+      return new BasicServiceContext<>(NotesRepository.class, account, props);
+   }
+
    /**
     * Retrieves a specific {@link Note}
     *

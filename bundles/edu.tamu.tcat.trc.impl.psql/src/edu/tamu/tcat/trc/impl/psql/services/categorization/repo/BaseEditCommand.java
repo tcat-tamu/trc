@@ -12,7 +12,6 @@ import edu.tamu.tcat.trc.repo.IdFactory;
 import edu.tamu.tcat.trc.repo.UpdateContext;
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.categorization.CategorizationRepo;
-import edu.tamu.tcat.trc.services.categorization.CategorizationScope;
 import edu.tamu.tcat.trc.services.categorization.EditCategorizationCommand;
 
 public abstract class BaseEditCommand<StorageType extends PersistenceModelV1.CategorizationScheme>
@@ -40,12 +39,6 @@ implements EditCategorizationCommand
    public final String getId()
    {
       return categorizationId;
-   }
-
-   public final void setScope(CategorizationScope scope)
-   {
-      this.svcContext = CategorizationRepo.makeContext(scope.getAccount(), scope.getScopeId());
-      this.scopeId = scope.getScopeId();
    }
 
    public final void setContext(ServiceContext<CategorizationRepo> ctx)

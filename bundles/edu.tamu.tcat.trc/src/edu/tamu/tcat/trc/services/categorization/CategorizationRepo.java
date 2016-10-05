@@ -2,14 +2,18 @@ package edu.tamu.tcat.trc.services.categorization;
 
 import static java.text.MessageFormat.format;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+
+import edu.tamu.tcat.account.Account;
+import edu.tamu.tcat.trc.services.BasicServiceContext;
+import edu.tamu.tcat.trc.services.ServiceContext;
 
 /**
  * Provides the primary point of access for access retrieving, creating and
- * modifying categorization schemes within a given {@link CategorizationScope}.
- * Instances of a {@link CategorizationRepo} may be obtained from a
- * {@link CategorizationRepoFactory} which is instantiated in an application
- * dependent manner (for example, as an OSGi declarative service).
+ * modifying categorization schemes.
  *
  * <p>
  * @see CategorizationScheme for detailed documentation on the design and intent of
@@ -17,10 +21,34 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface CategorizationRepo
 {
+   static final String CTX_SCOPE_ID = "scopeId";
+
    /**
-    * @return The scope for which this repo is defined.
+    * Create a {@link ServiceContext} for use in obtaining instances of a categorization
+    * service.
+    *
+    * @param account The user or system account requesting access. May be <code>null</code>.
+    * @param scopeId Categorization schemes are defined relative to a scope id which
+    *       identifies, for example, the user or application domain responsible for
+    *       creating the scheme
+    * @return A configured {@link ServiceContext}.
     */
-   CategorizationScope getScope();
+   static ServiceContext<CategorizationRepo> makeContext(Account account, String scopeId)
+   {
+      Map<String, Object> props = new HashMap<>();
+      props.put(CTX_SCOPE_ID, Objects.requireNonNull(scopeId));
+      return new BasicServiceContext<>(CategorizationRepo.class, account, props);
+   }
+
+   /**
+    * @return The context associated with this service.
+    */
+   ServiceContext<CategorizationRepo> getContext();
+
+   /**
+    * @return The scope id associated with this service instance.
+    */
+   String getScopeId();
 
    /**
     * Determines if the supplied key is currently used by a categorization scheme within
@@ -44,7 +72,8 @@ public interface CategorizationRepo
 
    /**
     * Retrieves a specific {@link CategorizationScheme} using the user-supplied key.
-    * Categorization keys are unique within a given {@link CategorizationScope}.
+    * Categorization keys are unique within the context of a {@code scopeId} provide
+    * by the associated {@link ServiceContext}.
     *
     * <p>Note that these keys are suitable in many contexts but can and do change over
     * time. Consequently they are not suitable for use as persistent identifiers.

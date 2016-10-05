@@ -10,7 +10,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -23,24 +22,25 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.account.store.AccountStore;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
+import edu.tamu.tcat.trc.impl.psql.services.ServiceFactory;
 import edu.tamu.tcat.trc.repo.DocumentNotFoundException;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepo;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
+import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.notes.EditNoteCommand;
 import edu.tamu.tcat.trc.services.notes.Note;
 import edu.tamu.tcat.trc.services.notes.NotesRepository;
 
-public class NotesService
+public class NotesServiceFactory implements ServiceFactory<NotesRepository>
 {
-   private final static Logger logger = Logger.getLogger(NotesService.class.getName());
+   private final static Logger logger = Logger.getLogger(NotesServiceFactory.class.getName());
 
    public static final String PARAM_TABLE_NAME = "trc.services.notes.tablename";
    public static final String PARAM_ID_CTX = "trc.services.notes.id_context";
@@ -48,129 +48,71 @@ public class NotesService
    private static final String TABLE_NAME = "notes";
    public static final String SCHEMA_DATA_FIELD = "data";
 
-   private DbEntryRepositoryRegistry context;
+   private final DbEntryRepositoryRegistry repoRegistry;
+   private final AccountStore acctStore;
+   private final PsqlJacksonRepo<Note, DataModelV1.Note, EditNoteCommand> docRepo;
+
    private SearchServiceManager indexSvcMgr;
-
-//   private RepositoryContext.Registration repoReg;
-//      private EntryResolverRegistry.Registration resolverReg;
-//      private EntryRepository.ObserverRegistration searchReg;
-
-   public PsqlJacksonRepo<Note, DataModelV1.Note, EditNoteCommand> docRepo;
-   private AccountStore acctStore;
-
-   private SqlExecutor sqlExecutor;
 
    private String tablename;
 
-   /**
-    * This depends directly on the DB-backed implementation because we will need to
-    * poke the database directly. It may eventually be adequate to rely on search to find
-    * results, but this seems unwarrented at the moment
-    */
-   public void setRepoContext(DbEntryRepositoryRegistry ctx)
+   public NotesServiceFactory(DbEntryRepositoryRegistry repoRegistry, AccountStore acctStore)
    {
-      this.context = ctx;
-   }
-
-   public void setAccountStore(AccountStore acctStore)
-   {
+      this.repoRegistry = repoRegistry;
       this.acctStore = acctStore;
+
+      this.docRepo = initRepo();
    }
 
-   public void setSearchSvcMgr(SearchServiceManager indexSvcFactory)
+   private PsqlJacksonRepo<Note, DataModelV1.Note, EditNoteCommand> initRepo()
    {
-      this.indexSvcMgr = indexSvcFactory;
+      EditNoteCommandFactory cmdFactory = new EditNoteCommandFactory(repoRegistry.getResolverRegistry(), acctStore);
+
+      ConfigurationProperties config = repoRegistry.getConfig();
+      tablename = config.getPropertyValue(PARAM_TABLE_NAME, String.class, TABLE_NAME);
+
+      PsqlJacksonRepoBuilder<Note, DataModelV1.Note, EditNoteCommand> builder = repoRegistry.getDocRepoBuilder();
+      builder.setTableName(tablename);
+      builder.setDataColumn(SCHEMA_DATA_FIELD);
+      builder.setEditCommandFactory(cmdFactory);
+      builder.setDataAdapter(dto -> new NoteImpl(dto, acctStore, repoRegistry.getResolverRegistry()));
+      builder.setStorageType(DataModelV1.Note.class);
+
+      return builder.build();
    }
 
-   /**
-    * Lifecycle management method (usually called by framework service layer)
-    * Called when all dependencies have been provided and the service is ready to run.
-    */
-   public void activate()
+   @Override
+   public Class<NotesRepository> getType()
    {
-      try
-      {
-         logger.info("Activating " + getClass().getSimpleName());
-
-         initRepo();
-         sqlExecutor = context.getSqlExecutor();
-         // make sure these are all set up and fail fast if not.
-         Objects.requireNonNull(docRepo);
-
-//         initSearch();
-
-         logger.fine("Activated " + getClass().getSimpleName());
-      }
-      catch (Exception e)
-      {
-         logger.log(Level.SEVERE, "Failed to construct articles repository instance.", e);
-         throw e;
-      }
+      return NotesRepository.class;
    }
 
    /**
     * Lifecycle management method (usually called by framework service layer)
     * Called when this service is no longer required.
     */
-   public void dispose()
+   @Override
+   public void shutdown()
    {
-      try
-      {
-         logger.info("Stopping " + getClass().getSimpleName());
-
-         docRepo.dispose();
-         // TODO register with service framework
-//         if (searchReg != null)
-//            searchReg.close();
-
-         logger.fine("Stopped " + getClass().getSimpleName());
-
-      }
-      catch (Exception ex)
-      {
-         logger.log(Level.SEVERE, "Failed to stop" + getClass().getSimpleName(), ex);
-         throw ex;
-      }
+      docRepo.dispose();
    }
 
-   private void initRepo()
+   @Override
+   public NotesRepoImpl getService(ServiceContext<NotesRepository> svcCtx)
    {
-      EditNoteCommandFactory cmdFactory = new EditNoteCommandFactory(context.getResolverRegistry(), acctStore);
-
-      ConfigurationProperties config = context.getConfig();
-      tablename = config.getPropertyValue(PARAM_TABLE_NAME, String.class, TABLE_NAME);
-
-      PsqlJacksonRepoBuilder<Note, DataModelV1.Note, EditNoteCommand> builder = context.getDocRepoBuilder();
-      builder.setTableName(tablename);
-      builder.setDataColumn(SCHEMA_DATA_FIELD);
-      builder.setEditCommandFactory(cmdFactory);
-      builder.setDataAdapter(dto -> new NoteImpl(dto, acctStore, context.getResolverRegistry()));
-      builder.setStorageType(DataModelV1.Note.class);
-
-      docRepo = builder.build();
-   }
-
-   public NotesRepoImpl getRepository(Account account)
-   {
-      return new NotesRepoImpl(account, context.getResolverRegistry(), sqlExecutor, docRepo);
+      return new NotesRepoImpl(svcCtx, docRepo);
    }
 
    public class NotesRepoImpl implements NotesRepository
    {
-      private Account account;
-      private PsqlJacksonRepo<Note, DataModelV1.Note, EditNoteCommand> docRepo;
-      private EntryResolverRegistry resolvers;
-      private SqlExecutor exec;
+      private final ServiceContext<NotesRepository> svcCtx;
+      private final PsqlJacksonRepo<Note, DataModelV1.Note, EditNoteCommand> docRepo;
 
-      public NotesRepoImpl(Account account,
-                           EntryResolverRegistry resolvers,
-                           SqlExecutor exec,
+      public NotesRepoImpl(ServiceContext<NotesRepository> svcCtx,
                            PsqlJacksonRepo<Note, DataModelV1.Note, EditNoteCommand> docRepo)
       {
-         this.resolvers = resolvers;
+         this.svcCtx = svcCtx;
          this.docRepo = docRepo;
-         this.account = account;
-         this.exec = exec;
       }
 
       @Override
@@ -192,12 +134,14 @@ public class NotesService
 
       private NoteImpl adapt(DataModelV1.Note dto)
       {
-         return new NoteImpl(dto, acctStore, resolvers);
+         return new NoteImpl(dto, acctStore, repoRegistry.getResolverRegistry());
       }
 
       @Override
       public Collection<Note> getNotes(EntryReference ref)
       {
+         SqlExecutor sqlExecutor = repoRegistry.getSqlExecutor();
+         EntryResolverRegistry resolvers = repoRegistry.getResolverRegistry();
          String token = resolvers.tokenize(ref);
          Future<Collection<DataModelV1.Note>> future =
                sqlExecutor.submit(conn -> doGetByToken(token, conn));
@@ -205,7 +149,9 @@ public class NotesService
          try
          {
             Collection<DataModelV1.Note> dtos = future.get(10, TimeUnit.SECONDS);
-            return dtos.stream().map(this::adapt).collect(Collectors.toList());
+            return dtos.stream()
+                       .map(this::adapt)
+                       .collect(Collectors.toList());
          }
          catch (ExecutionException ex)
          {
@@ -267,19 +213,19 @@ public class NotesService
       @Override
       public EditNoteCommand create()
       {
-         return docRepo.create(account);
+         return docRepo.create(svcCtx.getAccount().orElse(null));
       }
 
       @Override
       public EditNoteCommand edit(String noteId)
       {
-         return docRepo.edit(account, noteId);
+         return docRepo.edit(svcCtx.getAccount().orElse(null), noteId);
       }
 
       @Override
       public CompletableFuture<Boolean> remove(String noteId)
       {
-         return docRepo.delete(account, noteId);
+         return docRepo.delete(svcCtx.getAccount().orElse(null), noteId);
       }
    }
 

@@ -2,6 +2,10 @@ package edu.tamu.tcat.trc.services.bibref;
 
 import java.util.Collection;
 
+import edu.tamu.tcat.account.Account;
+import edu.tamu.tcat.trc.services.BasicServiceContext;
+import edu.tamu.tcat.trc.services.ServiceContext;
+
 /**
  *  Defines a collection of bibliographic references associated with some entity
  *  (typically, but not necessarily) a TRC Entry). A reference collection is defined
@@ -11,6 +15,11 @@ import java.util.Collection;
  */
 public interface ReferenceCollection
 {
+   static ServiceContext<ReferenceCollection> makeContext(Account account)
+   {
+      return new BasicServiceContext<>(ReferenceCollection.class, account);
+   }
+
    /**
     * @return all citations
     */

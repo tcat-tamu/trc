@@ -9,6 +9,7 @@ import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.impl.psql.services.bibref.model.ReferenceCollectionImpl;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.RepositoryException;
+import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.bibref.ReferenceCollection;
 import edu.tamu.tcat.trc.services.bibref.repo.EditBibliographyCommand;
 import edu.tamu.tcat.trc.services.bibref.repo.ReferenceRepository;
@@ -18,13 +19,18 @@ public class ReferenceRepositoryImpl implements ReferenceRepository
 
    private final DocumentRepository<ReferenceCollection, DataModelV1.ReferenceCollection, EditBibliographyCommand> docRepo;
    private final EntryResolverRegistry resolverRegistry;
+   private final ServiceContext<ReferenceRepository> context;
+
    private final Account account;
 
-   public ReferenceRepositoryImpl(DocumentRepository<ReferenceCollection, DataModelV1.ReferenceCollection, EditBibliographyCommand> docRepo, EntryResolverRegistry resolverRegistry, Account account)
+   public ReferenceRepositoryImpl(DocumentRepository<ReferenceCollection,
+                                  DataModelV1.ReferenceCollection, EditBibliographyCommand> docRepo, EntryResolverRegistry resolverRegistry,
+                                  ServiceContext<ReferenceRepository> context)
    {
       this.docRepo = docRepo;
       this.resolverRegistry = resolverRegistry;
-      this.account = account;
+      this.context = context;
+      account = this.context.getAccount().orElse(null);
    }
 
    @Override

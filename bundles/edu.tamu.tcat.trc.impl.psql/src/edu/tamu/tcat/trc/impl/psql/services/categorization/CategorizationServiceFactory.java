@@ -2,15 +2,14 @@ package edu.tamu.tcat.trc.impl.psql.services.categorization;
 
 import static java.text.MessageFormat.format;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
@@ -20,22 +19,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
-import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryReference;
 import edu.tamu.tcat.trc.entries.core.resolver.EntryResolverRegistry;
+import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
+import edu.tamu.tcat.trc.impl.psql.services.ServiceFactory;
+import edu.tamu.tcat.trc.impl.psql.services.categorization.model.TreeCategorizationImpl;
+import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.BaseEditCommand;
+import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.EditHeirarchyCommandFactory;
+import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.PersistenceModelV1;
 import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
 import edu.tamu.tcat.trc.repo.DocumentNotFoundException;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.IdFactory;
-import edu.tamu.tcat.trc.repo.IdFactoryProvider;
 import edu.tamu.tcat.trc.repo.RepositorySchema;
 import edu.tamu.tcat.trc.repo.SchemaBuilder;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepo;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
+import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.categorization.CategorizationRepo;
-import edu.tamu.tcat.trc.services.categorization.CategorizationRepoFactory;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
-import edu.tamu.tcat.trc.services.categorization.CategorizationScope;
 import edu.tamu.tcat.trc.services.categorization.EditCategorizationCommand;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.EditTreeCategorizationCommand;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeCategorization;
@@ -43,9 +45,9 @@ import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeCategorizat
 /**
  *
  */
-public class CategorizationSchemeService implements CategorizationRepoFactory
+public class CategorizationServiceFactory implements ServiceFactory<CategorizationRepo>
 {
-   private final static Logger logger = Logger.getLogger(CategorizationSchemeService.class.getName());
+   private final static Logger logger = Logger.getLogger(CategorizationServiceFactory.class.getName());
 
    public static final String ID_CONTEXT_SCHEMES = "trc.services.categorization.schemes.ids";
    public static final String ID_CONTEXT_NODES = "trc.services.categorization.nodes.ids";
@@ -73,48 +75,34 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
 
    private PsqlJacksonRepo<TreeCategorization, PersistenceModelV1.TreeCategorizationStrategy, EditTreeCategorizationCommand> treeRepo;
 
-   private SqlExecutor sqlExecutor;
-
-   private IdFactoryProvider idFactoryProvider;
-
    private IdFactory nodeIds;
    private IdFactory schemeIds;
 
-   private EntryResolverRegistry registry;
    private String tableName;
 
-   public void bindSqlExecutor(SqlExecutor sqlExecutor)
+   private final DbEntryRepositoryRegistry repoRegistry;
+
+   public CategorizationServiceFactory(DbEntryRepositoryRegistry repoRegistry)
    {
-      this.sqlExecutor = sqlExecutor;
+      this.repoRegistry = repoRegistry;
+      this.activate(new HashMap<>());     // HACK: need to setup props.
+
    }
 
-   public void bindIdProvider(IdFactoryProvider idProvider)
+   private void activate(Map<String, Object> props)
    {
-      this.idFactoryProvider = idProvider;
-   }
-
-   public void bindEntryRepoResolver(EntryRepositoryRegistry registry)
-   {
-      this.registry = registry.getResolverRegistry();
-   }
-
-   public void activate(Map<String, Object> props)
-   {
+      // FIXME get from config properties following standard model
       try
       {
          logger.info("Activating CategorizationSchemeService");
-         Objects.requireNonNull(sqlExecutor);
-         Objects.requireNonNull(idFactoryProvider);
-         Objects.requireNonNull(sqlExecutor);
-         Objects.requireNonNull(registry);
 
          String schemeIdsCtx = (String)props.getOrDefault(PARAM_ID_CTX, ID_CONTEXT_SCHEMES);
          logger.fine(() -> format("Categorization scheme id context {0}", schemeIdsCtx));
-         schemeIds = this.idFactoryProvider.getIdFactory(schemeIdsCtx);
+         schemeIds = this.repoRegistry.getIdFactory(schemeIdsCtx);
 
          String nodeIdsCtx = (String)props.getOrDefault(PARAM_NODE_CTX, ID_CONTEXT_NODES);
          logger.fine(() -> format("Categorization nodes id context {0}", nodeIdsCtx));
-         nodeIds = this.idFactoryProvider.getIdFactory(nodeIdsCtx);
+         nodeIds = this.repoRegistry.getIdFactory(nodeIdsCtx);
 
          // TODO could add a mapping repo to track metadata about entries by id/scope/key/type, etc.
 
@@ -130,9 +118,16 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
       }
    }
 
-   public void deactivate()
+   @Override
+   public Class<CategorizationRepo> getType()
    {
-      sqlExecutor = null;
+      return CategorizationRepo.class;
+   }
+
+   @Override
+   public void shutdown()
+   {
+      treeRepo.dispose();
    }
 
    /**
@@ -163,19 +158,14 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
 
    private void buildTreeDocRepo()
    {
-      PsqlJacksonRepoBuilder<TreeCategorization,
-                             PersistenceModelV1.TreeCategorizationStrategy,
-                             EditTreeCategorizationCommand>
-      repoBuilder = new PsqlJacksonRepoBuilder<>();
-
-
-      repoBuilder.setDbExecutor(sqlExecutor);
+      PsqlJacksonRepoBuilder<TreeCategorization, PersistenceModelV1.TreeCategorizationStrategy, EditTreeCategorizationCommand> repoBuilder = repoRegistry.getDocRepoBuilder();
       repoBuilder.setTableName(tableName);
       repoBuilder.setSchema(buildSchema());
       repoBuilder.setEnableCreation(true);
 
-      repoBuilder.setEditCommandFactory(new EditHeirarchyCommandFactory(registry, nodeIds));
-      repoBuilder.setDataAdapter(dto -> toDomainModel(registry, dto));
+      EntryResolverRegistry resolvers = repoRegistry.getResolverRegistry();
+      repoBuilder.setEditCommandFactory(new EditHeirarchyCommandFactory(resolvers, nodeIds));
+      repoBuilder.setDataAdapter(dto -> toDomainModel(resolvers, dto));
       repoBuilder.setStorageType(PersistenceModelV1.TreeCategorizationStrategy.class);
 
       treeRepo = repoBuilder.build();
@@ -193,98 +183,36 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
    }
 
    @Override
-   public CategorizationScope createScope(Account account, String scopeId)
+   public CategorizationRepo getService(ServiceContext<CategorizationRepo> ctx)
    {
-      return new BasicScope(account, scopeId);
+      return new CategorizationRepoImpl(ctx);
    }
 
-   @Override
-   public CategorizationRepo getRepository(CategorizationScope scope)
+   // TODO this needs to be worked so that categorization implementations can be registered
+   //      and we can avoid the myriad switch statements
+   private class CategorizationRepoImpl implements CategorizationRepo
    {
-      return new CategorizationRepoImpl(scope);
-   }
-
-   private static class BasicScope implements CategorizationScope
-   {
-      private final Account account;
+      private final ServiceContext<CategorizationRepo> svcContext;
       private final String scopeId;
+      private final Optional<Account> account;
 
-      public BasicScope(Account account, String scopeId)
+      public CategorizationRepoImpl(ServiceContext<CategorizationRepo> scope)
       {
-         this.account = account;
-         this.scopeId = scopeId;
+         this.svcContext = scope;
+         this.scopeId = (String)scope.getProperty(CTX_SCOPE_ID);
+         this.account = scope.getAccount();
+      }
+
+      @Override
+      public ServiceContext<CategorizationRepo> getContext()
+      {
+         return svcContext;
       }
 
       @Override
       public String getScopeId()
       {
          return scopeId;
-      }
-
-      @Override
-      public Account getAccount()
-      {
-         return account;
-      }
-
-      @Override
-      public int hashCode()
-      {
-         int result = 17;
-         result = 31 * result + scopeId.hashCode();
-         result = 31 * result +
-                  ((account != null) ? account.getId().hashCode() : 0);
-
-         return result;
-      }
-
-      @Override
-      public boolean equals(Object obj)
-      {
-         if (!CategorizationScope.class.isInstance(obj))
-            return false;
-
-         CategorizationScope scope = (CategorizationScope)obj;
-         String id = scope.getScopeId();
-
-         if (!Objects.equals(this.scopeId, id))
-            return false;
-
-         Account account = scope.getAccount();
-         if (account != null)
-         {
-            UUID accountId = account.getId();
-            return this.account != null ? this.account.getId().equals(accountId) : false;
-         }
-         else
-         {
-            return this.account == null;
-         }
-      }
-
-
-      @Override
-      public String toString()
-      {
-         String template = "Categorization scope: {0} (Held by account {1})";
-         UUID accountId = account != null ? account.getId() : null;
-         return MessageFormat.format(template, scopeId, accountId);
-      }
-   }
-
-   private class CategorizationRepoImpl implements CategorizationRepo
-   {
-      private final CategorizationScope scope;
-
-      public CategorizationRepoImpl(CategorizationScope scope)
-      {
-         this.scope = scope;
-      }
-
-      @Override
-      public CategorizationScope getScope()
-      {
-         return scope;
       }
 
       @Override
@@ -298,12 +226,12 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
                                + "AND {0}->>''scopeId'' = ? "
                                + treeRepo.buildNotRemovedClause();
 
+         SqlExecutor sqlExecutor = repoRegistry.getSqlExecutor();
          String sql = format(sqlTemplate, SCHEMA_DATA_FIELD, tableName);
          Future<CategorizationScheme> future = sqlExecutor.submit((conn) -> {
             return doGetByKey(key, sql, conn);
          });
 
-         String scopeId = scope.getScopeId();
          String err = "Failed to retrieve categorization scheme for key {0} within scope {1}";
 
          try
@@ -322,11 +250,11 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
          try (PreparedStatement ps = conn.prepareStatement(sql))
          {
             ps.setString(1, key);
-            ps.setString(2, scope.getScopeId());
+            ps.setString(2, scopeId);
 
             ResultSet rs = ps.executeQuery();
             if (!rs.next())
-               throw new DocumentNotFoundException(format("No categorization scheme for key {0} within scope {1}", key, scope.getScopeId()));
+               throw new DocumentNotFoundException(format("No categorization scheme for key {0} within scope {1}", key, scopeId));
 
             String json = rs.getString("json");
             String s = rs.getString("strategy");
@@ -339,16 +267,11 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
       {
          try
          {
-            ObjectMapper mapper = new ObjectMapper();
             CategorizationScheme.Strategy strategy = CategorizationScheme.Strategy.valueOf(s);
             switch (strategy)
             {
                case TREE:
-                  PersistenceModelV1.TreeCategorizationStrategy dto =
-                     mapper.readValue(json, PersistenceModelV1.TreeCategorizationStrategy.class);
-                  TreeCategorizationImpl impl = toDomainModel(registry, dto);
-                  impl.setScope(getScope());
-                  return impl;
+                  return parseTreeCategorization(json);
                case SET:
                   // TODO add support for sets
                   throw new UnsupportedOperationException("Set categorizations are not yet supported");
@@ -365,17 +288,28 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
          }
       }
 
+      private CategorizationScheme parseTreeCategorization(String json) throws IOException
+      {
+         ObjectMapper mapper = new ObjectMapper();
+         EntryResolverRegistry resolvers = repoRegistry.getResolverRegistry();
+
+         PersistenceModelV1.TreeCategorizationStrategy dto = mapper.readValue(json, PersistenceModelV1.TreeCategorizationStrategy.class);
+         TreeCategorizationImpl impl = toDomainModel(resolvers, dto);
+         impl.setContext(svcContext);
+         return impl;
+      }
+
       @Override
       public CategorizationScheme getById(String id) throws IllegalArgumentException
       {
          try
          {
             TreeCategorizationImpl scheme = (TreeCategorizationImpl)treeRepo.get(id);
-            scheme.setScope(scope);
-            if (!scheme.getScopeId().equals(this.scope.getScopeId()))
+            scheme.setContext(svcContext);
+            if (!scheme.getScopeId().equals(scopeId))
             {
                String msg = "The requested categorization scheme [{0}] is not accessible within from {1}";
-               throw new IllegalArgumentException(format(msg, id, scope));
+               throw new IllegalArgumentException(format(msg, id, svcContext));
             }
             // TODO verify that this is within the correct scope and that the
             //      user is authorized to access it
@@ -437,7 +371,7 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
 
          }
 
-         ((BaseEditCommand<?>)cmd).setScope(scope);
+         ((BaseEditCommand<?>)cmd).setContext(svcContext);
          cmd.setKey(key);
          return cmd;
       }
@@ -462,7 +396,7 @@ public class CategorizationSchemeService implements CategorizationRepoFactory
                throw new IllegalArgumentException("Unsupported categorization strategy: " + strategy);
          }
 
-         ((BaseEditCommand<?>)cmd).setScope(scope);
+         ((BaseEditCommand<?>)cmd).setContext(svcContext);
          return cmd;
       }
 

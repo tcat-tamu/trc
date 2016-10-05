@@ -22,6 +22,7 @@ import edu.tamu.tcat.account.Account;
  *  implementation.
  *
  */
+@Deprecated
 public interface CategorizationScope
 {
    String getScopeId();
