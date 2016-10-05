@@ -140,6 +140,7 @@ public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> implem
       if (!this.exists() && enableCreation)
          this.create();
 
+      // TODO supply data vehicle
       PsqlJacksonRepo<RecordType, StorageType, EditCmdType> repo = new PsqlJacksonRepo<>();
       repo.setSqlExecutor(exec);
       repo.setTableName(tablename);

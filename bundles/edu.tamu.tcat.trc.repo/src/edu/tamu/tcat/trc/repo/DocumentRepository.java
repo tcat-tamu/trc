@@ -2,6 +2,7 @@ package edu.tamu.tcat.trc.repo;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -66,11 +67,19 @@ public interface DocumentRepository<RecordType, StorageType, EditCommandType>
     *
     * @param id The id of the record to return.
     * @return The identified record. Will not be {@code null}.
-    * @throws RepositoryException If the identified record does not exist. Note that this
-    *       includes deleted record even if the underlying storage layer continues to maintain
-    *       a record of the deleted items.
+    * @throws DocumentNotFoundException If the identified record does not exist.
     */
-   RecordType get(String id) throws RepositoryException;
+   @Deprecated // use #get
+   RecordType getUnsafe(String id) throws RepositoryException;
+
+   /**
+    * Retrieve the identified record.
+    *
+    * @param id The id of the record to return.
+    * @return The identified record (will be empty if no record with the supplied id exists.
+    * @throws RepositoryException If internal errors errors were encountered retrieving the document.
+    */
+   Optional<RecordType> get(String id);
 
    /**
     * Attempts to retrieve multiple records for a collection of record ids.
@@ -116,14 +125,6 @@ public interface DocumentRepository<RecordType, StorageType, EditCommandType>
    EditCommandType create(Account account);
 
    /**
-    * Delegates to {@link #create(Account)}
-    */
-   @Deprecated
-   default EditCommandType create() {
-      return create((Account)null);
-   }
-
-   /**
     * Optional method to constructs a {@link RecordEditCommand} for use to create a new
     * entry with a client-supplied unique identifier. Note that the client is responsible for
     * ensuring that the supplied identifier is unique within the scope of this repository. If
@@ -144,14 +145,6 @@ public interface DocumentRepository<RecordType, StorageType, EditCommandType>
    EditCommandType create(Account account, String id) throws UnsupportedOperationException;
 
    /**
-    * delegates to {@link #create(Account, String)}
-    */
-   @Deprecated
-   default EditCommandType create(String id) throws UnsupportedOperationException {
-      return create(null, id);
-   };
-
-   /**
     * Constructs a {@link RecordEditCommand} for use in editing the identified record.
     *
     * @param account The user account responsible for making this change.
@@ -161,14 +154,6 @@ public interface DocumentRepository<RecordType, StorageType, EditCommandType>
     *       could not be constructed.
     */
    EditCommandType edit(Account account, String id) throws RepositoryException;
-
-   /**
-    * delegates to {@link #edit(Account, String)}
-    */
-   @Deprecated
-   default EditCommandType edit(String id) throws RepositoryException {
-      return edit(null, id);
-   }
 
    /**
     * Removes the identified record from the repository. Often, repository implementations will
@@ -203,14 +188,6 @@ public interface DocumentRepository<RecordType, StorageType, EditCommandType>
     *       in which the {@link RepositorySchema} was configured.
     */
    CompletableFuture<Boolean> delete(Account account, String id) throws UnsupportedOperationException;
-
-   /**
-    * delegates to {@link #delete(Account, String)}
-    */
-   @Deprecated
-   default CompletableFuture<Boolean> delete(String id) throws UnsupportedOperationException {
-      return delete(null, id);
-   }
 
    /**
     * Convenience method to unwrap a {@link Future} and return the result or
@@ -254,8 +231,7 @@ public interface DocumentRepository<RecordType, StorageType, EditCommandType>
          if (cause instanceof Error)
             throw (Error)cause;
 
-         String msg = message.get();
-         throw new RepositoryException(msg, e);
+         throw new RepositoryException(message.get(), e);
       }
    }
 

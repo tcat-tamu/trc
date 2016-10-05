@@ -36,8 +36,8 @@ import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
 import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.ServiceContext;
-import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
+import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 import edu.tamu.tcat.trc.services.categorization.EditCategorizationCommand;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.EditTreeCategorizationCommand;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeCategorization;
@@ -304,7 +304,7 @@ public class CategorizationServiceFactory implements ServiceFactory<Categorizati
       {
          try
          {
-            TreeCategorizationImpl scheme = (TreeCategorizationImpl)treeRepo.get(id);
+            TreeCategorizationImpl scheme = (TreeCategorizationImpl)treeRepo.getUnsafe(id);
             scheme.setContext(svcContext);
             if (!scheme.getScopeId().equals(scopeId))
             {
@@ -358,7 +358,7 @@ public class CategorizationServiceFactory implements ServiceFactory<Categorizati
          switch (strategy)
          {
             case TREE:
-               cmd = treeRepo.create(id);
+               cmd = treeRepo.create(svcContext.getAccount().orElse(null), id);
                break;
             case SET:
                // TODO add support for sets
@@ -384,7 +384,7 @@ public class CategorizationServiceFactory implements ServiceFactory<Categorizati
          switch (strategy)
          {
             case TREE:
-               cmd = treeRepo.edit(id);
+               cmd = treeRepo.edit(svcContext.getAccount().orElse(null), id);
                break;
             case SET:
                // TODO add support for sets
@@ -407,7 +407,7 @@ public class CategorizationServiceFactory implements ServiceFactory<Categorizati
          switch (strategy)
          {
             case TREE:
-               return treeRepo.delete(id);
+               return treeRepo.delete(svcContext.getAccount().orElse(null), id);
             case SET:
                // TODO add support for sets
                throw new UnsupportedOperationException("Set categorizations are not yet supported");

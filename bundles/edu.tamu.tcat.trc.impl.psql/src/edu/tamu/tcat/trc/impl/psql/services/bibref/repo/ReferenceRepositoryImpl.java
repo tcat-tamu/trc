@@ -64,8 +64,7 @@ public class ReferenceRepositoryImpl implements RefCollectionService
    {
       try
       {
-         ReferenceCollection doc = docRepo.get(id);
-         return Optional.of(doc);
+         return docRepo.get(id);
       }
       catch(RepositoryException e)
       {

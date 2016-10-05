@@ -120,7 +120,7 @@ public class NotesServiceFactory implements ServiceFactory<NotesService>
       {
          try
          {
-            return Optional.of(docRepo.get(noteId));
+            return Optional.of(docRepo.getUnsafe(noteId));
          }
          catch (DocumentNotFoundException ex)
          {

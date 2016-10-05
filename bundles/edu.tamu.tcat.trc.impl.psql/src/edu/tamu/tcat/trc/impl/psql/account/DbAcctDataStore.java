@@ -177,7 +177,7 @@ public class DbAcctDataStore implements TrcAccountDataStore
    @Override
    public TrcAccount getAccount(UUID id)
    {
-      return acctRepo.get(id.toString());
+      return acctRepo.get(id.toString()).orElse(null);
    }
 
    @Override
@@ -242,7 +242,7 @@ public class DbAcctDataStore implements TrcAccountDataStore
    {
       // NOTE there is a synchronization issue here. This may result in
       //      inconsistent data if the account is removed.
-      acctRepo.get(account.getId().toString());
+      acctRepo.getUnsafe(account.getId().toString());
       doLink(account.getId(), data);
    }
 

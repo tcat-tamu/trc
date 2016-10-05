@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -75,7 +76,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    private final Map<UUID, EntryUpdateObserver<DTO>> preCommitTasks = new ConcurrentHashMap<>();
    private final Map<UUID, EntryUpdateObserver<DTO>> postCommitTasks = new ConcurrentHashMap<>();
 
-   private LoadingCache<String, RecordType> cache;
+   private LoadingCache<String, Optional<RecordType>> cache;
 
    PsqlJacksonRepo()
    {
@@ -158,13 +159,13 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
                      .build(new CacheLoaderImpl());
    }
 
-   private class CacheLoaderImpl extends CacheLoader<String, RecordType>
+   private class CacheLoaderImpl extends CacheLoader<String, Optional<RecordType>>
    {
       @Override
-      public RecordType load(String key) throws Exception
+      public Optional<RecordType> load(String key) throws Exception
       {
-         DTO dto = loadStoredRecord(key);
-         RecordType record = adapter.apply(dto);
+         Optional<DTO> dto = loadStoredRecord(key);
+         Optional<RecordType> record = dto.map(adapter::apply);
          return record;
       }
    }
@@ -228,7 +229,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    @Override
    public Iterator<RecordType> listAll()
    {
-      return new PagedRecordIterator<>(this::getPersonBlock, this::parse, 100);
+      return new PagedRecordIterator<>(this::getPersonBlock, json -> adapter.apply(parse(json)), 100);
    }
 
    public boolean exists(String id)
@@ -238,7 +239,14 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    }
 
    @Override
-   public RecordType get(String id) throws RepositoryException
+   public RecordType getUnsafe(String id) throws RepositoryException
+   {
+      String msg = "No document stored for {1}";
+      return get(id).orElseThrow(() -> new DocumentNotFoundException(format(msg, id)));
+   }
+
+   @Override
+   public Optional<RecordType> get(String id)
    {
       try
       {
@@ -246,15 +254,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       }
       catch (ExecutionException | UncheckedExecutionException ex)
       {
-         Throwable cause = ex.getCause();
-         if (cause instanceof DocumentNotFoundException)
-            throw (DocumentNotFoundException)cause;
-         if (cause instanceof RepositoryException)
-            throw (RepositoryException)cause;
-         if (cause instanceof RuntimeException)
-            throw (RuntimeException)cause;
-
-         throw new IllegalStateException("Failed to retrieve record [" + id + "]", cause);
+         throw new RepositoryException("Failed to retrieve record [" + id + "]", ex.getCause());
       }
    }
 
@@ -271,7 +271,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          if (results.containsKey(id))
             continue;
 
-         results.put(id, get(id));
+         results.put(id, getUnsafe(id));
       }
 
       return Collections.unmodifiableCollection(results.values());
@@ -352,22 +352,6 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       return () -> postCommitTasks.remove(observerId);
    }
 
-   private RecordType parse(String json)
-   {
-      try
-      {
-         ObjectMapper mapper = getObjectMapper();
-
-         DTO dto = mapper.readValue(json, storageType);
-         return adapter.apply(dto);
-      }
-      catch (IOException ex)
-      {
-         String message = format("Failed to parse stored record data.\n\t{0}", json);
-         throw new IllegalStateException(message, ex);
-      }
-   }
-
    private Future<List<String>> getPersonBlock(int offset, int limit)
    {
 
@@ -408,19 +392,27 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    /**
     * @return the JSON representation associated with this id.
     */
-   private DTO loadStoredRecord(String id) throws RepositoryException
+   private Optional<DTO> loadStoredRecord(String id) throws RepositoryException
    {
-      ObjectMapper mapper = getObjectMapper();
+      Future<Optional<String>> future = exec.submit((conn) -> loadJson(conn, id));
 
-      Future<DTO> future = exec.submit((conn) -> {
-         if (Thread.interrupted())
-            throw new InterruptedException();
+      Optional<String> json = unwrap(future, () -> format("Failed to load DTO for entry with id={0}", id));
+      return json.map(this::parse);
+   }
 
-         String json = loadJson(conn, id);
+   private DTO parse(String json)
+   {
+      try
+      {
+         ObjectMapper mapper = getObjectMapper();
+   
          return mapper.readValue(json, storageType);
-      });
-
-      return unwrap(future, () -> format("Failed to load DTO for entry with id={0}", id));
+      }
+      catch (IOException ex)
+      {
+         String message = format("Failed to parse stored record data.\n\t{0}", json);
+         throw new IllegalStateException(message, ex);
+      }
    }
 
    private boolean exists(Connection conn, String id)
@@ -437,9 +429,10 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       }
       catch (SQLException e)
       {
-         throw new RepositoryException("Faield to check existance the record.", e);
+         throw new RepositoryException("Failed to check existance the record.", e);
       }
    }
+
    /**
     * Called from within the database executor to retrieve the underlying JSON representation
     * of an item.
@@ -453,25 +446,30 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
     * @throws RepositoryException If an unknown internal error occurred.
     * @throws InterruptedException If the execution was interrupted
     */
-   private String loadJson(Connection conn, String id)
-         throws DocumentNotFoundException, RepositoryException
+   private Optional<String> loadJson(Connection conn, String id)
+         throws InterruptedException, RepositoryException
    {
+      if (Thread.interrupted())
+         throw new InterruptedException();
+   
       try (PreparedStatement ps = conn.prepareStatement(getRecordSql))
       {
          ps.setString(1, id);
          try (ResultSet rs = ps.executeQuery())
          {
             if (!rs.next())
-               throw new DocumentNotFoundException("Could not find record for id = '" + id + "'");
-
+               return Optional.empty();
+   
             PGobject pgo = (PGobject)rs.getObject(schema.getDataField());
-            return pgo.toString();
+            return Optional.of(pgo.toString());
          }
       }
       catch (SQLException e)
       {
-         throw new RepositoryException("Faield to retrieve the record.", e);
+         throw new RepositoryException("Failed to retrieve the record.", e);
       }
+   
+   
    }
 
    private CompletableFuture<DTO> doCreate(String id, DTO record)
@@ -643,7 +641,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       private final String entryId;
       private final ActionType action;
       private final Account actor;
-      private final Supplier<DTO> supplier;
+      private final Supplier<Optional<DTO>> supplier;
 
       private DTO initial;
       private CompletableFuture<DTO> original;
@@ -651,14 +649,14 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
       private final List<String> errors = new CopyOnWriteArrayList<>();
 
-      UpdateContextImpl(String id, ActionType action, Account actor, Supplier<DTO> supplier)
+      UpdateContextImpl(String id, ActionType action, Account actor, Supplier<Optional<DTO>> supplier)
       {
          this.entryId = id;
          this.action = action;
          this.actor = actor;
          this.supplier = supplier;
 
-         this.initial = supplier.get();
+         this.initial = supplier.get().orElse(null);
       }
 
       private void start()
@@ -671,7 +669,8 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
             original = new CompletableFuture<>();
             try {
                // NOTE could block forever depending on supplier impl.
-               original.complete(supplier.get());
+               Optional<DTO> orig = supplier.get();
+               original.complete(orig.orElse(null));
             } catch (Exception ex) {
                original.completeExceptionally(ex);
             }

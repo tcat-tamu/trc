@@ -67,16 +67,12 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
    {
    }
 
-   public EntryType get(Account account, String id) throws RepositoryException
+   public EntryType get(Account account, String id) throws NoSuchEntryException
    {
-      try
-      {
-         return repo.get(id);
-      }
-      catch (RepositoryException e)
-      {
-         throw new IllegalArgumentException(format("Unable to find {0} with id [{1}].", entryName, id), e);
-      }
+      String msg = "Unable to find {0} with id [{1}].";
+      return repo.get(id)
+            .orElseThrow(() -> new NoSuchEntryException(format(msg, entryName, id)));
+
    }
 
    public Iterator<EntryType> listAll()
