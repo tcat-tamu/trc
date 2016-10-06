@@ -1,5 +1,7 @@
 package edu.tamu.tcat.trc.entries.types.biblio.rest.v1;
 
+import static java.text.MessageFormat.format;
+
 import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
@@ -21,25 +23,35 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.core.MediaType;
 
+import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
-import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.CopyReferenceMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityCollectionPersistenceAdapter;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityPersistenceAdapter;
+import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryResolver;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
+import edu.tamu.tcat.trc.services.TrcServiceManager;
+import edu.tamu.tcat.trc.services.bibref.repo.RefCollectionService;
+import edu.tamu.tcat.trc.services.rest.bibref.ReferenceCollectionResource;
 
 public class WorkResource
 {
    static final Logger logger = Logger.getLogger(WorkResource.class.getName());
 
    private EntityPersistenceAdapter<BibliographicEntry, EditBibliographicEntryCommand> workPersistenceAdapter;
+   private final TrcServiceManager serviceMgr;
+   private final EntryResolverRegistry resolverRegistry;
 
 
-   public WorkResource(EntityPersistenceAdapter<BibliographicEntry, EditBibliographicEntryCommand> workPersistenceAdapter)
+   public WorkResource(EntityPersistenceAdapter<BibliographicEntry, EditBibliographicEntryCommand> workPersistenceAdapter, TrcServiceManager serviceMgr, EntryResolverRegistry resolverRegistry)
    {
       this.workPersistenceAdapter = workPersistenceAdapter;
+      this.serviceMgr = serviceMgr;
+      this.resolverRegistry = resolverRegistry;
    }
 
    /**
@@ -100,6 +112,27 @@ public class WorkResource
       return new CopyReferenceCollectionResource(helper);
    }
 
+   @Path("references")
+   public ReferenceCollectionResource getReferences()
+   {
+      try
+      {
+         RefCollectionService refsService = serviceMgr.getService(RefCollectionService.makeContext(null));
+
+         BibliographicEntry work = workPersistenceAdapter.get();
+         EntryResolver<BibliographicEntry> resolver = resolverRegistry.getResolver(work);
+         EntryReference reference = resolver.makeReference(work);
+
+         return new ReferenceCollectionResource(refsService, reference);
+      }
+      catch (Exception e)
+      {
+         String message = format("Unable to get references for work {0}.", workPersistenceAdapter.getId());
+         logger.log(Level.SEVERE, message, e);
+         throw new InternalServerErrorException(message, e);
+      }
+   }
+
    private class EditionCollectionPersistenceAdapter implements EntityCollectionPersistenceAdapter<Edition, EditionMutator>
    {
       @Override
@@ -153,6 +186,12 @@ public class WorkResource
       public EditionPersistenceAdapter(String id)
       {
          this.id = id;
+      }
+
+      @Override
+      public String getId()
+      {
+         return id;
       }
 
       @Override
@@ -280,6 +319,12 @@ public class WorkResource
       public CopyReferencePersistenceAdapter(String id)
       {
          this.id = id;
+      }
+
+      @Override
+      public String getId()
+      {
+         return id;
       }
 
       @Override

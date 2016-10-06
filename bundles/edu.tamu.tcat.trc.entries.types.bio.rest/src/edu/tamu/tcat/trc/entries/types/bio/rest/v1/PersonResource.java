@@ -116,7 +116,7 @@ public class PersonResource
    }
 
    @GET
-   @Path("/references")
+   @Path("references")
    public ReferenceCollectionResource getReferences()
    {
       RefCollectionService refsService = serviceManager.getService(RefCollectionService.makeContext(null));

@@ -170,6 +170,12 @@ public class EditionResource
       }
 
       @Override
+      public String getId()
+      {
+         return id;
+      }
+
+      @Override
       public Volume get()
       {
          Volume volume = editionPersistenceAdapter.get().getVolume(id);
@@ -294,6 +300,12 @@ public class EditionResource
       public CopyReferencePersistenceAdapter(String id)
       {
          this.id = id;
+      }
+
+      @Override
+      public String getId()
+      {
+         return id;
       }
 
       @Override

@@ -23,6 +23,10 @@ import javax.ws.rs.ServerErrorException;
 public interface EntityPersistenceAdapter<Model, Editor>
 {
    // TODO should this migrate to TRC API?
+   /**
+    * @return the id of the underlying model
+    */
+   String getId();
 
    /**
     * @return The domain model instance

@@ -11,8 +11,10 @@ import edu.tamu.tcat.trc.entries.types.biblio.impl.search.BibliographicSearchStr
 import edu.tamu.tcat.trc.entries.types.biblio.impl.search.WorkSolrQueryCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.BibliographicEntryRepository;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.v1.WorkCollectionResource;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.QueryService;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
+import edu.tamu.tcat.trc.services.TrcServiceManager;
 
 @Path("/")
 public class BiblioRestApiService
@@ -24,6 +26,8 @@ public class BiblioRestApiService
 
    private QueryService<WorkSolrQueryCommand> queryService;
 
+   private TrcServiceManager serviceMgr;
+
    public void setRepoRegistry(EntryRepositoryRegistry registry)
    {
       this.registry = registry;
@@ -32,6 +36,11 @@ public class BiblioRestApiService
    public void setSearchSvcMgr(SearchServiceManager searchMgr)
    {
       this.searchMgr = searchMgr;
+   }
+
+   public void setServiceMgr(TrcServiceManager serviceMgr)
+   {
+      this.serviceMgr = serviceMgr;
    }
 
 
@@ -46,6 +55,12 @@ public class BiblioRestApiService
       if (searchMgr == null)
       {
          logger.warning("No search service has provided to " + getClass().getSimpleName());
+         return;
+      }
+
+      if (serviceMgr == null)
+      {
+         logger.warning("No service manager provided to " + getClass().getSimpleName());
          return;
       }
 
@@ -75,7 +90,8 @@ public class BiblioRestApiService
       Account account = null;    // TODO get this from the request if this is possible here.
 
       BibliographicEntryRepository repo = registry.getRepository(account, BibliographicEntryRepository.class);
-      return new WorkCollectionResource(repo, queryService);
+      EntryResolverRegistry resolverRegistry = registry.getResolverRegistry();
+      return new WorkCollectionResource(repo, queryService, serviceMgr, resolverRegistry);
    }
 
    @Path("works")
@@ -84,7 +100,8 @@ public class BiblioRestApiService
       Account account = null;    // TODO get this from the request if this is possible here.
 
       BibliographicEntryRepository repo = registry.getRepository(account, BibliographicEntryRepository.class);
-      return new WorkCollectionResource(repo, queryService);
+      EntryResolverRegistry resolverRegistry = registry.getResolverRegistry();
+      return new WorkCollectionResource(repo, queryService, serviceMgr, resolverRegistry);
    }
 
 

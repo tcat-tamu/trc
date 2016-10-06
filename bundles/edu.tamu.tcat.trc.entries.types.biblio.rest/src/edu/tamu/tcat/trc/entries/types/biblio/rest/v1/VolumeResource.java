@@ -149,6 +149,12 @@ public class VolumeResource
       }
 
       @Override
+      public String getId()
+      {
+         return id;
+      }
+
+      @Override
       public CopyReference get()
       {
          return volumePersistenceAdapter.get().getCopyReferences().stream()

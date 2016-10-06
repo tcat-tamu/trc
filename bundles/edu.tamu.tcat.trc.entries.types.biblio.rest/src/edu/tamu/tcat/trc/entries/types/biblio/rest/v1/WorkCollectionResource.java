@@ -32,20 +32,25 @@ import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityPersistenceAdapter;
 import edu.tamu.tcat.trc.entries.types.biblio.search.BiblioSearchProxy;
 import edu.tamu.tcat.trc.entries.types.biblio.search.SearchWorksResult;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkQueryCommand;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.QueryService;
+import edu.tamu.tcat.trc.services.TrcServiceManager;
 
 public class WorkCollectionResource
 {
    private static final Logger logger = Logger.getLogger(WorkCollectionResource.class.getName());
 
    private final BibliographicEntryRepository repo;
+   private final QueryService<WorkSolrQueryCommand> queryService;
+   private final TrcServiceManager serviceMgr;
+   private final EntryResolverRegistry resolverRegistry;
 
-   private QueryService<WorkSolrQueryCommand> queryService;
-
-   public WorkCollectionResource(BibliographicEntryRepository repo, QueryService<WorkSolrQueryCommand> queryService)
+   public WorkCollectionResource(BibliographicEntryRepository repo, QueryService<WorkSolrQueryCommand> queryService, TrcServiceManager serviceMgr, EntryResolverRegistry resolverRegistry)
    {
       this.repo = repo;
       this.queryService = queryService;
+      this.serviceMgr = serviceMgr;
+      this.resolverRegistry = resolverRegistry;
    }
 
    /**
@@ -185,7 +190,7 @@ public class WorkCollectionResource
    public WorkResource getWork(@PathParam("id") String id)
    {
       EntityPersistenceAdapter<BibliographicEntry, EditBibliographicEntryCommand> helper = new WorkPersistenceAdapter(id);
-      return new WorkResource(helper);
+      return new WorkResource(helper, serviceMgr, resolverRegistry);
    }
 
    private class WorkPersistenceAdapter implements EntityPersistenceAdapter<BibliographicEntry, EditBibliographicEntryCommand>
@@ -195,6 +200,12 @@ public class WorkCollectionResource
       public WorkPersistenceAdapter(String id)
       {
          this.id = id;
+      }
+
+      @Override
+      public String getId()
+      {
+         return id;
       }
 
       @Override
