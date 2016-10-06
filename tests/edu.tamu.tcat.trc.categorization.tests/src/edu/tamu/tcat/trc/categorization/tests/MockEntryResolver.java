@@ -19,6 +19,11 @@ class MockEntryResolver implements EntryResolver<MockEntry>
    private final URI baseUrl = URI.create("http://example.com/api");
    private final Map<String, MockEntry> entries = new HashMap<>();
 
+   @Override
+   public Class<MockEntry> getType()
+   {
+      return MockEntry.class;
+   }
 
    public MockEntry create(String description)
    {
