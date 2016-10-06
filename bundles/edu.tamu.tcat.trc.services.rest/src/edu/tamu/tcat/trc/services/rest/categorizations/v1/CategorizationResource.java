@@ -15,6 +15,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -26,8 +27,8 @@ import javax.ws.rs.core.Response;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.services.ServiceContext;
-import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
+import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 import edu.tamu.tcat.trc.services.categorization.EditCategorizationCommand;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeCategorization;
 import edu.tamu.tcat.trc.services.rest.ApiUtils;
@@ -119,7 +120,10 @@ public abstract class CategorizationResource
       {
          // TODO should throw 404 if not found .. can we do that?
          String id = updateScheme(fields);
-         return ModelAdapterV1.adapt((TreeCategorization)repo.getById(id));
+         return repo.getById(id)
+            .map(TreeCategorization.class::cast)
+            .map(ModelAdapterV1::adapt)
+            .orElseThrow(() -> new NotFoundException());
       }
       catch (ExecutionException e)
       {

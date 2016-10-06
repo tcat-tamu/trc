@@ -216,7 +216,7 @@ public class CategorizationServiceFactory implements ServiceFactory<Categorizati
       }
 
       @Override
-      public CategorizationScheme get(String key) throws ResourceNotFoundException
+      public Optional<? extends CategorizationScheme> get(String key)
       {
          // TODO provide API on DocRepo to support more robust WHERE queries and projections
          // paired single quotes ('') are required due to escaping performed by MessageFormat
@@ -232,11 +232,8 @@ public class CategorizationServiceFactory implements ServiceFactory<Categorizati
                (conn) -> doGetByKey(key, sql, conn));
 
          String internalErr = "Failed to retrieve categorization scheme for key {0} within scope {1}";
-         String notFoundErr = "No categorization scheme is available for key {0} within scope {1}";
 
-         Optional<CategorizationScheme> scheme =
-               DocumentRepository.unwrap(future, () -> format(internalErr, key, scopeId));
-         return scheme.orElseThrow(() -> new ResourceNotFoundException(format(notFoundErr, key, scopeId)));
+         return DocumentRepository.unwrap(future, () -> format(internalErr, key, scopeId));
       }
 
       private Optional<CategorizationScheme> doGetByKey(String key, String sql, Connection conn) throws SQLException
@@ -295,19 +292,18 @@ public class CategorizationServiceFactory implements ServiceFactory<Categorizati
       }
 
       @Override
-      public CategorizationScheme getById(String id) throws ResourceNotFoundException
+      public Optional<? extends CategorizationScheme> getById(String id)
       {
-         String notFoundErr = "The requested categorization scheme [{0}] is not accessible within from {1}";
-         Optional<TreeCategorization> optional = treeRepo.get(id);
-         TreeCategorizationImpl scheme = optional
+         Optional<TreeCategorizationImpl> optional = treeRepo.get(id)
                .filter(TreeCategorizationImpl.class::isInstance)
-               .map(TreeCategorizationImpl.class::cast)
-               .orElseThrow(() -> new ResourceNotFoundException(format(notFoundErr, id, svcContext)));
+               .map(TreeCategorizationImpl.class::cast);
 
-         scheme.setContext(svcContext);
+         optional.ifPresent(scheme -> {
+            scheme.setContext(svcContext);
+            validateScheme(scheme, id);
+         });
 
-         validateScheme(scheme, id);
-         return scheme;
+         return optional.map(CategorizationScheme.class::cast);
       }
 
       private void validateScheme(TreeCategorizationImpl scheme, String id)

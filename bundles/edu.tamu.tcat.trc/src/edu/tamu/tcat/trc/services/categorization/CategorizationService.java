@@ -5,10 +5,10 @@ import static java.text.MessageFormat.format;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.ResourceNotFoundException;
 import edu.tamu.tcat.trc.services.BasicServiceContext;
 import edu.tamu.tcat.trc.services.ServiceContext;
 
@@ -83,7 +83,7 @@ public interface CategorizationService
     * @param key The key of the categorization to retrieve.
     * @return The identified categorization.
     */
-   CategorizationScheme get(String key) throws ResourceNotFoundException;
+   Optional<? extends CategorizationScheme> get(String key);
 
    /**
     * Retrieves a {@link CategorizationScheme} using a persistent id.
@@ -91,7 +91,7 @@ public interface CategorizationService
     * @param id The persistent identifier for the categorization.
     * @return The identified categorization
     */
-   CategorizationScheme getById(String id) throws ResourceNotFoundException;
+   Optional<? extends CategorizationScheme> getById(String id);
 
    /**
     * Retrieves a {@link CategorizationScheme} using a persistent id.
@@ -101,15 +101,11 @@ public interface CategorizationService
     *       number of interfaces that define the various categorization strategies.
     * @return The identified categorization
     */
-   default <S extends CategorizationScheme> S getById(String id, Class<S> type)
+   default <S extends CategorizationScheme> Optional<S> getById(String id, Class<S> type)
    {
-      String errmsg = "The categorization scheme {0} is not and instance of {1}";
-
-      CategorizationScheme cmd = getById(id);
-      if (!type.isInstance(cmd))
-         throw new IllegalArgumentException(format(errmsg, id, type));
-
-      return type.cast(cmd);
+      return getById(id)
+         .filter(type::isInstance)
+         .map(type::cast);
    }
 
    /**

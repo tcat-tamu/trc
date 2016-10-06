@@ -18,8 +18,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
+import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 import edu.tamu.tcat.trc.services.categorization.EditCategorizationCommand;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeCategorization;
 import edu.tamu.tcat.trc.services.rest.ApiUtils;
@@ -87,17 +87,10 @@ public class CategorizationSchemesResource
       if (key == null || key.trim().isEmpty())
          throw new BadRequestException("A key must be supplied for the categorization.");
 
-      try
-      {
+      repo.get(key).ifPresent(scheme -> {
          String errMsg = "The key [{0}] is already in use by scheme {1}.";
-         CategorizationScheme scheme = repo.get(key);
-
          throw ApiUtils.raise(Response.Status.CONFLICT, format(errMsg, key, scheme.getLabel()), null, null);
-      }
-      catch (IllegalArgumentException ex)
-      {
-         // no-op this is the expected behavior since the key should not be in use
-      }
+      });
    }
 
 
@@ -166,9 +159,9 @@ public class CategorizationSchemesResource
    @Path("{key}")
    public CategorizationResource getCategorization(@PathParam("key") String key)
    {
-      Optional<CategorizationScheme> opt = getByKey(key);
+      Optional<? extends CategorizationScheme> opt = repo.get(key);
       if (!opt.isPresent())
-         opt = getById(key);
+         opt = repo.getById(key);
 
       String notFoundMsg = "No categorization scheme found for key [{0}]";
       CategorizationScheme scheme = opt.orElseThrow(
@@ -196,41 +189,14 @@ public class CategorizationSchemesResource
          String logSuccessMsg = "Created new categorization scheme {0}: {1}/{2} ({3}).";
          logger.info(() -> format(logSuccessMsg, schemeId, repo.getScopeId(), categorization.key, categorization.label));
 
-         CategorizationScheme scheme = repo.getById(schemeId);
-         if (!TreeCategorization.class.isInstance(scheme))
-            throw new InternalServerErrorException("An unexpected type of categorization created by the server.");
-
-         return ModelAdapterV1.adapt((TreeCategorization)scheme);
+         return repo.getById(schemeId, TreeCategorization.class)
+            .map(ModelAdapterV1::adapt)
+            .orElseThrow(() -> new InternalServerErrorException("An unexpected type of categorization created by the server."));
       }
       catch (Exception e)
       {
          String template = "Failed to create new categorization scheme for key {0} (1). Unexpected error: {2}";
          throw new InternalServerErrorException(format(template, categorization.key, categorization.label, e.getMessage()));
-      }
-   }
-
-   private Optional<CategorizationScheme> getByKey(String key)
-   {
-      try
-      {
-         return Optional.of(repo.get(key));
-      }
-      catch (IllegalArgumentException ex)
-      {
-         return Optional.empty();
-      }
-   }
-
-
-   private Optional<CategorizationScheme> getById(String id)
-   {
-      try
-      {
-         return Optional.of(repo.getById(id));
-      }
-      catch (IllegalArgumentException ex)
-      {
-         return Optional.empty();
       }
    }
 

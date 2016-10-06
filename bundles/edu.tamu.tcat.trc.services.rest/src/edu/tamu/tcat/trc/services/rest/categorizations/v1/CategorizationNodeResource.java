@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -28,8 +29,8 @@ import javax.ws.rs.core.Response;
 import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.services.categorization.CategorizationNode;
 import edu.tamu.tcat.trc.services.categorization.CategorizationNodeMutator;
-import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
+import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 import edu.tamu.tcat.trc.services.categorization.EditCategorizationCommand;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.EditTreeCategorizationCommand;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeCategorization;
@@ -114,8 +115,11 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
 
          command.execute().get(10, TimeUnit.SECONDS);
 
-         TreeNode node = (TreeNode)repo.getById(scheme.getId()).getNode(nodeId);
-         return ModelAdapterV1.adapt(node);
+         return repo.getById(scheme.getId())
+            .map(scheme -> scheme.getNode(nodeId))
+            .map(TreeNode.class::cast)
+            .map(ModelAdapterV1::adapt)
+            .orElseThrow(() -> new IllegalStateException());
       }
       catch (Exception e)
       {
@@ -287,17 +291,23 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
 
       private RestApiV1.BasicTreeNode loadNewChild(String label)
       {
-         TreeCategorization updated = (TreeCategorization)repo.getById(scheme.getId());
-         TreeNode node = updated.getNode(nodeId);
-         TreeNode child = node.getChildren().parallelStream()
-               .filter(n -> Objects.equals(n.getLabel(), label))
-               .findFirst()
-               .orElseThrow(() -> {
-                  String template = "Failed to retrieve newly created child category {0} for node {1} [{2}].";
-                  String msg = format(template, label, node.getLabel(), node.getId());
-                  throw ApiUtils.raise(Response.Status.INTERNAL_SERVER_ERROR, msg, Level.SEVERE, null);
-                });
-         return ModelAdapterV1.adapt(child);
+         return repo.getById(scheme.getId(), TreeCategorization.class)
+            .map(updated -> updated.getNode(nodeId))
+            .map(findChildByLabel(label))
+            .get();
+      }
+
+      private Function<TreeNode, RestApiV1.BasicTreeNode> findChildByLabel(String label)
+      {
+         return node -> node.getChildren().parallelStream()
+            .filter(n -> Objects.equals(n.getLabel(), label))
+            .findFirst()
+            .map(ModelAdapterV1::adapt)
+            .orElseThrow(() -> {
+               String template = "Failed to retrieve newly created child category {0} for node {1} [{2}].";
+               String msg = format(template, label, node.getLabel(), node.getId());
+               throw ApiUtils.raise(Response.Status.INTERNAL_SERVER_ERROR, msg, Level.SEVERE, null);
+            });
       }
 
       private void preventDuplicateLabels(TreeNode node, RestApiV1.BasicNode entry)
