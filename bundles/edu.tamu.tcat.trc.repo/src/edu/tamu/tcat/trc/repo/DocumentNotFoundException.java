@@ -19,7 +19,10 @@ package edu.tamu.tcat.trc.repo;
  * Indicates that a TRC entry (such as a bibliographic entry or biographical
  * details) does not exist. Typically thrown when attempting to access an entry by
  * a unique identifier.
+ *
+ * @deprecated Can be removed once DocumentRepository#getUnsafe is no longer in use
  */
+@Deprecated
 public class DocumentNotFoundException extends RepositoryException
 {
    // FIXME should clarify the exception hierarchy to ensure that this exception is not

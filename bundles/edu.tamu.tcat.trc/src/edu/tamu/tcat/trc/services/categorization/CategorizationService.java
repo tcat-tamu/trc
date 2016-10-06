@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.account.Account;
+import edu.tamu.tcat.trc.ResourceNotFoundException;
 import edu.tamu.tcat.trc.services.BasicServiceContext;
 import edu.tamu.tcat.trc.services.ServiceContext;
 
@@ -82,7 +83,7 @@ public interface CategorizationService
     * @param key The key of the categorization to retrieve.
     * @return The identified categorization.
     */
-   CategorizationScheme get(String key) throws IllegalArgumentException;
+   CategorizationScheme get(String key) throws ResourceNotFoundException;
 
    /**
     * Retrieves a {@link CategorizationScheme} using a persistent id.
@@ -90,7 +91,7 @@ public interface CategorizationService
     * @param id The persistent identifier for the categorization.
     * @return The identified categorization
     */
-   CategorizationScheme getById(String id) throws IllegalArgumentException;
+   CategorizationScheme getById(String id) throws ResourceNotFoundException;
 
    /**
     * Retrieves a {@link CategorizationScheme} using a persistent id.

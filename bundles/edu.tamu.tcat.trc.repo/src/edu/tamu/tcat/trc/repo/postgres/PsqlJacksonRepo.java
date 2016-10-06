@@ -239,7 +239,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    }
 
    @Override
-   public RecordType getUnsafe(String id) throws RepositoryException
+   public RecordType getUnsafe(String id) throws RepositoryException, DocumentNotFoundException
    {
       String msg = "No document stored for {1}";
       return get(id).orElseThrow(() -> new DocumentNotFoundException(format(msg, id)));
@@ -405,7 +405,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       try
       {
          ObjectMapper mapper = getObjectMapper();
-   
+
          return mapper.readValue(json, storageType);
       }
       catch (IOException ex)
@@ -415,8 +415,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       }
    }
 
-   private boolean exists(Connection conn, String id)
-         throws DocumentNotFoundException, RepositoryException
+   private boolean exists(Connection conn, String id) throws RepositoryException
    {
       String sqlTemplate = "SELECT {0} FROM {1} WHERE {2} = ? {3}";
       String sql = format(sqlTemplate, schema.getIdField(), tablename, schema.getIdField(), buildNotRemovedClause());
@@ -441,8 +440,6 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
     * @param id
     * @return
     *
-    * @throws DocumentNotFoundException If there is no entry for the supplied id
-    *       or if that entry has been flagged as removed.
     * @throws RepositoryException If an unknown internal error occurred.
     * @throws InterruptedException If the execution was interrupted
     */
@@ -451,7 +448,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    {
       if (Thread.interrupted())
          throw new InterruptedException();
-   
+
       try (PreparedStatement ps = conn.prepareStatement(getRecordSql))
       {
          ps.setString(1, id);
@@ -459,7 +456,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          {
             if (!rs.next())
                return Optional.empty();
-   
+
             PGobject pgo = (PGobject)rs.getObject(schema.getDataField());
             return Optional.of(pgo.toString());
          }
@@ -468,8 +465,8 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       {
          throw new RepositoryException("Failed to retrieve the record.", e);
       }
-   
-   
+
+
    }
 
    private CompletableFuture<DTO> doCreate(String id, DTO record)

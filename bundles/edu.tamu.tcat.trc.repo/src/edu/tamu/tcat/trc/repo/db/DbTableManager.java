@@ -32,6 +32,7 @@ import edu.tamu.tcat.trc.repo.RepositoryException;
  */
 public class DbTableManager
 {
+   // TODO rename to PsqlTableManager, build API
    private final static Logger logger = Logger.getLogger(DbTableManager.class.getName());
 
    private final SqlExecutor exec;

@@ -27,13 +27,13 @@ import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
 import edu.tamu.tcat.trc.impl.psql.services.ServiceFactory;
-import edu.tamu.tcat.trc.repo.DocumentNotFoundException;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepo;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
 import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
 import edu.tamu.tcat.trc.services.ServiceContext;
+import edu.tamu.tcat.trc.services.TrcServiceException;
 import edu.tamu.tcat.trc.services.notes.EditNoteCommand;
 import edu.tamu.tcat.trc.services.notes.Note;
 import edu.tamu.tcat.trc.services.notes.NotesService;
@@ -120,15 +120,11 @@ public class NotesServiceFactory implements ServiceFactory<NotesService>
       {
          try
          {
-            return Optional.of(docRepo.getUnsafe(noteId));
-         }
-         catch (DocumentNotFoundException ex)
-         {
-            return Optional.empty();
+            return docRepo.get(noteId);
          }
          catch (Exception ex)
          {
-            throw new IllegalStateException(format("Failed to retrive note {0}", noteId), ex);
+            throw new TrcServiceException(format("Failed to retrive note {0}", noteId), ex);
          }
       }
 

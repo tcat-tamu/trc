@@ -67,7 +67,6 @@ public interface DocumentRepository<RecordType, StorageType, EditCommandType>
     *
     * @param id The id of the record to return.
     * @return The identified record. Will not be {@code null}.
-    * @throws DocumentNotFoundException If the identified record does not exist.
     */
    @Deprecated // use #get
    RecordType getUnsafe(String id) throws RepositoryException;
