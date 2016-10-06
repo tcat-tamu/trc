@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
+import edu.tamu.tcat.trc.ResourceNotFoundException;
 import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
 import edu.tamu.tcat.trc.impl.psql.services.ServiceFactory;
 import edu.tamu.tcat.trc.impl.psql.services.categorization.model.TreeCategorizationImpl;
@@ -26,7 +27,6 @@ import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.BaseEditCommand;
 import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.EditHeirarchyCommandFactory;
 import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.PersistenceModelV1;
 import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
-import edu.tamu.tcat.trc.repo.DocumentNotFoundException;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.RepositorySchema;
 import edu.tamu.tcat.trc.repo.SchemaBuilder;
@@ -216,7 +216,7 @@ public class CategorizationServiceFactory implements ServiceFactory<Categorizati
       }
 
       @Override
-      public CategorizationScheme get(String key) throws IllegalArgumentException
+      public CategorizationScheme get(String key) throws ResourceNotFoundException
       {
          // TODO provide API on DocRepo to support more robust WHERE queries and projections
          // paired single quotes ('') are required due to escaping performed by MessageFormat
@@ -228,24 +228,18 @@ public class CategorizationServiceFactory implements ServiceFactory<Categorizati
 
          SqlExecutor sqlExecutor = repoRegistry.getSqlExecutor();
          String sql = format(sqlTemplate, SCHEMA_DATA_FIELD, tableName);
-         Future<CategorizationScheme> future = sqlExecutor.submit((conn) -> {
-            return doGetByKey(key, sql, conn);
-         });
+         Future<Optional<CategorizationScheme>> future = sqlExecutor.submit(
+               (conn) -> doGetByKey(key, sql, conn));
 
-         String err = "Failed to retrieve categorization scheme for key {0} within scope {1}";
+         String internalErr = "Failed to retrieve categorization scheme for key {0} within scope {1}";
+         String notFoundErr = "No categorization scheme is available for key {0} within scope {1}";
 
-         try
-         {
-            return DocumentRepository.unwrap(future, () -> format(err, key, scopeId));
-         }
-         catch (DocumentNotFoundException nsee)
-         {
-            String message = "No categorization scheme is available for key {0} within scope {1}";
-            throw new IllegalArgumentException(format(message, key, scopeId), nsee);
-         }
+         Optional<CategorizationScheme> scheme =
+               DocumentRepository.unwrap(future, () -> format(internalErr, key, scopeId));
+         return scheme.orElseThrow(() -> new ResourceNotFoundException(format(notFoundErr, key, scopeId)));
       }
 
-      private CategorizationScheme doGetByKey(String key, String sql, Connection conn) throws SQLException
+      private Optional<CategorizationScheme> doGetByKey(String key, String sql, Connection conn) throws SQLException
       {
          try (PreparedStatement ps = conn.prepareStatement(sql))
          {
@@ -254,12 +248,13 @@ public class CategorizationServiceFactory implements ServiceFactory<Categorizati
 
             ResultSet rs = ps.executeQuery();
             if (!rs.next())
-               throw new DocumentNotFoundException(format("No categorization scheme for key {0} within scope {1}", key, scopeId));
+               return Optional.empty();
 
             String json = rs.getString("json");
             String s = rs.getString("strategy");
 
-            return parseCategorizationScheme(json, s);
+            CategorizationScheme scheme = parseCategorizationScheme(json, s);
+            return Optional.of(scheme);
          }
       }
 
@@ -300,26 +295,30 @@ public class CategorizationServiceFactory implements ServiceFactory<Categorizati
       }
 
       @Override
-      public CategorizationScheme getById(String id) throws IllegalArgumentException
+      public CategorizationScheme getById(String id) throws ResourceNotFoundException
       {
-         try
-         {
-            TreeCategorizationImpl scheme = (TreeCategorizationImpl)treeRepo.getUnsafe(id);
-            scheme.setContext(svcContext);
-            if (!scheme.getScopeId().equals(scopeId))
-            {
-               String msg = "The requested categorization scheme [{0}] is not accessible within from {1}";
-               throw new IllegalArgumentException(format(msg, id, svcContext));
-            }
-            // TODO verify that this is within the correct scope and that the
-            //      user is authorized to access it
-            return scheme;
-         }
-         catch (DocumentNotFoundException ex)
-         {
-            String msg = "The requested categorization scheme [{0}] could not be found";
-            throw new IllegalArgumentException(format(msg, id), ex);
-         }
+         String notFoundErr = "The requested categorization scheme [{0}] is not accessible within from {1}";
+         Optional<TreeCategorization> optional = treeRepo.get(id);
+         TreeCategorizationImpl scheme = optional
+               .filter(TreeCategorizationImpl.class::isInstance)
+               .map(TreeCategorizationImpl.class::cast)
+               .orElseThrow(() -> new ResourceNotFoundException(format(notFoundErr, id, svcContext)));
+
+         scheme.setContext(svcContext);
+
+         validateScheme(scheme, id);
+         return scheme;
+      }
+
+      private void validateScheme(TreeCategorizationImpl scheme, String id)
+      {
+         String notFoundErr = "The requested categorization scheme [{0}] is not accessible within from {1}";
+
+         if (!scheme.getScopeId().equals(scopeId))
+            throw new ResourceNotFoundException(format(notFoundErr, id, svcContext));
+
+         // TODO verify that this is within the correct scope and that the
+         //      user is authorized to access it
       }
 
       private CategorizationScheme.Strategy getStrategyForPrefix(char prefix)
