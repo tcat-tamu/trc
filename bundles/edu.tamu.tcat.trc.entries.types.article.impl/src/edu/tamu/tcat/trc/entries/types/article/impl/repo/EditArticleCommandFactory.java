@@ -168,14 +168,19 @@ public class EditArticleCommandFactory implements EditCommandFactory<DataModelV1
          });
       }
 
+      private DataModelV1.Footnote makeFootnote(String id)
+      {
+         DataModelV1.Footnote footnote = new DataModelV1.Footnote();
+         footnote.id = id;
+         return footnote;
+      }
+
       @Override
       public FootnoteMutator editFootnote(String footnoteId)
       {
-         ChangeSet<Footnote> partial = changes.partial(format("footnotes.{0} [edit]", footnoteId), article -> article.footnotes.computeIfAbsent(footnoteId, id -> {
-            DataModelV1.Footnote footnote = new DataModelV1.Footnote();
-            footnote.id = id;
-            return footnote;
-         }));
+         ChangeSet<Footnote> partial = changes.partial(
+               format("footnotes.{0} [edit]", footnoteId),
+               article -> article.footnotes.computeIfAbsent(footnoteId, this::makeFootnote));
 
          return new FootnoteMutatorImpl(footnoteId, partial);
       }

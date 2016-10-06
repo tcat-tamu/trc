@@ -10,9 +10,6 @@ import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
-import edu.tamu.tcat.trc.entries.types.article.ArticleLink;
-import edu.tamu.tcat.trc.entries.types.article.Bibliography;
-import edu.tamu.tcat.trc.entries.types.article.Citation;
 import edu.tamu.tcat.trc.entries.types.article.Footnote;
 import edu.tamu.tcat.trc.entries.types.article.impl.repo.DataModelV1;
 
@@ -73,13 +70,6 @@ public class ArticleImpl implements Article
       return slug;
    }
 
-//   @Override
-//   public ArticlePublication getPublicationInfo()
-//   {
-//      logger.warning("Publication info is not currently supported");
-//      return null;
-//   }
-
    @Override
    public List<ArticleAuthor> getAuthors()
    {
@@ -103,29 +93,5 @@ public class ArticleImpl implements Article
    public Collection<Footnote> getFootnotes()
    {
       return footnotes.values();
-   }
-
-   @Override
-   public List<Citation> getCitations()
-   {
-      // TODO Auto-generated method stub
-      logger.warning("Citations are not currently supported");
-      return Collections.emptyList();
-   }
-
-   @Override
-   public List<Bibliography> getBibliographies()
-   {
-      // TODO Auto-generated method stub
-      logger.warning("Bibliographies are not currently supported");
-      return Collections.emptyList();
-   }
-
-   @Override
-   public List<ArticleLink> getLinks()
-   {
-      // TODO Auto-generated method stub
-      logger.warning("Links are not currently supported");
-      return Collections.emptyList();
    }
 }

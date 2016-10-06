@@ -44,8 +44,6 @@ import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.entries.types.article.repo.FootnoteMutator;
 import edu.tamu.tcat.trc.resolver.EntryReference;
-import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
-import edu.tamu.tcat.trc.services.bibref.ReferenceCollection;
 import edu.tamu.tcat.trc.services.bibref.repo.RefCollectionService;
 import edu.tamu.tcat.trc.services.rest.bibref.ReferenceCollectionResource;
 
@@ -103,14 +101,6 @@ public class ArticleResource
       entryRef.id = articleId;
       entryRef.type = ArticleRepository.ENTRY_TYPE_ID;
       return new ReferenceCollectionResource(refRepo, entryRef);
-   }
-
-   private ReferenceCollection getRefCollection(Article article)
-   {
-      EntryResolverRegistry resolvers = repo.getResolverRegistry();
-      EntryReference entryRef = resolvers.getResolver(article).makeReference(article);
-      ReferenceCollection refCollection = refRepo.get(entryRef);
-      return refCollection;
    }
 
    @PUT
@@ -181,166 +171,5 @@ public class ArticleResource
          footnoteMutator.setContent(dto.content);
          footnoteMutator.setMimeType(dto.mimeType);
       });
-
-      // TODO set references
-
-//      editCmd.setPublicationInfo(getPublication(article.pubInfo));
-//      editCmd.setAuthors(getAuthors(article.authors));
-//      editCmd.setFootnotes(getFootnotes(article.footnotes));
-//      editCmd.setCitations(getCitations(article.citations));
-//      editCmd.setBibliography(getBibliographies(article.bibliography));
-//      editCmd.setLinks(getLinks(article.links));
    }
-
-//   private List<ArticleAuthorDTO> getAuthors(List<RestApiV1.ArticleAuthor> authors)
-//   {
-//      List<ArticleAuthorDTO> authorDTO = new ArrayList<>();
-//      if (authors != null)
-//      {
-//         authors.forEach((a) ->
-//         {
-//            ArticleAuthorDTO authDto = new ArticleAuthorDTO();
-//            authDto.id = a.id;
-//            authDto.name = a.name;
-//            authDto.affiliation = a.affiliation;
-//            authDto.contact = ArticleAuthorDTO.ContactInfoDTO.create(a.contact.email, a.contact.phone);
-//            authorDTO.add(authDto);
-//         });
-//      }
-//
-//      return authorDTO;
-//   }
-//
-//   private List<LinkDTO> getLinks(List<RestApiV1.LinkedResource> links)
-//   {
-//      List<LinkDTO> dto = new ArrayList<>();
-//      if(links != null)
-//      {
-//         links.forEach((link)->
-//         {
-//            LinkDTO linkDTO = new LinkDTO();
-//            linkDTO.id = link.id;
-//            linkDTO.type = link.type;
-//            linkDTO.title = link.title;
-//            linkDTO.uri = link.uri;
-//            linkDTO.rel = link.rel;
-//            dto.add(linkDTO);
-//         });
-//      }
-//      return dto;
-//   }
-//
-//   private List<BibliographyDTO> getBibliographies(List<RestApiV1.Bibliography> bibliography)
-//   {
-//      List<BibliographyDTO> bibDTOs = new ArrayList<>();
-//      if (bibliography != null)
-//      {
-//         bibliography.forEach((bib) ->
-//         {
-//            BibliographyDTO dto = new BibliographyDTO();
-//            dto.id = bib.id;
-//            dto.type = bib.type;
-//            dto.title = bib.title;
-//            dto.edition = bib.edition;
-//            dto.publisher = bib.publisher;
-//            dto.publisherPlace = bib.publisherPlace;
-//            dto.containerTitle = bib.containerTitle;
-//            dto.url = bib.URL;
-//
-//            dto.author = getAuthor(bib.author);
-//            dto.translator = getTranslator(bib.translator);
-//            dto.issued = getIssued(bib.issued);
-//
-//            bibDTOs.add(dto);
-//         });
-//      }
-//
-//      return bibDTOs;
-//   }
-//
-//   private IssuedBiblioDTO getIssued(RestApiV1.Issued issued)
-//   {
-//      IssuedBiblioDTO dto = new IssuedBiblioDTO();
-//      if (issued == null)
-//         dto.dateParts = new ArrayList<>();
-//      else
-//         dto.dateParts = new ArrayList<>(issued.dateParts);
-//      return dto;
-//   }
-//
-//   private List<BibTranslatorDTO> getTranslator(List<RestApiV1.Translator> translator)
-//   {
-//      List<BibTranslatorDTO> transDTOs = new ArrayList<>();
-//      if (translator != null)
-//      {
-//         translator.forEach((t)->
-//         {
-//            BibTranslatorDTO dto = new BibTranslatorDTO();
-//            dto.family = t.family;
-//            dto.given = t.given;
-//            dto.literal = t.literal;
-//            transDTOs.add(dto);
-//         });
-//      }
-//
-//      return transDTOs;
-//   }
-//
-//   private List<BibAuthorDTO> getAuthor(List<RestApiV1.Author> authors)
-//   {
-//      List<BibAuthorDTO> authDTOs = new ArrayList<>();
-//      if (authors != null)
-//      {
-//         authors.forEach((auth)->
-//         {
-//            BibAuthorDTO dto = new BibAuthorDTO();
-//            dto.family = auth.family;
-//            dto.given = auth.given;
-//            authDTOs.add(dto);
-//         });
-//      }
-//      return authDTOs;
-//   }
-//
-//   private List<CitationDTO> getCitations(List<RestApiV1.Citation> citations)
-//   {
-//      List<CitationDTO> citeDTOs = new ArrayList<>();
-//      if (citations != null)
-//      {
-//         citations.forEach((cite) ->
-//         {
-//            CitationDTO dto = new CitationDTO();
-//            dto.id = cite.citationID;
-//            dto.citationItems = new ArrayList<>();
-//            cite.citationItems.forEach((item)->
-//            {
-//               CitationItemDTO itemDTO = new CitationItemDTO();
-//               itemDTO.id = item.id;
-//               itemDTO.label = item.label;
-//               itemDTO.locator = item.locator;
-//               itemDTO.suppressAuthor = item.suppressAuthor;
-//               dto.citationItems.add(itemDTO);
-//            });
-//            citeDTOs.add(dto);
-//         });
-//      }
-//      return citeDTOs;
-//   }
-//
-//   private List<FootnoteDTO> getFootnotes(List<RestApiV1.Footnote> footnotes)
-//   {
-//      List<FootnoteDTO> footnoteDTOs = new ArrayList<>();
-//      if (footnotes != null)
-//      {
-//         footnotes.forEach((ftn) ->
-//         {
-//            FootnoteDTO dto = new FootnoteDTO();
-//            dto.id = ftn.id;
-//            dto.text = ftn.text;
-//
-//            footnoteDTOs.add(dto);
-//         });
-//      }
-//      return footnoteDTOs;
-//   }
 }

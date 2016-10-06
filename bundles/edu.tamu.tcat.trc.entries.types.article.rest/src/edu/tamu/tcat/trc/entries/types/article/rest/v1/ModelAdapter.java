@@ -13,7 +13,6 @@ import javax.ws.rs.core.UriBuilder;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
 import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor.ContactInfo;
-import edu.tamu.tcat.trc.entries.types.article.ArticleLink;
 import edu.tamu.tcat.trc.entries.types.article.Footnote;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQuery;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy;
@@ -55,9 +54,7 @@ public abstract class ModelAdapter
       RestApiV1.ArticleSearchResult dto = new RestApiV1.ArticleSearchResult();
       dto.id = article.id;
       dto.title = article.title;
-//      dto.pubInfo = convertPubInfo(article.info);
 
-//      if (article.authors != null)
       dto.authors = getArticleList(article);
 
       return dto;
@@ -144,99 +141,9 @@ public abstract class ModelAdapter
       dto.body = article.getBody();
 
       dto.footnotes = convertFootnotes(article.getFootnotes());
-      dto.links = convertLinks(article.getLinks());
 
       return dto;
    }
-
-   private static List<RestApiV1.LinkedResource> convertLinks(List<ArticleLink> links)
-   {
-      List<RestApiV1.LinkedResource> articleLinks = new ArrayList<>();
-      links.forEach((l)->
-      {
-         RestApiV1.LinkedResource link = new RestApiV1.LinkedResource();
-         link.id = l.getId();
-         link.title = l.getTitle();
-         link.type = l.getType();
-         link.uri = l.getUri();
-         link.rel = l.getRel();
-         articleLinks.add(link);
-      });
-      return articleLinks;
-   }
-
-//   private static List<RestApiV1.Bibliography> convertBiblios(List<Bibliography> bibliographies)
-//   {
-//      List<RestApiV1.Bibliography> biblios = new ArrayList<>();
-//      bibliographies.forEach((bib)->
-//      {
-//         RestApiV1.Bibliography biblio = new RestApiV1.Bibliography();
-//         biblio.id = bib.getId();
-//         biblio.title = bib.getTitle();
-//         biblio.edition = bib.getEdition();
-//         biblio.publisher = bib.getPublisher();
-//         biblio.publisherPlace = bib.getPublishLocation();
-//         biblio.containerTitle = bib.getContainerTitle();
-//         biblio.type = bib.getType();
-//         biblio.URL = bib.getUrl();
-//
-//         IssuedDate issuedDate = bib.getIssuedDate();
-//         RestApiV1.Issued issued = new RestApiV1.Issued();
-//         issued.dateParts = new ArrayList<>(issuedDate.getDateParts());
-//         biblio.issued = issued;
-//
-//         List<RestApiV1.Author> authors = new ArrayList<>();
-//         bib.getAuthors().forEach((a)->
-//         {
-//            RestApiV1.Author author = new RestApiV1.Author();
-//            author.family = a.getFamily();
-//            author.given = a.getGiven();
-//            authors.add(author);
-//         });
-//         biblio.author = new ArrayList<>(authors);
-//
-//         List<RestApiV1.Translator> translators = new ArrayList<>();
-//         bib.getTranslators().forEach((t)->
-//         {
-//            RestApiV1.Translator trans = new RestApiV1.Translator();
-//            trans.family = t.getFamily();
-//            trans.given = t.getGiven();
-//            trans.literal = t.getLiteral();
-//            translators.add(trans);
-//         });
-//         biblio.translator = new ArrayList<>(translators);
-//         biblios.add(biblio);
-//      });
-//      return biblios;
-//   }
-//
-//   private static List<RestApiV1.Citation> convertCitations(List<Citation> citations)
-//   {
-//      List<RestApiV1.Citation> citeDTOs = new ArrayList<>();
-//      if (citations != null)
-//      {
-//         citations.forEach((cite) ->
-//         {
-//            RestApiV1.Citation dto = new RestApiV1.Citation();
-//            dto.citationID = cite.getId();
-//            dto.properties = new RestApiV1.ArticleProperties();
-//            dto.citationItems = new ArrayList<>();
-//            cite.getItems().forEach((i)->
-//            {
-//               RestApiV1.CitationItem cItem = new RestApiV1.CitationItem();
-//               cItem.id = i.getId();
-//               cItem.label = i.getLabel();
-//               cItem.locator = i.getLocator();
-//               cItem.suppressAuthor = i.getSuppressAuthor();
-//               dto.citationItems.add(cItem);
-//
-//            });
-//
-//            citeDTOs.add(dto);
-//         });
-//      }
-//      return citeDTOs;
-//   }
 
    private static Map<String, RestApiV1.Footnote> convertFootnotes(Collection<Footnote> footnotes)
    {

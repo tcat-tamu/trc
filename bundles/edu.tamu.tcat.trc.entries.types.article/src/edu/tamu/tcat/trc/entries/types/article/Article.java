@@ -87,24 +87,6 @@ public interface Article
    Collection<Footnote> getFootnotes();
 
    /**
-    *
-    * @return A list of citations used to format the bibliographies
-    */
-   List<Citation> getCitations();
-
-   /**
-    *
-    * @return A list of bibliographies referenced throughout the article.
-    */
-   List<Bibliography> getBibliographies();
-
-   /**
-    *
-    * @return Links that are related to the article.
-    */
-   List<ArticleLink> getLinks();
-
-   /**
     *  Has not been implemented.
     * @return The representation of the title
     */

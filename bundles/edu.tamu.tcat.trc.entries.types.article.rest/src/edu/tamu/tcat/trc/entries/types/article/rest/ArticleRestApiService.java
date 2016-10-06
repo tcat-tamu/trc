@@ -91,7 +91,7 @@ public class ArticleRestApiService
    public ArticlesCollectionResource getArticles()
    {
       ServiceContext<RefCollectionService> ctx = RefCollectionService.makeContext(null);
-      
+
       RefCollectionService refRepo = svcMgr.getService(ctx);
       URI resolve = endpoint.resolve(ArticleRepository.ENTRY_URI_BASE);
       return new ArticlesCollectionResource(repoSvc, queryService, refRepo, resolve);
