@@ -33,16 +33,16 @@ import org.junit.Test;
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
+import edu.tamu.tcat.trc.ResourceNotFoundException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.impl.ArticleEntryService;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
+import edu.tamu.tcat.trc.repo.id.IdFactoryProvider;
 import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.resolver.EntryResolver;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
-import edu.tamu.tcat.trc.repo.DocumentNotFoundException;
-import edu.tamu.tcat.trc.repo.id.IdFactoryProvider;
 import edu.tamu.tcat.trc.test.ClosableSqlExecutor;
 import edu.tamu.tcat.trc.test.TestUtils;
 
@@ -61,7 +61,7 @@ public class ArticleRepoTests
    private static ClosableSqlExecutor exec;
    private static ConfigurationProperties config;
 
-   private static DbEntryRepositoryRegistry repoCtx;
+   private static DbEntryRepositoryRegistry repoRegistry;
    private static ArticleEntryService svc;
    private static EntryResolverRegistry resolvers;
 
@@ -74,15 +74,15 @@ public class ArticleRepoTests
 
       IdFactoryProvider idProvider = TestUtils.makeIdFactoryProvider();
 
-      repoCtx = new DbEntryRepositoryRegistry();
-      repoCtx.setConfiguration(config);
-      repoCtx.setIdFactory(idProvider);
-      repoCtx.setSqlExecutor(exec);
-      resolvers = repoCtx.getResolverRegistry();
-      repoCtx.activate();
+      repoRegistry = new DbEntryRepositoryRegistry();
+      repoRegistry.setConfiguration(config);
+      repoRegistry.setIdFactory(idProvider);
+      repoRegistry.setSqlExecutor(exec);
+      resolvers = repoRegistry.getResolverRegistry();
+      repoRegistry.activate();
 
       svc = new ArticleEntryService();
-      svc.setRepoContext(repoCtx);
+      svc.setRepoContext(repoRegistry);
       svc.activate();
    }
 
@@ -141,7 +141,7 @@ public class ArticleRepoTests
    @Test
    public void createArticle() throws Exception
    {
-      ArticleRepository repo = repoCtx.getRepository(null, ArticleRepository.class);
+      ArticleRepository repo = repoRegistry.getRepository(null, ArticleRepository.class);
       EditArticleCommand cmd = createStandardArticle(repo);
 
       Future<String> result = cmd.execute();
@@ -168,7 +168,7 @@ public class ArticleRepoTests
       String articleAbstract = "This is the another abstract for the same article";
       String body = "This is the changed body text of an article";
 
-      ArticleRepository repo = repoCtx.getRepository(null, ArticleRepository.class);
+      ArticleRepository repo = repoRegistry.getRepository(null, ArticleRepository.class);
       EditArticleCommand cmd = createStandardArticle(repo);
 
       String articleId = cmd.execute().get();
@@ -197,7 +197,7 @@ public class ArticleRepoTests
    @Test
    public void deleteArticle() throws Exception
    {
-      ArticleRepository repo = repoCtx.getRepository(null, ArticleRepository.class);
+      ArticleRepository repo = repoRegistry.getRepository(null, ArticleRepository.class);
       EditArticleCommand cmd = createStandardArticle(repo);
 
       String articleId = cmd.execute().get();
@@ -208,7 +208,7 @@ public class ArticleRepoTests
       try {
          repo.get(articleId);
          assertFalse("Was able to retrieve removed entry", true);
-      } catch (DocumentNotFoundException ex) {
+      } catch (ResourceNotFoundException ex) {
          // this is the expected behavior
       }
    }
@@ -216,7 +216,7 @@ public class ArticleRepoTests
    @Test
    public void testArticleResolver() throws Exception
    {
-      ArticleRepository repo = repoCtx.getRepository(null, ArticleRepository.class);
+      ArticleRepository repo = repoRegistry.getRepository(null, ArticleRepository.class);
       EditArticleCommand cmd = createStandardArticle(repo);
 
       String articleId = cmd.execute().get();

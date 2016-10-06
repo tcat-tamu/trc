@@ -18,17 +18,16 @@ import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
+import edu.tamu.tcat.trc.ResourceNotFoundException;
 import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
 import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
-import edu.tamu.tcat.trc.entries.types.bio.postgres.BioEntryRepoService;
 import edu.tamu.tcat.trc.entries.types.bio.repo.DateDescriptionMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.HistoricalEventMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNameMutator;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.RestApiV1;
-import edu.tamu.tcat.trc.repo.DocumentNotFoundException;
 import edu.tamu.tcat.trc.repo.id.IdFactoryProvider;
 import edu.tamu.tcat.trc.test.TestUtils;
 
@@ -81,7 +80,7 @@ public class TestDocumentRepository
    {
       RestApiV1.Person personData = addRestAPIDataModel();
       String personId = createPerson(personData);
-      BiographicalEntry person = repo.getUnsafe(personId);
+      BiographicalEntry person = repo.get(personId).orElseThrow(() -> new ResourceNotAvailableException());
       validateData(personData, person);
    }
 
@@ -90,10 +89,10 @@ public class TestDocumentRepository
    {
       RestApiV1.Person personData = addRestAPIDataModel();
       String personId = createPerson(personData);
-      BiographicalEntry person = repo.getUnsafe(personId);
+      BiographicalEntry person = repo.get(personId);
 
       updatePerson(personId);
-      BiographicalEntry personUpdated = repo.getUnsafe(personId);
+      BiographicalEntry personUpdated = repo.get(personId);
 
       assertEquals(person.getId(), personUpdated.getId());
 
@@ -129,9 +128,9 @@ public class TestDocumentRepository
       {
          String personId = createPerson(personData);
          repo.delete(personId).get();
-         repo.getUnsafe(personId);
+         repo.get(personId);
       }
-      catch (DocumentNotFoundException e)
+      catch (ResourceNotFoundException e)
       {
          assertFalse(false);
       }

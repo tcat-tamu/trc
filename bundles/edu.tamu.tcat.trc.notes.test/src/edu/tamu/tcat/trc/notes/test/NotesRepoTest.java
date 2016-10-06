@@ -16,10 +16,10 @@
 package edu.tamu.tcat.trc.notes.test;
 
 
-import java.net.URI;
 import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -31,16 +31,19 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.postgresql.exec.PostgreSqlExecutor;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.BibliographicEntryRepository;
 import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
-import edu.tamu.tcat.trc.notes.EditNoteCommand;
-import edu.tamu.tcat.trc.notes.Note;
-import edu.tamu.tcat.trc.notes.NotesRepository;
-import edu.tamu.tcat.trc.notes.impl.NotesService;
-import edu.tamu.tcat.trc.repo.DocumentNotFoundException;
+import edu.tamu.tcat.trc.impl.psql.services.notes.NotesServiceFactory;
+import edu.tamu.tcat.trc.impl.psql.services.notes.NotesServiceFactory.NotesRepoImpl;
 import edu.tamu.tcat.trc.repo.postgres.PostgresDataSourceProvider;
+import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.services.notes.EditNoteCommand;
+import edu.tamu.tcat.trc.services.notes.Note;
+import edu.tamu.tcat.trc.services.notes.NotesService;
 
 public class NotesRepoTest
 {
@@ -48,7 +51,9 @@ public class NotesRepoTest
    private PostgreSqlExecutor exec;
    private SimpleFileConfigurationProperties config;
    private PostgresDataSourceProvider dsp;
-   private NotesRepository repo;
+
+   private NotesServiceFactory factory;
+   private NotesRepoImpl notesSvc;
 
 
    @BeforeClass
@@ -80,18 +85,12 @@ public class NotesRepoTest
 
       DbEntryRepositoryRegistry repoRegistry = new DbEntryRepositoryRegistry();
       repoRegistry.setConfiguration(config);
-      repoRegistry.setIdFactory(ctx -> {
-         return () -> UUID.randomUUID().toString();
-      });
+      repoRegistry.setIdFactory(ctx -> () -> UUID.randomUUID().toString());
       repoRegistry.setSqlExecutor(exec);
       repoRegistry.activate();
 
-      NotesService repo = new NotesService();
-      repo.setRepoContext(repoRegistry);
-      repo.setSearchSvcMgr(indexSvcFactory);
-      repo.setAccountStore(null);
-
-      repo.activate();
+      factory = new NotesServiceFactory(repoRegistry, null);
+      notesSvc = factory.getService(NotesService.makeContext(null, "test"));
    }
 
    @After
@@ -106,7 +105,7 @@ public class NotesRepoTest
       });
 
       future.get();
-      repo.dispose();
+      factory.shutdown();
       exec.close();
       dsp.dispose();
       config.dispose();
@@ -115,81 +114,112 @@ public class NotesRepoTest
    @Test
    public void createNote() throws Exception
    {
-      NoteDTO note = createNoteDTO();
-      EditNoteCommand command = repo.create();
-      command.setAll(note);
-      note.id = command.execute().get();
+      EditNoteCommand command = notesSvc.create();
+      applyStandardFields(command);
+      String noteId = command.execute().get();
 
 
-      Note note2 = repo.getUnsafe(note.id);
-      NoteDTO noteDTO = NoteDTO.create(note2);
+      Note note = notesSvc.get(noteId).orElseThrow(() -> new IllegalStateException());;
 
-      Assert.assertEquals("Notes do not match", note.id, noteDTO.id);
-      Assert.assertEquals("Notes do not match", note.associatedEntity, noteDTO.associatedEntity);
-      Assert.assertEquals("Notes do not match", note.authorId, noteDTO.authorId);
-      Assert.assertEquals("Notes do not match", note.mimeType, noteDTO.mimeType);
-      Assert.assertEquals("Notes do not match", note.content, noteDTO.content);
+      Assert.assertEquals("Notes do not match", noteId, note.getId());
+      Assert.assertEquals("Notes do not match", "1", note.getAssociatedEntry().id);
+      Assert.assertEquals("Notes do not match", BibliographicEntryRepository.ENTRY_TYPE_ID, note.getAssociatedEntry().type);
+      Assert.assertEquals("Notes do not match", UUID.fromString("d25d7b89-6634-4895-89c1-7024fc3d5396"), note.getAuthor().getId());
+      Assert.assertEquals("Notes do not match", "Test User", note.getAuthor().getDisplayName());
+      Assert.assertEquals("Notes do not match", "text/plain", note.getMimeType());
+      Assert.assertEquals("Notes do not match", "I'm not sure that I agree with the information that is contained within this work.", note.getContent());
    }
 
    @Test
    public void updateNote() throws Exception
    {
-      NoteDTO note = createNoteDTO();
-      EditNoteCommand command = repo.create();
-      command.setAll(note);
-      note.id = command.execute().get();
+      EditNoteCommand command = notesSvc.create();
+      applyStandardFields(command);
+      String noteId = command.execute().get();
 
-      note.content = "<H1>The New and Everlasting Title<H1> <p>As time passes so do many articles. In this" +
+      Note note = notesSvc.get(noteId).orElseThrow(() -> new IllegalStateException());
+
+      String content = "<H1>The New and Everlasting Title<H1> <p>As time passes so do many articles. In this" +
                   "particular case, this article will not be passed on. It will forever be made available" +
                   "through this testing process. </p> " +
                   " <p> To change the article, we need to provide some type of update to it.</p>";
 
-      EditNoteCommand updateCommand = repo.edit(note.id);
-      updateCommand.setAll(note);
+      EditNoteCommand updateCommand = notesSvc.edit(noteId);
+      updateCommand.setContent(content);
       updateCommand.execute();
 
-      Note note2 = repo.getUnsafe(note.id);
-      NoteDTO noteDTO = NoteDTO.create(note2);
+      Note note2 = notesSvc.get(noteId).orElseThrow(() -> new IllegalStateException());
 
-      Assert.assertEquals("Notes do not match", note.id, noteDTO.id);
-      Assert.assertEquals("Notes do not match", note.associatedEntity, noteDTO.associatedEntity);
-      Assert.assertEquals("Notes do not match", note.authorId, noteDTO.authorId);
-      Assert.assertEquals("Notes do not match", note.mimeType, noteDTO.mimeType);
-      Assert.assertEquals("Notes do not match", note.content, noteDTO.content);
+      Assert.assertEquals("Notes do not match", noteId, note2.getId());
+      Assert.assertEquals("Notes do not match", "1", note2.getAssociatedEntry().id);
+      Assert.assertEquals("Notes do not match", BibliographicEntryRepository.ENTRY_TYPE_ID, note2.getAssociatedEntry().type);
+      Assert.assertEquals("Notes do not match", UUID.fromString("d25d7b89-6634-4895-89c1-7024fc3d5396"), note2.getAuthor().getId());
+      Assert.assertEquals("Notes do not match", "Test User", note2.getAuthor().getDisplayName());
+      Assert.assertEquals("Notes do not match", "text/plain", note2.getMimeType());
+      Assert.assertEquals("Notes do not match", content, note2.getContent());
 
    }
 
    @Test
    public void deleteNote() throws InterruptedException, ExecutionException
    {
-      NoteDTO note = createNoteDTO();
-      EditNoteCommand command = repo.create();
-      command.setAll(note);
-      note.id = command.execute().get();
+      EditNoteCommand command = notesSvc.create();
+      applyStandardFields(command);
 
-      Boolean removed = repo.remove(note.id).get();
+      String noteId = command.execute().get();
+
+      Boolean removed = notesSvc.remove(noteId).get();
       Assert.assertEquals("Note was not removed", Boolean.TRUE, removed);
-      try
-      {
-         repo.getUnsafe(note.id);
-         Assert.fail();
-      }
-      catch(DocumentNotFoundException e)
-      {
-         Assert.assertTrue("Article has been removed", true);
-      }
 
+      Optional<Note> noteRef = notesSvc.get(noteId);
+      Assert.assertTrue("Article has not been removed", !noteRef.isPresent());
    }
 
-   private NoteDTO createNoteDTO()
-   {
-      NoteDTO article = new NoteDTO();
-      article.associatedEntity = URI.create("notes/1");
-      article.authorId = "d25d7b89-6634-4895-89c1-7024fc3d5396";
-      article.mimeType = "Text";
-      article.content = "I'm not sure that I agree with the information that is contained within this work.";
 
-      return article;
+   private void applyStandardFields(EditNoteCommand command)
+   {
+      String authorId = "d25d7b89-6634-4895-89c1-7024fc3d5396";
+      TestAccount acct = new TestAccount(UUID.fromString(authorId), "Test User");
+
+      EntryReference ref = new EntryReference();
+      ref.type = BibliographicEntryRepository.ENTRY_TYPE_ID;
+      ref.id = "1";
+
+      command.setAssociatedEntry(ref);
+      command.setAuthor(acct);
+      command.setContent("I'm not sure that I agree with the information that is contained within this work.");
+      command.setMimeType("text/plain");
+   }
+
+   private static class TestAccount implements Account
+   {
+      private final UUID id;
+      private final String displayName;
+
+      public TestAccount(UUID id, String displayName)
+      {
+         this.id = id;
+         this.displayName = displayName;
+      }
+
+      @Override
+      public UUID getId()
+      {
+         return id;
+      }
+
+      @Override
+      public String getDisplayName()
+      {
+         return displayName;
+      }
+
+      @Override
+      public boolean isActive()
+      {
+         return true;
+      }
+
    }
 
 }
