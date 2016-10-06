@@ -1,15 +1,17 @@
 package edu.tamu.tcat.trc.impl.psql.services.bibref;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
+import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
 import edu.tamu.tcat.trc.impl.psql.services.ServiceFactory;
 import edu.tamu.tcat.trc.impl.psql.services.bibref.model.ReferenceCollectionImpl;
 import edu.tamu.tcat.trc.impl.psql.services.bibref.repo.DataModelV1;
 import edu.tamu.tcat.trc.impl.psql.services.bibref.repo.EditBibliographyCommandFactory;
-import edu.tamu.tcat.trc.impl.psql.services.bibref.repo.ReferenceRepositoryImpl;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
+import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.bibref.ReferenceCollection;
@@ -72,6 +74,58 @@ public class RefServiceFactory implements ServiceFactory<RefCollectionService>
    @Override
    public RefCollectionService getService(ServiceContext<RefCollectionService> context)
    {
-      return new ReferenceRepositoryImpl(docRepo, repoRegistry.getResolverRegistry(), context);
+      return new ReferenceRepositoryImpl(context);
+   }
+
+   private class ReferenceRepositoryImpl implements RefCollectionService
+   {
+      private EntryResolverRegistry resolverRegistry;
+      private final ServiceContext<RefCollectionService> context;
+      private final Account account;
+
+      public ReferenceRepositoryImpl(ServiceContext<RefCollectionService> context)
+      {
+         this.resolverRegistry = repoRegistry.getResolverRegistry();
+         this.context = context;
+         this.account = this.context.getAccount().orElse(null);
+      }
+
+      @Override
+      public ReferenceCollection get(EntryReference ref)
+      {
+         return get(resolverRegistry.tokenize(ref));
+      }
+
+      @Override
+      public EditBibliographyCommand edit(EntryReference ref)
+      {
+         return edit(resolverRegistry.tokenize(ref));
+      }
+
+      @Override
+      public CompletableFuture<Boolean> delete(EntryReference ref)
+      {
+         return delete(resolverRegistry.tokenize(ref));
+      }
+
+      @Override
+      public ReferenceCollection get(String id)
+      {
+         return docRepo.get(id).orElseGet(ReferenceCollectionImpl::new);
+      }
+
+      @Override
+      public EditBibliographyCommand edit(String id)
+      {
+         return docRepo.get(id)
+               .map(o -> docRepo.edit(account, id))
+               .orElseGet(() -> docRepo.create(account, id));
+      }
+
+      @Override
+      public CompletableFuture<Boolean> delete(String id)
+      {
+         return docRepo.delete(account, id);
+      }
    }
 }
