@@ -27,8 +27,10 @@ import edu.tamu.tcat.trc.entries.types.bio.impl.search.BioSearchStrategy;
 import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.PeopleResource;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioEntryQueryCommand;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.QueryService;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
+import edu.tamu.tcat.trc.services.TrcServiceManager;
 
 @Path("/")
 public class PeopleResourceService
@@ -41,6 +43,7 @@ public class PeopleResourceService
    private SearchServiceManager searchMgr;
    private ConfigurationProperties config;
    private QueryService<BioEntryQueryCommand> queryService;
+   private TrcServiceManager serviceMgr;
 
    public void setConfig(ConfigurationProperties config)
    {
@@ -57,6 +60,11 @@ public class PeopleResourceService
       this.searchMgr = searchMgr;
    }
 
+   public void setServiceMgr(TrcServiceManager serviceMgr)
+   {
+      this.serviceMgr = serviceMgr;
+   }
+
    // called by DS
    public void activate()
    {
@@ -64,6 +72,12 @@ public class PeopleResourceService
       if (searchMgr == null)
       {
          logger.warning("No search service has provided to " + getClass().getSimpleName());
+         return;
+      }
+
+      if (serviceMgr == null)
+      {
+         logger.warning("No service manager provided to " + getClass().getSimpleName());
          return;
       }
 
@@ -91,6 +105,7 @@ public class PeopleResourceService
       Account account = null;    // TODO get this from the request if this is possible here.
 
       BiographicalEntryRepository repo = registry.getRepository(account, BiographicalEntryRepository.class);
-      return new PeopleResource(repo, queryService);
+      EntryResolverRegistry resolverRegistry = registry.getResolverRegistry();
+      return new PeopleResource(repo, queryService, serviceMgr, resolverRegistry);
    }
 }

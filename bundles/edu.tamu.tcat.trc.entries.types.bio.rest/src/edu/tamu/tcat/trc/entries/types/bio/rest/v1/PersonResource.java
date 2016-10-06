@@ -15,6 +15,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -25,18 +26,28 @@ import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.ApiUtils;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RepoAdapter;
+import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryResolver;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
+import edu.tamu.tcat.trc.services.TrcServiceManager;
+import edu.tamu.tcat.trc.services.bibref.repo.RefCollectionService;
+import edu.tamu.tcat.trc.services.rest.bibref.ReferenceCollectionResource;
 
 public class PersonResource
 {
    private static final Logger logger = Logger.getLogger(PersonResource.class.getName());
 
    private final String personId;
-   private BiographicalEntryRepository repo;
+   private final BiographicalEntryRepository repo;
+   private final TrcServiceManager serviceManager;
+   private final EntryResolverRegistry resolverRegistry;
 
-   public PersonResource(BiographicalEntryRepository repo, String personId)
+   public PersonResource(BiographicalEntryRepository repo, String personId, TrcServiceManager serviceManager, EntryResolverRegistry resolverRegistry)
    {
       this.repo = repo;
       this.personId = personId;
+      this.serviceManager = serviceManager;
+      this.resolverRegistry = resolverRegistry;
    }
 
    @GET
@@ -102,5 +113,21 @@ public class PersonResource
       }
 
       return Response.noContent().build();
+   }
+
+   @GET
+   @Path("/references")
+   public ReferenceCollectionResource getReferences()
+   {
+      RefCollectionService refsService = serviceManager.getService(RefCollectionService.makeContext(null));
+
+      EntryReference reference = repo.getOptionally(personId)
+            .map(person -> {
+               EntryResolver<BiographicalEntry> resolver = resolverRegistry.getResolver(person);
+               return resolver.makeReference(person);
+            })
+            .orElseThrow(() -> ApiUtils.raise(Response.Status.INTERNAL_SERVER_ERROR, format("Unable to generate reference for {0}", personId), Level.SEVERE, null));
+
+      return new ReferenceCollectionResource(refsService, reference);
    }
 }

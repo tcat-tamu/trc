@@ -50,20 +50,26 @@ import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RepoAdapter;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.SearchAdapter;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioEntryQueryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.search.PersonSearchResult;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.QueryService;
+import edu.tamu.tcat.trc.services.TrcServiceManager;
 
 public class PeopleResource
 {
    // records internal errors accessing the REST
    static final Logger errorLogger = Logger.getLogger(PeopleResource.class.getName());
 
-   private BiographicalEntryRepository repo;
-   private QueryService<BioEntryQueryCommand> queryService;
+   private final BiographicalEntryRepository repo;
+   private final QueryService<BioEntryQueryCommand> queryService;
+   private final TrcServiceManager serviceManager;
+   private final EntryResolverRegistry resolverRegistry;
 
-   public PeopleResource(BiographicalEntryRepository repo, QueryService<BioEntryQueryCommand> queryService)
+   public PeopleResource(BiographicalEntryRepository repo, QueryService<BioEntryQueryCommand> queryService, TrcServiceManager serviceManager, EntryResolverRegistry resolverRegistry)
    {
       this.repo = repo;
       this.queryService = queryService;
+      this.serviceManager = serviceManager;
+      this.resolverRegistry = resolverRegistry;
    }
 
    @GET
@@ -238,6 +244,6 @@ public class PeopleResource
    @Path("{personId}")
    public PersonResource getPerson(@PathParam(value="personId") String personId)
    {
-      return new PersonResource(repo, personId);
+      return new PersonResource(repo, personId, serviceManager, resolverRegistry);
    }
 }
