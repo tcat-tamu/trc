@@ -115,7 +115,6 @@ public class PersonResource
       return Response.noContent().build();
    }
 
-   @GET
    @Path("references")
    public ReferenceCollectionResource getReferences()
    {
