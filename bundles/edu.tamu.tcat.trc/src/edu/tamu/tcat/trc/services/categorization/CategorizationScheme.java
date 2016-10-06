@@ -1,5 +1,7 @@
 package edu.tamu.tcat.trc.services.categorization;
 
+import java.util.stream.Stream;
+
 /**
  *  A categorization scheme is a user-defined structure designed to organize or order
  *  a particular sub-set of resources within a thematic research collection (TRC).
@@ -90,4 +92,9 @@ public interface CategorizationScheme
     * @throws IllegalArgumentException If the identified node is not present within this scheme.
     */
    CategorizationNode getNode(String id) throws IllegalArgumentException;
+
+   /**
+    * @return all nodes associated with this categorization scheme
+    */
+   Stream<CategorizationNode> getNodes();
 }
