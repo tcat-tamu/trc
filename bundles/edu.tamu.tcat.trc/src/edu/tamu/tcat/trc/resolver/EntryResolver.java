@@ -26,6 +26,11 @@ import edu.tamu.tcat.account.Account;
 public interface EntryResolver<T>
 {
    /**
+    * @return The Java type associated with this resolver.
+    */
+   Class<T> getType();
+
+   /**
     * @param account A reference to the user (or other actor) account that is requesting
     *       access to this resource. May be {@code null}.
     * @param reference A reference to resolve.

@@ -16,7 +16,7 @@ public abstract class EntryResolverBase<EntryType> implements EntryResolver<Entr
    protected final URI apiEndpoint;
    protected final String uriBase;
    protected final String typeId;
-   private Class<? extends EntryType> entryType;
+   private Class<EntryType> entryType;
 
    /**
     *
@@ -28,7 +28,7 @@ public abstract class EntryResolverBase<EntryType> implements EntryResolver<Entr
     * @param entryUriBase
     * @param entryTypeId
     */
-   public EntryResolverBase(Class<? extends EntryType> type,
+   public EntryResolverBase(Class<EntryType> type,
                             ConfigurationProperties config,
                             String entryUriBase,
                             String entryTypeId)
@@ -41,6 +41,12 @@ public abstract class EntryResolverBase<EntryType> implements EntryResolver<Entr
    }
 
    protected abstract String getId(EntryType instance);
+
+   @Override
+   public Class<EntryType> getType()
+   {
+      return entryType;
+   }
 
    @Override
    public URI toUri(EntryReference reference) throws InvalidReferenceException
