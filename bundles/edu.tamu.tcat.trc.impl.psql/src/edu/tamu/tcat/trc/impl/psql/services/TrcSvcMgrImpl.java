@@ -7,14 +7,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.account.store.AccountStore;
 import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
 import edu.tamu.tcat.trc.impl.psql.services.bibref.RefServiceFactory;
 import edu.tamu.tcat.trc.impl.psql.services.categorization.CategorizationServiceFactory;
 import edu.tamu.tcat.trc.impl.psql.services.notes.NotesServiceFactory;
-import edu.tamu.tcat.trc.resolver.EntryReference;
-import edu.tamu.tcat.trc.services.EntryMediator;
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.TrcServiceException;
 import edu.tamu.tcat.trc.services.TrcServiceManager;
@@ -60,6 +57,11 @@ public class TrcSvcMgrImpl implements TrcServiceManager
       servicesRegistrations.stream().forEach(ServiceRegistration::shutdown);
    }
 
+   public DbEntryRepositoryRegistry getRepoRegistry()
+   {
+      return repoRegistry;
+   }
+
    public <ServiceType> boolean isAvailable(ServiceContext<ServiceType> ctx)
    {
       return servicesRegistrations.stream().anyMatch(reg -> reg.canHandle(ctx));
@@ -75,20 +77,6 @@ public class TrcSvcMgrImpl implements TrcServiceManager
                   .orElseThrow(() -> new TrcServiceException(format(noRegisteredSvc, ctx.getType())));
 
       return svcReg.get(ctx);
-   }
-
-   @Override
-   public <EntryType> EntryMediator<EntryType> getMediator(EntryType entry, Account account)
-   {
-      // TODO Auto-generated method stub
-      return null;
-   }
-
-   @Override
-   public EntryMediator<?> getMediator(EntryReference ref, Account account)
-   {
-      // TODO Auto-generated method stub
-      return null;
    }
 
    private static class ServiceRegistration

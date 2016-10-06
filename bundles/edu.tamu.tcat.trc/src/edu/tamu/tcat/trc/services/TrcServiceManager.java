@@ -1,6 +1,7 @@
 package edu.tamu.tcat.trc.services;
 
 import edu.tamu.tcat.account.Account;
+import edu.tamu.tcat.trc.EntryFacade;
 import edu.tamu.tcat.trc.resolver.EntryReference;
 
 /**
@@ -44,7 +45,7 @@ import edu.tamu.tcat.trc.resolver.EntryReference;
  */
 public interface TrcServiceManager
 {
-// TODO should add ACL, perhaps resolvers.
+// TODO should add ACL
 
    /**
     *
@@ -53,8 +54,4 @@ public interface TrcServiceManager
     *
     */
    <ServiceType> ServiceType getService(ServiceContext<ServiceType> ctx) throws TrcServiceException;
-
-   <EntryType> EntryMediator<EntryType> getMediator(EntryType entry, Account account);
-
-   EntryMediator<?> getMediator(EntryReference ref, Account account);
 }
