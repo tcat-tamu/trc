@@ -51,7 +51,7 @@ public class NotesApiService
    @Path("services/notes")
    public NotesCollectionResource getNotes()
    {
-      ServiceContext<NotesService> ctx = NotesService.makeContext(null, "sda");
+      ServiceContext<NotesService> ctx = NotesService.makeContext(null);
       NotesService service = svcManager.getService(ctx);
       return new NotesCollectionResource(service, resolvers, null);
    }

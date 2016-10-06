@@ -31,10 +31,10 @@ public interface NotesService
 {
    static final String CTX_SCOPE_ID = "scopeId";
 
-   static ServiceContext<NotesService> makeContext(Account account, String scopeId)
+   static ServiceContext<NotesService> makeContext(Account account)
    {
       Map<String, Object> props = new HashMap<>();
-      props.put(CTX_SCOPE_ID, Objects.requireNonNull(scopeId));
+      props.put(CTX_SCOPE_ID, Objects.requireNonNull("system"));     // HACK: until we come up with something better
       return new BasicServiceContext<>(NotesService.class, account, props);
    }
 
