@@ -15,6 +15,7 @@
  */
 package edu.tamu.tcat.trc.entries.types.bio.rest;
 
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -69,26 +70,18 @@ public class PeopleResourceService
    public void activate()
    {
       logger.info("Activating " + getClass().getSimpleName());
-      if (searchMgr == null)
-      {
-         logger.warning("No search service has provided to " + getClass().getSimpleName());
-         return;
-      }
-
-      if (serviceMgr == null)
-      {
-         logger.warning("No service manager provided to " + getClass().getSimpleName());
-         return;
-      }
 
       try
       {
+         Objects.requireNonNull(searchMgr, "No search service configured");
+         Objects.requireNonNull(serviceMgr, "No service manager configured");
+
          BioSearchStrategy indexCfg = new BioSearchStrategy(config);
          queryService = searchMgr.getQueryService(indexCfg);
       }
       catch (Exception ex)
       {
-         logger.log(Level.SEVERE, "Failed to load query service for biographical entries REST servivce", ex);
+         logger.log(Level.SEVERE, "Failed to activate " + getClass().getSimpleName(), ex);
          throw ex;
       }
    }
