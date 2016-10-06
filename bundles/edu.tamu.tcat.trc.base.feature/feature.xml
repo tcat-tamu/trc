@@ -398,21 +398,23 @@ limitations under the License.
          unpack="false"/>
 
    <plugin
-         id="edu.tamu.tcat.trc.entries.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="edu.tamu.tcat.trc.repo"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="edu.tamu.tcat.trc.accounts"
+         id="edu.tamu.tcat.trc"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.tamu.tcat.trc.impl.psql"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
 </feature>

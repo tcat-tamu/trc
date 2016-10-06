@@ -50,8 +50,8 @@
 
     <!-- TRC Core Framework -->
     <module>oss.trc/bundles/edu.tamu.tcat.trc</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.accounts</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.core</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.impl.psql</module>
+    <module>oss.trc/bundles/edu.tamu.tcat.trc.services.rest</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.repo</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.search.solr</module>
 
@@ -73,18 +73,12 @@
     <module>oss.trc/bundles/edu.tamu.tcat.trc.entries.types.article.rest</module>
 
     <!-- TRC Services  -->
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.categorization</module>
 
     <module>oss.trc/bundles/edu.tamu.tcat.trc.digires</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.digires.books.hathitrust</module>
     <module>oss.trc/bundles/edu.tamu.tcat.trc.digires.rest</module>
 
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.notes</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.notes.impl</module>
 
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.services.types.bibref</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.services.types.bibref.impl</module>
-    <module>oss.trc/bundles/edu.tamu.tcat.trc.services.types.bibref.rest</module>
   </modules>
 
   <repositories>

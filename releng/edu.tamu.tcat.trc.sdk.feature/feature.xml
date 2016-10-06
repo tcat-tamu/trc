@@ -109,13 +109,6 @@ limitations under the License.
          unpack="false"/>
 
    <plugin
-         id="edu.tamu.tcat.trc.entries.core.source"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="edu.tamu.tcat.trc.entries.types.biblio"
          download-size="0"
          install-size="0"
@@ -228,13 +221,6 @@ limitations under the License.
          unpack="false"/>
 
    <plugin
-         id="edu.tamu.tcat.trc.categorization"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="edu.tamu.tcat.trc.entries.types.article.rest"
          download-size="0"
          install-size="0"
@@ -261,48 +247,20 @@ limitations under the License.
          unpack="false"/>
 
    <plugin
-         id="edu.tamu.tcat.trc.entries.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="edu.tamu.tcat.trc.repo"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="edu.tamu.tcat.trc.services.types.bibref"
+         id="edu.tamu.tcat.trc.services.rest"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="edu.tamu.tcat.trc.services.types.bibref.impl"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.tamu.tcat.trc.services.types.bibref.rest"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.tamu.tcat.trc.notes"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.tamu.tcat.trc.notes.impl"
+         id="edu.tamu.tcat.trc.impl.psql"
          download-size="0"
          install-size="0"
          version="0.0.0"
