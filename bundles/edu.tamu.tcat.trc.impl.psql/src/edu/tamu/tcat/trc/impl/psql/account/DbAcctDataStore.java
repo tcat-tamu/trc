@@ -26,6 +26,7 @@ import edu.tamu.tcat.account.AccountException;
 import edu.tamu.tcat.account.login.LoginData;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
+import edu.tamu.tcat.trc.auth.account.AccountNotAvailableException;
 import edu.tamu.tcat.trc.auth.account.EditTrcAccountCommand;
 import edu.tamu.tcat.trc.auth.account.TrcAccount;
 import edu.tamu.tcat.trc.auth.account.TrcAccountDataStore;
@@ -242,7 +243,8 @@ public class DbAcctDataStore implements TrcAccountDataStore
    {
       // NOTE there is a synchronization issue here. This may result in
       //      inconsistent data if the account is removed.
-      acctRepo.getUnsafe(account.getId().toString());
+      String accountId = account.getId().toString();
+      acctRepo.get(accountId).orElseThrow(() -> new AccountNotAvailableException());
       doLink(account.getId(), data);
    }
 
