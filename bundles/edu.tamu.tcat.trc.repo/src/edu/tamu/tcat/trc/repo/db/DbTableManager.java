@@ -102,7 +102,7 @@ public class DbTableManager
       }
       catch (SQLException ex)
       {
-         String msg = "Internal error attempting to truncat {0}: {1}";
+         String msg = "Internal error attempting to truncate {0}: {1}";
          throw new IllegalStateException(format(msg, tablename, ex.getMessage()), ex);
       }
    }
