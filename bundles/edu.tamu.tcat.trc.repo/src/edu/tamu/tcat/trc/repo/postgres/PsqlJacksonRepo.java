@@ -289,7 +289,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    @Override
    public EditCommandType create(Account account, String id) throws UnsupportedOperationException
    {
-      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.CREATE, account, () -> null);
+      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.CREATE, account, () -> Optional.empty());
       UpdateStrategyImpl updater = new UpdateStrategyImpl(context, dto -> doCreate(id, dto));
 
       return this.cmdFactory.create(id, updater);
