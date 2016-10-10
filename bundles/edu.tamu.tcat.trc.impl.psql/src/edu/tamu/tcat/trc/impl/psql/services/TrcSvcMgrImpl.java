@@ -8,10 +8,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.account.store.AccountStore;
+import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
 import edu.tamu.tcat.trc.impl.psql.services.bibref.RefServiceFactory;
 import edu.tamu.tcat.trc.impl.psql.services.categorization.CategorizationServiceFactory;
 import edu.tamu.tcat.trc.impl.psql.services.notes.NotesServiceFactory;
+import edu.tamu.tcat.trc.impl.psql.services.seealso.SeeAlsoServiceFactory;
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.TrcServiceException;
 import edu.tamu.tcat.trc.services.TrcServiceManager;
@@ -22,6 +24,7 @@ public class TrcSvcMgrImpl implements TrcServiceManager
 
    private DbEntryRepositoryRegistry repoRegistry;
    private AccountStore accountStore;
+   private SqlExecutor sqlExecutor;
 
    private List<ServiceRegistration> servicesRegistrations = new ArrayList<>();
 
@@ -41,15 +44,22 @@ public class TrcSvcMgrImpl implements TrcServiceManager
       this.accountStore = accountStore;
    }
 
+   public void bind(SqlExecutor sqlExecutor)
+   {
+      this.sqlExecutor = sqlExecutor;
+   }
+
    public void activate()
    {
       RefServiceFactory bibRefSvc = new RefServiceFactory(repoRegistry);
       CategorizationServiceFactory categorizationSvc = new CategorizationServiceFactory(repoRegistry);
       NotesServiceFactory notesSvc = new NotesServiceFactory(repoRegistry, accountStore);
+      SeeAlsoServiceFactory seeAlsoSvc = new SeeAlsoServiceFactory(sqlExecutor);
 
       servicesRegistrations.add(new ServiceRegistration(bibRefSvc));
       servicesRegistrations.add(new ServiceRegistration(categorizationSvc));
       servicesRegistrations.add(new ServiceRegistration(notesSvc));
+      servicesRegistrations.add(new ServiceRegistration(seeAlsoSvc));
    }
 
    public void dispose()
