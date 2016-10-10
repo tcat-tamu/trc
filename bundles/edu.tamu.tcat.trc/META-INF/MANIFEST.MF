@@ -24,4 +24,6 @@ Export-Package: edu.tamu.tcat.trc;version="2.0.0",
  edu.tamu.tcat.trc.services.categorization.strategies.list;version="2.0.0",
  edu.tamu.tcat.trc.services.categorization.strategies.set;version="2.0.0",
  edu.tamu.tcat.trc.services.categorization.strategies.tree;version="2.0.0",
- edu.tamu.tcat.trc.services.notes;version="2.0.0"
+ edu.tamu.tcat.trc.services.notes;version="2.0.0",
+ edu.tamu.tcat.trc.services.seealso,
+ edu.tamu.tcat.trc.services.seealso.repo

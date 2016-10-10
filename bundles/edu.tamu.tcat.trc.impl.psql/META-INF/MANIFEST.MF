@@ -25,8 +25,11 @@ Import-Package: com.fasterxml.jackson.core;version="2.3.1",
  edu.tamu.tcat.trc.services.bibref.repo;version="2.0.0",
  edu.tamu.tcat.trc.services.categorization;version="2.0.0",
  edu.tamu.tcat.trc.services.categorization.strategies.tree;version="2.0.0",
- edu.tamu.tcat.trc.services.notes;version="2.0.0"
-Export-Package: edu.tamu.tcat.trc.impl.psql.account;version="2.0.0",
+ edu.tamu.tcat.trc.services.notes;version="2.0.0",
+ edu.tamu.tcat.trc.services.seealso,
+ edu.tamu.tcat.trc.services.seealso.repo
+Export-Package: edu.tamu.tcat.trc.impl.psql,
+ edu.tamu.tcat.trc.impl.psql.account;version="2.0.0",
  edu.tamu.tcat.trc.impl.psql.entries;version="2.0.0",
  edu.tamu.tcat.trc.impl.psql.services;version="2.0.0",
  edu.tamu.tcat.trc.impl.psql.services.bibref;version="2.0.0",
@@ -35,4 +38,7 @@ Export-Package: edu.tamu.tcat.trc.impl.psql.account;version="2.0.0",
  edu.tamu.tcat.trc.impl.psql.services.categorization;version="2.0.0",
  edu.tamu.tcat.trc.impl.psql.services.categorization.model;version="2.0.0",
  edu.tamu.tcat.trc.impl.psql.services.categorization.repo;version="2.0.0",
- edu.tamu.tcat.trc.impl.psql.services.notes;version="2.0.0"
+ edu.tamu.tcat.trc.impl.psql.services.notes;version="2.0.0",
+ edu.tamu.tcat.trc.impl.psql.services.seealso,
+ edu.tamu.tcat.trc.impl.psql.services.seealso.model,
+ edu.tamu.tcat.trc.impl.psql.services.seealso.repo
