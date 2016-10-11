@@ -52,7 +52,8 @@ public interface RelationshipRepository extends EntryRepository<Relationship>
     *
     * @return An iterator over all relationships
     */
-   Iterator<Relationship> getAllRelationships();
+   @Override
+   Iterator<Relationship> listAll();
 
    /**
     * @param id The id of the relationship to retrieve.

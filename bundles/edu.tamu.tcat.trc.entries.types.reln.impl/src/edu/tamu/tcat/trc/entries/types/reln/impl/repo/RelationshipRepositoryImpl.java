@@ -35,11 +35,6 @@ public class RelationshipRepositoryImpl implements RelationshipRepository
    {
       return delegate.listAll();
    }
-   @Override
-   public Iterator<Relationship> getAllRelationships()
-   {
-      return delegate.listAll();
-   }
 
    @Override
    public EditRelationshipCommand create()
