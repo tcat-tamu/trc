@@ -285,12 +285,13 @@ public class DbAcctDataStore implements TrcAccountDataStore
 
      try (PreparedStatement stmt = conn.prepareStatement(sql))
      {
-
         stmt.setString(1, login.getLoginProviderId());
         stmt.setString(2, login.getLoginUserId());
 
-        ResultSet rs = stmt.executeQuery();
-        return rs.next();
+        try (ResultSet rs = stmt.executeQuery())
+        {
+           return rs.next();
+        }
      }
      catch (SQLException ex)
      {
@@ -339,7 +340,6 @@ public class DbAcctDataStore implements TrcAccountDataStore
 
       try (PreparedStatement stmt = conn.prepareStatement(sql))
       {
-
          stmt.setString(1, uuid.toString());
          stmt.setString(2, login.getLoginProviderId());
          stmt.setString(3, login.getLoginUserId());
@@ -370,8 +370,10 @@ public class DbAcctDataStore implements TrcAccountDataStore
       {
          stmt.setString(1, username);
 
-         ResultSet rs = stmt.executeQuery();
-         return !rs.next();
+         try (ResultSet rs = stmt.executeQuery())
+         {
+            return !rs.next();
+         }
       }
       catch (SQLException ex)
       {
@@ -386,11 +388,13 @@ public class DbAcctDataStore implements TrcAccountDataStore
       {
          stmt.setString(1, username);
 
-         ResultSet rs = stmt.executeQuery();
-         if (!rs.next())
-            throw new AccountException(format(notFound, username));
+         try (ResultSet rs = stmt.executeQuery())
+         {
+            if (!rs.next())
+               throw new AccountException(format(notFound, username));
 
-         return parseAccountJson(rs.getString("json"));
+            return parseAccountJson(rs.getString("json"));
+         }
       }
       catch (SQLException ex)
       {
@@ -432,16 +436,18 @@ public class DbAcctDataStore implements TrcAccountDataStore
          stmt.setString(1, data.getLoginProviderId());
          stmt.setString(1, data.getLoginUserId());
 
-         ResultSet rs = stmt.executeQuery();
-         if (!rs.next())
-            return Optional.empty();
+         try (ResultSet rs = stmt.executeQuery())
+         {
+            if (!rs.next())
+               return Optional.empty();
 
-         String json = rs.getString("json");
-         ObjectMapper mapper = new ObjectMapper();
+            String json = rs.getString("json");
+            ObjectMapper mapper = new ObjectMapper();
 
-         AccountData dto = mapper.readValue(json, DataModelV1.AccountData.class);
-         DbTrcAccount account = new DbTrcAccount(dto);
-         return Optional.of(account);
+            AccountData dto = mapper.readValue(json, DataModelV1.AccountData.class);
+            DbTrcAccount account = new DbTrcAccount(dto);
+            return Optional.of(account);
+         }
       }
       catch (SQLException | IOException ex)
       {
