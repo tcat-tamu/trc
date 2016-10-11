@@ -56,7 +56,7 @@ public class HistoricalEventImpl implements HistoricalEvent
             calendar = (src.date.calendar != null) ? LocalDate.parse(src.date.calendar) : null;
          } catch (Exception ex) {
             String msg = "Bad calendar date stored for historical event {0} [{1}]: {2}";
-            logger.log(Level.WARNING, format(msg, this.title, this.id, src.date.calendar), ex);
+            logger.log(Level.WARNING, format(msg, this.title, this.id, src.date.calendar));
          }
 
          this.eventDate = new DateDescriptionImpl(desc, calendar);
