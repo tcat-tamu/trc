@@ -7,11 +7,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -87,15 +87,9 @@ public class SeeAlsoServiceImpl implements SeeAlsoService
          return Boolean.valueOf(count == 1);
       });
 
-      try
-      {
-         Boolean boolResult = result.get();
-         return Objects.requireNonNull(boolResult, "SQL execution failed to return a result").booleanValue();
-      }
-      catch (InterruptedException | ExecutionException e)
-      {
-         throw new TrcServiceException(format("unable to determine whether record ({0}, {1}) exists", source, target), e);
-      }
+
+      String msg = "Unable to determine whether record ({0}, {1}) exists";
+      return unwrap(result, () -> format(msg, source, target)).booleanValue();
    }
 
    @Override
@@ -110,14 +104,8 @@ public class SeeAlsoServiceImpl implements SeeAlsoService
          return hydrateModels(resultSet);
       });
 
-      try
-      {
-         return Objects.requireNonNull(result.get(), "SQL execution failed to return a result");
-      }
-      catch (InterruptedException | ExecutionException e)
-      {
-         throw new TrcServiceException(format("unable to find records ({0}, *) || (*, {0})", id), e);
-      }
+      String msg = "unable to find records ({0} -> *) || (* -> {0})";
+      return unwrap(result, () -> format(msg, id));
    }
 
    @Override
@@ -131,14 +119,8 @@ public class SeeAlsoServiceImpl implements SeeAlsoService
          return hydrateModels(resultSet);
       });
 
-      try
-      {
-         return Objects.requireNonNull(result.get(), "SQL execution failed to return a result");
-      }
-      catch (InterruptedException | ExecutionException e)
-      {
-         throw new TrcServiceException(format("unable to find records ({0}, *)", source), e);
-      }
+      String msg = "unable to find records ({0} -> *)";
+      return unwrap(result, () -> format(msg, source));
    }
 
    @Override
@@ -152,14 +134,8 @@ public class SeeAlsoServiceImpl implements SeeAlsoService
          return hydrateModels(resultSet);
       });
 
-      try
-      {
-         return Objects.requireNonNull(result.get(), "SQL execution failed to return a result");
-      }
-      catch (InterruptedException | ExecutionException e)
-      {
-         throw new TrcServiceException(format("unable to find records (*, {0})", target), e);
-      }
+      String msg = "unable to find records (* -> {0})";
+      return unwrap(result, () -> format(msg, target));
    }
 
    @Override
@@ -174,14 +150,8 @@ public class SeeAlsoServiceImpl implements SeeAlsoService
          return Boolean.valueOf(updated > 0);
       });
 
-      try
-      {
-         return Objects.requireNonNull(result.get(), "SQL execution failed to return a result").booleanValue();
-      }
-      catch (InterruptedException | ExecutionException e)
-      {
-         throw new TrcServiceException(format("unable to delete record ({0}, {1})", source, target), e);
-      }
+      String msg = "unable to delete record ({0}, {1})";
+      return unwrap(result, () -> format(msg, source, target));
    }
 
    @Override
@@ -196,13 +166,20 @@ public class SeeAlsoServiceImpl implements SeeAlsoService
          return Boolean.valueOf(updated > 0);
       });
 
+      String msg = "unable to delete records ({0}, *) || (*, {0})";
+      return unwrap(result, () -> format(msg, id));
+   }
+
+   private <T> T unwrap(CompletableFuture<T> future, Supplier<String> err)
+   {
       try
       {
-         return Objects.requireNonNull(result.get(), "SQL execution failed to return a result").booleanValue();
+         return future.get(10, TimeUnit.SECONDS);
       }
-      catch (InterruptedException | ExecutionException e)
+      catch (InterruptedException | TimeoutException | ExecutionException e)
       {
-         throw new TrcServiceException(format("unable to delete records ({0}, *) || (*, {0})", id), e);
+         throw new TrcServiceException(err.get(),
+               e instanceof ExecutionException ? e.getCause() : e);
       }
    }
 
