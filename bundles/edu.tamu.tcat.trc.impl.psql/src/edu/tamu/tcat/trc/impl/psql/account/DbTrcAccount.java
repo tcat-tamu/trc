@@ -40,7 +40,10 @@ public class DbTrcAccount implements TrcAccount
       this.email = dto.email;
       this.affiliation = dto.affiliation;
 
-      this.properties = new HashMap<>(dto.properties);
+      if (dto.properties != null)
+         this.properties = new HashMap<>(dto.properties);
+      else
+         this.properties = new HashMap<>();
    }
 
    @Override

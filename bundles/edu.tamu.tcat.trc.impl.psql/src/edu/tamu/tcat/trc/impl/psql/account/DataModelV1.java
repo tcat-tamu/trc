@@ -33,7 +33,8 @@ public abstract class DataModelV1
          dto.email = orig.email;
          dto.affiliation = orig.affiliation;
 
-         dto.properties = new HashMap<>(orig.properties);
+         if (orig.properties != null)
+            dto.properties = new HashMap<>(orig.properties);
 
          return dto;
       }

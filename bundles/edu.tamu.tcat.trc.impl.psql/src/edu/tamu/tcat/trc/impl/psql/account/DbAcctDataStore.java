@@ -1,12 +1,11 @@
 package edu.tamu.tcat.trc.impl.psql.account;
 
-import static java.text.MessageFormat.format;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -152,24 +151,24 @@ public class DbAcctDataStore implements TrcAccountDataStore
 
       builder.addColumn(
             new ColumnDefinition.Builder()
-                       .setName(LOGINDATA_ACCOUNT_ID)
-                       .setType(ColumnDefinition.ColumnType.varchar)
-                       .notNull()
-                       .build());
+                  .setName(LOGINDATA_ACCOUNT_ID)
+                  .setType(ColumnDefinition.ColumnType.varchar)
+                  .notNull()
+                  .build());
 
       builder.addColumn(
             new ColumnDefinition.Builder()
-            .setName(LOGINDATA_PROVIDER_KEY)
-            .setType(ColumnDefinition.ColumnType.varchar)
-            .notNull()
-            .build());
+                  .setName(LOGINDATA_PROVIDER_KEY)
+                  .setType(ColumnDefinition.ColumnType.varchar)
+                  .notNull()
+                  .build());
 
       builder.addColumn(
             new ColumnDefinition.Builder()
-            .setName(LOGINDATA_USER_ID)
-            .setType(ColumnDefinition.ColumnType.varchar)
-            .notNull()
-            .build());
+                  .setName(LOGINDATA_USER_ID)
+                  .setType(ColumnDefinition.ColumnType.varchar)
+                  .notNull()
+                  .build());
 
       TableDefinition table = builder.build();
       return table;
@@ -189,13 +188,13 @@ public class DbAcctDataStore implements TrcAccountDataStore
             + "WHERE {0}->>''username'' = ? "
               + acctRepo.buildNotRemovedClause();
 
-      String sql = format(sqlQueryByUsername, SCHEMA_DATA_FIELD, accountDataTablename);
+      String sql = MessageFormat.format(sqlQueryByUsername, SCHEMA_DATA_FIELD, accountDataTablename);
       CompletableFuture<DbTrcAccount> future = sqlExecutor.submit((conn) -> {
          return doLookupByUsername(username, sql, conn);
       });
 
       String message = "Unexpected internal error trying to retrieve account for username {0}: {1}";
-      return unwrap(future, (ex -> format(message, username, ex.getMessage())));
+      return unwrap(future, (ex -> MessageFormat.format(message, username, ex.getMessage())));
    }
 
    public boolean isUsernameAvailable(String username)
@@ -205,7 +204,7 @@ public class DbAcctDataStore implements TrcAccountDataStore
       });
 
       String message = "Unexpected internal error trying check username {0}: {1}";
-      return unwrap(future, (ex -> format(message, username, ex.getMessage())));
+      return unwrap(future, (ex -> MessageFormat.format(message, username, ex.getMessage())));
    }
 
    @Override
@@ -220,7 +219,7 @@ public class DbAcctDataStore implements TrcAccountDataStore
             sqlExecutor.submit(conn -> doAccountLookup(conn, data));
 
       String msg = "Unexpected internal error looking up account data for login user [{0}] for provider [{1}]";
-      return unwrap(future, (ex -> format(msg, data.getLoginUserId(), data.getLoginProviderId())));
+      return unwrap(future, (ex -> MessageFormat.format(msg, data.getLoginUserId(), data.getLoginProviderId())));
    }
 
    @Override
@@ -252,7 +251,7 @@ public class DbAcctDataStore implements TrcAccountDataStore
    {
       String errmsg = "Failed to revoke login data for user {0} for provider [{1}]: {2}";
       unwrap(sqlExecutor.submit(conn -> unlink(conn, data)),
-            ex -> format(errmsg, data.getLoginUserId(), data.getLoginProviderId(), ex.getMessage()));
+            ex -> MessageFormat.format(errmsg, data.getLoginUserId(), data.getLoginProviderId(), ex.getMessage()));
    }
 
 
@@ -280,8 +279,11 @@ public class DbAcctDataStore implements TrcAccountDataStore
      String sqlTemplate = "SELECT {0} FROM {1} "
                          + "WHERE {2} = ? "
                            + "AND {3} = ?";
-     String sql = format(sqlTemplate, LOGINDATA_ACCOUNT_ID, PARAM_LOGINDATA_TABLE_NAME,
-           LOGINDATA_PROVIDER_KEY, LOGINDATA_USER_ID);
+     String sql = MessageFormat.format(sqlTemplate,
+                                       LOGINDATA_ACCOUNT_ID,
+                                       loginDataTablename,
+                                       LOGINDATA_PROVIDER_KEY,
+                                       LOGINDATA_USER_ID);
 
      try (PreparedStatement stmt = conn.prepareStatement(sql))
      {
@@ -304,12 +306,13 @@ public class DbAcctDataStore implements TrcAccountDataStore
       String sqlTemplate = "DELETE FROM {0} "
                           + "WHERE {1} = ? "
                             + "AND {2} = ?";
-      String sql = format(sqlTemplate, PARAM_LOGINDATA_TABLE_NAME,
-                        LOGINDATA_PROVIDER_KEY, LOGINDATA_USER_ID);
+      String sql = MessageFormat.format(sqlTemplate,
+                                        loginDataTablename,
+                                        LOGINDATA_PROVIDER_KEY,
+                                        LOGINDATA_USER_ID);
 
       try (PreparedStatement stmt = conn.prepareStatement(sql))
       {
-
          stmt.setString(1, login.getLoginProviderId());
          stmt.setString(2, login.getLoginUserId());
 
@@ -335,8 +338,11 @@ public class DbAcctDataStore implements TrcAccountDataStore
                            + " SET {1} = ? "
                           + "WHERE {2} = ? "
                             + "AND {3} = ?";
-      String sql = format(sqlTemplate, PARAM_LOGINDATA_TABLE_NAME, LOGINDATA_ACCOUNT_ID,
-            LOGINDATA_PROVIDER_KEY, LOGINDATA_USER_ID);
+      String sql = MessageFormat.format(sqlTemplate,
+                                        loginDataTablename,
+                                        LOGINDATA_ACCOUNT_ID,
+                                        LOGINDATA_PROVIDER_KEY,
+                                        LOGINDATA_USER_ID);
 
       try (PreparedStatement stmt = conn.prepareStatement(sql))
       {
@@ -354,8 +360,25 @@ public class DbAcctDataStore implements TrcAccountDataStore
 
    private void linkAccount(Connection conn, LoginData login, UUID uuid)
    {
-      // TODO Auto-generated method stub
+      String sqlTemplate = "INSERT INTO {0} ({1}, {2}, {3}) VALUES (?,?,?)";
+      String sql = MessageFormat.format(sqlTemplate,
+                                        loginDataTablename,
+                                        LOGINDATA_ACCOUNT_ID,
+                                        LOGINDATA_PROVIDER_KEY,
+                                        LOGINDATA_USER_ID);
 
+      try (PreparedStatement stmt = conn.prepareStatement(sql))
+      {
+         stmt.setString(1, uuid.toString());
+         stmt.setString(2, login.getLoginProviderId());
+         stmt.setString(3, login.getLoginUserId());
+
+         stmt.executeUpdate();
+      }
+      catch (SQLException ex)
+      {
+         throw new IllegalStateException("Failed to revoke login link.", ex);
+      }
    }
 
    private boolean isUsernameAvailable(String username, Connection conn)
@@ -365,7 +388,9 @@ public class DbAcctDataStore implements TrcAccountDataStore
             + "WHERE {0}->>''username'' = ? "
               + acctRepo.buildNotRemovedClause();
 
-      String sql = format(sqlTemplate, SCHEMA_DATA_FIELD, accountDataTablename);
+      String sql = MessageFormat.format(sqlTemplate,
+                                        SCHEMA_DATA_FIELD,
+                                        accountDataTablename);
       try (PreparedStatement stmt = conn.prepareStatement(sql))
       {
          stmt.setString(1, username);
@@ -377,7 +402,7 @@ public class DbAcctDataStore implements TrcAccountDataStore
       }
       catch (SQLException ex)
       {
-         throw new IllegalStateException(format("Internal error checking for username {0}", username), ex);
+         throw new IllegalStateException(MessageFormat.format("Internal error checking for username {0}", username), ex);
       }
    }
 
@@ -391,7 +416,7 @@ public class DbAcctDataStore implements TrcAccountDataStore
          try (ResultSet rs = stmt.executeQuery())
          {
             if (!rs.next())
-               throw new AccountException(format(notFound, username));
+               throw new AccountException(MessageFormat.format(notFound, username));
 
             return parseAccountJson(rs.getString("json"));
          }
@@ -399,7 +424,7 @@ public class DbAcctDataStore implements TrcAccountDataStore
       catch (SQLException ex)
       {
          String message = "Failed to restore account from database for username {0}.";
-         throw new IllegalStateException(format(message, username), ex);
+         throw new IllegalStateException(MessageFormat.format(message, username), ex);
       }
    }
 
@@ -414,7 +439,7 @@ public class DbAcctDataStore implements TrcAccountDataStore
       catch (IOException ex)
       {
          String message = "Failed to parse account data. JSON Data:\n{0}\n.";
-         throw new IllegalStateException(format(message, json), ex);
+         throw new IllegalStateException(MessageFormat.format(message, json), ex);
       }
    }
 
@@ -427,14 +452,17 @@ public class DbAcctDataStore implements TrcAccountDataStore
             + "  AND login.{4} = ? "
               + acctRepo.buildNotRemovedClause();
 
-      String sql = format(sqlTemplate, SCHEMA_DATA_FIELD,
-            accountDataTablename, this.loginDataTablename,
-            LOGINDATA_PROVIDER_KEY, LOGINDATA_USER_ID);
+      String sql = MessageFormat.format(sqlTemplate,
+                                        SCHEMA_DATA_FIELD,
+                                        accountDataTablename,
+                                        this.loginDataTablename,
+                                        LOGINDATA_PROVIDER_KEY,
+                                        LOGINDATA_USER_ID);
 
       try (PreparedStatement stmt = conn.prepareStatement(sql))
       {
          stmt.setString(1, data.getLoginProviderId());
-         stmt.setString(1, data.getLoginUserId());
+         stmt.setString(2, data.getLoginUserId());
 
          try (ResultSet rs = stmt.executeQuery())
          {
@@ -452,7 +480,7 @@ public class DbAcctDataStore implements TrcAccountDataStore
       catch (SQLException | IOException ex)
       {
          String msg = "Failed to restore account data for user [{0}] from [{1}]";
-         throw new IllegalStateException(format(msg, data.getLoginProviderId(), data.getLoginUserId()), ex);
+         throw new IllegalStateException(MessageFormat.format(msg, data.getLoginProviderId(), data.getLoginUserId()), ex);
       }
    }
 

@@ -1,5 +1,9 @@
 package edu.tamu.tcat.trc.services.rest.accounts;
 
+import java.sql.Connection;
+import java.sql.Statement;
+import java.text.MessageFormat;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -23,8 +27,7 @@ import javax.ws.rs.core.MediaType;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
-import edu.tamu.tcat.account.db.login.DatabaseAuthnManager;
-import edu.tamu.tcat.account.db.login.DatabaseLoginProvider;
+import edu.tamu.tcat.account.db.login.AccountRecord;
 //import edu.tamu.tcat.account.apacheds.LdapHelperAdFactory;
 //import edu.tamu.tcat.account.apacheds.LdapHelperReader;
 //import edu.tamu.tcat.account.apacheds.ad.login.LdapLoginProvider;
@@ -38,11 +41,14 @@ import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.auth.account.EditTrcAccountCommand;
 import edu.tamu.tcat.trc.auth.account.TrcAccount;
 import edu.tamu.tcat.trc.auth.account.TrcAccountDataStore;
+import edu.tamu.tcat.trc.impl.psql.account.DatabaseAuthnManager;
+import edu.tamu.tcat.trc.impl.psql.account.DatabaseLoginProvider;
 import edu.tamu.tcat.trc.services.rest.accounts.v1.RestApiV1.LoginRequestDTO;
 
 @Path("/accounts")
 public class AccountsResource
 {
+   private static final String REST_TOKEN_PWDRESET_KEY = "edu.tamu.tcat.sda.rest.token.pwdreset.key";
    private static final Logger debug = Logger.getLogger(AccountsResource.class.getName());
    private static final String DEFAULT_LOGIN_PROVIDER = "loginprovider.db.sda";
 
@@ -193,7 +199,8 @@ public class AccountsResource
 
          if (account == null)
          {
-            // failed lookup, try creating the account
+            // failed lookup, try creating the account and linking to LoginData
+            //FIXME: this does not properly populate the new account with login data values
             EditTrcAccountCommand cmd = svcAccountStore.create(data);
             CompletableFuture<TrcAccount> future = cmd.execute();
             account = future.get(2, TimeUnit.MINUTES);
@@ -211,12 +218,56 @@ public class AccountsResource
       }
    }
 
-   private LoginProvider getDbLoginProvider(String username, String password)
+   private LoginProvider getDbLoginProvider(String username, String password) throws Exception
    {
-      DatabaseAuthnManager authManager = DatabaseAuthnManager.instantiate(svcConfig, svcExec, svcCrypto);
+      CompletableFuture<Object> future = svcExec.submit(new SqlExecutor.ExecutorTask<Object>()
+      {
+         @Override
+         public Object execute(Connection conn) throws Exception
+         {
+            //HACK: children, don't try this at home. Hijacking the "create table" sql with a string-replace in it to inject the 'IF NOT EXISTS' clause
+            String sql = MessageFormat.format(DatabaseAuthnManager.CREATE_DB_TABLE, "IF NOT EXISTS " + DatabaseAuthnManager.SQL_TABLENAME);
+            try (Statement stmt = conn.createStatement())
+            {
+               debug.info("Invoking: " + sql);
+               stmt.execute(sql);
+            }
+            return null;
+         }
+      });
+      future.get(2, TimeUnit.MINUTES);
 
       DatabaseLoginProvider rv = new DatabaseLoginProvider();
-      rv.init(DEFAULT_LOGIN_PROVIDER, username, password, authManager);
+      rv.init(DEFAULT_LOGIN_PROVIDER, username, password, getAuthManager());
+      return rv;
+   }
+
+   private DatabaseAuthnManager getAuthManager()
+   {
+      DatabaseAuthnManager authManager = DatabaseAuthnManager.instantiate(svcConfig, svcExec, svcCrypto, REST_TOKEN_PWDRESET_KEY, 24, ChronoUnit.HOURS);
+      return authManager;
+   }
+
+   @POST
+   @Path("/create_json")
+   @Produces(MediaType.APPLICATION_JSON)
+   public Map<String,Object> createJson(LoginRequestDTO postdata)
+   {
+      if (postdata.username == null || postdata.username.length() == 0)
+         throw new BadRequestException("Username not specified");
+      if (postdata.password == null || postdata.password.length() == 0)
+         throw new BadRequestException("Password not specified");
+
+
+      AccountRecord record = new AccountRecord();
+      record.email = "eml";
+      record.first = "fn";
+      record.last = "ln";
+      record.username = postdata.username;
+      AccountRecord updated = getAuthManager().createRecord(record, postdata.password);
+
+      Map<String,Object> rv = new HashMap<>();
+      rv.put("uid", Long.valueOf(updated.uid));
       return rv;
    }
 
