@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.services.seealso.repo;
+package edu.tamu.tcat.trc.services.seealso;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -7,11 +7,19 @@ import java.util.stream.Stream;
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.services.BasicServiceContext;
 import edu.tamu.tcat.trc.services.ServiceContext;
-import edu.tamu.tcat.trc.services.seealso.Link;
 
 /**
- * A service that provides a lightweight mechanism for establishing relationships between string-identifiable entries.
- * This service differs from TRC Relationships in that links are untyped and always directed.
+ * A service that provides a lightweight mechanism for establishing relationships between
+ * string-identifiable entries.
+ *
+ * <p>This service is similar to the TRC Relationship Entry in some respects. The chief
+ * difference is that SeeAlso Links are intended to be lightweight guides to direct readers
+ * to related information that may be of interest where as Relationships are intended to
+ * represent a scholarly claim about the existence and nature of a relationship (or potential
+ * relationship) between two or more TRC entries. Stated another way, relationships are
+ * intended to serve as a scholarly/editorial claim in their own right whereas a SeeAlso Links
+ * are part of the TRC Entries they annotate and are not intended to be accessed or understood
+ * in their own right.
  */
 public interface SeeAlsoService
 {
@@ -73,6 +81,7 @@ public interface SeeAlsoService
 
    /**
     * Removes the specified link if it exists
+    *
     * @param source A token that uniquely identifies the source entry
     * @param target A token that uniquely identifies the target entry
     * @return {@code true} if the persistence layer was changed by the deletion
@@ -81,6 +90,7 @@ public interface SeeAlsoService
 
    /**
     * Removes all links for which the identified entry is the source or target
+    *
     * @param id A token that uniquely identifies an entry
     * @return {@code true} if the persistence layer was changed by the deletion
     */

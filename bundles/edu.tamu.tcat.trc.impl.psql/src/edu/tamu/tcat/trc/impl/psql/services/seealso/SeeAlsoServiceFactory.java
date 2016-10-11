@@ -11,7 +11,7 @@ import edu.tamu.tcat.trc.repo.db.DbTableManager;
 import edu.tamu.tcat.trc.repo.db.TableDefinition;
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.TrcServiceException;
-import edu.tamu.tcat.trc.services.seealso.repo.SeeAlsoService;
+import edu.tamu.tcat.trc.services.seealso.SeeAlsoService;
 
 public class SeeAlsoServiceFactory implements ServiceFactory<SeeAlsoService>
 {
@@ -63,7 +63,7 @@ public class SeeAlsoServiceFactory implements ServiceFactory<SeeAlsoService>
    @Override
    public void shutdown()
    {
-      // TODO Auto-generated method stub
+      // no-op
    }
 
 }

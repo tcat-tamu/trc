@@ -22,7 +22,7 @@ import edu.tamu.tcat.trc.repo.db.ColumnDefinition.ColumnType;
 import edu.tamu.tcat.trc.repo.db.TableDefinition;
 import edu.tamu.tcat.trc.services.TrcServiceException;
 import edu.tamu.tcat.trc.services.seealso.Link;
-import edu.tamu.tcat.trc.services.seealso.repo.SeeAlsoService;
+import edu.tamu.tcat.trc.services.seealso.SeeAlsoService;
 
 public class SeeAlsoServiceImpl implements SeeAlsoService
 {
