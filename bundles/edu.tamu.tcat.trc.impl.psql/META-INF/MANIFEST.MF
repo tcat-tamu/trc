@@ -26,7 +26,9 @@ Import-Package: com.fasterxml.jackson.core;version="2.3.1",
  edu.tamu.tcat.trc.services.categorization;version="2.0.0",
  edu.tamu.tcat.trc.services.categorization.strategies.tree;version="2.0.0",
  edu.tamu.tcat.trc.services.notes;version="2.0.0",
- edu.tamu.tcat.trc.services.seealso;version="2.0.0"
+ edu.tamu.tcat.trc.services.seealso;version="2.0.0",
+ org.apache.solr.client.solrj;version="5.5.0";resolution:=optional,
+ org.apache.solr.common;version="5.5.0";resolution:=optional
 Export-Package: edu.tamu.tcat.trc.impl.psql;version="2.0.0",
  edu.tamu.tcat.trc.impl.psql.account;version="2.0.0",
  edu.tamu.tcat.trc.impl.psql.entries;version="2.0.0",

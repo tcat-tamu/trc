@@ -16,12 +16,12 @@ import edu.tamu.tcat.trc.entries.types.article.impl.repo.EditArticleCommandFacto
 import edu.tamu.tcat.trc.entries.types.article.impl.search.ArticleSearchStrategy;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
+import edu.tamu.tcat.trc.impl.psql.entries.SolrSearchSupport;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.IndexService;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
-import edu.tamu.tcat.trc.search.solr.impl.SolrSearchMediator;
 
 public class ArticleEntryService
 {
@@ -161,6 +161,7 @@ public class ArticleEntryService
       IndexService<Article> indexSvc = indexSvcMgr.configure(strategy);
 
       ArticleRepoImpl repo = new ArticleRepoImpl(delegate, null);     // USE SEARCH ACCT
-      searchReg = repo.onUpdate(ctx -> SolrSearchMediator.index(indexSvc, ctx));
+      SolrSearchSupport<Article> mediator = new SolrSearchSupport<>(indexSvc, strategy);
+      searchReg = repo.onUpdate(mediator::handleUpdate);
    }
 }

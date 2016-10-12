@@ -19,12 +19,12 @@ import edu.tamu.tcat.trc.entries.types.reln.impl.search.RelnSearchStrategy;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
+import edu.tamu.tcat.trc.impl.psql.entries.SolrSearchSupport;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.IndexService;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
-import edu.tamu.tcat.trc.search.solr.impl.SolrSearchMediator;
 
 public class RelationshipEntryService
 {
@@ -175,6 +175,7 @@ public class RelationshipEntryService
       IndexService<Relationship> indexSvc = indexSvcMgr.configure(indexCfg);
 
       RelationshipRepositoryImpl repo = new RelationshipRepositoryImpl(delegate, null);     // USE SEARCH ACCT
-      searchReg = repo.onUpdate(ctx -> SolrSearchMediator.index(indexSvc, ctx));
+      SolrSearchSupport<Relationship> mediator = new SolrSearchSupport<>(indexSvc, indexCfg);
+      searchReg = repo.onUpdate(mediator::handleUpdate);
    }
 }

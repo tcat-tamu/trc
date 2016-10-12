@@ -19,6 +19,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.ModelAdapter;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.search.BibliographicSearchStrategy;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.BibliographicEntryRepository;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand;
+import edu.tamu.tcat.trc.impl.psql.entries.SolrSearchSupport;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.resolver.EntryReference;
@@ -27,7 +28,6 @@ import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.resolver.InvalidReferenceException;
 import edu.tamu.tcat.trc.search.solr.IndexService;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
-import edu.tamu.tcat.trc.search.solr.impl.SolrSearchMediator;
 
 public class BibliographicEntryService
 {
@@ -167,7 +167,8 @@ public class BibliographicEntryService
       IndexService<BibliographicEntry> indexSvc = indexSvcMgr.configure(indexCfg);
 
       BiblioRepoImpl repo = new BiblioRepoImpl(delegate, null);     // TODO USE SEARCH ACCT
-      searchReg = repo.onUpdate(ctx -> SolrSearchMediator.index(indexSvc, ctx));
+      SolrSearchSupport<BibliographicEntry> mediator = new SolrSearchSupport<>(indexSvc, indexCfg);
+      searchReg = repo.onUpdate(mediator::handleUpdate);
    }
 
    private class BibliographicEntryResolver extends EntryResolverBase<BibliographicEntry>

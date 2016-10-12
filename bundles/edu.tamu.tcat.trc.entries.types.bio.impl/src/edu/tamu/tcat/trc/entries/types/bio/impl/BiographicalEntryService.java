@@ -16,6 +16,7 @@ import edu.tamu.tcat.trc.entries.types.bio.impl.repo.EditPersonCommandFactory;
 import edu.tamu.tcat.trc.entries.types.bio.impl.search.BioSearchStrategy;
 import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
+import edu.tamu.tcat.trc.impl.psql.entries.SolrSearchSupport;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
@@ -153,6 +154,7 @@ public class BiographicalEntryService
       IndexService<BiographicalEntry> indexSvc = indexSvcMgr.configure(indexCfg);
 
       BioEntryRepoImpl repo = new BioEntryRepoImpl(delegate, null);     // USE SEARCH ACCT
-      searchReg = repo.onUpdate(ctx -> SolrSearchMediator.index(indexSvc, ctx));
+      SolrSearchSupport<BiographicalEntry> mediator = new SolrSearchSupport<>(indexSvc, indexCfg);
+      searchReg = repo.onUpdate(mediator::handleUpdate);
    }
 }
