@@ -61,13 +61,17 @@ public class SolrSearchSupport<EntryType>
       SolrClient solr = indexSvc.getSolrClient();
       Iterable<EntryType> entries = () -> repo.listAll();
 
-      StreamSupport.stream(entries.spliterator(), false)
-         .map(strategy::getDocument)
-         .forEach(this::index);
-
       try
       {
+         logger.log(Level.INFO, format("Reindexing all documents for " + repo.getClass().getSimpleName()));
+
+         solr.deleteByQuery("*:*");
+         StreamSupport.stream(entries.spliterator(), false)
+            .map(strategy::getDocument)
+            .forEach(this::index);
+
          solr.commit();
+         logger.log(Level.INFO, format("Finished reindexing all documents for " + repo.getClass().getSimpleName()));
       }
       catch (SolrServerException | IOException ex)
       {
