@@ -19,9 +19,6 @@ import java.time.Period;
 import java.time.Year;
 import java.util.Collection;
 
-import edu.tamu.tcat.trc.SearchException;
-
-
 /**
  * Command for use in querying the associated {@link WorkSearchService} which provides
  * search proxy instances.
@@ -49,7 +46,7 @@ public interface WorkQueryCommand
     * In keeping with the "spirit of search", the window (offset + length) and other paramters
     * are configured in the query itself and not in a result with a long lifecycle.
     */
-   SearchWorksResult execute() throws SearchException;
+   SearchWorksResult execute();
 
    /**
     * Supply a "basic" free-text, keyword query to be executed. In general, the supplied query will
@@ -60,7 +57,7 @@ public interface WorkQueryCommand
     *
     * @param basicQueryString The "basic" query string. May be {@code null} or empty.
     */
-   void query(String basicQueryString) throws SearchException;
+   void query(String basicQueryString);
 
    /**
     * Add work type search criteria.Each invocation will add a literal element to a compound
@@ -69,7 +66,7 @@ public interface WorkQueryCommand
     * @param type The type to search for
     */
    @Deprecated // see note on Work#getType()
-   void queryType(String type) throws SearchException;
+   void queryType(String type);
 
    /**
     * Add title search criteria. Each invocation will add a literal element to a compound
@@ -77,7 +74,7 @@ public interface WorkQueryCommand
     *
     * @param q The value to search for in titles.
     */
-   void queryTitle(String title) throws SearchException;
+   void queryTitle(String title);
 
    /**
     * Add author name search criteria. Each invocation will add a literal element to a compound
@@ -88,7 +85,7 @@ public interface WorkQueryCommand
     *
     * @param authorName
     */
-   void queryAuthorName(String authorName) throws SearchException;
+   void queryAuthorName(String authorName);
 
    /**
     * Futher restrict the results to those associated with the provided authors by their identifiers.
@@ -102,9 +99,9 @@ public interface WorkQueryCommand
     * @throws SearchException If the identifiers are not valid.
     * @see #clearFilterAuthor()
     */
-   void addFilterAuthor(Collection<String> authorIds) throws SearchException;
+   void addFilterAuthor(Collection<String> authorIds);
 
-   void clearFilterAuthor() throws SearchException;
+   void clearFilterAuthor();
 
    /**
     * Restrict the results to those associated with the provided date {@link Period}s.
@@ -113,14 +110,14 @@ public interface WorkQueryCommand
     * @param periods
     * @throws SearchException If the identifiers are not valid.
     */
-   void addFilterDate(Year start, Year end) throws SearchException;
+   void addFilterDate(Year start, Year end);
 
    // Add an unbounded date filter of the form [start, *)
    //void addFilterDateStart(Year start) throws SearchException;
    // Add an unbounded date filter of the form (*, end]
    //void addFilterDateEnd(Year end) throws SearchException;
 
-   void clearFilterDate() throws SearchException;
+   void clearFilterDate();
 
 //   /**
 //    * Filter results to a specific geographical location.

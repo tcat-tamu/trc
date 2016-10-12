@@ -1,7 +1,5 @@
 package edu.tamu.tcat.trc.entries.types.article.search;
 
-import edu.tamu.tcat.trc.SearchException;
-
 /**
  * A command-based API for parameterizing and executing a search for articles.
  * @since 1.1
@@ -14,7 +12,7 @@ public interface ArticleQueryCommand
     * @return The search results.
     * @throws SearchException If there were problems executing the search.
     */
-   ArticleSearchResult execute() throws SearchException;
+   ArticleSearchResult execute();
 
    /**
     * @param q A free-text query to be executed over the title and content of the article. This

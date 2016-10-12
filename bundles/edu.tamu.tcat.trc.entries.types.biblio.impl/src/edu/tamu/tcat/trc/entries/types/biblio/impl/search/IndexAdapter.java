@@ -2,7 +2,6 @@ package edu.tamu.tcat.trc.entries.types.biblio.impl.search;
 
 import org.apache.solr.common.SolrInputDocument;
 
-import edu.tamu.tcat.trc.SearchException;
 import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
@@ -11,6 +10,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.ModelAdapter;
 import edu.tamu.tcat.trc.entries.types.biblio.search.BiblioSearchProxy;
+import edu.tamu.tcat.trc.search.solr.SearchException;
 
 public abstract class IndexAdapter
 {

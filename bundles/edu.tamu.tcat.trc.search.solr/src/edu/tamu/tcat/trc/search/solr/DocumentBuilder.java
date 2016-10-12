@@ -4,8 +4,6 @@ import java.util.Collection;
 
 import org.apache.solr.common.SolrInputDocument;
 
-import edu.tamu.tcat.trc.SearchException;
-
 public interface DocumentBuilder
 {
 

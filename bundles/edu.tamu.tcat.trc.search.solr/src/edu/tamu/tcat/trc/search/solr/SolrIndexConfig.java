@@ -19,8 +19,6 @@ import java.util.Collection;
 
 import org.apache.solr.client.solrj.SolrQuery;
 
-import edu.tamu.tcat.trc.SearchException;
-
 /**
  * An application-specific configuration for an indexer and query builder implementation to use for
  * initialization, validation, and execution.

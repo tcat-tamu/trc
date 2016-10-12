@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,8 +15,6 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio.search.copies;
 
-import edu.tamu.tcat.trc.SearchException;
-
 public interface VolumeSearchCommand
 {
 
@@ -24,7 +22,7 @@ public interface VolumeSearchCommand
     * In keeping with the "spirit of search", the window (offset + length) and other paramters
     * are configured in the query itself and not in a result with a long lifecycle.
     */
-   VolumeSearchResult execute() throws SearchException;
+   VolumeSearchResult execute();
 
    /**
     * Supply a "basic" free-text, keyword query to be executed. In general, the supplied query will
@@ -35,7 +33,7 @@ public interface VolumeSearchCommand
     *
     * @param basicQueryString The "basic" query string. May be {@code null} or empty.
     */
-   void query(String basicQueryString) throws SearchException;
+   void query(String basicQueryString);
 
    /**
     * Sets the index offset of the first result to be returned. Useful in conjunction with

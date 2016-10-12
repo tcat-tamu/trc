@@ -11,10 +11,10 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.SearchException;
 import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioEntryQueryCommand;
 import edu.tamu.tcat.trc.search.solr.IndexServiceStrategy;
+import edu.tamu.tcat.trc.search.solr.SearchException;
 import edu.tamu.tcat.trc.search.solr.SolrIndexConfig;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 import opennlp.tools.sentdetect.SentenceDetectorME;
@@ -101,7 +101,6 @@ public class BioSearchStrategy implements IndexServiceStrategy<BiographicalEntry
          throw new IllegalStateException("Failed to construct query builder", ex);
       }
    }
-
 
    /**
     * Gets the first sentence from a string of English text,

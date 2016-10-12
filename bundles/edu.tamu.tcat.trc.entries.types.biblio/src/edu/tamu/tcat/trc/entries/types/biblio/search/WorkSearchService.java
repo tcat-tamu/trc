@@ -15,7 +15,7 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio.search;
 
-import edu.tamu.tcat.trc.SearchException;
+import edu.tamu.tcat.trc.entries.types.biblio.repo.BibliographicEntryRepository;
 
 /**
  * The main API for searching a {@link BibliographicEntryRepository}.
@@ -44,7 +44,7 @@ public interface WorkSearchService
     * state stored to a persistable form, and likely this service again is the point
     * of reconstruction from that persistable form.
     */
-   WorkQueryCommand createQueryCommand() throws SearchException;
+   WorkQueryCommand createQueryCommand();
 
    //TODO: potential API for import/export; to be used for user "saved queries"
    //Object exportPersistable(WorkQueryCommand cmd);

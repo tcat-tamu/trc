@@ -1,7 +1,5 @@
 package edu.tamu.tcat.trc.entries.types.article.search;
 
-import edu.tamu.tcat.trc.SearchException;
-
 /**
  * Supports search based discovery of articles.
  *
@@ -10,18 +8,18 @@ import edu.tamu.tcat.trc.SearchException;
 public interface ArticleSearchService
 {
 
-   ArticleSearchResult findAll() throws SearchException;
+   ArticleSearchResult findAll();
 
-   ArticleSearchResult search(String query) throws SearchException;
+   ArticleSearchResult search(String query);
 
-   ArticleQueryCommand createQuery() throws SearchException;
+   ArticleQueryCommand createQuery();
 
-   ArticleQueryCommand createQuery(ArticleQuery query) throws SearchException;
+   ArticleQueryCommand createQuery(ArticleQuery query);
 
-   ArticleSearchResult next(ArticleQuery query) throws SearchException;
+   ArticleSearchResult next(ArticleQuery query);
 
-   ArticleSearchResult previous(ArticleQuery query) throws SearchException;
+   ArticleSearchResult previous(ArticleQuery query);
 
-   ArticleSearchResult page(ArticleQuery query, int pg) throws SearchException;
+   ArticleSearchResult page(ArticleQuery query, int pg);
 
 }

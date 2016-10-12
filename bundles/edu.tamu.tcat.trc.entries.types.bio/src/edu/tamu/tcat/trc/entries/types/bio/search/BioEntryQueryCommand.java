@@ -17,8 +17,6 @@ package edu.tamu.tcat.trc.entries.types.bio.search;
 
 import java.util.concurrent.CompletableFuture;
 
-import edu.tamu.tcat.trc.SearchException;
-
 /**
  * Command for use in querying the associated {@link BioEntrySearchService} which provides
  * search proxy instances.
@@ -75,7 +73,7 @@ public interface BioEntryQueryCommand
     * @deprecated Use {@link #execute()} instead.
     */
    @Deprecated
-   PersonSearchResult executeSync() throws SearchException;
+   PersonSearchResult executeSync();
 
    default CompletableFuture<PersonSearchResult> execute()
    {

@@ -23,7 +23,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 
-import edu.tamu.tcat.trc.SearchException;
 import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.search.WorkSolrQueryCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.BibliographicEntryRepository;
@@ -34,6 +33,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.search.SearchWorksResult;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkQueryCommand;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.QueryService;
+import edu.tamu.tcat.trc.search.solr.SearchException;
 import edu.tamu.tcat.trc.services.TrcServiceManager;
 
 public class WorkCollectionResource
