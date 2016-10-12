@@ -44,3 +44,4 @@ public interface IndexServiceStrategy<Entry, QueryCmd>
 
    QueryCmd createQuery(SolrClient solr);
 }
+

@@ -9,9 +9,8 @@ import org.apache.solr.client.solrj.SolrClient;
  * {@code IndexService} instances may be built to handle different domain types that
  * are backed by the same underlying Solr core.
  *
- * <p>The {@code IndexService} is designed to support mapping arbitrarily complex
- * domain objects into 'documents' that have been carefully designed to support specific
- * search requirements.
+ * <p>The {@code IndexService} is intended to support mapping arbitrary domain objects
+ * into 'documents' that have been designed to support specific search requirements.
  *
  * @param <T> The Java type of object to be stored in the associated index.
  */
