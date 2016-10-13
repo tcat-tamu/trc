@@ -41,8 +41,13 @@ import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
 
 public class DbAcctDataStore implements TrcAccountDataStore
 {
-
    private final static Logger logger = Logger.getLogger(DbAcctDataStore.class.getName());
+   /**
+    * UUID for the "guest" account.
+    *
+    * Note that this UUID does not follow the standard on "version" or "variant", but is all-bits-zero.
+    */
+   public static final UUID ACCOUNT_ID_GUEST = new UUID(0,0);
 
    /** Configuration parameter for the database table that will record account data. */
    public static final String PARAM_TABLE_NAME = "trc.accounts.accounts.tablename";
@@ -177,6 +182,19 @@ public class DbAcctDataStore implements TrcAccountDataStore
    @Override
    public TrcAccount getAccount(UUID id)
    {
+      /*
+       * Add logic here for access by guest-accout-id. This way it will work seamlessly with token-based
+       * authentication, which uses this API to get an account.
+       */
+      if (id.equals(ACCOUNT_ID_GUEST))
+      {
+         DataModelV1.AccountData ad = new DataModelV1.AccountData();
+         ad.active = true;
+         ad.displayName = "Guest";
+         ad.uuid = ACCOUNT_ID_GUEST;
+         return new DbTrcAccount(ad);
+      }
+
       return acctRepo.get(id.toString()).orElse(null);
    }
 

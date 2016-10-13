@@ -43,6 +43,7 @@ import edu.tamu.tcat.trc.auth.account.TrcAccount;
 import edu.tamu.tcat.trc.auth.account.TrcAccountDataStore;
 import edu.tamu.tcat.trc.impl.psql.account.DatabaseAuthnManager;
 import edu.tamu.tcat.trc.impl.psql.account.DatabaseLoginProvider;
+import edu.tamu.tcat.trc.impl.psql.account.DbAcctDataStore;
 import edu.tamu.tcat.trc.services.rest.accounts.v1.RestApiV1.LoginRequestDTO;
 
 @Path("/accounts")
@@ -137,6 +138,30 @@ public class AccountsResource
       if (postdata.providerId == null)
          postdata.providerId = DEFAULT_LOGIN_PROVIDER;
       return auth(bean, postdata.username, postdata.password, postdata.providerId);
+   }
+
+   /**
+    * Authenticate using guest account (no params)
+    */
+   @POST
+   @Path("/authguest")
+   @Produces(MediaType.APPLICATION_JSON)
+   @TokenProviding(payloadType=TrcAccount.class)
+   public Map<String,Object> authGuestJson(@BeanParam ContextBean bean)
+   {
+      try
+      {
+         TrcAccount account = svcAccountStore.getAccount(DbAcctDataStore.ACCOUNT_ID_GUEST);
+         bean.set(account, TrcAccount.class);
+         Map<String,Object> rv = new HashMap<>();
+         rv.put("uuid", account.getId());
+         return rv;
+      }
+      catch (Exception ex)
+      {
+         debug.log(Level.FINE, "Failed auth", ex);
+         throw new ForbiddenException(ex);
+      }
    }
 
    /**
