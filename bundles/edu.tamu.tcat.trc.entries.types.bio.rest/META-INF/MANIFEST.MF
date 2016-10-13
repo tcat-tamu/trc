@@ -7,9 +7,11 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: edu.tamu.tcat.trc.entries.types.bio.rest;version="1.3.0",
  edu.tamu.tcat.trc.entries.types.bio.rest.v1;version="1.3.0",
  edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal;version="1.3.0";x-internal:=true
-Import-Package: edu.tamu.tcat.account;version="2.0.0",
- edu.tamu.tcat.osgi.config;version="1.1.1",
+Import-Package: edu.tamu.tcat.account;version="[2.0.0,3.0.0)",
+ edu.tamu.tcat.account.jaxrs.bean;version="[2.0.0,3.0.0)",
+ edu.tamu.tcat.osgi.config;version="[1.1.0,2.0.0)",
  edu.tamu.tcat.trc;version="[2.0.0,3.0.0)",
+ edu.tamu.tcat.trc.auth.account;version="1.3.0",
  edu.tamu.tcat.trc.entries.common;version="1.3.0",
  edu.tamu.tcat.trc.entries.core.repo;version="1.3.0",
  edu.tamu.tcat.trc.entries.types.bio;version="1.3.0",

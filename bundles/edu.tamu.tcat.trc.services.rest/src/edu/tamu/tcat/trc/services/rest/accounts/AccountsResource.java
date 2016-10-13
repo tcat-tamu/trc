@@ -89,11 +89,11 @@ public class AccountsResource
    {
    }
 
-   @GET
-   public String doGet()
-   {
-      return "Get";
-   }
+//   @GET
+//   public String doGet()
+//   {
+//      return "Get";
+//   }
 
    /**
     * Authenticate using parameters sent via "application/x-www-form-urlencoded"

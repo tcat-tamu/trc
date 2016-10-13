@@ -26,6 +26,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -39,6 +40,9 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import edu.tamu.tcat.account.jaxrs.bean.ContextBean;
+import edu.tamu.tcat.account.jaxrs.bean.TokenSecured;
+import edu.tamu.tcat.trc.auth.account.TrcAccount;
 import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.DateDescriptionMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
@@ -74,11 +78,14 @@ public class PeopleResource
 
    @GET
    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+   //@TokenSecured(payloadType=TrcAccount.class)
    public RestApiV1.PersonSearchResultSet
-   searchPeople(@QueryParam(value="q") String q,
+   searchPeople(//@BeanParam ContextBean bean,
+                @QueryParam(value="q") String q,
                 @QueryParam(value = "off") @DefaultValue("0")   int offset,
                 @QueryParam(value = "max") @DefaultValue("100") int numResults)
    {
+      //TrcAccount account = bean.get(TrcAccount.class);
       if (queryService == null)
       {
          Response response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)

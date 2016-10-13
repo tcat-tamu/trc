@@ -92,6 +92,13 @@ public class PeopleResourceService
 
    }
 
+   // Would be better to handle token security here before delegating to the sub-resource,
+   // but that would require evaluating the TokenSecurityObjectFilter during @PreMatching,
+   // which needs some more investigation.
+   //@TokenSecured(payloadType=TrcAccount.class)
+   //public PeopleResource delgate(@BeanParam ContextBean bean)
+   //{
+   //   TrcAccount account = bean.get(TrcAccount.class);    // TODO get this from the request if this is possible here.
    @Path("/people")
    public PeopleResource delgate()
    {
