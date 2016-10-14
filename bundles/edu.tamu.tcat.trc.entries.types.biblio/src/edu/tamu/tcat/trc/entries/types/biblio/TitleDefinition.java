@@ -15,6 +15,7 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -44,10 +45,10 @@ public interface TitleDefinition
    Set<Title> get();
 
    /**
-    * @param type The desired title type to retrieve
-    * @return The title of the given type or null if a title of the given type is not defined.
+    * @param type The title type to retrieve
+    * @return An optional containing the requested title.
     */
-   Title get(String type);
+   Optional<Title> get(String type);
 
    /**
     * @return A set containing all defined title types.

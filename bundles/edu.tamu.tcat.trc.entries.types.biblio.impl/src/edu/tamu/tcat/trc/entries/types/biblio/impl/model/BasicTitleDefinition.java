@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import edu.tamu.tcat.trc.entries.types.biblio.Title;
@@ -40,9 +41,10 @@ public class BasicTitleDefinition implements TitleDefinition
    }
 
    @Override
-   public Title get(String type)
+   public Optional<Title> get(String type)
    {
-      return titles.get(type);
+      Title title = titles.get(type);
+      return title == null ? Optional.empty() : Optional.of(title);
    }
 
    @Override
