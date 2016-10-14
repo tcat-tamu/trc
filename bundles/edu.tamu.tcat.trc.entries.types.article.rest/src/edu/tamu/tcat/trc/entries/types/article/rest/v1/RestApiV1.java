@@ -16,7 +16,9 @@
 package edu.tamu.tcat.trc.entries.types.article.rest.v1;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,29 +29,6 @@ import edu.tamu.tcat.trc.resolver.EntryReference;
 
 public abstract class RestApiV1
 {
-
-   /**
-    * A unique identifier for an article.
-    */
-   public static class ArticleId
-   {
-      /**
-       * The unique, internal id for the article.
-       */
-      public String id;
-
-      /**
-       * The version of the article being referenced. If {@code null} or empty
-       * then this article referes to the latest version of the article.
-       */
-      public String version;
-
-      /**
-       * The URI of reference for this article.
-       * @since 1.1
-       */
-      public String uri;
-   }
 
    /**
     * @since 1.1
@@ -95,8 +74,11 @@ public abstract class RestApiV1
       /** The main content of the article. */
       public String body;
 
-      public Map<String, Footnote> footnotes;
-      public List<LinkedResource> links;
+      /** A map from footnote id to footnote. */
+      public Map<String, Footnote> footnotes = new HashMap<>();
+
+      /** A map from footnote id to footnote. */
+      public List<LinkedResource> links = new ArrayList<>();
    }
 
    public static class Publication
@@ -130,7 +112,7 @@ public abstract class RestApiV1
    public static class Citation
    {
       public String citationID;
-      public List<CitationItem> citationItems;
+      public List<CitationItem> citationItems = new ArrayList<>();
       public ArticleProperties properties;
    }
 
@@ -148,24 +130,6 @@ public abstract class RestApiV1
       public String properties;
    }
 
-   public static class Bibliography
-   {
-      public String id;
-      public String type;
-      public String title;
-      public String edition;
-      public List<Author> author;
-      public List<Translator> translator;
-      public String publisher;
-      @JsonProperty("container-title")
-      public String containerTitle;
-      @JsonProperty("publisher-place")
-      public String publisherPlace;
-      public String URL;
-      public Issued issued;
-   }
-
-
    public static class Author
    {
       public String family;
@@ -177,11 +141,6 @@ public abstract class RestApiV1
       public String family;
       public String given;
       public String literal;
-   }
-
-   public static class Issued
-   {
-      @JsonProperty("date-parts") public List<List<String>> dateParts;
    }
 
    /**
@@ -197,12 +156,6 @@ public abstract class RestApiV1
       public String rel;
    }
 
-   public static class Articles
-   {
-      public String id;
-      public String type;
-      public String uri;
-   }
    /**
     * @since 1.1
     */
@@ -212,8 +165,8 @@ public abstract class RestApiV1
       public String title;
       public Publication pubInfo;
       public List<ArticleAuthor> authors;
-      public List<String> absHL;
-      public List<String> contentHL;
+      public List<String> absHL = new ArrayList<>();
+      public List<String> contentHL = new ArrayList<>();
    }
 
    /**
@@ -222,7 +175,7 @@ public abstract class RestApiV1
    public static class ArticleSearchResultSet
    {
       public QueryDetail query;
-      public List<ArticleSearchResult> articles;
+      public List<ArticleSearchResult> articles = new ArrayList<>();
       // TODO add facets and highlighting
    }
 
