@@ -48,6 +48,12 @@ public interface RelationshipRepository extends EntryRepository<Relationship>
    public final static String ENTRY_URI_BASE = "entries/relationships";
 
    /**
+    * @return The registry that defines the relationship types that have been configured
+    *    for this application.
+    */
+   RelationshipTypeRegistry getTypeRegistry();
+
+   /**
     * Lists all stored relationships
     *
     * @return An iterator over all relationships

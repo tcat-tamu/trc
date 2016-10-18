@@ -2,10 +2,13 @@ package edu.tamu.tcat.trc.entries.types.reln.impl;
 
 import static java.text.MessageFormat.format;
 
+import java.util.Iterator;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistrar;
@@ -13,7 +16,6 @@ import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.impl.repo.EditRelationshipCommandFactory;
 import edu.tamu.tcat.trc.entries.types.reln.impl.repo.ModelAdapter;
-import edu.tamu.tcat.trc.entries.types.reln.impl.repo.RelationshipRepositoryImpl;
 import edu.tamu.tcat.trc.entries.types.reln.impl.repo.RelationshipResolver;
 import edu.tamu.tcat.trc.entries.types.reln.impl.search.RelnSearchStrategy;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
@@ -129,7 +131,7 @@ public class RelationshipEntryService
       initDelegate();
 
       this.resolverReg = ctx.registerResolver(new RelationshipResolver(delegate, ctx.getConfig()));
-      this.repoReg = ctx.registerRepository(RelationshipRepository.class, account -> new RelationshipRepositoryImpl(delegate, account));
+      this.repoReg = ctx.registerRepository(RelationshipRepository.class, account -> new RelationshipRepositoryImpl(account));
    }
 
    private void initDocRepo()
@@ -174,8 +176,66 @@ public class RelationshipEntryService
       RelnSearchStrategy indexCfg = new RelnSearchStrategy();
       IndexService<Relationship> indexSvc = indexSvcMgr.configure(indexCfg);
 
-      RelationshipRepositoryImpl repo = new RelationshipRepositoryImpl(delegate, null);     // USE SEARCH ACCT
+      RelationshipRepositoryImpl repo = new RelationshipRepositoryImpl(null);     // USE SEARCH ACCT
       SolrSearchSupport<Relationship> mediator = new SolrSearchSupport<>(indexSvc, indexCfg);
       searchReg = repo.onUpdate(mediator::handleUpdate);
+   }
+
+   public class RelationshipRepositoryImpl implements RelationshipRepository
+   {
+      private final Account account;
+
+      public RelationshipRepositoryImpl(Account account)
+      {
+         this.account = account;
+      }
+
+      @Override
+      public RelationshipTypeRegistry getTypeRegistry()
+      {
+         return typeReg;
+      }
+
+      @Override
+      public Relationship get(String id)
+      {
+         return delegate.get(account, id);
+      }
+
+      @Override
+      public Iterator<Relationship> listAll()
+      {
+         return delegate.listAll();
+      }
+
+      @Override
+      public EditRelationshipCommand create()
+      {
+         return delegate.create(account);
+      }
+
+      @Override
+      public EditRelationshipCommand create(String id)
+      {
+         return delegate.create(account, id);
+      }
+
+      @Override
+      public EditRelationshipCommand edit(String id)
+      {
+         return delegate.edit(account, id);
+      }
+
+      @Override
+      public CompletableFuture<Boolean> remove(String id)
+      {
+         return delegate.remove(account, id);
+      }
+
+      @Override
+      public EntryRepository.ObserverRegistration onUpdate(EntryRepository.UpdateObserver<Relationship> observer)
+      {
+         return delegate.onUpdate(observer, account);
+      }
    }
 }

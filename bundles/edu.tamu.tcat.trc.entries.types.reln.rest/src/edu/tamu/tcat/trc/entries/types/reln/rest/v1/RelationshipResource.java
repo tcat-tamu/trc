@@ -15,6 +15,8 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln.rest.v1;
 
+import static java.text.MessageFormat.format;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -30,12 +32,16 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
+import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
+import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
 import edu.tamu.tcat.trc.search.solr.QueryService;
+import edu.tamu.tcat.trc.services.rest.ApiUtils;
 
 @Path("/relationships/{id}")
 public class RelationshipResource
@@ -82,7 +88,13 @@ public class RelationshipResource
       try
       {
          EditRelationshipCommand updateCommand = repo.edit(relnId);
-         updateCommand.setAll(RepoAdapter.toRepo(relationship));
+
+         updateCommand.setType(getRelationshipType(relationship.typeId));
+         updateCommand.setDescription(relationship.description);
+
+         updateCommand.setRelatedEntities(RepoAdapter.adapt(relationship.relatedEntities));
+         updateCommand.setTargetEntities(RepoAdapter.adapt(relationship.targetEntities));
+
          updateCommand.execute().get(10, TimeUnit.SECONDS);
 
          Relationship reln = repo.get(relnId);
@@ -94,6 +106,21 @@ public class RelationshipResource
          //      the result of malformed data.
          logger.log(Level.SEVERE, "An error occured during the udpating process.", e);
          throw new WebApplicationException("Failed to update relationship [" + relnId + "]", e.getCause(), 500);
+      }
+   }
+
+   @Deprecated // move to common location to avoid duplication with RelationshipsResource
+   private RelationshipType getRelationshipType(String typeId)
+   {
+      try
+      {
+         RelationshipTypeRegistry relnTypes = repo.getTypeRegistry();
+         return relnTypes.resolve(typeId);
+      }
+      catch (Exception ex)
+      {
+         String errMsg = "Invalid relationship type {0}";
+         throw ApiUtils.raise(Response.Status.BAD_REQUEST, format(errMsg, typeId), Level.WARNING, ex);
       }
    }
 

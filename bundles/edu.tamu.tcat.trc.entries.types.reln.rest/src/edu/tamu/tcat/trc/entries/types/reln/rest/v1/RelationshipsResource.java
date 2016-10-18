@@ -15,6 +15,8 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln.rest.v1;
 
+import static java.text.MessageFormat.format;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -33,14 +35,18 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
+import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
+import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipDirection;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchResult;
 import edu.tamu.tcat.trc.search.solr.QueryService;
 import edu.tamu.tcat.trc.search.solr.SearchException;
+import edu.tamu.tcat.trc.services.rest.ApiUtils;
 
 public class RelationshipsResource
 {
@@ -146,7 +152,11 @@ public class RelationshipsResource
       try
       {
          createCommand = repo.create();
-         createCommand.setAll(RepoAdapter.toRepo(relationship));
+         createCommand.setType(getRelationshipType(relationship.typeId));
+         createCommand.setDescription(relationship.description);
+
+         createCommand.setRelatedEntities(RepoAdapter.adapt(relationship.relatedEntities));
+         createCommand.setTargetEntities(RepoAdapter.adapt(relationship.targetEntities));
 
          RestApiV1.RelationshipId result = new RestApiV1.RelationshipId();
          result.id = createCommand.execute().get();
@@ -156,6 +166,21 @@ public class RelationshipsResource
       {
          debug.log(Level.SEVERE, "An error occured during the creating relationship process.", e);
          throw new WebApplicationException("Failed to create a new relationship:", e.getCause(), 500);
+      }
+   }
+
+   @Deprecated // move to common location to avoid duplication with RelationshipResource
+   private RelationshipType getRelationshipType(String typeId)
+   {
+      try
+      {
+         RelationshipTypeRegistry relnTypes = repo.getTypeRegistry();
+         return relnTypes.resolve(typeId);
+      }
+      catch (Exception ex)
+      {
+         String errMsg = "Invalid relationship type {0}";
+         throw ApiUtils.raise(Response.Status.BAD_REQUEST, format(errMsg, typeId), Level.WARNING, ex);
       }
    }
 

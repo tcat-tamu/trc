@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,19 +15,18 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln.rest.v1;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.net.URI;
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 import edu.tamu.tcat.trc.entries.types.reln.Anchor;
 import edu.tamu.tcat.trc.entries.types.reln.AnchorSet;
-import edu.tamu.tcat.trc.entries.types.reln.Provenance;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
-import edu.tamu.tcat.trc.entries.types.reln.URIParseHelper;
 import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDTO;
-import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDTO;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 
 /**
@@ -36,6 +35,23 @@ import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
  */
 public class RepoAdapter
 {
+
+   public static AnchorSet adapt(Set<RestApiV1.Anchor> dto)
+   {
+      Set<Anchor> anchors = (dto == null) ? Collections.emptySet() :
+         dto.stream()
+            .map(RepoAdapter::adapt)
+            .collect(toSet());
+
+      return () -> anchors;
+   }
+
+   public static Anchor adapt(RestApiV1.Anchor dto)
+   {
+      Set<URI> uris = dto.entryUris.stream().map(URI::create).collect(toSet());
+      return () -> uris;
+   }
+
    public static RestApiV1.Relationship toDTO(Relationship orig)
    {
       if (orig == null)
@@ -44,10 +60,6 @@ public class RepoAdapter
       dto.id = orig.getId();
       dto.typeId = orig.getType().getIdentifier();
       dto.description = orig.getDescription();
-      dto.descriptionMimeType = orig.getDescriptionFormat();
-
-      // TODO provide better support for error messaging.
-      dto.provenance = toDTO(orig.getProvenance());
 
       AnchorSet related = orig.getRelatedEntities();
       if (related != null)
@@ -80,10 +92,6 @@ public class RepoAdapter
       dto.id = orig.id;
       dto.typeId = orig.typeId;
       dto.description = orig.description;
-      dto.descriptionMimeType = orig.descriptionMimeType;
-
-      // TODO provide better support for error messaging.
-      dto.provenance = toDTO(orig.provenance);
 
       if (orig.relatedEntities != null)
       {
@@ -102,37 +110,6 @@ public class RepoAdapter
             dto.targetEntities.add(toDTO(anchor));
          }
       }
-
-      return dto;
-   }
-
-   public static RestApiV1.Provenance toDTO(Provenance orig)
-   {
-      if (orig == null)
-         return null;
-      RestApiV1.Provenance dto = new RestApiV1.Provenance();
-      Instant created = orig.getDateCreated();
-      dto.dateCreated = (created != null) ? DateTimeFormatter.ISO_INSTANT.format(created) : null;
-
-      Instant modified = orig.getDateModified();
-      dto.dateModified = (modified != null) ? DateTimeFormatter.ISO_INSTANT.format(modified) : null;
-
-      dto.creatorUris = URIParseHelper.toStringSet(orig.getCreators());
-
-      return dto;
-   }
-
-   public static RestApiV1.Provenance toDTO(ProvenanceDTO orig)
-   {
-      if (orig == null)
-         return null;
-      RestApiV1.Provenance dto = new RestApiV1.Provenance();
-      dto.dateCreated = orig.dateCreated;
-      dto.dateModified = orig.dateModified;
-
-      dto.creatorUris = new HashSet<>();
-      if (orig.creatorUris != null)
-         dto.creatorUris.addAll(orig.creatorUris);
 
       return dto;
    }
@@ -187,9 +164,6 @@ public class RepoAdapter
       dto.typeId = orig.typeId;
 
       dto.description = orig.description;
-      dto.descriptionMimeType = orig.descriptionMimeType;
-
-      dto.provenance = toRepo(orig.provenance);
 
       if (orig.relatedEntities != null)
       {
@@ -223,16 +197,4 @@ public class RepoAdapter
       return dto;
    }
 
-   private static ProvenanceDTO toRepo(RestApiV1.Provenance orig)
-   {
-      if (orig == null)
-         return null;
-      ProvenanceDTO dto = new ProvenanceDTO();
-      dto.dateCreated = orig.dateCreated;
-      dto.dateModified = orig.dateModified;
-      if (orig.creatorUris != null)
-         dto.creatorUris = new HashSet<>(orig.creatorUris);
-
-      return dto;
-   }
 }

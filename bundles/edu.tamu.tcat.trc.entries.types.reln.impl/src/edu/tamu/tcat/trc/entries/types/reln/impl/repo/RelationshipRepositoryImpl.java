@@ -10,6 +10,7 @@ import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
+import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 
 public class RelationshipRepositoryImpl implements RelationshipRepository
 {
@@ -22,6 +23,13 @@ public class RelationshipRepositoryImpl implements RelationshipRepository
    {
       this.delegate = delegate;
       this.account = account;
+   }
+
+   @Override
+   public RelationshipTypeRegistry getTypeRegistry()
+   {
+      // TODO Auto-generated method stub
+      return null;
    }
 
    @Override

@@ -72,21 +72,9 @@ public interface Relationship
 
    /**
     * @return A narrative description of this relationship. This description may
-    *       contain light markup using HTML or another format. The format used
-    *       will be described by {@link #getDescriptionFormat()}.
+    *       contain light HTML markup.
     */
    String getDescription();
-
-   /**
-    * @return The mime type of the description content.
-    */
-   String getDescriptionFormat();
-
-   /**
-    * @return details about who is responsible for the intellectual content of this
-    *    {@link Relationship} and when it was created. Note that this
-    */
-   Provenance getProvenance();
 
    /**
     * @return A set of {@link Anchor}s to the catalog entries described by this relationship.

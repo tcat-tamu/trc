@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,12 +39,12 @@ public class RelationshipDTO
    public Set<AnchorDTO> relatedEntities = new HashSet<>();
    public Set<AnchorDTO> targetEntities = new HashSet<>();
 
-   
+
    public RelationshipDTO()
    {
-      
+
    }
-   
+
    public RelationshipDTO(RelationshipDTO orig)
    {
       this.id = orig.id;
@@ -62,10 +62,8 @@ public class RelationshipDTO
       result.id = reln.getId();
       result.typeId = reln.getType().getIdentifier();
       result.description = reln.getDescription();
-      result.descriptionMimeType = reln.getDescriptionFormat();
 
       // TODO provide better support for error messaging.
-      result.provenance = ProvenanceDTO.create(reln.getProvenance());
 
       AnchorSet related = reln.getRelatedEntities();
       if (related != null)
@@ -105,7 +103,7 @@ public class RelationshipDTO
       AnchorSet related = createAnchorSet(data.relatedEntities);
       AnchorSet target = createAnchorSet(data.targetEntities);
 
-      return new BasicRelationship(id, type, desc, descType, prov, related, target);
+      return new BasicRelationship(id, type, desc, related, target);
    }
 
    private static BasicAnchorSet createAnchorSet(Set<AnchorDTO> entities)

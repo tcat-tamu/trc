@@ -77,8 +77,6 @@ public class RestApiV1
       public String id;
       public String typeId;
       public String description;
-      public String descriptionMimeType;
-      public Provenance provenance;
       public Set<Anchor> relatedEntities;
       public Set<Anchor> targetEntities;
    }
@@ -87,18 +85,6 @@ public class RestApiV1
    {
       public String label;
       public Set<String> entryUris;
-   }
-
-   public static class Provenance
-   {
-      /** The string-valued URIs associated with the creators of the associated annotation. */
-      public Set<String> creatorUris;
-
-      /** Date created in ISO 8601 format such as '2011-12-03T10:15:30Z' */
-      public String dateCreated;
-
-      /** Date modified in ISO 8601 format such as '2011-12-03T10:15:30Z' */
-      public String dateModified;
    }
 
    /**
@@ -153,7 +139,6 @@ public class RestApiV1
       public String typeId;
       public String description;
       public String descriptionMimeType;
-      public Provenance provenance;
       public Set<Anchor> relatedEntities;
       public Set<Anchor> targetEntities;
    }

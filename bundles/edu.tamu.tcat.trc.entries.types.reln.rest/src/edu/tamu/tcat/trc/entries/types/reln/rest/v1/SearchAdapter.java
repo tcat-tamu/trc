@@ -60,7 +60,6 @@ public class SearchAdapter
       dto.description = orig.description;
       dto.descriptionMimeType = orig.descriptionMimeType;
       dto.typeId = orig.typeId;
-      dto.provenance = RepoAdapter.toDTO(orig.provenance);
 
       if (orig.relatedEntities != null)
       {

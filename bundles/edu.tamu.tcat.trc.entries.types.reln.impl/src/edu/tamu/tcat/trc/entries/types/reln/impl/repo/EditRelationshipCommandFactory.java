@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import edu.tamu.tcat.trc.entries.types.reln.AnchorSet;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDTO;
-import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDTO;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipException;
@@ -56,12 +55,6 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<Relati
       }
 
       @Override
-      public void setAll(RelationshipDTO realtionship)
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      @Override
       public void setType(RelationshipType typeRelationship)
       {
          setTypeId(typeRelationship.getIdentifier());
@@ -97,12 +90,6 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<Relati
       public void setDescriptionFormat(String descriptionFormat)
       {
          changes.add("descriptionMimeType", dto -> dto.descriptionMimeType = descriptionFormat);
-      }
-
-      @Override
-      public void setProvenance(ProvenanceDTO provenance)
-      {
-         changes.add("provenance", dto -> dto.provenance = provenance);
       }
 
       @Override

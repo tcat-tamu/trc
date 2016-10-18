@@ -22,8 +22,6 @@ import edu.tamu.tcat.trc.entries.types.reln.AnchorSet;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDTO;
-import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDTO;
-import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 
 /**
  * Gives the ability to edit a {@link Relationship}. This will allow the clients
@@ -31,12 +29,6 @@ import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
  */
 public interface EditRelationshipCommand extends EditEntryCommand<Relationship>
 {
-   /**
-    * Set all properties defined in a {@link RelationshipDTO}
-    * @param realtionship The Relationship to be edited.
-    */
-   void setAll(RelationshipDTO realtionship);
-
    /**
     * Set the {@link RelationshipType} of the {@link Relationship}.
     * @param typeRelationship
@@ -60,12 +52,6 @@ public interface EditRelationshipCommand extends EditEntryCommand<Relationship>
     * @param descriptionFormat
     */
    void setDescriptionFormat(String descriptionFormat);
-
-   /**
-    *
-    * @param provenance
-    */
-   void setProvenance(ProvenanceDTO provenance);
 
    /**
     *

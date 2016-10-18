@@ -5,14 +5,11 @@ import java.util.Set;
 
 import edu.tamu.tcat.trc.entries.types.reln.Anchor;
 import edu.tamu.tcat.trc.entries.types.reln.AnchorSet;
-import edu.tamu.tcat.trc.entries.types.reln.Provenance;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDTO;
-import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDTO;
 import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.internal.dto.BasicAnchorSet;
-import edu.tamu.tcat.trc.entries.types.reln.internal.dto.BasicProvenance;
 import edu.tamu.tcat.trc.entries.types.reln.internal.dto.BasicRelationship;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
@@ -23,10 +20,10 @@ public class ModelAdapter
    {
       if (data == null)
          return null;
-      
+
       String id = data.id;
       RelationshipType type = null;
-      
+
       try
       {
          type = typeReg.resolve(data.typeId);
@@ -35,15 +32,13 @@ public class ModelAdapter
       {
          throw new IllegalStateException("Registry not found");
       }
-      
+
       String desc = data.description;
-      String descType = data.descriptionMimeType;
-      Provenance prov = (data.provenance != null) ? ProvenanceDTO.instantiate(data.provenance) : new BasicProvenance();
       AnchorSet related = createAnchorSet(data.relatedEntities);
       AnchorSet target = createAnchorSet(data.targetEntities);
 
-      return new BasicRelationship(id, type, desc, descType, prov, related, target);
-      
+      return new BasicRelationship(id, type, desc, related, target);
+
    }
 
    private static BasicAnchorSet createAnchorSet(Set<AnchorDTO> entities)
