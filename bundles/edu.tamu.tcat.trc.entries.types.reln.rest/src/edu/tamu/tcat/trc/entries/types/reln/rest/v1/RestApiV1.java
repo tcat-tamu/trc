@@ -22,6 +22,7 @@ import java.util.Set;
 
 import javax.ws.rs.BadRequestException;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.Joiner;
 
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipDirection;
@@ -39,6 +40,7 @@ public class RestApiV1
    /**
     *  A JSON serializable representation of a {@link edu.tamu.tcat.trc.entries.types.reln.RelationshipType} for use in the REST API.
     */
+   @JsonIgnoreProperties(ignoreUnknown = true)
    public static class RelationshipType
    {
       /**
@@ -72,6 +74,7 @@ public class RestApiV1
       public boolean isDirected;
    }
 
+   @JsonIgnoreProperties(ignoreUnknown = true)
    public static class Relationship
    {
       public String id;
@@ -81,6 +84,7 @@ public class RestApiV1
       public Set<Anchor> targetEntities;
    }
 
+   @JsonIgnoreProperties(ignoreUnknown = true)
    public static class Anchor
    {
       public String label;
@@ -91,6 +95,7 @@ public class RestApiV1
     * A DTO to be used as a REST query or path parameter. This class parses the String
     * sent (using the REST API format) as the parameter value into a {@link RelationshipDirection}.
     */
+   @JsonIgnoreProperties(ignoreUnknown = true)
    public static class RelDirection
    {
       public final RelationshipDirection dir;
@@ -123,7 +128,7 @@ public class RestApiV1
       }
    }
 
-
+   @JsonIgnoreProperties(ignoreUnknown = true)
    public static class RelationshipSearchResultSet
    {
       public List<RelationshipSearchResult> items;
@@ -133,6 +138,7 @@ public class RestApiV1
       public String qsPrev;
    }
 
+   @JsonIgnoreProperties(ignoreUnknown = true)
    public static class RelationshipSearchResult
    {
       public String id;
@@ -147,6 +153,7 @@ public class RestApiV1
     * Given a referent entry, this result set will contain all corresponding relationships grouped
     * by type and further by the directionality relative to the referent entry.
     */
+   @JsonIgnoreProperties(ignoreUnknown = true)
    public static class GroupedSearchResultSet
    {
       public String referent;
@@ -159,6 +166,7 @@ public class RestApiV1
     * outgoing and incoming relationships, respectively.
     * If the type is undirected, then {@code none} will contain all of the referent's relationships.
     */
+   @JsonIgnoreProperties(ignoreUnknown = true)
    public static class RelationshipTypeGroup
    {
       // TODO needs property level documentation
@@ -173,6 +181,7 @@ public class RestApiV1
    /**
     * Labeled container for a collection of relationships grouped by type and potentially direction.
     */
+   @JsonIgnoreProperties(ignoreUnknown = true)
    public static class DirectionalRelationshipGroup
    {
       public String label;
