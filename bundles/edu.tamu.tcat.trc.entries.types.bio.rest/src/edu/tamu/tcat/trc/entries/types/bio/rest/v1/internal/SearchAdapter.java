@@ -39,7 +39,7 @@ public class SearchAdapter
          dto.id = orig.id;
          dto.name = toDTO(orig.displayName);
          dto.label = orig.formattedName;
-         dto.summaryExcept = orig.summaryExcerpt;
+         dto.summaryExcerpt = orig.summaryExcerpt;
 
          dtoList.add(dto);
       }

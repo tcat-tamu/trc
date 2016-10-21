@@ -143,7 +143,7 @@ public class RestApiV1
       public String label;
 
       /**  A leading excerpt from the full bibliographic summary */
-      public String summaryExcept;
+      public String summaryExcerpt;
    }
 
    /**
