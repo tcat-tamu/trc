@@ -15,6 +15,8 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln;
 
+import java.util.Collection;
+
 /**
  *  Represents a relationship of some type between two or more entities within the TRC
  *  Entries framework. Relationships are used to provide editorial or scholarly commentary
@@ -77,13 +79,13 @@ public interface Relationship
    String getDescription();
 
    /**
-    * @return A set of {@link Anchor}s to the catalog entries described by this relationship.
+    * @return A collection of {@link Anchor}s to the entries described by this relationship.
     */
-   AnchorSet getRelatedEntities();
+   Collection<Anchor> getRelatedEntities();
 
    /**
     *  @return For directed relationships, returns the entities that are being referenced.
-    *    For undirected relationships, returns {@code null} or an empty {@code AnchorSet}.
+    *    For undirected relationships, returns an empty collection.
     */
-   AnchorSet getTargetEntities();
+   Collection<Anchor> getTargetEntities();
 }

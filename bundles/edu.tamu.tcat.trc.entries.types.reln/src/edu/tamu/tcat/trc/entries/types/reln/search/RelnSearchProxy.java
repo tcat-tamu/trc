@@ -15,14 +15,9 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln.search;
 
-import java.util.HashSet;
 import java.util.Set;
 
-import edu.tamu.tcat.trc.entries.types.reln.Anchor;
-import edu.tamu.tcat.trc.entries.types.reln.AnchorSet;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
-import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDTO;
-import edu.tamu.tcat.trc.entries.types.reln.dto.ProvenanceDTO;
 
 /**
  * JSON serializable summary information about a relationship entry.
@@ -34,10 +29,8 @@ public class RelnSearchProxy
    public String id;
    public String typeId;
    public String description;
-   public String descriptionMimeType;
-   public ProvenanceDTO provenance;
-   public Set<AnchorDTO> relatedEntities;
-   public Set<AnchorDTO> targetEntities;
+   public Set<String> related;
+   public Set<String> targets;
 
    public static RelnSearchProxy create(Relationship reln)
    {
@@ -45,27 +38,28 @@ public class RelnSearchProxy
       result.id = reln.getId();
       result.typeId = reln.getType().getIdentifier();
       result.description = reln.getDescription();
-      result.descriptionMimeType = "text/html";
 
-      AnchorSet related = reln.getRelatedEntities();
-      if (related != null)
-      {
-         result.relatedEntities = new HashSet<>();
-         for (Anchor anchor : related.getAnchors())
-         {
-            result.relatedEntities.add(AnchorDTO.create(anchor));
-         }
-      }
+      // TODO add #getLabel to resolver
 
-      AnchorSet target = reln.getTargetEntities();
-      if (target != null)
-      {
-         result.targetEntities = new HashSet<>();
-         for (Anchor anchor : target.getAnchors())
-         {
-            result.targetEntities.add(AnchorDTO.create(anchor));
-         }
-      }
+//      AnchorSet related = reln.getRelatedEntities();
+//      if (related != null)
+//      {
+//         result.relatedEntities = new HashSet<>();
+//         for (Anchor anchor : related.getAnchors())
+//         {
+//            result.relatedEntities.add(AnchorDTO.create(anchor));
+//         }
+//      }
+//
+//      AnchorSet target = reln.getTargetEntities();
+//      if (target != null)
+//      {
+//         result.targetEntities = new HashSet<>();
+//         for (Anchor anchor : target.getAnchors())
+//         {
+//            result.targetEntities.add(AnchorDTO.create(anchor));
+//         }
+//      }
 
       return result;
    }

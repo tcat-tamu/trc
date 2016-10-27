@@ -15,17 +15,13 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln.repo;
 
-import java.util.Set;
-
 import edu.tamu.tcat.trc.entries.core.repo.EditEntryCommand;
-import edu.tamu.tcat.trc.entries.types.reln.AnchorSet;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
-import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDTO;
+import edu.tamu.tcat.trc.resolver.EntryReference;
 
 /**
- * Gives the ability to edit a {@link Relationship}. This will allow the clients
- * to update a {@Relationship} between a set of {@Anchor}'s.
+ * An edit command to modify a {@link Relationship}.
  */
 public interface EditRelationshipCommand extends EditEntryCommand<Relationship>
 {
@@ -36,67 +32,54 @@ public interface EditRelationshipCommand extends EditEntryCommand<Relationship>
    void setType(RelationshipType typeRelationship);
 
    /**
-    * Set the {@link RelationshipType.typeId} for the {@link Relationship}.
-    * @param typeId
+    * @param typeId The string identifier of the relationship type. Must correspond to the
+    *    to a valid relationship type within the configured {@link RelationshipTypeRegistry}.
     */
    void setTypeId(String typeId);
 
    /**
-    *
-    * @param description
+    * Sets an editorial description of this relationship. Expected to be in lightly marked HTML.
     */
    void setDescription(String description);
 
    /**
+    * Constructs a mutator that can be used to modify the anchor associated with the referenced
+    * entry. Note that this is the source entry set of a directed relationship type. If an anchor
+    * for the referenced entry does not exist, this method will create one.
     *
-    * @param descriptionFormat
+    * @return A mutator to edit the associated anchor.
     */
-   void setDescriptionFormat(String descriptionFormat);
+   AnchorMutator editRelatedEntry(EntryReference ref);
 
    /**
+    * Removes the anchor associated with the referenced entry. If no anchor is associated
+    * with the supplied reference (at the time of execution), no action will be performed.
+    */
+   void removeRelatedEntry(EntryReference ref);
+
+   /**
+    * Removes all anchors from the set of related entries.
+    */
+   void clearRelatedEntries();
+
+   /**
+    * Constructs a mutator that can be used to modify the anchor associated with the referenced
+    * entry. If an anchor for the referenced entry does not exist, this method will create one.
     *
-    * @param related
+    * @return A mutator to edit the associated anchor.
+    * @throws RelationshipException If this relationship is undirected.
     */
-   void setRelatedEntities(AnchorSet related);
+   AnchorMutator editTargetEntry(EntryReference ref);
 
    /**
-    * @param related
+    * Removes the anchor associated with the referenced entry. If no anchor is associated
+    * with the supplied reference (at the time of execution), no action will be performed.
     */
-   void addRelatedEntities(Set<AnchorDTO> related);
+   void removeTargetEntry(EntryReference ref);
 
    /**
-    *
-    * @param anchor
+    * Removes all anchors from the set of target entries. Has no effect for undirected relationships.
     */
-   void addRelatedEntity(AnchorDTO anchor);
-
-   /**
-    *
-    * @param anchor
-    */
-   void removeRelatedEntity(AnchorDTO anchor);
-
-   /**
-    *
-    * @param target
-    */
-   void setTargetEntities(AnchorSet target);
-
-   /**
-    * @param target
-    */
-   void addTargetEntities(Set<AnchorDTO> target);
-
-   /**
-    *
-    * @param anchor
-    */
-   void addTargetEntity(AnchorDTO anchor);
-
-   /**
-    *
-    * @param anchor
-    */
-   void removeTargetEntity(AnchorDTO anchor);
+   void clearTargetEntries();
 
 }

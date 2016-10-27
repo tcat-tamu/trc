@@ -15,8 +15,9 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln;
 
-import java.net.URI;
-import java.util.Collection;
+import java.util.Set;
+
+import edu.tamu.tcat.trc.resolver.EntryReference;
 
 /**
  *  Defines a reference to a catalog entry, a fragment of a catalog entry (for example, to a
@@ -33,12 +34,25 @@ import java.util.Collection;
  *  specific types of structured anchors or to more effectively support references to internal
  *  structure.
  */
-@FunctionalInterface
 public interface Anchor
 {
    /**
-    * @return A collection of identifiers for the referenced catalog entries.
+    * @return A reference to the entry this anchor is associated with.
     */
-   Collection<URI> getEntryIds();
+   EntryReference getTarget();
+
+   /**
+    * @return A list of the application-defined properties that have been supplied
+    *    for this anchor.
+    */
+   Set<String> listProperties();
+
+   /**
+    * @param property The property whose value should be returned.
+    * @return The value supplied for this property
+    * @throws IllegalArgumentException If the requested property has not been defined for
+    *       this anchor..
+    */
+   String getProperty(String property);
 
 }
