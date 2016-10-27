@@ -58,7 +58,7 @@ public class RelationshipRestService
 
       try
       {
-         RelnSearchStrategy indexCfg = new RelnSearchStrategy();
+         RelnSearchStrategy indexCfg = new RelnSearchStrategy(repos.getResolverRegistry());
          queryService = searchMgr.getQueryService(indexCfg);
       }
       catch (Exception ex)

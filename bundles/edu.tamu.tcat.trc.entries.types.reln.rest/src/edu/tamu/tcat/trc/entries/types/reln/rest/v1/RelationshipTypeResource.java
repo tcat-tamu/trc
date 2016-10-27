@@ -56,7 +56,7 @@ public class RelationshipTypeResource
       try
       {
          RelationshipType relnType = registry.resolve(id);
-         return RepoAdapter.toDTO(relnType);
+         return RepoAdapter.toDto(relnType);
       }
       catch (RelationshipException e)
       {

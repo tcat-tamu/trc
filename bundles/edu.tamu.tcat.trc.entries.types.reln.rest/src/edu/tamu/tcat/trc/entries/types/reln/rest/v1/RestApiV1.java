@@ -16,8 +16,10 @@
 package edu.tamu.tcat.trc.entries.types.reln.rest.v1;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.BadRequestException;
@@ -26,17 +28,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.Joiner;
 
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipDirection;
+import edu.tamu.tcat.trc.resolver.EntryReference;
 
 public class RestApiV1
 {
-   /**
-    * Simple data vehicle for reporting relationship identifiers as JSON objects.
-    */
-   public static class RelationshipId
-   {
-      public String id;
-   }
-
    /**
     *  A JSON serializable representation of a {@link edu.tamu.tcat.trc.entries.types.reln.RelationshipType} for use in the REST API.
     */
@@ -80,16 +75,24 @@ public class RestApiV1
       public String id;
       public String typeId;
       public String description;
-      public Set<Anchor> relatedEntities;
-      public Set<Anchor> targetEntities;
+      public Set<Anchor> related;
+      public Set<Anchor> target;
    }
 
    @JsonIgnoreProperties(ignoreUnknown = true)
    public static class Anchor
    {
       public String label;
-      public Set<String> entryUris;
+      public EntryReference ref;
+      public Map<String, String> properties = new HashMap<>();
    }
+
+//   public static class EntryReference
+//   {
+//      public String id;
+//      public String type;
+//      public String token;
+//   }
 
    /**
     * A DTO to be used as a REST query or path parameter. This class parses the String

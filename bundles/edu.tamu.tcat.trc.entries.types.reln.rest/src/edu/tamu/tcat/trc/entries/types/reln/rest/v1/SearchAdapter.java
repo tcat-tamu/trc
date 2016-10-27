@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 import edu.tamu.tcat.trc.entries.types.reln.rest.v1.RestApiV1.RelationshipTypeGroup;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelnSearchProxy;
+import edu.tamu.tcat.trc.resolver.EntryReference;
 
 /**
  * An encapsulation of adapter methods to convert between the search API and
@@ -58,22 +59,21 @@ public class SearchAdapter
       RestApiV1.RelationshipSearchResult dto = new RestApiV1.RelationshipSearchResult();
       dto.id = orig.id;
       dto.description = orig.description;
-      dto.descriptionMimeType = orig.descriptionMimeType;
       dto.typeId = orig.typeId;
 
-      if (orig.relatedEntities != null)
-      {
-         dto.relatedEntities = orig.relatedEntities.stream()
-               .map(RepoAdapter::toDTO)
-               .collect(Collectors.toSet());
-      }
-
-      if (orig.targetEntities != null)
-      {
-         dto.targetEntities = orig.targetEntities.stream()
-               .map(RepoAdapter::toDTO)
-               .collect(Collectors.toSet());
-      }
+//      if (orig.relatedEntities != null)
+//      {
+//         dto.relatedEntities = orig.relatedEntities.stream()
+//               .map(RepoAdapter::toDTO)
+//               .collect(Collectors.toSet());
+//      }
+//
+//      if (orig.targetEntities != null)
+//      {
+//         dto.targetEntities = orig.targetEntities.stream()
+//               .map(RepoAdapter::toDTO)
+//               .collect(Collectors.toSet());
+//      }
 
       return dto;
    }
@@ -86,7 +86,7 @@ public class SearchAdapter
     * @param lookupType Provides a means to resolve {@link RelationshipType} instances by id
     * @return
     */
-   public static RestApiV1.GroupedSearchResultSet groupByType(URI referent, List<RestApiV1.RelationshipSearchResult> relns, Function<String, RelationshipType> lookupType)
+   public static RestApiV1.GroupedSearchResultSet groupByType(EntryReference referent, List<RestApiV1.RelationshipSearchResult> relns, Function<String, RelationshipType> lookupType)
    {
       RestApiV1.GroupedSearchResultSet resultSet = new RestApiV1.GroupedSearchResultSet();
 
@@ -118,7 +118,7 @@ public class SearchAdapter
     * @param relns
     * @return
     */
-   public static RestApiV1.RelationshipTypeGroup groupByDirection(URI referent, RelationshipType type, List<RestApiV1.RelationshipSearchResult> relns)
+   public static RestApiV1.RelationshipTypeGroup groupByDirection(String token, RelationshipType type, List<RestApiV1.RelationshipSearchResult> relns)
    {
       RestApiV1.RelationshipTypeGroup group = new RestApiV1.RelationshipTypeGroup();
 
@@ -166,7 +166,7 @@ public class SearchAdapter
    {
       Pattern referentPattern = Pattern.compile("^" + referent.toString() + "(?:/|$)");
       return anchors.stream().anyMatch(a ->
-            a.entryUris.stream().anyMatch(uri ->
+            a.ref.stream().anyMatch(uri ->
                   referentPattern.matcher(uri).matches()));
    }
 }

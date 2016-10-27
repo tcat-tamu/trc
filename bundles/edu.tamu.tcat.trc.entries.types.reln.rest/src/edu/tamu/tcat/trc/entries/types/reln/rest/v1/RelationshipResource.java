@@ -15,8 +15,6 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln.rest.v1;
 
-import static java.text.MessageFormat.format;
-
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -32,16 +30,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
+import edu.tamu.tcat.trc.entries.types.reln.repo.AnchorMutator;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
-import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
-import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
-import edu.tamu.tcat.trc.search.solr.QueryService;
-import edu.tamu.tcat.trc.services.rest.ApiUtils;
 
 @Path("/relationships/{id}")
 public class RelationshipResource
@@ -51,13 +45,11 @@ public class RelationshipResource
 
    private final String relnId;
    private final RelationshipRepository repo;
-   private final QueryService<RelationshipQueryCommand> queryService;
 
-   public RelationshipResource(String relnId, RelationshipRepository repo, QueryService<RelationshipQueryCommand> queryService)
+   public RelationshipResource(String relnId, RelationshipRepository repo)
    {
       this.relnId = relnId;
       this.repo = repo;
-      this.queryService = queryService;
    }
 
    @GET
@@ -87,15 +79,17 @@ public class RelationshipResource
       checkRelationshipValidity(relationship, relnId);
       try
       {
-         EditRelationshipCommand updateCommand = repo.edit(relnId);
+         RelationshipType type = repo.getTypeRegistry().resolve(relationship.typeId);
 
-         updateCommand.setType(getRelationshipType(relationship.typeId));
-         updateCommand.setDescription(relationship.description);
+         EditRelationshipCommand cmd = repo.edit(relnId);
 
-         updateCommand.setRelatedEntities(RepoAdapter.adapt(relationship.relatedEntities));
-         updateCommand.setTargetEntities(RepoAdapter.adapt(relationship.targetEntities));
+         cmd.setType(type);
+         cmd.setDescription(relationship.description);
 
-         updateCommand.execute().get(10, TimeUnit.SECONDS);
+         relationship.related.forEach(anchor -> editRelatedEntry(cmd, anchor));
+         relationship.target.forEach(anchor -> editTargetEntry(cmd, anchor));
+
+         cmd.execute().get(10, TimeUnit.SECONDS);
 
          Relationship reln = repo.get(relnId);
          return RepoAdapter.toDTO(reln);
@@ -109,19 +103,37 @@ public class RelationshipResource
       }
    }
 
-   @Deprecated // move to common location to avoid duplication with RelationshipsResource
-   private RelationshipType getRelationshipType(String typeId)
+   @DELETE
+   public void remove()
    {
       try
       {
-         RelationshipTypeRegistry relnTypes = repo.getTypeRegistry();
-         return relnTypes.resolve(typeId);
+         repo.remove(relnId).get(10, TimeUnit.SECONDS);
       }
-      catch (Exception ex)
+      catch (InterruptedException | ExecutionException | TimeoutException e)
       {
-         String errMsg = "Invalid relationship type {0}";
-         throw ApiUtils.raise(Response.Status.BAD_REQUEST, format(errMsg, typeId), Level.WARNING, ex);
+         throw new InternalServerErrorException("Failed to remove relations " + relnId, e);
       }
+   }
+
+   private void editRelatedEntry(EditRelationshipCommand cmd, RestApiV1.Anchor anchor)
+   {
+      AnchorMutator mutator = cmd.editRelatedEntry(anchor.ref);
+      anchor.properties.keySet().forEach(key -> {
+         String value = anchor.properties.get(key);
+         if (value == null)
+            mutator.setProperty(key, value);
+      });
+   }
+
+   private void editTargetEntry(EditRelationshipCommand cmd, RestApiV1.Anchor anchor)
+   {
+      AnchorMutator mutator = cmd.editTargetEntry(anchor.ref);
+      anchor.properties.keySet().forEach(key -> {
+         String value = anchor.properties.get(key);
+         if (value == null)
+            mutator.setProperty(key, value);
+      });
    }
 
    private void checkRelationshipValidity(RestApiV1.Relationship reln, String id)
@@ -134,18 +146,5 @@ public class RelationshipResource
       }
 
       // TODO need to supply additional checks for constraints on validity.
-   }
-
-   @DELETE
-   public void remove()
-   {
-      try
-      {
-         repo.remove(relnId).get(10, TimeUnit.SECONDS);
-      }
-      catch (InterruptedException | ExecutionException | TimeoutException e)
-      {
-         throw new InternalServerErrorException("Failed to remove relations " + relnId, e);
-      }
    }
 }
