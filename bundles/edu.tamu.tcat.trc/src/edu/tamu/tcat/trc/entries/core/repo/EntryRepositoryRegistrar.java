@@ -8,6 +8,7 @@ import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.id.IdFactory;
 import edu.tamu.tcat.trc.resolver.EntryResolver;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistrar;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
 /**
@@ -87,8 +88,7 @@ public interface EntryRepositoryRegistrar
     * @param resolver The resolver to be registered.
     * @return A registration handle to be used to unregister the associated resolver.
     */
-   <EntryType> EntryResolverRegistry.Registration registerResolver(EntryResolver<EntryType> resolver);
-
+   <EntryType> EntryResolverRegistrar.Registration registerResolver(EntryResolver<EntryType> resolver);
 
    /**
     * A handle that references a particular repository registration.

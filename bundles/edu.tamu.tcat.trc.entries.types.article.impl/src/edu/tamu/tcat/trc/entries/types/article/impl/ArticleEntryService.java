@@ -19,7 +19,7 @@ import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.impl.psql.entries.SolrSearchSupport;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
-import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistrar;
 import edu.tamu.tcat.trc.search.solr.IndexService;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
 
@@ -38,7 +38,7 @@ public class ArticleEntryService
    private SearchServiceManager indexSvcMgr;
 
    private EntryRepositoryRegistrar.Registration repoReg;
-   private EntryResolverRegistry.Registration resolverReg;
+   private EntryResolverRegistrar.Registration resolverReg;
    private EntryRepository.ObserverRegistration searchReg;
 
    private DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> docRepo;

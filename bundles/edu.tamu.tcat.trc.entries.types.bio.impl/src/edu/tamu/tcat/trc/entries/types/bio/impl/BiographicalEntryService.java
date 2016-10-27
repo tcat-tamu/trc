@@ -19,7 +19,7 @@ import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
 import edu.tamu.tcat.trc.impl.psql.entries.SolrSearchSupport;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
-import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistrar;
 import edu.tamu.tcat.trc.search.solr.IndexService;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
 
@@ -40,7 +40,7 @@ public class BiographicalEntryService
    private DocumentRepository<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> docRepo;
    private BasicRepoDelegate<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> delegate;
 
-   private EntryResolverRegistry.Registration resolverReg;
+   private EntryResolverRegistrar.Registration resolverReg;
    private EntryRepositoryRegistrar.Registration repoReg;
    private EntryRepository.ObserverRegistration searchReg;
 

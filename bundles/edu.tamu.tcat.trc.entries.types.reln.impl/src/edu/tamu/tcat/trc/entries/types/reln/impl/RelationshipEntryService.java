@@ -24,6 +24,7 @@ import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 import edu.tamu.tcat.trc.impl.psql.entries.SolrSearchSupport;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistrar;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.IndexService;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
@@ -46,7 +47,7 @@ public class RelationshipEntryService
 
    private DocumentRepository<Relationship, DataModelV1.Relationship, EditRelationshipCommand> docRepo;
 
-   private EntryResolverRegistry.Registration resolverReg;
+   private EntryResolverRegistrar.Registration resolverReg;
    private EntryRepositoryRegistrar.Registration repoReg;
    private EntryRepository.ObserverRegistration searchReg;
 

@@ -16,6 +16,7 @@ import edu.tamu.tcat.trc.repo.id.IdFactoryProvider;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
 import edu.tamu.tcat.trc.resolver.BasicResolverRegistry;
 import edu.tamu.tcat.trc.resolver.EntryResolver;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistrar;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
 /**
@@ -33,7 +34,7 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, Entry
 //        repo framework and makes it difficult to provide alternate implementatoins. Mostly likely, we need to
 //        split the API of this class to that they can be interchanged.
 
-   private final EntryResolverRegistry resolverRegistry = new BasicResolverRegistry();
+   private final BasicResolverRegistry resolverRegistry = new BasicResolverRegistry();
    private final ConcurrentHashMap<Class<? extends Object>, Function<Account, ?>> repositories = new ConcurrentHashMap<>();
 
    private SqlExecutor sqlExecutor;
@@ -88,7 +89,7 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, Entry
    }
 
    @Override
-   public <T> EntryResolverRegistry.Registration registerResolver(EntryResolver<T> resolver)
+   public <T> EntryResolverRegistrar.Registration registerResolver(EntryResolver<T> resolver)
    {
       return resolverRegistry.register(resolver);
    }

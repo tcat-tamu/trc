@@ -15,13 +15,13 @@ import edu.tamu.tcat.account.Account;
  * a declarative service or otherwise accessed through dependency injection in order to ensure
  * that only one instance is present in the application.
  */
-public class BasicResolverRegistry implements EntryResolverRegistry
+public class BasicResolverRegistry implements EntryResolverRegistry, EntryResolverRegistrar
 {
 
    private final Map<UUID, EntryResolver<?>> resolvers = new ConcurrentHashMap<>();
 
    @Override
-   public <T> Registration register(EntryResolver<T> resolver)
+   public <T> EntryResolverRegistrar.Registration register(EntryResolver<T> resolver)
    {
       UUID registrationId = UUID.randomUUID();
       resolvers.put(registrationId, resolver);
