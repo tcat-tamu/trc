@@ -63,15 +63,6 @@ public interface DocumentRepository<RecordType, StorageType, EditCommandType>
    Iterator<RecordType> listAll() throws RepositoryException;
 
    /**
-    * Attempts to retrieve the identified record.
-    *
-    * @param id The id of the record to return.
-    * @return The identified record. Will not be {@code null}.
-    */
-   @Deprecated // use #get
-   RecordType getUnsafe(String id) throws RepositoryException;
-
-   /**
     * Retrieve the identified record.
     *
     * @param id The id of the record to return.

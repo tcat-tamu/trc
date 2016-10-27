@@ -44,7 +44,6 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
-import edu.tamu.tcat.trc.repo.DocumentNotFoundException;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.EditCommandFactory.UpdateStrategy;
@@ -239,13 +238,6 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    }
 
    @Override
-   public RecordType getUnsafe(String id) throws RepositoryException, DocumentNotFoundException
-   {
-      String msg = "No document stored for {1}";
-      return get(id).orElseThrow(() -> new DocumentNotFoundException(format(msg, id)));
-   }
-
-   @Override
    public Optional<RecordType> get(String id)
    {
       try
@@ -261,7 +253,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    @Override
    public Collection<RecordType> get(String... ids) throws RepositoryException
    {
-      // HACK: this is potentially very inefficient. Should load records that are already in the
+      // TODO: this is very inefficient. Should load records that are already in the
       //       cache and then execute a query that will load all remaining records from the DB
       //       in a single task (depending on the number of ids, possibly via multiple queries).
 
@@ -271,7 +263,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          if (results.containsKey(id))
             continue;
 
-         results.put(id, getUnsafe(id));
+         get(id).ifPresent(record -> results.put(id, record));
       }
 
       return Collections.unmodifiableCollection(results.values());
