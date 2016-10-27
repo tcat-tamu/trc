@@ -7,13 +7,13 @@ import java.util.Set;
 
 import edu.tamu.tcat.trc.entries.types.reln.Anchor;
 import edu.tamu.tcat.trc.entries.types.reln.impl.repo.DataModelV1;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
 public class AnchorImpl implements Anchor
 {
    private final HashMap<String, String> properties;
-   private final EntryReference ref;
+   private final EntryId ref;
 
    public AnchorImpl(DataModelV1.Anchor dto, EntryResolverRegistry resolvers)
    {
@@ -22,7 +22,7 @@ public class AnchorImpl implements Anchor
    }
 
    @Override
-   public EntryReference getTarget()
+   public EntryId getTarget()
    {
       return ref;
    }

@@ -17,7 +17,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.services.bibref.ReferenceCollection;
 import edu.tamu.tcat.trc.services.bibref.repo.BibliographicItemMetaMutator;
 import edu.tamu.tcat.trc.services.bibref.repo.BibliographicItemMutator;
@@ -30,9 +30,9 @@ import edu.tamu.tcat.trc.services.rest.ApiUtils;
 public class ReferenceCollectionResource
 {
    private final RefCollectionService repo;
-   private final EntryReference targetRef;
+   private final EntryId targetRef;
 
-   public ReferenceCollectionResource(RefCollectionService repo, EntryReference targetRef)
+   public ReferenceCollectionResource(RefCollectionService repo, EntryId targetRef)
    {
       this.repo = repo;
       this.targetRef = targetRef;

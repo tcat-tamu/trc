@@ -3,7 +3,7 @@ package edu.tamu.tcat.trc.services.bibref.repo;
 import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.services.BasicServiceContext;
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.bibref.ReferenceCollection;
@@ -26,7 +26,7 @@ public interface RefCollectionService
     * @return The reference collection for the supplied entry.
     */
    @Deprecated // TODO use application managed string identifiers
-   ReferenceCollection get(EntryReference ref);
+   ReferenceCollection get(EntryId ref);
 
    /**
     * Retrieves the reference collection associated with the given entry. Note that all
@@ -47,7 +47,7 @@ public interface RefCollectionService
     * @return A command to edit the associated reference collection
     */
    @Deprecated // TODO use application managed string identifiers
-   EditBibliographyCommand edit(EntryReference ref);
+   EditBibliographyCommand edit(EntryId ref);
 
    /**
     * Edits the reference collection associated with the referenced entry.
@@ -64,7 +64,7 @@ public interface RefCollectionService
     */
    @Deprecated // TODO use application managed string identifiers
 
-   CompletableFuture<Boolean> delete(EntryReference ref);
+   CompletableFuture<Boolean> delete(EntryId ref);
 
    /**
     * Removes the associated bibliography from the given reference if it exists.

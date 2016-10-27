@@ -4,7 +4,7 @@ import java.time.ZonedDateTime;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.account.store.AccountStore;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.notes.Note;
 
@@ -13,7 +13,7 @@ public class NoteImpl implements Note
    private final String id;
    private final ZonedDateTime dateCreated;
    private final ZonedDateTime dateModified;
-   private final EntryReference entryRef;
+   private final EntryId entryRef;
    private final Account author;
    private final String mimeType;
    private final String content;
@@ -52,7 +52,7 @@ public class NoteImpl implements Note
    }
 
    @Override
-   public EntryReference getAssociatedEntry()
+   public EntryId getAssociatedEntry()
    {
       return entryRef;
    }

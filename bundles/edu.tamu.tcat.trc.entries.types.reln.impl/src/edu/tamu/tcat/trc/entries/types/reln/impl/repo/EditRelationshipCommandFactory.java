@@ -22,7 +22,7 @@ import edu.tamu.tcat.trc.repo.ChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.UpdateContext;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
 public class EditRelationshipCommandFactory implements EditCommandFactory<DataModelV1.Relationship, EditRelationshipCommand>
@@ -82,7 +82,7 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<DataMo
       }
 
       @Override
-      public AnchorMutator editRelatedEntry(EntryReference ref)
+      public AnchorMutator editRelatedEntry(EntryId ref)
       {
          String token = resolvers.tokenize(ref);
          ChangeSet<Anchor> partial = changes.partial(format("related [EDIT {0}]", token), (dto) -> {
@@ -96,7 +96,7 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<DataMo
       }
 
       @Override
-      public void removeRelatedEntry(EntryReference ref)
+      public void removeRelatedEntry(EntryId ref)
       {
          String token = resolvers.tokenize(ref);
          changes.add(format("related [REMOVE {0}]", token), (dto) -> {
@@ -113,7 +113,7 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<DataMo
       }
 
       @Override
-      public AnchorMutator editTargetEntry(EntryReference ref)
+      public AnchorMutator editTargetEntry(EntryId ref)
       {
          String token = resolvers.tokenize(ref);
          ChangeSet<Anchor> partial = changes.partial(format("targets [EDIT {0}]", token), (dto) -> {
@@ -127,7 +127,7 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<DataMo
       }
 
       @Override
-      public void removeTargetEntry(EntryReference ref)
+      public void removeTargetEntry(EntryId ref)
       {
          String token = resolvers.tokenize(ref);
          changes.add(format("targets [REMOVE {0}]", token), (dto) -> {

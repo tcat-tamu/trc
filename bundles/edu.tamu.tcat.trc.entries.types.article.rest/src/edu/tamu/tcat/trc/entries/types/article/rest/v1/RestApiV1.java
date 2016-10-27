@@ -24,7 +24,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 
 
 public abstract class RestApiV1
@@ -42,7 +42,7 @@ public abstract class RestApiV1
        */
       public Link self;
 
-      public EntryReference reference = new EntryReference();
+      public EntryId reference = new EntryId();
 
       /** The unique identifier for this article. */
       public String id;

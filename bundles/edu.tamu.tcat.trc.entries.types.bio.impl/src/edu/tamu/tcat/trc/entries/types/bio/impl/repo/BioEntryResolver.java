@@ -8,7 +8,7 @@ import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolverBase;
 import edu.tamu.tcat.trc.resolver.InvalidReferenceException;
 
@@ -23,7 +23,7 @@ public class BioEntryResolver extends EntryResolverBase<BiographicalEntry>
    }
 
    @Override
-   public BiographicalEntry resolve(Account account, EntryReference reference) throws InvalidReferenceException
+   public BiographicalEntry resolve(Account account, EntryId reference) throws InvalidReferenceException
    {
       if (!accepts(reference))
          throw new InvalidReferenceException(reference, "Unsupported reference type.");
@@ -38,7 +38,7 @@ public class BioEntryResolver extends EntryResolverBase<BiographicalEntry>
    }
 
    @Override
-   public CompletableFuture<Boolean> remove(Account account, EntryReference reference)
+   public CompletableFuture<Boolean> remove(Account account, EntryId reference)
    {
       return delegate.remove(account, reference.id);
    }

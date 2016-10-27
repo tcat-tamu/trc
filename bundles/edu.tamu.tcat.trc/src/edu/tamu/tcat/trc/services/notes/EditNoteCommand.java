@@ -20,7 +20,7 @@ import java.util.concurrent.Future;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.entries.core.repo.EditEntryCommand;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 
 /**
  *  Encapsulates a single transaction for editing a note (either newly created or existing).
@@ -35,7 +35,7 @@ public interface EditNoteCommand extends EditEntryCommand<Note>
    /**
     * @param entityURI The URI of the entity this note is associated with.
     */
-   void setAssociatedEntry(EntryReference ref);
+   void setAssociatedEntry(EntryId ref);
 
    /**
     * @param authorId The id of the author responsible for creating this note.

@@ -35,13 +35,13 @@ public class BasicResolverRegistry implements EntryResolverRegistry
 
    public <T> EntryReferenceProxy<T> getReference(String token)
    {
-      EntryReference eId = decodeToken(token);
+      EntryId eId = decodeToken(token);
       return new EntryRefImpl<>(eId.getId(), eId.getType());
    }
 
    public <T> EntryReferenceProxy<T> getReference(URI uri)
    {
-      EntryReference eId = resolvers.values().parallelStream()
+      EntryId eId = resolvers.values().parallelStream()
             .filter(candidate -> candidate.accepts(uri))
             .findFirst()
             .map(resolver -> resolver.makeReference(uri))
@@ -53,7 +53,7 @@ public class BasicResolverRegistry implements EntryResolverRegistry
 
    @Override
    @SuppressWarnings({ "unchecked", "rawtypes" })  // HACK: NOT TYPE SAFE
-   public <T> EntryResolver<T> getResolver(EntryReference ref) throws InvalidReferenceException
+   public <T> EntryResolver<T> getResolver(EntryId ref) throws InvalidReferenceException
    {
       return (EntryResolver)resolvers.values().parallelStream()
          .filter(resolver -> resolver.accepts(ref.id, ref.type))
@@ -82,7 +82,7 @@ public class BasicResolverRegistry implements EntryResolverRegistry
    }
 
    @Override
-   public String tokenize(EntryReference eId)
+   public String tokenize(EntryId eId)
    {
       return tokenize(eId.id, eId.type);
    }
@@ -101,9 +101,9 @@ public class BasicResolverRegistry implements EntryResolverRegistry
    }
 
    @Override
-   public EntryReference decodeToken(String token)
+   public EntryId decodeToken(String token)
    {
-      EntryReference ref;
+      EntryId ref;
       byte[] bytes = Base64.getDecoder().decode(token);
       try
       {
@@ -112,7 +112,7 @@ public class BasicResolverRegistry implements EntryResolverRegistry
          if (ix < 0 || ix >= key.length() - 3)
             throw new IllegalArgumentException(format("Invalid entry reference token {0}", token));
 
-         ref = new EntryReference();
+         ref = new EntryId();
          ref.id = key.substring(0, ix);
          ref.type = key.substring(ix + 2);
       }
@@ -145,9 +145,9 @@ public class BasicResolverRegistry implements EntryResolverRegistry
          return id;
       }
 
-      public EntryReference asEntryId()
+      public EntryId asEntryId()
       {
-         return new EntryReference(id, type);
+         return new EntryId(id, type);
       }
 
       @Override

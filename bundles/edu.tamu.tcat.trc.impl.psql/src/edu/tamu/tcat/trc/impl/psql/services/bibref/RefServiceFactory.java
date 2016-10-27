@@ -11,7 +11,7 @@ import edu.tamu.tcat.trc.impl.psql.services.bibref.repo.DataModelV1;
 import edu.tamu.tcat.trc.impl.psql.services.bibref.repo.EditBibliographyCommandFactory;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.bibref.ReferenceCollection;
@@ -91,19 +91,19 @@ public class RefServiceFactory implements ServiceFactory<RefCollectionService>
       }
 
       @Override
-      public ReferenceCollection get(EntryReference ref)
+      public ReferenceCollection get(EntryId ref)
       {
          return get(resolverRegistry.tokenize(ref));
       }
 
       @Override
-      public EditBibliographyCommand edit(EntryReference ref)
+      public EditBibliographyCommand edit(EntryId ref)
       {
          return edit(resolverRegistry.tokenize(ref));
       }
 
       @Override
-      public CompletableFuture<Boolean> delete(EntryReference ref)
+      public CompletableFuture<Boolean> delete(EntryId ref)
       {
          return delete(resolverRegistry.tokenize(ref));
       }

@@ -49,7 +49,7 @@ public abstract class EntryResolverBase<EntryType> implements EntryResolver<Entr
    }
 
    @Override
-   public URI toUri(EntryReference reference) throws InvalidReferenceException
+   public URI toUri(EntryId reference) throws InvalidReferenceException
    {
       if (!accepts(reference.type))
          throw new InvalidReferenceException(reference, "Unsupported reference type.");
@@ -59,9 +59,9 @@ public abstract class EntryResolverBase<EntryType> implements EntryResolver<Entr
    }
 
    @Override
-   public EntryReference makeReference(EntryType instance) throws InvalidReferenceException
+   public EntryId makeReference(EntryType instance) throws InvalidReferenceException
    {
-      EntryReference ref = new EntryReference();
+      EntryId ref = new EntryId();
       ref.id = getId(instance);
       ref.type = this.typeId;
 
@@ -69,7 +69,7 @@ public abstract class EntryResolverBase<EntryType> implements EntryResolver<Entr
    }
 
    @Override
-   public EntryReference makeReference(URI uri) throws InvalidReferenceException
+   public EntryId makeReference(URI uri) throws InvalidReferenceException
    {
       URI articleId = uri.relativize(apiEndpoint.resolve(this.uriBase));
       if (articleId.equals(uri))
@@ -79,7 +79,7 @@ public abstract class EntryResolverBase<EntryType> implements EntryResolver<Entr
       if (path.contains("/"))
          throw new InvalidReferenceException(uri, "The supplied URI represents a sub-resource of an article.");
 
-      EntryReference ref = new EntryReference();
+      EntryId ref = new EntryId();
       ref.id = path;
       ref.type = this.typeId;
 
@@ -95,7 +95,7 @@ public abstract class EntryResolverBase<EntryType> implements EntryResolver<Entr
    }
 
    @Override
-   public boolean accepts(EntryReference ref)
+   public boolean accepts(EntryId ref)
    {
       return this.typeId.equals(ref.type);
    }

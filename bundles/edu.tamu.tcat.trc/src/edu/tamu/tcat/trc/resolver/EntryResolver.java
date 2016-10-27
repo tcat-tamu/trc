@@ -8,7 +8,7 @@ import edu.tamu.tcat.account.Account;
 
 
 /**
- * Used to convert between {@link EntryReference}s and the instantiated entry
+ * Used to convert between {@link EntryId}s and the instantiated entry
  * that they identify and as a factory to construct an {@code EntryReference}
  * for a given entry instance. {@code EntryResolver}s are intended to be defined
  * and registered by the repository that is responsible for managing a particular
@@ -16,7 +16,7 @@ import edu.tamu.tcat.account.Account;
  *
  * <p>
  * The {@link #accepts} methods are used to determine if a particular resolver
- * is applicable for a given {@link URI}, {@link EntryReference} or {@code Object}.
+ * is applicable for a given {@link URI}, {@link EntryId} or {@code Object}.
  * This is designed to allow the {@link EntryResolverRegistry} to implement a
  * Chain of Responsibility pattern to correctly handle arbitrary entries.
  * Implementations should ensure that these methods return quickly.
@@ -37,7 +37,7 @@ public interface EntryResolver<T>
     * @return An instance of the referenced entry.
     * @throws InvalidReferenceException If the supplied reference cannot be resolved.
     */
-   T resolve(Account account, EntryReference reference) throws InvalidReferenceException;
+   T resolve(Account account, EntryId reference) throws InvalidReferenceException;
 
    /**
     * Attempts to remove the supplied entry from its associated data store.
@@ -54,7 +54,7 @@ public interface EntryResolver<T>
     * @throws InvalidReferenceException If the supplied reference cannot be resolved.
     * @throws UnsupportedOperationException If this resolver does not support removal.
     */
-   default CompletableFuture<Boolean> remove(Account account, EntryReference reference)
+   default CompletableFuture<Boolean> remove(Account account, EntryId reference)
          throws InvalidReferenceException, UnsupportedOperationException
    {
       throw new UnsupportedOperationException();
@@ -68,16 +68,16 @@ public interface EntryResolver<T>
     * @throws InvalidReferenceException If this resolver cannot create a URI
     *       for the supplied reference.
     */
-   URI toUri(EntryReference reference) throws InvalidReferenceException;
+   URI toUri(EntryId reference) throws InvalidReferenceException;
 
    /**
-    * Creates an {@link EntryReference} from a given TRC entry.
+    * Creates an {@link EntryId} from a given TRC entry.
     * @param instance The entry for which to construct a reference.
     * @return The constructed reference.
     * @throws InvalidReferenceException If this resolver cannot construct
-    *       an {@link EntryReference}.
+    *       an {@link EntryId}.
     */
-   EntryReference makeReference(T instance) throws InvalidReferenceException;
+   EntryId makeReference(T instance) throws InvalidReferenceException;
 
    /**
     * Constructs a reference for a given URI.
@@ -85,12 +85,12 @@ public interface EntryResolver<T>
     * @param uri The URI to resolve.
     * @return An entry reference for the supplied URI.
     * @throws InvalidReferenceException It this resolver cannot construct
-    *       an {@link EntryReference}.
+    *       an {@link EntryId}.
     */
-   EntryReference makeReference(URI uri) throws InvalidReferenceException;
+   EntryId makeReference(URI uri) throws InvalidReferenceException;
 
    /**
-    * Indicates whether this resolver can construct an {@link EntryReference}
+    * Indicates whether this resolver can construct an {@link EntryId}
     * for the supplied object.
     *
     * @param obj The object to be tested.
@@ -100,7 +100,7 @@ public interface EntryResolver<T>
 
    default boolean accepts(String id, String type)
    {
-      EntryReference ref = new EntryReference();
+      EntryId ref = new EntryId();
       ref.id = id;
       ref.type = type;
 
@@ -108,15 +108,15 @@ public interface EntryResolver<T>
    }
 
    /**
-    * Indicates whether this resolver can resolve the supplied {@link EntryReference}.
+    * Indicates whether this resolver can resolve the supplied {@link EntryId}.
     *
     * @param ref The reference to be tested.
     * @return {@code true} If the reference can be resolved.
     */
-   boolean accepts(EntryReference ref);
+   boolean accepts(EntryId ref);
 
    /**
-    * Indicates whether this resolver can construct an {@link EntryReference}
+    * Indicates whether this resolver can construct an {@link EntryId}
     * for the supplied URI.
     *
     * @param uri The URI to be tested.

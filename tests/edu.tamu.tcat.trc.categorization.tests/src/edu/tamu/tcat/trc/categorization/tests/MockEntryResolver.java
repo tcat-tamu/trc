@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolver;
 import edu.tamu.tcat.trc.resolver.InvalidReferenceException;
 
@@ -33,7 +33,7 @@ class MockEntryResolver implements EntryResolver<MockEntry>
    }
 
    @Override
-   public MockEntry resolve(Account account, EntryReference reference) throws InvalidReferenceException
+   public MockEntry resolve(Account account, EntryId reference) throws InvalidReferenceException
    {
       String errUnsupportedType = "Unsupported reference type {0}";
       String errNotFound = "Cannot find mock entry with id = {0}";
@@ -47,15 +47,15 @@ class MockEntryResolver implements EntryResolver<MockEntry>
    }
 
    @Override
-   public URI toUri(EntryReference reference) throws InvalidReferenceException
+   public URI toUri(EntryId reference) throws InvalidReferenceException
    {
       return baseUrl.resolve(API_RESOURCE_PATH).resolve(reference.id);
    }
 
    @Override
-   public EntryReference makeReference(MockEntry instance) throws InvalidReferenceException
+   public EntryId makeReference(MockEntry instance) throws InvalidReferenceException
    {
-      EntryReference reference = new EntryReference();
+      EntryId reference = new EntryId();
       reference.id = instance.id;
       reference.type = TYPE;
 
@@ -63,13 +63,13 @@ class MockEntryResolver implements EntryResolver<MockEntry>
    }
 
    @Override
-   public EntryReference makeReference(URI uri) throws InvalidReferenceException
+   public EntryId makeReference(URI uri) throws InvalidReferenceException
    {
       URI relEntryUri = baseUrl.resolve(API_RESOURCE_PATH).relativize(uri);
       if (uri.equals(relEntryUri))
          throw new InvalidReferenceException(uri, format("Expected URL at endpoint {0}", baseUrl.resolve(API_RESOURCE_PATH)));
 
-      EntryReference reference = new EntryReference();
+      EntryId reference = new EntryId();
       reference.id = relEntryUri.getPath();
       reference.type = TYPE;
 
@@ -83,7 +83,7 @@ class MockEntryResolver implements EntryResolver<MockEntry>
    }
 
    @Override
-   public boolean accepts(EntryReference reference)
+   public boolean accepts(EntryId reference)
    {
       return TYPE.equals(reference.type);
    }

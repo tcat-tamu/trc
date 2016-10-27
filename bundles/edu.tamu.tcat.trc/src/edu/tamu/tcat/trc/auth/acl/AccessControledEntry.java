@@ -3,14 +3,14 @@ package edu.tamu.tcat.trc.auth.acl;
 import java.util.UUID;
 
 import edu.tamu.tcat.trc.auth.account.TrcAccount;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 
 public interface AccessControledEntry
 {
    /**
     * @return The reference for the entry
     */
-   EntryReference getEntry();
+   EntryId getEntry();
 
    boolean hasPermission(TrcAccount account, AccessControlPermission permission);
 

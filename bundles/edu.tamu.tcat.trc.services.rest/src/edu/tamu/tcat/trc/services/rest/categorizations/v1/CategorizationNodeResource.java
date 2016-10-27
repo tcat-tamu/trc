@@ -26,7 +26,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.services.categorization.CategorizationNode;
 import edu.tamu.tcat.trc.services.categorization.CategorizationNodeMutator;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
@@ -136,7 +136,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
    public RestApiV1.EntryReference associateEntry(RestApiV1.EntryReference entryRef)
    {
       CategorizationNode node = resolveNode();
-      EntryReference ref = new EntryReference();
+      EntryId ref = new EntryId();
       ref.id = entryRef.id;
       ref.type = entryRef.type;
       // TODO might check to ensure validity?

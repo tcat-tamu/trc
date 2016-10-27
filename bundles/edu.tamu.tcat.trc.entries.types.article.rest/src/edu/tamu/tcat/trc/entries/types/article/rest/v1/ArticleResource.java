@@ -43,7 +43,7 @@ import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.entries.types.article.repo.FootnoteMutator;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.services.bibref.repo.RefCollectionService;
 import edu.tamu.tcat.trc.services.rest.bibref.ReferenceCollectionResource;
 
@@ -97,7 +97,7 @@ public class ArticleResource
    @Path("references")
    public ReferenceCollectionResource getReferences()
    {
-      EntryReference entryRef = new EntryReference();
+      EntryId entryRef = new EntryId();
       entryRef.id = articleId;
       entryRef.type = ArticleRepository.ENTRY_TYPE_ID;
       return new ReferenceCollectionResource(refRepo, entryRef);

@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 import edu.tamu.tcat.trc.entries.types.reln.rest.v1.RestApiV1.RelationshipTypeGroup;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelnSearchProxy;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 
 /**
  * An encapsulation of adapter methods to convert between the search API and
@@ -86,7 +86,7 @@ public class SearchAdapter
     * @param lookupType Provides a means to resolve {@link RelationshipType} instances by id
     * @return
     */
-   public static RestApiV1.GroupedSearchResultSet groupByType(EntryReference referent, List<RestApiV1.RelationshipSearchResult> relns, Function<String, RelationshipType> lookupType)
+   public static RestApiV1.GroupedSearchResultSet groupByType(EntryId referent, List<RestApiV1.RelationshipSearchResult> relns, Function<String, RelationshipType> lookupType)
    {
       RestApiV1.GroupedSearchResultSet resultSet = new RestApiV1.GroupedSearchResultSet();
 

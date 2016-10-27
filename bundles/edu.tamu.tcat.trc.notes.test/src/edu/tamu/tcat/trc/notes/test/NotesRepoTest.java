@@ -40,7 +40,7 @@ import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
 import edu.tamu.tcat.trc.impl.psql.services.notes.NotesServiceFactory;
 import edu.tamu.tcat.trc.impl.psql.services.notes.NotesServiceFactory.NotesRepoImpl;
 import edu.tamu.tcat.trc.repo.postgres.PostgresDataSourceProvider;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.services.notes.EditNoteCommand;
 import edu.tamu.tcat.trc.services.notes.Note;
 import edu.tamu.tcat.trc.services.notes.NotesService;
@@ -181,7 +181,7 @@ public class NotesRepoTest
       String authorId = "d25d7b89-6634-4895-89c1-7024fc3d5396";
       TestAccount acct = new TestAccount(UUID.fromString(authorId), "Test User");
 
-      EntryReference ref = new EntryReference();
+      EntryId ref = new EntryId();
       ref.type = BibliographicEntryRepository.ENTRY_TYPE_ID;
       ref.id = "1";
 

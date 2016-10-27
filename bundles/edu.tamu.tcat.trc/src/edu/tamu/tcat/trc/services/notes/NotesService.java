@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.concurrent.Future;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.services.BasicServiceContext;
 import edu.tamu.tcat.trc.services.ServiceContext;
 
@@ -55,7 +55,7 @@ public interface NotesService
     * @throws IllegalStateException If internal errors prevent the retrieval of the
     *       requested resource. This is likely due to database access issues.
     */
-   Collection<Note> getNotes(EntryReference ref) throws IllegalStateException;
+   Collection<Note> getNotes(EntryId ref) throws IllegalStateException;
 
    /**
     * @return an edit command for use in creating a new {@link Note}.

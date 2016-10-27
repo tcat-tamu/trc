@@ -18,7 +18,7 @@ package edu.tamu.tcat.trc.entries.types.reln.repo;
 import edu.tamu.tcat.trc.entries.core.repo.EditEntryCommand;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 
 /**
  * An edit command to modify a {@link Relationship}.
@@ -49,13 +49,13 @@ public interface EditRelationshipCommand extends EditEntryCommand<Relationship>
     *
     * @return A mutator to edit the associated anchor.
     */
-   AnchorMutator editRelatedEntry(EntryReference ref);
+   AnchorMutator editRelatedEntry(EntryId ref);
 
    /**
     * Removes the anchor associated with the referenced entry. If no anchor is associated
     * with the supplied reference (at the time of execution), no action will be performed.
     */
-   void removeRelatedEntry(EntryReference ref);
+   void removeRelatedEntry(EntryId ref);
 
    /**
     * Removes all anchors from the set of related entries.
@@ -69,13 +69,13 @@ public interface EditRelationshipCommand extends EditEntryCommand<Relationship>
     * @return A mutator to edit the associated anchor.
     * @throws RelationshipException If this relationship is undirected.
     */
-   AnchorMutator editTargetEntry(EntryReference ref);
+   AnchorMutator editTargetEntry(EntryId ref);
 
    /**
     * Removes the anchor associated with the referenced entry. If no anchor is associated
     * with the supplied reference (at the time of execution), no action will be performed.
     */
-   void removeTargetEntry(EntryReference ref);
+   void removeTargetEntry(EntryId ref);
 
    /**
     * Removes all anchors from the set of target entries. Has no effect for undirected relationships.

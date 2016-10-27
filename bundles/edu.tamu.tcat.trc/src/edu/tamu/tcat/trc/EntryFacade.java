@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.services.bibref.ReferenceCollection;
 import edu.tamu.tcat.trc.services.bibref.repo.EditBibliographyCommand;
 import edu.tamu.tcat.trc.services.notes.EditNoteCommand;
@@ -25,7 +25,7 @@ public interface EntryFacade<EntryType>
     */
    EntryType getEntry();
 
-   EntryReference getEntryRef();
+   EntryId getEntryRef();
 
    /**
     * @return A collection of bibliographic references and citations that are associated
@@ -55,7 +55,7 @@ public interface EntryFacade<EntryType>
     * @param ref A reference to the entry to link to.
     * @return The created link.
     */
-   Link addLink(EntryReference ref);
+   Link addLink(EntryId ref);
 
    /**
     * Removes a 'See Also' link from this entry.
@@ -64,12 +64,12 @@ public interface EntryFacade<EntryType>
     * @return Indicates whether the underlying data was changed. Will be <code>false</code>
     *       if the referenced entry was not linked to this entry.
     */
-   boolean removeLink(EntryReference ref);
+   boolean removeLink(EntryId ref);
 
    /**
     * @return A collection of entries that are linked to this one.
     */
-   Collection<EntryReference> getLinks();     // TODO do we need to distinguish directionality?
+   Collection<EntryId> getLinks();     // TODO do we need to distinguish directionality?
 
    /**
     * Removes the referenced entry and all associated service content. In general, this method

@@ -11,7 +11,7 @@ import edu.tamu.tcat.trc.TrcApplication;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
 import edu.tamu.tcat.trc.repo.id.IdFactory;
 import edu.tamu.tcat.trc.repo.id.IdFactoryProvider;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.TrcServiceManager;
 
@@ -99,7 +99,7 @@ public class TrcApplicationImpl implements TrcApplication
    }
 
    @Override
-   public <T> EntryFacade<T> getEntryFacade(EntryReference ref, Class<T> type, Account account)
+   public <T> EntryFacade<T> getEntryFacade(EntryId ref, Class<T> type, Account account)
    {
       return new EntryFacadeImpl<>(svcMgr, repositories, ref, account, type);
    }
@@ -107,7 +107,7 @@ public class TrcApplicationImpl implements TrcApplication
    @Override
    public <T> EntryFacade<T> getEntryFacade(T entry, Class<T> type, Account account)
    {
-      EntryReference ref = resolvers.getResolver(entry).makeReference(entry);
+      EntryId ref = resolvers.getResolver(entry).makeReference(entry);
       return new EntryFacadeImpl<>(svcMgr, repositories, ref, account, type);
    }
 

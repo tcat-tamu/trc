@@ -19,7 +19,7 @@ import edu.tamu.tcat.trc.repo.ChangeSet;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.UpdateContext;
 import edu.tamu.tcat.trc.repo.id.IdFactory;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolver;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
@@ -42,12 +42,12 @@ public class EditHeirarchyCommandFactory
       this.nodeIds = idFactory;
    }
 
-   public static EntryReference copy(EntryReference ref)
+   public static EntryId copy(EntryId ref)
    {
       if (ref == null)
          return null;
 
-      EntryReference dto = new EntryReference();
+      EntryId dto = new EntryId();
       dto.id = ref.id;
       dto.type = ref.type;
 

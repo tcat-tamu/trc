@@ -18,7 +18,7 @@ package edu.tamu.tcat.trc.services.notes;
 import java.time.ZonedDateTime;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 
 public interface Note
 {
@@ -41,7 +41,7 @@ public interface Note
     * @return A reference to the entry this note is associated with. May be
     *       <code>null</code> if the note is not attached to a specific entry.
     */
-   EntryReference getAssociatedEntry();
+   EntryId getAssociatedEntry();
 
    // TODO allow for attachments to multiple entries
 

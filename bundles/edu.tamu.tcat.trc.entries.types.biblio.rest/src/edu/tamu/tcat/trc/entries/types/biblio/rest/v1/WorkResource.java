@@ -31,7 +31,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityCollectionPersistenceAdapter;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityPersistenceAdapter;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolver;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.TrcServiceManager;
@@ -121,7 +121,7 @@ public class WorkResource
 
          BibliographicEntry work = workPersistenceAdapter.get();
          EntryResolver<BibliographicEntry> resolver = resolverRegistry.getResolver(work);
-         EntryReference reference = resolver.makeReference(work);
+         EntryId reference = resolver.makeReference(work);
 
          return new ReferenceCollectionResource(refsService, reference);
       }

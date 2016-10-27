@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 
 public abstract class PersistenceModelV1
 {
@@ -45,7 +45,7 @@ public abstract class PersistenceModelV1
       public String description = "";
 
       // TODO should replace with tokenization?
-      public EntryReference ref;
+      public EntryId ref;
 
       @Override
       public String toString()

@@ -4,7 +4,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.notes.Note;
 
@@ -18,7 +18,7 @@ public abstract class ModelAdapter
       dto.content = note.getContent();
       dto.mimeType = note.getMimeType();
 
-      EntryReference ref = note.getAssociatedEntry();
+      EntryId ref = note.getAssociatedEntry();
       dto.entryRef = (ref != null) ?  reg.tokenize(ref) : null;
 
       dto.dateCreated =  formatDate(note.getDateCreated());

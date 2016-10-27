@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.EntryFacade;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolver;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.resolver.InvalidReferenceException;
@@ -28,7 +28,7 @@ import edu.tamu.tcat.trc.services.seealso.SeeAlsoService;
 public class EntryFacadeImpl<EntryType> implements EntryFacade<EntryType>
 {
    private final TrcServiceManager svcMgr;
-   private final EntryReference ref;
+   private final EntryId ref;
    private final Account account;
    private final Class<EntryType> typeToken;
 
@@ -39,7 +39,7 @@ public class EntryFacadeImpl<EntryType> implements EntryFacade<EntryType>
    private final NoteServiceDelegate notesSvcDelegate;
    private final SeeAlsoSvcDelegate seeAlsoSvcDelegate;
 
-   public EntryFacadeImpl(TrcServiceManager svcMgr, EntryRepositoryRegistry repoRegistry, EntryReference ref, Account acct, Class<EntryType> typeToken)
+   public EntryFacadeImpl(TrcServiceManager svcMgr, EntryRepositoryRegistry repoRegistry, EntryId ref, Account acct, Class<EntryType> typeToken)
    {
       this.svcMgr = svcMgr;
       this.ref = ref;
@@ -72,10 +72,10 @@ public class EntryFacadeImpl<EntryType> implements EntryFacade<EntryType>
    }
 
    @Override
-   public EntryReference getEntryRef()
+   public EntryId getEntryRef()
    {
       // HACK: need immutable version
-      EntryReference copy = new EntryReference();
+      EntryId copy = new EntryId();
       copy.id = ref.id;
       copy.type = ref.type;
 
@@ -113,19 +113,19 @@ public class EntryFacadeImpl<EntryType> implements EntryFacade<EntryType>
    }
 
    @Override
-   public Link addLink(EntryReference ref)
+   public Link addLink(EntryId ref)
    {
       return seeAlsoSvcDelegate.link(ref);
    }
 
    @Override
-   public Collection<EntryReference> getLinks()
+   public Collection<EntryId> getLinks()
    {
       return seeAlsoSvcDelegate.getLinks();
    }
 
    @Override
-   public boolean removeLink(EntryReference ref)
+   public boolean removeLink(EntryId ref)
    {
       return seeAlsoSvcDelegate.removeLink(ref);
    }
@@ -211,7 +211,7 @@ public class EntryFacadeImpl<EntryType> implements EntryFacade<EntryType>
          source = Objects.requireNonNull(resolvers.tokenize(ref));
       }
 
-      public Collection<EntryReference> getLinks()
+      public Collection<EntryId> getLinks()
       {
          return service.getFor(source).stream()
                .map(link -> source.equals(link.getSource()) ? link.getTarget() : link.getSource())
@@ -219,13 +219,13 @@ public class EntryFacadeImpl<EntryType> implements EntryFacade<EntryType>
                .collect(toList());
       }
 
-      public Link link(EntryReference ref)
+      public Link link(EntryId ref)
       {
          String target = resolvers.tokenize(ref);
          return service.create(source, target);
       }
 
-      public boolean removeLink(EntryReference ref)
+      public boolean removeLink(EntryId ref)
       {
          String target = resolvers.tokenize(ref);
          return service.delete(source, target);

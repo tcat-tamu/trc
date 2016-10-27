@@ -8,7 +8,7 @@ import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolverBase;
 import edu.tamu.tcat.trc.resolver.InvalidReferenceException;
 
@@ -25,7 +25,7 @@ public class ArticleResolver extends EntryResolverBase<Article>
    }
 
    @Override
-   public Article resolve(Account account, EntryReference reference) throws InvalidReferenceException
+   public Article resolve(Account account, EntryId reference) throws InvalidReferenceException
    {
       if (!accepts(reference))
          throw new InvalidReferenceException(reference, "Unsupported reference type.");
@@ -40,7 +40,7 @@ public class ArticleResolver extends EntryResolverBase<Article>
    }
 
    @Override
-   public CompletableFuture<Boolean> remove(Account account, EntryReference reference) throws InvalidReferenceException
+   public CompletableFuture<Boolean> remove(Account account, EntryId reference) throws InvalidReferenceException
    {
       return delegate.remove(account, reference.id);
    }

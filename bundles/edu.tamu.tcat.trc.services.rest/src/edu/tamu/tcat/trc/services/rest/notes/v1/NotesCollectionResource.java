@@ -38,7 +38,7 @@ import javax.ws.rs.core.Response;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.notes.EditNoteCommand;
 import edu.tamu.tcat.trc.services.notes.Note;
@@ -55,12 +55,12 @@ public class NotesCollectionResource
 
    private final ObjectMapper mapper;
 
-   private final EntryReference ref;
+   private final EntryId ref;
 
 
    public NotesCollectionResource(NotesService repo,
                                   EntryResolverRegistry reg,
-                                  EntryReference ref)
+                                  EntryId ref)
    {
       this.repo = repo;
       this.reg = reg;

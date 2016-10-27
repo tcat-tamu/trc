@@ -8,7 +8,7 @@ import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.account.store.AccountStore;
 import edu.tamu.tcat.trc.repo.BasicChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.UpdateContext;
@@ -57,7 +57,7 @@ public class EditNoteCommandFactory implements EditCommandFactory<DataModelV1.No
       }
 
       @Override
-      public void setAssociatedEntry(EntryReference ref)
+      public void setAssociatedEntry(EntryId ref)
       {
          String token = resolvers.tokenize(ref);
          changes.add("entryRef", dto -> dto.entryRef = token);

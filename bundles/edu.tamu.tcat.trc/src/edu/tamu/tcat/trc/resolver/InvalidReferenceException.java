@@ -7,7 +7,7 @@ import java.net.URI;
 import edu.tamu.tcat.trc.TrcException;
 
 /**
- * Thrown when an attempt to resolve an {@link EntryReference} fails or the
+ * Thrown when an attempt to resolve an {@link EntryId} fails or the
  * reference is otherwise determined to be invalid.
  */
 public class InvalidReferenceException extends TrcException
@@ -17,10 +17,10 @@ public class InvalidReferenceException extends TrcException
    private static final String ERR_BAD_URI = "The supplied entry uri [{0}] cannot be resolved: {1}";
 
    private final String msg;
-   private final EntryReference ref;
+   private final EntryId ref;
    private final Object entry;
 
-   public InvalidReferenceException(EntryReference ref, String msg)
+   public InvalidReferenceException(EntryId ref, String msg)
    {
       super(format(ERR_BAD_REFERENCE, ref.id, msg));
 
@@ -67,7 +67,7 @@ public class InvalidReferenceException extends TrcException
    /**
     * @return The invalid reference. May be {@code null}
     */
-   public EntryReference getEntryReference()
+   public EntryId getEntryReference()
    {
       return ref;
    }

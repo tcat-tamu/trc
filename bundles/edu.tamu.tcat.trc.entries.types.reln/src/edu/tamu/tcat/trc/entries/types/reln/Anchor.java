@@ -17,7 +17,7 @@ package edu.tamu.tcat.trc.entries.types.reln;
 
 import java.util.Set;
 
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 
 /**
  *  Defines a reference to a catalog entry, a fragment of a catalog entry (for example, to a
@@ -39,7 +39,7 @@ public interface Anchor
    /**
     * @return A reference to the entry this anchor is associated with.
     */
-   EntryReference getTarget();
+   EntryId getTarget();
 
    /**
     * @return A list of the application-defined properties that have been supplied

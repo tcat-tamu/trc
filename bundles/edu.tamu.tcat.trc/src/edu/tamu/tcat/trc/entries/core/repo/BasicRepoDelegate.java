@@ -17,7 +17,7 @@ import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.RepositoryException;
 import edu.tamu.tcat.trc.repo.UpdateContext;
 import edu.tamu.tcat.trc.repo.id.IdFactory;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolver;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
@@ -246,7 +246,7 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
       }
 
       @Override
-      public EntryReference getEntryReference()
+      public EntryId getEntryReference()
       {
          // HACK should be able to construct an entry reference from the id; need semantic type of entry.
          EntryType entry = getModifiedState();

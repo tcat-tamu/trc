@@ -3,7 +3,7 @@ package edu.tamu.tcat.trc.services.rest.categorizations.v1;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeCategorization;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeNode;
@@ -52,7 +52,7 @@ public class ModelAdapterV1
       return dto;
    }
 
-   private static RestApiV1.EntryReference adapt(EntryReference ref)
+   private static RestApiV1.EntryReference adapt(EntryId ref)
    {
       if (ref == null)
          return null;

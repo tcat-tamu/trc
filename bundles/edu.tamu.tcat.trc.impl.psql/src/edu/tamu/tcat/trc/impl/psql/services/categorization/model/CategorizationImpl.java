@@ -4,7 +4,7 @@ import static java.text.MessageFormat.format;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.PersistenceModelV1;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.resolver.InvalidReferenceException;
 import edu.tamu.tcat.trc.services.ServiceContext;
@@ -88,7 +88,7 @@ public abstract class CategorizationImpl implements CategorizationScheme
       protected final String id;
       protected final String label;
       protected final String description;
-      protected final EntryReference ref;
+      protected final EntryId ref;
 
       protected final CategorizationScheme scheme;
       protected final EntryResolverRegistry registry;
@@ -132,7 +132,7 @@ public abstract class CategorizationImpl implements CategorizationScheme
       }
 
       @Override
-      public final EntryReference getAssociatedEntryRef()
+      public final EntryId getAssociatedEntryRef()
       {
          return ref;
       }

@@ -3,14 +3,14 @@ package edu.tamu.tcat.trc.services.bibref.repo;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 
 public interface EditBibliographyCommand
 {
    /**
     * @return A reference to the entry to which the bibliography being edited belongs.
     */
-   EntryReference getEntryReference();
+   EntryId getEntryReference();
 
    /**
     * Creates a new citation with the given id and adds it to the bibliography.

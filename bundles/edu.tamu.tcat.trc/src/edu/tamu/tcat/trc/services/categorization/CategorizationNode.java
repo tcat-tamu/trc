@@ -1,6 +1,6 @@
 package edu.tamu.tcat.trc.services.categorization;
 
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 
 /**
  * Represents an individual entry within a categorization. The specific categorization
@@ -41,7 +41,7 @@ public interface CategorizationNode
    /**
     * @return The TRC entity referenced by this node. May be <code>null</code>.
     */
-   EntryReference getAssociatedEntryRef();
+   EntryId getAssociatedEntryRef();
 
    /**
     * Resolves and returns the entry associated with this node. Note that if no

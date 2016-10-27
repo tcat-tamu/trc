@@ -40,7 +40,7 @@ import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
 import edu.tamu.tcat.trc.repo.id.IdFactoryProvider;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolver;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.test.ClosableSqlExecutor;
@@ -226,7 +226,7 @@ public class ArticleRepoTests
       assertNotNull(resolver);
       assertTrue(resolver.accepts(article));
 
-      EntryReference articleRef = resolver.makeReference(article);
+      EntryId articleRef = resolver.makeReference(article);
       assertNotNull(articleRef);
       assertTrue(resolver.accepts(articleRef));
       // Note - there is no obligation that the reolver id be the same as the article id,

@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 
 public interface EntryUpdateRecord<EntryType>
 {
@@ -38,7 +38,7 @@ public interface EntryUpdateRecord<EntryType>
    /**
     * @return The reference that uniquely identifies the updated entry.
     */
-   EntryReference getEntryReference();
+   EntryId getEntryReference();
 
    /**
     * @return The state of the entry immediately following this modification. Will be

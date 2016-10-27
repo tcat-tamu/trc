@@ -29,7 +29,7 @@ import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
 import edu.tamu.tcat.trc.impl.psql.services.ServiceFactory;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepo;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
 import edu.tamu.tcat.trc.services.ServiceContext;
@@ -134,7 +134,7 @@ public class NotesServiceFactory implements ServiceFactory<NotesService>
       }
 
       @Override
-      public Collection<Note> getNotes(EntryReference ref)
+      public Collection<Note> getNotes(EntryId ref)
       {
          SqlExecutor sqlExecutor = repoRegistry.getSqlExecutor();
          EntryResolverRegistry resolvers = repoRegistry.getResolverRegistry();

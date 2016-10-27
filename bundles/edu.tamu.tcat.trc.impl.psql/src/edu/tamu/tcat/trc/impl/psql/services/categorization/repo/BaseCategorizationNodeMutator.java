@@ -1,7 +1,7 @@
 package edu.tamu.tcat.trc.impl.psql.services.categorization.repo;
 
 import edu.tamu.tcat.trc.repo.ChangeSet;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.services.categorization.CategorizationNodeMutator;
 
 public class BaseCategorizationNodeMutator implements CategorizationNodeMutator
@@ -28,9 +28,9 @@ public class BaseCategorizationNodeMutator implements CategorizationNodeMutator
    }
 
    @Override
-   public final void associateEntryRef(EntryReference ref)
+   public final void associateEntryRef(EntryId ref)
    {
-      EntryReference refDto = EditHeirarchyCommandFactory.copy(ref);
+      EntryId refDto = EditHeirarchyCommandFactory.copy(ref);
       changes.add("ref", dto -> dto.ref = refDto);
    }
 

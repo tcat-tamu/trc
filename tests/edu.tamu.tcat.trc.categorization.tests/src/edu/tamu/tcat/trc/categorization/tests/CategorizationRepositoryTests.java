@@ -29,7 +29,7 @@ import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.trc.categorization.impl.CategorizationSchemeService;
 import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
 import edu.tamu.tcat.trc.repo.id.IdFactoryProvider;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScope;
@@ -264,12 +264,12 @@ public abstract class CategorizationRepositoryTests
    {
       String entryDesc = "mock entry description";
       MockEntry mockEntry = entryResolver.create(entryDesc);
-      EntryReference mockRef = entryResolver.makeReference(mockEntry);
+      EntryId mockRef = entryResolver.makeReference(mockEntry);
 
       mockRef.id = "3XthwW";
       String token = repos.getResolverRegistry().tokenize(mockRef);
       System.out.println(token);
-      EntryReference restored = repos.getResolverRegistry().decodeToken(token);
+      EntryId restored = repos.getResolverRegistry().decodeToken(token);
       assertEquals(mockRef.id, restored.id);
       assertEquals(mockRef.type, restored.type);
    }
@@ -339,7 +339,7 @@ public abstract class CategorizationRepositoryTests
       {
          String entryDesc = "mock entry description";
          MockEntry mockEntry = entryResolver.create(entryDesc);
-         EntryReference mockRef = entryResolver.makeReference(mockEntry);
+         EntryId mockRef = entryResolver.makeReference(mockEntry);
 
          CategorizationService repository = getDefaultRepo();
          TreeCategorization scheme = getDefaultScheme(repository);
@@ -358,7 +358,7 @@ public abstract class CategorizationRepositoryTests
 
          scheme = repository.getById(id, TreeCategorization.class);
          nodeA = findByLabel(scheme, "A");
-         EntryReference ref = nodeA.getAssociatedEntryRef();
+         EntryId ref = nodeA.getAssociatedEntryRef();
          MockEntry entry = nodeA.getAssociatedEntry(MockEntry.class);
 
          assertEquals(mockRef.id, ref.id);

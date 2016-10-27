@@ -26,7 +26,7 @@ import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.ApiUtils;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RepoAdapter;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolver;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.TrcServiceManager;
@@ -120,7 +120,7 @@ public class PersonResource
    {
       RefCollectionService refsService = serviceManager.getService(RefCollectionService.makeContext(null));
 
-      EntryReference reference = repo.getOptionally(personId)
+      EntryId reference = repo.getOptionally(personId)
             .map(person -> {
                EntryResolver<BiographicalEntry> resolver = resolverRegistry.getResolver(person);
                return resolver.makeReference(person);

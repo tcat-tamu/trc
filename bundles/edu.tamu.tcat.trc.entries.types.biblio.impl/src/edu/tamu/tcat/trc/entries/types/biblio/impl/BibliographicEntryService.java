@@ -22,7 +22,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand
 import edu.tamu.tcat.trc.impl.psql.entries.SolrSearchSupport;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolverBase;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.resolver.InvalidReferenceException;
@@ -183,7 +183,7 @@ public class BibliographicEntryService
       }
 
       @Override
-      public BibliographicEntry resolve(Account account, EntryReference reference) throws InvalidReferenceException
+      public BibliographicEntry resolve(Account account, EntryId reference) throws InvalidReferenceException
       {
          if (!accepts(reference))
             throw new InvalidReferenceException(reference, "Unsupported reference type.");
@@ -198,7 +198,7 @@ public class BibliographicEntryService
       }
 
       @Override
-      public CompletableFuture<Boolean> remove(Account account, EntryReference reference)
+      public CompletableFuture<Boolean> remove(Account account, EntryId reference)
       {
          return delegate.remove(account, reference.id);
       }

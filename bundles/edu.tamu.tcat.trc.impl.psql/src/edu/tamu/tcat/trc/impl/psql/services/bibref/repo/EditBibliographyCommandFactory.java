@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import edu.tamu.tcat.trc.repo.BasicChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
-import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.services.bibref.repo.BibliographicItemMetaMutator;
@@ -55,7 +55,7 @@ public class EditBibliographyCommandFactory implements EditCommandFactory<DataMo
       }
 
       @Override
-      public EntryReference getEntryReference()
+      public EntryId getEntryReference()
       {
          return entryResolverRegistry.decodeToken(bibId);
       }
