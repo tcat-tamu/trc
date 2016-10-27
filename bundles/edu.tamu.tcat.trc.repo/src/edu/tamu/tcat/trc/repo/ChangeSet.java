@@ -31,7 +31,8 @@ public interface ChangeSet<Type>
     *
     * @param message An brief message describing the change action to be applied. Intended
     *    for logging and audit purposes rather than display.
-    * @param mutatorFn A consumer that will accept a DTO and modify
+    * @param mutatorFn A consumer that accepts a DTO and modifies it to affect the intended
+    *    change.
     * @return A {@link ChangeAction} that characterizes the specific change to be applied.
     */
    ChangeAction add(String message, Consumer<Type> mutatorFn);
