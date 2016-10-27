@@ -98,6 +98,15 @@ public interface EntryResolver<T>
     */
    boolean accepts(Object obj);
 
+   default boolean accepts(String id, String type)
+   {
+      EntryReference ref = new EntryReference();
+      ref.id = id;
+      ref.type = type;
+
+      return this.accepts(ref);
+   }
+
    /**
     * Indicates whether this resolver can resolve the supplied {@link EntryReference}.
     *

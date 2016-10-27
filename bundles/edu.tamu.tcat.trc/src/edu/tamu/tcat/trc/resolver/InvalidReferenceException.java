@@ -29,6 +29,15 @@ public class InvalidReferenceException extends TrcException
       this.entry = null;
    }
 
+   public InvalidReferenceException(String id, String type, String msg)
+   {
+      super(format(ERR_BAD_REFERENCE, id, msg));
+
+      this.msg = msg;
+      this.ref = null;
+      this.entry = null;
+   }
+
    public InvalidReferenceException(Object entry, String msg)
    {
       super(format(ERR_BAD_ENTRY, entry, msg));

@@ -2,10 +2,13 @@ package edu.tamu.tcat.trc.resolver;
 
 import static java.text.MessageFormat.format;
 
+import java.net.URI;
 import java.util.Base64;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import edu.tamu.tcat.account.Account;
 
 /**
  * A basic implementation of the {@link EntryResolverRegistry}. Intended to be registered as
@@ -25,14 +28,47 @@ public class BasicResolverRegistry implements EntryResolverRegistry
       return () -> resolvers.remove(registrationId);
    }
 
+   public <T> EntryReferenceProxy<T> getReference(String id, String type)
+   {
+      return new EntryRefImpl<>(id, type);
+   }
+
+   public <T> EntryReferenceProxy<T> getReference(String token)
+   {
+      EntryReference eId = decodeToken(token);
+      return new EntryRefImpl<>(eId.getId(), eId.getType());
+   }
+
+   public <T> EntryReferenceProxy<T> getReference(URI uri)
+   {
+      EntryReference eId = resolvers.values().parallelStream()
+            .filter(candidate -> candidate.accepts(uri))
+            .findFirst()
+            .map(resolver -> resolver.makeReference(uri))
+            .orElseThrow(() -> new InvalidReferenceException(uri,
+                  "No registered resolver accpets this uri"));
+
+      return new EntryRefImpl<>(eId.getId(), eId.getType());
+   }
+
    @Override
    @SuppressWarnings({ "unchecked", "rawtypes" })  // HACK: NOT TYPE SAFE
    public <T> EntryResolver<T> getResolver(EntryReference ref) throws InvalidReferenceException
    {
       return (EntryResolver)resolvers.values().parallelStream()
-         .filter(resolver -> resolver.accepts(ref))
+         .filter(resolver -> resolver.accepts(ref.id, ref.type))
          .findAny()
          .orElseThrow(() -> new InvalidReferenceException(ref, "No registered resolver accpets this reference"));
+   }
+
+   @SuppressWarnings({ "unchecked", "rawtypes" })  // HACK: NOT TYPE SAFE
+   public <T> EntryResolver<T> getResolver(String id, String type) throws InvalidReferenceException
+   {
+      return (EntryResolver)resolvers.values().parallelStream()
+            .filter(resolver -> resolver.accepts(id, type))
+            .findAny()
+            .orElseThrow(() -> new InvalidReferenceException(id, type,
+                  "No registered resolver accpets this reference"));
    }
 
    @Override
@@ -46,16 +82,21 @@ public class BasicResolverRegistry implements EntryResolverRegistry
    }
 
    @Override
-   public String tokenize(EntryReference ref)
+   public String tokenize(EntryReference eId)
+   {
+      return tokenize(eId.id, eId.type);
+   }
+
+   public String tokenize(String id, String type)
    {
       // ensure that a resolver exists for this reference.
-      this.getResolver(ref);
+      this.getResolver(id, type);
 
       // HACK this is an arbitrary restriction on ids and may not be robust
       //      to future changes. Need a better tokenization strategy.
-      if (ref.id.contains("::"))
-         throw new IllegalStateException("Cannot tokenize reference with id " + ref.id);
-      String key = ref.id + "::" + ref.type;
+      if (id.contains("::"))
+         throw new IllegalStateException("Cannot tokenize reference with id " + id);
+      String key = id + "::" + type;
       return Base64.getEncoder().encodeToString(key.getBytes());
    }
 
@@ -83,6 +124,56 @@ public class BasicResolverRegistry implements EntryResolverRegistry
       // ensure that a resolver exists for this reference.
       this.getResolver(ref);
       return ref;
+   }
+
+   private class EntryRefImpl<T> implements EntryReferenceProxy<T>
+   {
+      private final String id;
+      private final String type;
+      private final EntryResolver<T> resolver;
+
+      public EntryRefImpl(String id, String type)
+      {
+         this.id = id;
+         this.type = type;
+         this.resolver = getResolver(id, type);
+      }
+
+      @Override
+      public String getId()
+      {
+         return id;
+      }
+
+      public EntryReference asEntryId()
+      {
+         return new EntryReference(id, type);
+      }
+
+      @Override
+      public String getType()
+      {
+         return type;
+      }
+
+      @Override
+      public String getToken()
+      {
+         return tokenize(id, type);
+      }
+
+      @Override
+      public URI getUri()
+      {
+         return resolver.toUri(asEntryId());
+      }
+
+      @Override
+      public T getEntry(Account account)
+      {
+         return resolver.resolve(account, asEntryId());
+      }
+
    }
 
 }
