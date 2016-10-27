@@ -1,54 +1,62 @@
 package edu.tamu.tcat.trc.entries.types.reln.impl.repo;
 
 import static java.text.MessageFormat.format;
+import static java.util.stream.Collectors.toList;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import edu.tamu.tcat.trc.entries.types.reln.AnchorSet;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
-import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDTO;
-import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
+import edu.tamu.tcat.trc.entries.types.reln.impl.repo.DataModelV1.Anchor;
+import edu.tamu.tcat.trc.entries.types.reln.impl.repo.DataModelV1.Relationship;
+import edu.tamu.tcat.trc.entries.types.reln.repo.AnchorMutator;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 import edu.tamu.tcat.trc.repo.BasicChangeSet;
+import edu.tamu.tcat.trc.repo.ChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.UpdateContext;
+import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
-public class EditRelationshipCommandFactory implements EditCommandFactory<RelationshipDTO, EditRelationshipCommand>
+public class EditRelationshipCommandFactory implements EditCommandFactory<DataModelV1.Relationship, EditRelationshipCommand>
 {
    private final RelationshipTypeRegistry typeReg;
+   private final EntryResolverRegistry resolvers;
 
-   public EditRelationshipCommandFactory(RelationshipTypeRegistry typeReg)
+   public EditRelationshipCommandFactory(RelationshipTypeRegistry typeReg, EntryResolverRegistry resolvers)
    {
       this.typeReg = typeReg;
+      this.resolvers = resolvers;
    }
 
    @Override
-   public EditRelationshipCommand create(String id, EditCommandFactory.UpdateStrategy<RelationshipDTO> context)
+   public EditRelationshipCommand create(String id, EditCommandFactory.UpdateStrategy<DataModelV1.Relationship> context)
    {
       return new EditRelationshipCommandImpl(id, context);
    }
 
    @Override
-   public EditRelationshipCommand edit(String id, EditCommandFactory.UpdateStrategy<RelationshipDTO> context)
+   public EditRelationshipCommand edit(String id, EditCommandFactory.UpdateStrategy<DataModelV1.Relationship> context)
    {
       return new EditRelationshipCommandImpl(id, context);
    }
 
    private class EditRelationshipCommandImpl implements EditRelationshipCommand
    {
-      EditCommandFactory.UpdateStrategy<RelationshipDTO> context;
+      EditCommandFactory.UpdateStrategy<DataModelV1.Relationship> context;
 
       private final String id;
-      private final ApplicableChangeSet<RelationshipDTO> changes = new BasicChangeSet<>();
+      private final ApplicableChangeSet<DataModelV1.Relationship> changes = new BasicChangeSet<>();
 
 
-      public EditRelationshipCommandImpl(String id, EditCommandFactory.UpdateStrategy<RelationshipDTO> context)
+      public EditRelationshipCommandImpl(String id, EditCommandFactory.UpdateStrategy<DataModelV1.Relationship> context)
       {
          this.id = id;
          this.context = context;
@@ -67,19 +75,6 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<Relati
          changes.add("typeId", dto -> dto.typeId = typeId);
       }
 
-      private void checkTypeId(String typeId, Function<String, RuntimeException> generator)
-      {
-         try
-         {
-            typeReg.resolve(typeId);
-         }
-         catch (RelationshipException | NullPointerException e)
-         {
-            String msg = format("The supplied type id {0} could not be found. This relationship type has not been configured.", typeId);
-            throw generator.apply(msg);
-         }
-      }
-
       @Override
       public void setDescription(String description)
       {
@@ -87,93 +82,136 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<Relati
       }
 
       @Override
-      public void setDescriptionFormat(String descriptionFormat)
+      public AnchorMutator editRelatedEntry(EntryReference ref)
       {
-         changes.add("descriptionMimeType", dto -> dto.descriptionMimeType = descriptionFormat);
+         String token = resolvers.tokenize(ref);
+         ChangeSet<Anchor> partial = changes.partial(format("related [EDIT {0}]", token), (dto) -> {
+            return dto.related.stream()
+                        .filter(a -> a.ref.equals(token))
+                        .findAny()
+                        .orElse(makeAnchor(dto.related, token));
+         });
+
+         return new AnchorMutatorImpl(partial);
       }
 
       @Override
-      public void setRelatedEntities(AnchorSet related)
+      public void removeRelatedEntry(EntryReference ref)
       {
-         if (related == null)
-            return;
-
-         changes.add("relatedEntities", dto -> dto.relatedEntities = related.getAnchors().parallelStream()
-                                                                             .map(anchor -> AnchorDTO.create(anchor))
-                                                                             .collect(Collectors.toSet()));
+         String token = resolvers.tokenize(ref);
+         changes.add(format("related [REMOVE {0}]", token), (dto) -> {
+                  dto.related = dto.related.stream()
+                     .filter(a -> !a.ref.equals(token))
+                     .collect(toList());
+               });
       }
 
       @Override
-      public void addRelatedEntities(Set<AnchorDTO> related)
+      public void clearRelatedEntries()
       {
-         changes.add("relatedEntities [Add]", dto -> dto.relatedEntities.addAll(related));
+         changes.add("related [CLEAR]", dto -> dto.related = new ArrayList<>());
       }
 
       @Override
-      public void addRelatedEntity(AnchorDTO anchor)
+      public AnchorMutator editTargetEntry(EntryReference ref)
       {
-         changes.add("relatedEntities [Add]", dto -> dto.relatedEntities.add(anchor));
+         String token = resolvers.tokenize(ref);
+         ChangeSet<Anchor> partial = changes.partial(format("targets [EDIT {0}]", token), (dto) -> {
+            return dto.targets.stream()
+                        .filter(a -> a.ref.equals(token))
+                        .findAny()
+                        .orElse(makeAnchor(dto.targets, token));
+         });
+
+         return new AnchorMutatorImpl(partial);
       }
 
       @Override
-      public void removeRelatedEntity(AnchorDTO anchor)
+      public void removeTargetEntry(EntryReference ref)
       {
-         changes.add("relatedEntities [Remove]", dto -> dto.relatedEntities.remove(anchor));
+         String token = resolvers.tokenize(ref);
+         changes.add(format("targets [REMOVE {0}]", token), (dto) -> {
+                  dto.targets = dto.targets.stream()
+                     .filter(a -> !a.ref.equals(token))
+                     .collect(toList());
+               });
       }
 
       @Override
-      public void setTargetEntities(AnchorSet target)
+      public void clearTargetEntries()
       {
-         if (target == null)
-            return;
-
-         changes.add("targetEntities", dto -> dto.targetEntities = target.getAnchors().parallelStream()
-                                                                          .map(anchor -> AnchorDTO.create(anchor))
-                                                                          .collect(Collectors.toSet()));
-      }
-
-      @Override
-      public void addTargetEntities(Set<AnchorDTO> target)
-      {
-         changes.add("targetEntities [Add]", dto -> dto.targetEntities.addAll(target));
-      }
-
-      @Override
-      public void addTargetEntity(AnchorDTO anchor)
-      {
-         changes.add("targetEntities [Add]", dto -> dto.targetEntities.add(anchor));
-      }
-
-      @Override
-      public void removeTargetEntity(AnchorDTO anchor)
-      {
-         changes.add("targetEntities [Remove]", dto -> dto.targetEntities.remove(anchor));
+         changes.add("targets [CLEAR]", dto -> dto.related = new ArrayList<>());
       }
 
       @Override
       public CompletableFuture<String> execute()
       {
-         CompletableFuture<RelationshipDTO> modified = context.update(ctx -> {
-             RelationshipDTO dto = preModifiedData(ctx);
-             RelationshipDTO result = changes.apply(dto);
-             checkTypeId(result.typeId, msg -> new IllegalStateException(msg));
+         CompletableFuture<DataModelV1.Relationship> modified = context.update(ctx -> {
+            DataModelV1.Relationship dto = prepModifiedData(ctx);
+            DataModelV1.Relationship result = changes.apply(dto);
+
+            checkTypeId(result.typeId, msg -> new RelationshipException(msg));
 
              return result;
          });
          return modified.thenApply(dto -> dto.id);
       }
 
-      private RelationshipDTO preModifiedData(UpdateContext<RelationshipDTO> ctx)
+      private void checkTypeId(String typeId, Function<String, RuntimeException> generator)
       {
-         RelationshipDTO orig = ctx.getOriginal();
+         try
+         {
+            Objects.requireNonNull(typeId);
+            typeReg.resolve(typeId);
+         }
+         catch (RelationshipException | NullPointerException e)
+         {
+            String msg = "The supplied type id {0} could not be found. This relationship type has not been configured.";
+            throw generator.apply(format(msg, typeId));
+         }
+      }
 
+      private DataModelV1.Anchor makeAnchor(List<DataModelV1.Anchor> anchors, String token)
+      {
+         DataModelV1.Anchor dto = new DataModelV1.Anchor();
+         dto.ref = token;
+         anchors.add(dto);
+         return dto;
+      }
+
+      private DataModelV1.Relationship prepModifiedData(UpdateContext<DataModelV1.Relationship> ctx)
+      {
+         DataModelV1.Relationship orig = ctx.getOriginal();
+      
          if (orig != null)
-            return new RelationshipDTO(orig);
-
-         RelationshipDTO dto = new RelationshipDTO();
+            return clone(orig);
+      
+         DataModelV1.Relationship dto = new DataModelV1.Relationship();
          dto.id = this.id;
+      
+         return dto;
+      }
+
+      private DataModelV1.Relationship clone(DataModelV1.Relationship orig)
+      {
+         DataModelV1.Relationship dto = new DataModelV1.Relationship();
+         dto.id = orig.id;
+         dto.typeId = orig.typeId;
+         dto.description = orig.description;
+         dto.related = orig.related.stream().map(this::clone).collect(toList());
+         dto.targets = orig.targets.stream().map(this::clone).collect(toList());
 
          return dto;
+      }
+
+      private DataModelV1.Anchor clone(DataModelV1.Anchor orig)
+      {
+         DataModelV1.Anchor dto = new DataModelV1.Anchor();
+         dto.ref = orig.ref;
+         dto.properties = new HashMap<>(orig.properties);
+
+         return dto;
+
       }
    }
 }

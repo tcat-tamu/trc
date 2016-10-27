@@ -5,6 +5,7 @@ import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.IndexServiceStrategy;
 import edu.tamu.tcat.trc.search.solr.SearchException;
 import edu.tamu.tcat.trc.search.solr.SolrIndexConfig;
@@ -14,6 +15,13 @@ public class RelnSearchStrategy implements IndexServiceStrategy<Relationship, Re
 {
 
    public static final String SOLR_CORE = "relationships";
+
+   private final EntryResolverRegistry resolvers;
+
+   public RelnSearchStrategy(EntryResolverRegistry resolvers)
+   {
+      this.resolvers = resolvers;
+   }
 
    @Override
    public Class<Relationship> getType()
@@ -36,7 +44,7 @@ public class RelnSearchStrategy implements IndexServiceStrategy<Relationship, Re
    @Override
    public SolrInputDocument getDocument(Relationship entry)
    {
-      return RelnDocument.create(entry);
+      return RelnDocument.create(entry, resolvers);
    }
 
    @Override

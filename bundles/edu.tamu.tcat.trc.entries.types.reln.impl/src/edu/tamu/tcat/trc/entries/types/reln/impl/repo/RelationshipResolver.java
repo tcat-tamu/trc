@@ -6,7 +6,6 @@ import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
-import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 import edu.tamu.tcat.trc.resolver.EntryReference;
@@ -15,9 +14,9 @@ import edu.tamu.tcat.trc.resolver.InvalidReferenceException;
 
 public class RelationshipResolver extends EntryResolverBase<Relationship>
 {
-   private BasicRepoDelegate<Relationship, RelationshipDTO, EditRelationshipCommand> delegate;
+   private BasicRepoDelegate<Relationship, DataModelV1.Relationship, EditRelationshipCommand> delegate;
 
-   public RelationshipResolver(BasicRepoDelegate<Relationship, RelationshipDTO, EditRelationshipCommand> delegate,
+   public RelationshipResolver(BasicRepoDelegate<Relationship, DataModelV1.Relationship, EditRelationshipCommand> delegate,
                                ConfigurationProperties config)
    {
       super(Relationship.class, config, RelationshipRepository.ENTRY_URI_BASE, RelationshipRepository.ENTRY_TYPE_ID);

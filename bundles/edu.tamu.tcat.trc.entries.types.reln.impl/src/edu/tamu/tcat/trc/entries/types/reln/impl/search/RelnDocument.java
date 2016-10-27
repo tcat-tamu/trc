@@ -15,17 +15,16 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln.impl.search;
 
-import java.util.HashSet;
+import static java.util.stream.Collectors.toSet;
+
 import java.util.Set;
 
 import org.apache.solr.common.SolrInputDocument;
 
+import edu.tamu.tcat.trc.entries.types.reln.Anchor;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
-import edu.tamu.tcat.trc.entries.types.reln.dto.AnchorDTO;
-import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelnSearchProxy;
-import edu.tamu.tcat.trc.search.solr.SearchException;
-import edu.tamu.tcat.trc.search.solr.SolrIndexField;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 
 /**
@@ -46,86 +45,64 @@ public class RelnDocument
       return indexDocument.build();
    }
 
-   public static SolrInputDocument create(Relationship reln)
+   public static SolrInputDocument create(Relationship reln, EntryResolverRegistry resolvers)
    {
-      RelnDocument doc = new RelnDocument();
+      TrcDocument doc = new TrcDocument(new RelnSolrConfig());
       try
       {
-         RelationshipDTO relnDV = RelationshipDTO.create(reln);
 
-         doc.indexDocument.set(RelnSolrConfig.ID, relnDV.id);
-         doc.indexDocument.set(RelnSolrConfig.DESCRIPTION, relnDV.description);
-         doc.indexDocument.set(RelnSolrConfig.REL_TYPE, relnDV.typeId);
-         doc.addEntities(RelnSolrConfig.RELATED_ENTITIES, relnDV.relatedEntities);
-         doc.addEntities(RelnSolrConfig.TARGET_ENTITIES, relnDV.targetEntities);
+         doc.set(RelnSolrConfig.ID, reln.getId());
+         doc.set(RelnSolrConfig.DESCRIPTION, reln.getDescription());
+         doc.set(RelnSolrConfig.REL_TYPE, reln.getType().getIdentifier());
+
+         reln.getRelatedEntities().stream()
+               .map(Anchor::getTarget)
+               .map(resolvers::tokenize)
+               .forEach(token -> doc.set(RelnSolrConfig.RELATED_ENTITIES, token));
+         reln.getTargetEntities().stream()
+               .map(Anchor::getTarget)
+               .map(resolvers::tokenize)
+               .forEach(token -> doc.set(RelnSolrConfig.TARGET_ENTITIES, token));
+
+         doc.set(RelnSolrConfig.SEARCH_PROXY, RelnSearchProxy.create(reln));
+
+         return doc.build();
       }
-      catch (SearchException ex)
+      catch (Exception ex)
       {
          throw new IllegalStateException("Failed to construct document to index for relationship" + reln);
       }
-
-      try
-      {
-         doc.indexDocument.set(RelnSolrConfig.SEARCH_PROXY, RelnSearchProxy.create(reln));
-      }
-      catch (Exception e)
-      {
-         throw new IllegalStateException("Failed to serialize Relationship Search Proxy data", e);
-      }
-
-      return doc.indexDocument.build();
    }
 
-   public static RelnDocument update(Relationship reln)
+   public static SolrInputDocument update(Relationship reln, EntryResolverRegistry resolvers)
    {
-      RelnDocument doc = new RelnDocument();
-      RelationshipDTO relnDV = RelationshipDTO.create(reln);
+      TrcDocument doc = new TrcDocument(new RelnSolrConfig());
       try
       {
-         doc.indexDocument.set(RelnSolrConfig.ID, relnDV.id);
 
-         doc.indexDocument.update(RelnSolrConfig.DESCRIPTION, relnDV.description);
-         doc.indexDocument.update(RelnSolrConfig.REL_TYPE, relnDV.typeId);
-         doc.updateEntities(RelnSolrConfig.RELATED_ENTITIES, relnDV.relatedEntities);
-         doc.updateEntities(RelnSolrConfig.TARGET_ENTITIES, relnDV.targetEntities);
+         doc.set(RelnSolrConfig.ID, reln.getId());
+         doc.update(RelnSolrConfig.DESCRIPTION, reln.getDescription());
+         doc.update(RelnSolrConfig.REL_TYPE, reln.getType().getIdentifier());
+
+         Set<String> related = reln.getRelatedEntities().stream()
+            .map(Anchor::getTarget)
+            .map(resolvers::tokenize)
+            .collect(toSet());
+         Set<String> targets = reln.getTargetEntities().stream()
+            .map(Anchor::getTarget)
+            .map(resolvers::tokenize)
+            .collect(toSet());
+
+         doc.update(RelnSolrConfig.RELATED_ENTITIES, related);
+         doc.update(RelnSolrConfig.TARGET_ENTITIES, targets);
+
+         doc.update(RelnSolrConfig.SEARCH_PROXY, RelnSearchProxy.create(reln));
+
+         return doc.build();
       }
-      catch (SearchException ex)
+      catch (Exception ex)
       {
          throw new IllegalStateException("Failed to construct document to index for relationship" + reln);
       }
-
-      try
-      {
-         doc.indexDocument.update(RelnSolrConfig.SEARCH_PROXY, RelnSearchProxy.create(reln));
-      }
-      catch (Exception e)
-      {
-         throw new IllegalStateException("Failed to serialize Relationship Search Proxy data", e);
-      }
-
-      return doc;
-   }
-
-   private void addEntities(SolrIndexField<String> field, Set<AnchorDTO> anchors) throws SearchException
-   {
-      for (AnchorDTO anchor : anchors)
-      {
-         for (String uri : anchor.entryUris)
-         {
-            indexDocument.set(field, uri);
-         }
-      }
-   }
-
-   private void updateEntities(SolrIndexField<String> field, Set<AnchorDTO> anchors) throws SearchException
-   {
-      Set<String> allEntities = new HashSet<>();
-
-      for (AnchorDTO anchor : anchors)
-      {
-         allEntities.addAll(anchor.entryUris);
-      }
-
-      indexDocument.update(field, allEntities);
    }
 }

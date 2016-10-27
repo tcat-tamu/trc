@@ -13,9 +13,9 @@ import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistrar;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
-import edu.tamu.tcat.trc.entries.types.reln.dto.RelationshipDTO;
+import edu.tamu.tcat.trc.entries.types.reln.impl.model.RelationshipImpl;
+import edu.tamu.tcat.trc.entries.types.reln.impl.repo.DataModelV1;
 import edu.tamu.tcat.trc.entries.types.reln.impl.repo.EditRelationshipCommandFactory;
-import edu.tamu.tcat.trc.entries.types.reln.impl.repo.ModelAdapter;
 import edu.tamu.tcat.trc.entries.types.reln.impl.repo.RelationshipResolver;
 import edu.tamu.tcat.trc.entries.types.reln.impl.search.RelnSearchStrategy;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
@@ -37,18 +37,20 @@ public class RelationshipEntryService
    private static final String TABLE_NAME = "relationships";
    private static final String SCHEMA_DATA_FIELD = "relationship";
 
-   private BasicRepoDelegate<Relationship, RelationshipDTO, EditRelationshipCommand> delegate;
+   private BasicRepoDelegate<Relationship, DataModelV1.Relationship, EditRelationshipCommand> delegate;
 
    private RelationshipTypeRegistry typeReg;
 
    private EntryRepositoryRegistrar ctx;
    private SearchServiceManager indexSvcMgr;
 
-   private DocumentRepository<Relationship, RelationshipDTO, EditRelationshipCommand> docRepo;
+   private DocumentRepository<Relationship, DataModelV1.Relationship, EditRelationshipCommand> docRepo;
 
    private EntryResolverRegistry.Registration resolverReg;
    private EntryRepositoryRegistrar.Registration repoReg;
    private EntryRepository.ObserverRegistration searchReg;
+
+   private EntryResolverRegistry resolvers;
 
 
    public void setRepoContext(EntryRepositoryRegistrar ctx)
@@ -76,6 +78,8 @@ public class RelationshipEntryService
       try
       {
          logger.info("Activating " + getClass().getSimpleName());
+
+         resolvers = ctx.getResolverRegistry();
 
          initRepo();
 
@@ -127,6 +131,7 @@ public class RelationshipEntryService
 
    private void initRepo()
    {
+
       initDocRepo();
       initDelegate();
 
@@ -136,12 +141,12 @@ public class RelationshipEntryService
 
    private void initDocRepo()
    {
-      DocRepoBuilder<Relationship, RelationshipDTO, EditRelationshipCommand> builder = ctx.getDocRepoBuilder();
+      DocRepoBuilder<Relationship, DataModelV1.Relationship, EditRelationshipCommand> builder = ctx.getDocRepoBuilder();
       builder.setTableName(TABLE_NAME);
       builder.setDataColumn(SCHEMA_DATA_FIELD);
-      builder.setEditCommandFactory(new EditRelationshipCommandFactory(typeReg));
+      builder.setEditCommandFactory(new EditRelationshipCommandFactory(typeReg, resolvers));
       builder.setDataAdapter(this::adapt);
-      builder.setStorageType(RelationshipDTO.class);
+      builder.setStorageType(DataModelV1.Relationship.class);
       builder.setEnableCreation(true);
 
       docRepo = builder.build();
@@ -149,21 +154,21 @@ public class RelationshipEntryService
 
    private void initDelegate()
    {
-      BasicRepoDelegate.Builder<Relationship, RelationshipDTO, EditRelationshipCommand> delegateBuilder =
+      BasicRepoDelegate.Builder<Relationship, DataModelV1.Relationship, EditRelationshipCommand> delegateBuilder =
             new BasicRepoDelegate.Builder<>();
 
       delegateBuilder.setEntryName("relationship");
       delegateBuilder.setIdFactory(ctx.getIdFactory(ID_CONTEXT));
-      delegateBuilder.setEntryResolvers(ctx.getResolverRegistry());
+      delegateBuilder.setEntryResolvers(resolvers);
       delegateBuilder.setAdapter(this::adapt);
       delegateBuilder.setDocumentRepo(docRepo);
 
       delegate = delegateBuilder.build();
    }
 
-   private Relationship adapt(RelationshipDTO dto)
+   private Relationship adapt(DataModelV1.Relationship dto)
    {
-      return ModelAdapter.adapt(dto, typeReg);
+      return new RelationshipImpl(dto, typeReg, resolvers);
    }
 
    private void initSearch()
@@ -173,7 +178,7 @@ public class RelationshipEntryService
          logger.log(Level.WARNING, "Index support has not been configured for " + getClass().getSimpleName());
          return;
       }
-      RelnSearchStrategy indexCfg = new RelnSearchStrategy();
+      RelnSearchStrategy indexCfg = new RelnSearchStrategy(resolvers);
       IndexService<Relationship> indexSvc = indexSvcMgr.configure(indexCfg);
 
       RelationshipRepositoryImpl repo = new RelationshipRepositoryImpl(null);     // USE SEARCH ACCT
