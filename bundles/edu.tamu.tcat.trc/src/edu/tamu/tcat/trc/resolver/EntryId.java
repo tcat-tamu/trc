@@ -18,17 +18,16 @@ import java.util.Objects;
  */
 public class EntryId
 {
-
    // TODO what about sub-parts, eg. a Volume of a work?
 
    private static final String TYPE = "type";
    private static final String ID = "id";
 
    /** Defines the type of entry this reference pertains to. */
-   public String type;
+   public final String type;
 
    /** The unique identifier for a particular entry. */
-   public String id;
+   public final String id;
 
    public EntryId(String id, String type)
    {
@@ -41,7 +40,8 @@ public class EntryId
    @Deprecated
    public EntryId()
    {
-
+      this.id = null;
+      this.type = null;
    }
 
    public String getId()

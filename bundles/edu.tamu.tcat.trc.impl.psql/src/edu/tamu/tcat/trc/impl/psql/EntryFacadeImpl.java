@@ -74,12 +74,7 @@ public class EntryFacadeImpl<EntryType> implements EntryFacade<EntryType>
    @Override
    public EntryId getEntryRef()
    {
-      // HACK: need immutable version
-      EntryId copy = new EntryId();
-      copy.id = ref.id;
-      copy.type = ref.type;
-
-      return copy;
+      return ref;
    }
 
    @Override

@@ -44,14 +44,7 @@ public class EditHeirarchyCommandFactory
 
    public static EntryId copy(EntryId ref)
    {
-      if (ref == null)
-         return null;
-
-      EntryId dto = new EntryId();
-      dto.id = ref.id;
-      dto.type = ref.type;
-
-      return dto;
+      return (ref != null) ? new EntryId(ref.getId(), ref.getType()) : null;
    }
 
    @Override

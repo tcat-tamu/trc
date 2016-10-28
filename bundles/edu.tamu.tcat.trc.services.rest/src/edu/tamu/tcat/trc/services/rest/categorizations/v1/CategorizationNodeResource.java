@@ -136,9 +136,7 @@ public abstract class CategorizationNodeResource<SchemeType extends Categorizati
    public RestApiV1.EntryReference associateEntry(RestApiV1.EntryReference entryRef)
    {
       CategorizationNode node = resolveNode();
-      EntryId ref = new EntryId();
-      ref.id = entryRef.id;
-      ref.type = entryRef.type;
+      EntryId ref = new EntryId(entryRef.id, entryRef.type);
       // TODO might check to ensure validity?
 
       EditCategorizationCommand command = repo.edit(scheme.getId());

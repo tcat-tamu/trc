@@ -97,9 +97,7 @@ public class ArticleResource
    @Path("references")
    public ReferenceCollectionResource getReferences()
    {
-      EntryId entryRef = new EntryId();
-      entryRef.id = articleId;
-      entryRef.type = ArticleRepository.ENTRY_TYPE_ID;
+      EntryId entryRef = new EntryId(articleId, ArticleRepository.ENTRY_TYPE_ID);
       return new ReferenceCollectionResource(refRepo, entryRef);
    }
 

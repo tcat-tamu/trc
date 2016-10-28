@@ -56,7 +56,7 @@ public class BasicResolverRegistry implements EntryResolverRegistry, EntryResolv
    public <T> EntryResolver<T> getResolver(EntryId ref) throws InvalidReferenceException
    {
       return (EntryResolver)resolvers.values().parallelStream()
-         .filter(resolver -> resolver.accepts(ref.id, ref.type))
+         .filter(resolver -> resolver.accepts(ref.id, ref.getType()))
          .findAny()
          .orElseThrow(() -> new InvalidReferenceException(ref, "No registered resolver accpets this reference"));
    }
@@ -112,9 +112,7 @@ public class BasicResolverRegistry implements EntryResolverRegistry, EntryResolv
          if (ix < 0 || ix >= key.length() - 3)
             throw new IllegalArgumentException(format("Invalid entry reference token {0}", token));
 
-         ref = new EntryId();
-         ref.id = key.substring(0, ix);
-         ref.type = key.substring(ix + 2);
+         ref = new EntryId(key.substring(0, ix), key.substring(ix + 2));
       }
       catch (Exception e)
       {

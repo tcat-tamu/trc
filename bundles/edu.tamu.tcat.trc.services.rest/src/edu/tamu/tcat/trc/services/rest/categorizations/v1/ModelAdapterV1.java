@@ -58,8 +58,8 @@ public class ModelAdapterV1
          return null;
 
       RestApiV1.EntryReference dto = new RestApiV1.EntryReference();
-      dto.id = ref.id;
-      dto.type = ref.type;
+      dto.id = ref.getId();
+      dto.type = ref.getType();
       dto.version = 0;
 
       return dto;

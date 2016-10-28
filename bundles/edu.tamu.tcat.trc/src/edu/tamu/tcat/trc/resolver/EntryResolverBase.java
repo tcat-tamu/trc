@@ -61,11 +61,7 @@ public abstract class EntryResolverBase<EntryType> implements EntryResolver<Entr
    @Override
    public EntryId makeReference(EntryType instance) throws InvalidReferenceException
    {
-      EntryId ref = new EntryId();
-      ref.id = getId(instance);
-      ref.type = this.typeId;
-
-      return ref;
+      return new EntryId(getId(instance), this.typeId);
    }
 
    @Override
@@ -79,11 +75,7 @@ public abstract class EntryResolverBase<EntryType> implements EntryResolver<Entr
       if (path.contains("/"))
          throw new InvalidReferenceException(uri, "The supplied URI represents a sub-resource of an article.");
 
-      EntryId ref = new EntryId();
-      ref.id = path;
-      ref.type = this.typeId;
-
-      return ref;
+      return new EntryId(path, typeId);
    }
 
    @Override
@@ -97,7 +89,7 @@ public abstract class EntryResolverBase<EntryType> implements EntryResolver<Entr
    @Override
    public boolean accepts(EntryId ref)
    {
-      return this.typeId.equals(ref.type);
+      return this.typeId.equals(ref.getType());
    }
 
    @Override

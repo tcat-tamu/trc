@@ -100,10 +100,7 @@ public interface EntryResolver<T>
 
    default boolean accepts(String id, String type)
    {
-      EntryId ref = new EntryId();
-      ref.id = id;
-      ref.type = type;
-
+      EntryId ref = new EntryId(id, type);
       return this.accepts(ref);
    }
 
