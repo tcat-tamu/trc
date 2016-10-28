@@ -1,8 +1,6 @@
 package edu.tamu.tcat.trc.services;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.EntryFacade;
-import edu.tamu.tcat.trc.resolver.EntryId;
 
 /**
  * Provides a central point of access for TRC Services.
