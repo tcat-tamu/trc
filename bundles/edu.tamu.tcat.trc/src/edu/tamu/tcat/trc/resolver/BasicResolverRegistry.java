@@ -56,7 +56,7 @@ public class BasicResolverRegistry implements EntryResolverRegistry, EntryResolv
    public <T> EntryResolver<T> getResolver(EntryId ref) throws InvalidReferenceException
    {
       return (EntryResolver)resolvers.values().parallelStream()
-         .filter(resolver -> resolver.accepts(ref.id, ref.getType()))
+         .filter(resolver -> resolver.accepts(ref.getId(), ref.getType()))
          .findAny()
          .orElseThrow(() -> new InvalidReferenceException(ref, "No registered resolver accpets this reference"));
    }
@@ -84,7 +84,7 @@ public class BasicResolverRegistry implements EntryResolverRegistry, EntryResolv
    @Override
    public String tokenize(EntryId eId)
    {
-      return tokenize(eId.id, eId.type);
+      return tokenize(eId.getId(), eId.getType());
    }
 
    public String tokenize(String id, String type)

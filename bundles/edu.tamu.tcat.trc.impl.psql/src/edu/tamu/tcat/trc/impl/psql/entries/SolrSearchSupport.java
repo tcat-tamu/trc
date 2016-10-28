@@ -51,7 +51,7 @@ public class SolrSearchSupport<EntryType>
             indexSvc.index(ctx.getModifiedState());
             break;
          case REMOVE:
-            indexSvc.remove(ctx.getEntryReference().id);
+            indexSvc.remove(ctx.getEntryReference().getId());
             break;
       }
    }

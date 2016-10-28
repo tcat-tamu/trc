@@ -24,10 +24,10 @@ public class EntryId
    private static final String ID = "id";
 
    /** Defines the type of entry this reference pertains to. */
-   public final String type;
+   private final String type;
 
    /** The unique identifier for a particular entry. */
-   public final String id;
+   private final String id;
 
    public EntryId(String id, String type)
    {

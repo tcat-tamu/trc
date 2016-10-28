@@ -28,7 +28,7 @@ public class BioEntryResolver extends EntryResolverBase<BiographicalEntry>
       if (!accepts(reference))
          throw new InvalidReferenceException(reference, "Unsupported reference type.");
 
-      return delegate.get(account, reference.id);
+      return delegate.get(account, reference.getId());
    }
 
    @Override
@@ -40,6 +40,6 @@ public class BioEntryResolver extends EntryResolverBase<BiographicalEntry>
    @Override
    public CompletableFuture<Boolean> remove(Account account, EntryId reference)
    {
-      return delegate.remove(account, reference.id);
+      return delegate.remove(account, reference.getId());
    }
 }

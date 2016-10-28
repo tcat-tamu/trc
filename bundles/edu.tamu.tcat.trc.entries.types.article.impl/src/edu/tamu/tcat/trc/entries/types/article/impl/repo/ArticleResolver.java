@@ -30,7 +30,7 @@ public class ArticleResolver extends EntryResolverBase<Article>
       if (!accepts(reference))
          throw new InvalidReferenceException(reference, "Unsupported reference type.");
 
-      return delegate.get(account, reference.id);
+      return delegate.get(account, reference.getId());
    }
 
    @Override
@@ -42,6 +42,6 @@ public class ArticleResolver extends EntryResolverBase<Article>
    @Override
    public CompletableFuture<Boolean> remove(Account account, EntryId reference) throws InvalidReferenceException
    {
-      return delegate.remove(account, reference.id);
+      return delegate.remove(account, reference.getId());
    }
 }

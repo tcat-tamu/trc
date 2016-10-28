@@ -22,7 +22,7 @@ public class InvalidReferenceException extends TrcException
 
    public InvalidReferenceException(EntryId ref, String msg)
    {
-      super(format(ERR_BAD_REFERENCE, ref.id, msg));
+      super(format(ERR_BAD_REFERENCE, ref.getId(), msg));
 
       this.msg = msg;
       this.ref = ref;
