@@ -28,18 +28,21 @@ public class BasicResolverRegistry implements EntryResolverRegistry, EntryResolv
       return () -> resolvers.remove(registrationId);
    }
 
-   public <T> EntryReferenceProxy<T> getReference(String id, String type)
+   @Override
+   public <T> EntryReference<T> getReference(EntryId eId)
    {
-      return new EntryRefImpl<>(id, type);
+      return new EntryRefImpl<>(eId.getId(), eId.getType());
    }
 
-   public <T> EntryReferenceProxy<T> getReference(String token)
+   @Override
+   public <T> EntryReference<T> getReference(String token)
    {
       EntryId eId = decodeToken(token);
       return new EntryRefImpl<>(eId.getId(), eId.getType());
    }
 
-   public <T> EntryReferenceProxy<T> getReference(URI uri)
+   @Override
+   public <T> EntryReference<T> getReference(URI uri)
    {
       EntryId eId = resolvers.values().parallelStream()
             .filter(candidate -> candidate.accepts(uri))
@@ -124,7 +127,7 @@ public class BasicResolverRegistry implements EntryResolverRegistry, EntryResolv
       return ref;
    }
 
-   private class EntryRefImpl<T> implements EntryReferenceProxy<T>
+   private class EntryRefImpl<T> implements EntryReference<T>
    {
       private final String id;
       private final String type;
@@ -134,18 +137,31 @@ public class BasicResolverRegistry implements EntryResolverRegistry, EntryResolv
       {
          this.id = id;
          this.type = type;
-         this.resolver = getResolver(id, type);
+         this.resolver = BasicResolverRegistry.this.getResolver(id, type);
+      }
+
+      @Override
+      public EntryId getEntryId()
+      {
+         return new EntryId(id, type);
+      }
+
+      @Override
+      public Class<T> getEntryType()
+      {
+         return resolver.getType();
+      }
+
+      @Override
+      public EntryResolver<T> getResolver()
+      {
+         return resolver;
       }
 
       @Override
       public String getId()
       {
          return id;
-      }
-
-      public EntryId asEntryId()
-      {
-         return new EntryId(id, type);
       }
 
       @Override
@@ -163,13 +179,13 @@ public class BasicResolverRegistry implements EntryResolverRegistry, EntryResolv
       @Override
       public URI getUri()
       {
-         return resolver.toUri(asEntryId());
+         return resolver.toUri(getEntryId());
       }
 
       @Override
       public T getEntry(Account account)
       {
-         return resolver.resolve(account, asEntryId());
+         return resolver.resolve(account, getEntryId());
       }
 
    }
