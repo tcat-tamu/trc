@@ -15,21 +15,11 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln.rest.v1;
 
-import java.net.URI;
-import java.text.MessageFormat;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
-import edu.tamu.tcat.trc.entries.types.reln.rest.v1.RestApiV1.RelationshipTypeGroup;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelnSearchProxy;
-import edu.tamu.tcat.trc.resolver.EntryId;
 
 /**
  * An encapsulation of adapter methods to convert between the search API and
@@ -86,28 +76,28 @@ public class SearchAdapter
     * @param lookupType Provides a means to resolve {@link RelationshipType} instances by id
     * @return
     */
-   public static RestApiV1.GroupedSearchResultSet groupByType(EntryId referent, List<RestApiV1.RelationshipSearchResult> relns, Function<String, RelationshipType> lookupType)
-   {
-      RestApiV1.GroupedSearchResultSet resultSet = new RestApiV1.GroupedSearchResultSet();
-
-      resultSet.referent = referent.toString();
-
-      // group by type id, then transform the groups into RestApiV1.RelationshipTypeGroup instances
-      resultSet.types = relns.stream()
-         .filter(r -> {
-            if (r.typeId == null) {
-               logger.log(Level.WARNING, MessageFormat.format("Skipping malformed relationship {0}", r.id));
-               return false;
-            }
-
-            return true;
-         })
-         .collect(Collectors.groupingBy(r -> r.typeId)).entrySet().stream()
-         .map(e -> groupByDirection(referent, lookupType.apply(e.getKey()), e.getValue()))
-         .collect(Collectors.toList());
-
-      return resultSet;
-   }
+//   public static RestApiV1.GroupedSearchResultSet groupByType(EntryId referent, List<RestApiV1.RelationshipSearchResult> relns, Function<String, RelationshipType> lookupType)
+//   {
+//      RestApiV1.GroupedSearchResultSet resultSet = new RestApiV1.GroupedSearchResultSet();
+//
+//      resultSet.referent = referent.toString();
+//
+//      // group by type id, then transform the groups into RestApiV1.RelationshipTypeGroup instances
+//      resultSet.types = relns.stream()
+//         .filter(r -> {
+//            if (r.typeId == null) {
+//               logger.log(Level.WARNING, MessageFormat.format("Skipping malformed relationship {0}", r.id));
+//               return false;
+//            }
+//
+//            return true;
+//         })
+//         .collect(Collectors.groupingBy(r -> r.typeId)).entrySet().stream()
+//         .map(e -> groupByDirection(referent, lookupType.apply(e.getKey()), e.getValue()))
+//         .collect(Collectors.toList());
+//
+//      return resultSet;
+//   }
 
    /**
     * Arranges a list of relationships all belonging to the given type by direction if that type is
@@ -118,42 +108,42 @@ public class SearchAdapter
     * @param relns
     * @return
     */
-   public static RestApiV1.RelationshipTypeGroup groupByDirection(String token, RelationshipType type, List<RestApiV1.RelationshipSearchResult> relns)
-   {
-      RestApiV1.RelationshipTypeGroup group = new RestApiV1.RelationshipTypeGroup();
-
-      group.id = type.getIdentifier();
-      group.description = type.getDescription();
-      group.directed = type.isDirected();
-
-      if (type.isDirected())
-      {
-         Set<RestApiV1.RelationshipSearchResult> outSet = new HashSet<>();
-         group.out = new RestApiV1.DirectionalRelationshipGroup();
-         group.out.label = type.getTitle();
-         group.out.relationships = outSet;
-
-         Set<RestApiV1.RelationshipSearchResult> inSet = new HashSet<>();
-         group.in = new RestApiV1.DirectionalRelationshipGroup();
-         group.in.label = type.getReverseTitle();
-         group.out.relationships = inSet;
-
-         relns.forEach(reln -> {
-            Set<RestApiV1.RelationshipSearchResult> bin = contains(referent, reln.relatedEntities) ? outSet : inSet;
-            bin.add(reln);
-         });
-      }
-      else
-      {
-         Set<RestApiV1.RelationshipSearchResult> relnSet = new HashSet<>();
-         group.none = new RestApiV1.DirectionalRelationshipGroup();
-         group.none.label = type.getTitle();
-         group.none.relationships = relnSet;
-         relns.forEach(relnSet::add);
-      }
-
-      return group;
-   }
+//   public static RestApiV1.RelationshipTypeGroup groupByDirection(String token, RelationshipType type, List<RestApiV1.RelationshipSearchResult> relns)
+//   {
+//      RestApiV1.RelationshipTypeGroup group = new RestApiV1.RelationshipTypeGroup();
+//
+//      group.id = type.getIdentifier();
+//      group.description = type.getDescription();
+//      group.directed = type.isDirected();
+//
+//      if (type.isDirected())
+//      {
+//         Set<RestApiV1.RelationshipSearchResult> outSet = new HashSet<>();
+//         group.out = new RestApiV1.DirectionalRelationshipGroup();
+//         group.out.label = type.getTitle();
+//         group.out.relationships = outSet;
+//
+//         Set<RestApiV1.RelationshipSearchResult> inSet = new HashSet<>();
+//         group.in = new RestApiV1.DirectionalRelationshipGroup();
+//         group.in.label = type.getReverseTitle();
+//         group.out.relationships = inSet;
+//
+//         relns.forEach(reln -> {
+//            Set<RestApiV1.RelationshipSearchResult> bin = contains(referent, reln.relatedEntities) ? outSet : inSet;
+//            bin.add(reln);
+//         });
+//      }
+//      else
+//      {
+//         Set<RestApiV1.RelationshipSearchResult> relnSet = new HashSet<>();
+//         group.none = new RestApiV1.DirectionalRelationshipGroup();
+//         group.none.label = type.getTitle();
+//         group.none.relationships = relnSet;
+//         relns.forEach(relnSet::add);
+//      }
+//
+//      return group;
+//   }
 
    /**
     * Searches for a referent URI in a set of anchors.
@@ -162,11 +152,11 @@ public class SearchAdapter
     * @param anchors
     * @return {@code true} if the referent entry (or any sub-entries) are contained within the anchor set.
     */
-   private static boolean contains(URI referent, Set<RestApiV1.Anchor> anchors)
-   {
-      Pattern referentPattern = Pattern.compile("^" + referent.toString() + "(?:/|$)");
-      return anchors.stream().anyMatch(a ->
-            a.ref.stream().anyMatch(uri ->
-                  referentPattern.matcher(uri).matches()));
-   }
+//   private static boolean contains(URI referent, Set<RestApiV1.Anchor> anchors)
+//   {
+//      Pattern referentPattern = Pattern.compile("^" + referent.toString() + "(?:/|$)");
+//      return anchors.stream().anyMatch(a ->
+//            a.ref.stream().anyMatch(uri ->
+//                  referentPattern.matcher(uri).matches()));
+//   }
 }
