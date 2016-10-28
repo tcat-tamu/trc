@@ -30,8 +30,7 @@ public class BaseCategorizationNodeMutator implements CategorizationNodeMutator
    @Override
    public final void associateEntryRef(EntryId ref)
    {
-      EntryId refDto = EditHeirarchyCommandFactory.copy(ref);
-      changes.add("ref", dto -> dto.ref = refDto);
+      changes.add("ref", dto -> dto.ref = ref.toJsonForm());
    }
 
 }

@@ -28,7 +28,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.Joiner;
 
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipDirection;
-import edu.tamu.tcat.trc.resolver.EntryId;
 
 public class RestApiV1
 {
@@ -83,7 +82,7 @@ public class RestApiV1
    public static class Anchor
    {
       public String label;
-      public EntryId ref;
+      public Map<String, String> ref = new HashMap<>();
       public Map<String, String> properties = new HashMap<>();
    }
 

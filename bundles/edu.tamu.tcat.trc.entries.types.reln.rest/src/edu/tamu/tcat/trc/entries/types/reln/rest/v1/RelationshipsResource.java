@@ -36,7 +36,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
-import edu.tamu.tcat.trc.entries.types.reln.repo.AnchorMutator;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipDirection;
@@ -155,8 +154,8 @@ public class RelationshipsResource
          createCommand.setType(type);
          createCommand.setDescription(relationship.description);
 
-         relationship.related.forEach(anchor -> editRelatedEntry(createCommand, anchor));
-         relationship.target.forEach(anchor -> editTargetEntry(createCommand, anchor));
+         relationship.related.forEach(anchor -> RelationshipResource.editRelatedEntry(createCommand, anchor));
+         relationship.target.forEach(anchor -> RelationshipResource.editTargetEntry(createCommand, anchor));
 
          id = createCommand.execute().get(10, TimeUnit.SECONDS);
 
@@ -168,26 +167,6 @@ public class RelationshipsResource
          String msg = "Failed to create a new relationship";
          throw ApiUtils.raise(Response.Status.INTERNAL_SERVER_ERROR, msg, Level.SEVERE, e);
       }
-   }
-
-   private void editRelatedEntry(EditRelationshipCommand createCommand, RestApiV1.Anchor anchor)
-   {
-      AnchorMutator mutator = createCommand.editRelatedEntry(anchor.ref);
-      anchor.properties.keySet().forEach(key -> {
-         String value = anchor.properties.get(key);
-         if (value == null)
-            mutator.setProperty(key, value);
-      });
-   }
-
-   private void editTargetEntry(EditRelationshipCommand createCommand, RestApiV1.Anchor anchor)
-   {
-      AnchorMutator mutator = createCommand.editTargetEntry(anchor.ref);
-      anchor.properties.keySet().forEach(key -> {
-         String value = anchor.properties.get(key);
-         if (value == null)
-            mutator.setProperty(key, value);
-      });
    }
 
    @Path("/{id}")

@@ -36,6 +36,7 @@ import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 import edu.tamu.tcat.trc.entries.types.reln.repo.AnchorMutator;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
+import edu.tamu.tcat.trc.resolver.EntryId;
 
 @Path("/relationships/{id}")
 public class RelationshipResource
@@ -116,9 +117,10 @@ public class RelationshipResource
       }
    }
 
-   private void editRelatedEntry(EditRelationshipCommand cmd, RestApiV1.Anchor anchor)
+   public static void editRelatedEntry(EditRelationshipCommand cmd, RestApiV1.Anchor anchor)
    {
-      AnchorMutator mutator = cmd.editRelatedEntry(anchor.ref);
+      EntryId ref = EntryId.fromMap(anchor.ref);
+      AnchorMutator mutator = cmd.editRelatedEntry(ref);
       anchor.properties.keySet().forEach(key -> {
          String value = anchor.properties.get(key);
          if (value == null)
@@ -126,9 +128,10 @@ public class RelationshipResource
       });
    }
 
-   private void editTargetEntry(EditRelationshipCommand cmd, RestApiV1.Anchor anchor)
+   public static void editTargetEntry(EditRelationshipCommand cmd, RestApiV1.Anchor anchor)
    {
-      AnchorMutator mutator = cmd.editTargetEntry(anchor.ref);
+      EntryId ref = EntryId.fromMap(anchor.ref);
+      AnchorMutator mutator = cmd.editTargetEntry(ref);
       anchor.properties.keySet().forEach(key -> {
          String value = anchor.properties.get(key);
          if (value == null)

@@ -132,7 +132,7 @@ public abstract class ModelAdapter
    {
       RestApiV1.Article dto = new RestApiV1.Article();
       dto.id = article.getId().toString();
-      dto.reference = resolvers.getResolver(article).makeReference(article);
+      dto.reference = resolvers.getResolver(article).makeReference(article).toJsonForm();
       dto.articleType = article.getArticleType();
 
       dto.title = article.getTitle();

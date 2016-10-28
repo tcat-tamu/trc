@@ -3,6 +3,7 @@ package edu.tamu.tcat.trc.impl.psql.services.categorization.repo;
 import static java.text.MessageFormat.format;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -65,7 +66,7 @@ public class EditHeirarchyCommandFactory
       node.id = original.id;
       node.label = original.label;
       node.description = original.description;
-      node.ref = copy(original.ref);
+      node.ref = new HashMap<>(original.ref);
 
 
       node.parentId = original.parentId;
@@ -222,7 +223,7 @@ public class EditHeirarchyCommandFactory
 
             // NOTE calling #get on the Future returned by resolversetResolvermay deadlock
             //      would be nice to capture this information for logging.
-            resolver.remove(account, removed.ref);
+            resolver.remove(account, EntryId.fromMap(removed.ref));
          }
          catch (Exception ex)
          {

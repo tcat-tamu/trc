@@ -51,7 +51,7 @@ public class RepoAdapter
    public static RestApiV1.Anchor toDto(Anchor anchor)
    {
       RestApiV1.Anchor dto = new RestApiV1.Anchor();
-      dto.ref = anchor.getTarget();
+      dto.ref = anchor.getTarget().toJsonForm();
       dto.properties = anchor.listProperties().stream()
             .collect(Collectors.toMap(
                key -> key,

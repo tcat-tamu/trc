@@ -9,8 +9,8 @@ import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.resolver.InvalidReferenceException;
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.categorization.CategorizationNode;
-import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
+import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 
 public abstract class CategorizationImpl implements CategorizationScheme
 {
@@ -104,7 +104,7 @@ public abstract class CategorizationImpl implements CategorizationScheme
          this.id = dto.id;
          this.label = dto.label;
          this.description = dto.description;
-         this.ref = dto.ref;
+         this.ref = EntryId.fromMap(dto.ref);
       }
 
       @Override
