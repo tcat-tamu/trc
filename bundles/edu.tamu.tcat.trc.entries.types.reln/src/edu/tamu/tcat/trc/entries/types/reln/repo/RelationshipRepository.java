@@ -19,8 +19,11 @@ import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
+import edu.tamu.tcat.trc.entries.types.reln.GroupedRelationshipSet;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
+import edu.tamu.tcat.trc.entries.types.reln.RelationshipInferenceStrategy;
 import edu.tamu.tcat.trc.repo.RepositoryException;
+import edu.tamu.tcat.trc.resolver.EntryId;
 
 
 /**
@@ -106,6 +109,16 @@ public interface RelationshipRepository extends EntryRepository<Relationship>
     */
    @Override
    CompletableFuture<Boolean> remove(String id);
+
+   /**
+    * Registers a new inference strategy with this repository. Intended to be used by
+    * applications to define custom strategies for interpreting implicit relationships.
+    *
+    * @param strategy
+    */
+   void register(RelationshipInferenceStrategy strategy);
+
+   GroupedRelationshipSet getRelationships(EntryId ref);
 
    @Override
    EntryRepository.ObserverRegistration onUpdate(EntryRepository.UpdateObserver<Relationship> observer);

@@ -9,7 +9,7 @@ public interface AnchorMutator
     * @param key A key that identifies the property to set.
     * @param value The value to set. May not be <code>null</code>.
     */
-   void setProperty(String key, String value);
+   void addProperty(String key, String value);
 
    /**
     * Clears the value associated with a given property.

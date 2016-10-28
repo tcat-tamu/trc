@@ -124,7 +124,7 @@ public class RelationshipResource
       anchor.properties.keySet().forEach(key -> {
          String value = anchor.properties.get(key);
          if (value == null)
-            mutator.setProperty(key, value);
+            mutator.addProperty(key, value);
       });
    }
 
@@ -135,7 +135,7 @@ public class RelationshipResource
       anchor.properties.keySet().forEach(key -> {
          String value = anchor.properties.get(key);
          if (value == null)
-            mutator.setProperty(key, value);
+            mutator.addProperty(key, value);
       });
    }
 

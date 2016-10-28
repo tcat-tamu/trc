@@ -37,13 +37,6 @@ public class EntryId
       this.type = type;
    }
 
-   @Deprecated
-   public EntryId()
-   {
-      this.id = null;
-      this.type = null;
-   }
-
    public String getId()
    {
       return id;

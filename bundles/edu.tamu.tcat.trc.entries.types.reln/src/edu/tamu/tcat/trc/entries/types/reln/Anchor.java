@@ -53,6 +53,6 @@ public interface Anchor
     * @throws IllegalArgumentException If the requested property has not been defined for
     *       this anchor..
     */
-   String getProperty(String property);
+   Set<String> getProperty(String property);
 
 }

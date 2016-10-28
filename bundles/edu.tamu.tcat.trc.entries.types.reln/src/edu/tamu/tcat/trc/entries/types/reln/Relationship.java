@@ -17,6 +17,8 @@ package edu.tamu.tcat.trc.entries.types.reln;
 
 import java.util.Collection;
 
+import edu.tamu.tcat.trc.resolver.EntryId;
+
 /**
  *  Represents a relationship of some type between two or more entities within the TRC
  *  Entries framework. Relationships are used to provide editorial or scholarly commentary
@@ -55,6 +57,21 @@ import java.util.Collection;
  */
 public interface Relationship
 {
+   /**
+    * Indicates whether the supplied entry is referenced by a give set of anchors.
+    *
+    * @param anchors The anchors to test.
+    * @param entry The entry to test.
+    *
+    * @return <code>true</code> if the supplied entry is referenced by one of the given anchors.
+    */
+   static boolean contains(Collection<Anchor> anchors, EntryId entry)
+   {
+      return anchors.parallelStream()
+         .map(anchor -> anchor.getTarget())
+         .anyMatch(ref -> entry.equals(ref));
+   }
+
    /**
     * @return The unique identifier for this relationship.
     */

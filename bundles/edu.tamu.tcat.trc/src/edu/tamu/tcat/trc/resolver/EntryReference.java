@@ -3,6 +3,7 @@ package edu.tamu.tcat.trc.resolver;
 import java.net.URI;
 
 import edu.tamu.tcat.account.Account;
+import edu.tamu.tcat.trc.ResourceNotFoundException;
 
 /**
  *  A reference to an entry registered through the resolver system.
@@ -49,7 +50,7 @@ public interface EntryReference<T>
     * @param account An {@link Account} to be used to access the entry.
     * @return The referenced entry.
     */
-   T getEntry(Account account);
+   T getEntry(Account account) throws ResourceNotFoundException;
 
 
 

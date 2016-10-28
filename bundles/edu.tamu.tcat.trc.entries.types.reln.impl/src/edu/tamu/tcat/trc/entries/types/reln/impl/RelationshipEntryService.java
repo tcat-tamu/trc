@@ -3,8 +3,11 @@ package edu.tamu.tcat.trc.entries.types.reln.impl;
 import static java.text.MessageFormat.format;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,7 +15,9 @@ import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistrar;
+import edu.tamu.tcat.trc.entries.types.reln.GroupedRelationshipSet;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
+import edu.tamu.tcat.trc.entries.types.reln.RelationshipInferenceStrategy;
 import edu.tamu.tcat.trc.entries.types.reln.impl.model.RelationshipImpl;
 import edu.tamu.tcat.trc.entries.types.reln.impl.repo.DataModelV1;
 import edu.tamu.tcat.trc.entries.types.reln.impl.repo.EditRelationshipCommandFactory;
@@ -24,6 +29,7 @@ import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 import edu.tamu.tcat.trc.impl.psql.entries.SolrSearchSupport;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistrar;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.IndexService;
@@ -242,6 +248,33 @@ public class RelationshipEntryService
       public EntryRepository.ObserverRegistration onUpdate(EntryRepository.UpdateObserver<Relationship> observer)
       {
          return delegate.onUpdate(observer, account);
+      }
+
+      private final List<RelationshipInferenceStrategy> inferenceStrategies =
+            new CopyOnWriteArrayList<>();
+
+      @Override
+      public void register(RelationshipInferenceStrategy strategy)
+      {
+         inferenceStrategies.add(strategy);
+      }
+
+      @Override
+      public GroupedRelationshipSet getRelationships(EntryId ref)
+      {
+         return getRelationships(ref, reln -> true);
+      }
+
+//      @Override
+      public GroupedRelationshipSet getRelationships(EntryId ref, Predicate<Relationship> filter)
+      {
+         inferenceStrategies.stream()
+            .filter(strategy -> strategy.accepts(ref))
+            .flatMap(strategy -> strategy.getRelationships(ref))
+            .filter(filter);
+
+         // TODO Auto-generated method stub
+         return null;
       }
    }
 }

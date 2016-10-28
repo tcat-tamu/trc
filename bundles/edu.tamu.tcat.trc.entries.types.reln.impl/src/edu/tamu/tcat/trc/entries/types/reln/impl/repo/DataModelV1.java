@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public abstract class DataModelV1
 {
@@ -34,7 +35,7 @@ public abstract class DataModelV1
       public String ref;
 
       /** Application defined properties associated with this anchor. */
-      public Map<String, String> properties = new HashMap<>();
+      public Map<String, Set<String>> properties = new HashMap<>();
    }
 
    public static class RelationshipType
