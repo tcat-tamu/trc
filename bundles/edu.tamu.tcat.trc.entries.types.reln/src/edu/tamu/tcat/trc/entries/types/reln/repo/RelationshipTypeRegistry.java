@@ -17,6 +17,7 @@ package edu.tamu.tcat.trc.entries.types.reln.repo;
 
 import java.util.Set;
 
+import edu.tamu.tcat.trc.entries.types.reln.RelationshipException;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 
 /**

@@ -9,8 +9,8 @@ import java.util.logging.Logger;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
 
+import edu.tamu.tcat.trc.entries.types.reln.RelationshipException;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
-import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipDirection;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;

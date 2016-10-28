@@ -17,6 +17,7 @@ package edu.tamu.tcat.trc.entries.types.reln.repo;
 
 import edu.tamu.tcat.trc.entries.core.repo.EditEntryCommand;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
+import edu.tamu.tcat.trc.entries.types.reln.RelationshipException;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 import edu.tamu.tcat.trc.resolver.EntryId;
 

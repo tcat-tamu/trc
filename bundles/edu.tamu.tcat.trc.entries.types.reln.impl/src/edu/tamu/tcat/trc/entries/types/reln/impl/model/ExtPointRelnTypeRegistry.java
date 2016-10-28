@@ -37,8 +37,8 @@ import org.eclipse.core.runtime.RegistryFactory;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+import edu.tamu.tcat.trc.entries.types.reln.RelationshipException;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
-import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipException;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 
 /**
