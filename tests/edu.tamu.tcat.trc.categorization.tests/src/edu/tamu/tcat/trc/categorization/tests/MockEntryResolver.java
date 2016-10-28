@@ -37,29 +37,25 @@ class MockEntryResolver implements EntryResolver<MockEntry>
    {
       String errUnsupportedType = "Unsupported reference type {0}";
       String errNotFound = "Cannot find mock entry with id = {0}";
-      if (!TYPE.equals(reference.type))
-         throw new InvalidReferenceException(reference, format(errUnsupportedType, reference.type));
+      if (!TYPE.equals(reference.getType()))
+         throw new InvalidReferenceException(reference, format(errUnsupportedType, reference.getType()));
 
-      if (!entries.containsKey(reference.id))
-         throw new InvalidReferenceException(reference, format(errNotFound, reference.id));
+      if (!entries.containsKey(reference.getId()))
+         throw new InvalidReferenceException(reference, format(errNotFound, reference.getId()));
 
-      return entries.get(reference.id);
+      return entries.get(reference.getId());
    }
 
    @Override
    public URI toUri(EntryId reference) throws InvalidReferenceException
    {
-      return baseUrl.resolve(API_RESOURCE_PATH).resolve(reference.id);
+      return baseUrl.resolve(API_RESOURCE_PATH).resolve(reference.getId());
    }
 
    @Override
    public EntryId makeReference(MockEntry instance) throws InvalidReferenceException
    {
-      EntryId reference = new EntryId();
-      reference.id = instance.id;
-      reference.type = TYPE;
-
-      return reference;
+      return new EntryId(instance.getId(), TYPE);
    }
 
    @Override
@@ -69,11 +65,7 @@ class MockEntryResolver implements EntryResolver<MockEntry>
       if (uri.equals(relEntryUri))
          throw new InvalidReferenceException(uri, format("Expected URL at endpoint {0}", baseUrl.resolve(API_RESOURCE_PATH)));
 
-      EntryId reference = new EntryId();
-      reference.id = relEntryUri.getPath();
-      reference.type = TYPE;
-
-      return reference;
+      return new EntryId(relEntryUri.getPath(), TYPE);
    }
 
    @Override
@@ -85,7 +77,7 @@ class MockEntryResolver implements EntryResolver<MockEntry>
    @Override
    public boolean accepts(EntryId reference)
    {
-      return TYPE.equals(reference.type);
+      return TYPE.equals(reference.getType());
    }
 
    @Override

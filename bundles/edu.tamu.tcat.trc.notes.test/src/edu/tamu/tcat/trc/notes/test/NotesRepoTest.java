@@ -90,7 +90,7 @@ public class NotesRepoTest
       repoRegistry.activate();
 
       factory = new NotesServiceFactory(repoRegistry, null);
-      notesSvc = factory.getService(NotesService.makeContext(null, "test"));
+      notesSvc = factory.getService(NotesService.makeContext(null));
    }
 
    @After
@@ -123,7 +123,7 @@ public class NotesRepoTest
 
       Assert.assertEquals("Notes do not match", noteId, note.getId());
       Assert.assertEquals("Notes do not match", "1", note.getAssociatedEntry().id);
-      Assert.assertEquals("Notes do not match", BibliographicEntryRepository.ENTRY_TYPE_ID, note.getAssociatedEntry().type);
+      Assert.assertEquals("Notes do not match", BibliographicEntryRepository.ENTRY_TYPE_ID, note.getAssociatedEntry().getType());
       Assert.assertEquals("Notes do not match", UUID.fromString("d25d7b89-6634-4895-89c1-7024fc3d5396"), note.getAuthor().getId());
       Assert.assertEquals("Notes do not match", "Test User", note.getAuthor().getDisplayName());
       Assert.assertEquals("Notes do not match", "text/plain", note.getMimeType());
@@ -181,9 +181,7 @@ public class NotesRepoTest
       String authorId = "d25d7b89-6634-4895-89c1-7024fc3d5396";
       TestAccount acct = new TestAccount(UUID.fromString(authorId), "Test User");
 
-      EntryId ref = new EntryId();
-      ref.type = BibliographicEntryRepository.ENTRY_TYPE_ID;
-      ref.id = "1";
+      EntryId ref = new EntryId(BibliographicEntryRepository.ENTRY_TYPE_ID, "1");
 
       command.setAssociatedEntry(ref);
       command.setAuthor(acct);

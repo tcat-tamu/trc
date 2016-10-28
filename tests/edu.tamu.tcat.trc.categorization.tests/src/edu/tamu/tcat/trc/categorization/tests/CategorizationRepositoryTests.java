@@ -26,15 +26,14 @@ import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
-import edu.tamu.tcat.trc.categorization.impl.CategorizationSchemeService;
 import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
+import edu.tamu.tcat.trc.impl.psql.services.categorization.CategorizationServiceFactory;
 import edu.tamu.tcat.trc.repo.id.IdFactoryProvider;
 import edu.tamu.tcat.trc.resolver.EntryId;
-import edu.tamu.tcat.trc.services.categorization.CategorizationService;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme;
-import edu.tamu.tcat.trc.services.categorization.CategorizationScope;
-import edu.tamu.tcat.trc.services.categorization.EditCategorizationCommand;
 import edu.tamu.tcat.trc.services.categorization.CategorizationScheme.Strategy;
+import edu.tamu.tcat.trc.services.categorization.CategorizationService;
+import edu.tamu.tcat.trc.services.categorization.EditCategorizationCommand;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.EditTreeCategorizationCommand;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.PreOrderTraversal;
 import edu.tamu.tcat.trc.services.categorization.strategies.tree.TreeCategorization;
@@ -52,7 +51,7 @@ public abstract class CategorizationRepositoryTests
    private ClosableSqlExecutor exec;
    private ConfigurationProperties config;
 
-   protected CategorizationSchemeService svc;
+   protected CategorizationServiceFactory svc;
 
    protected MockEntryResolver entryResolver;
 
@@ -84,18 +83,18 @@ public abstract class CategorizationRepositoryTests
       repos.setSqlExecutor(exec);
 
       entryResolver = new MockEntryResolver();
-      repos.getResolverRegistry().register(entryResolver);
+      repos.registerResolver(entryResolver);
 
-      svc = new CategorizationSchemeService();
-      svc.bindSqlExecutor(exec);
-      svc.bindIdProvider(idProvider);
-      svc.bindEntryRepoResolver(repos);
+      svc = new CategorizationServiceFactory(repos);
+//      svc.bindSqlExecutor(exec);
+//      svc.bindIdProvider(idProvider);
+//      svc.bindEntryRepoResolver(repos);
       // TODO configure search
 
       Map<String, Object> props = new HashMap<>();
-      props.put(CategorizationSchemeService.PARAM_ID_CTX, "trc.services.categorization.schemes.ids");
-      props.put(CategorizationSchemeService.PARAM_NODE_CTX, "trc.services.categorization.nodes.ids");
-      props.put(CategorizationSchemeService.PARAM_TABLE_NAME, TBL_NAME);
+      props.put(CategorizationServiceFactory.PARAM_ID_CTX, "trc.services.categorization.schemes.ids");
+      props.put(CategorizationServiceFactory.PARAM_NODE_CTX, "trc.services.categorization.nodes.ids");
+      props.put(CategorizationServiceFactory.PARAM_TABLE_NAME, TBL_NAME);
       svc.activate(props);
    }
 
@@ -112,7 +111,7 @@ public abstract class CategorizationRepositoryTests
 
       future.get();
 
-      svc.deactivate();
+      svc.shutdown();
       exec.close();
 
       if (config instanceof SimpleFileConfigurationProperties)
@@ -120,23 +119,10 @@ public abstract class CategorizationRepositoryTests
    }
 
    @Test
-   public void testCreateScope()
-   {
-      String scopeId = "test.categorizations";
-      CategorizationScope scope = svc.createScope(account, scopeId);
-
-      assertNotNull("No categorization scope created", scope);
-      assertEquals("Account Ids don't match", account.getId(), scope.getAccount().getId());
-      assertEquals("Scope Ids don't match", scopeId, scope.getScopeId());
-   }
-
-   @Test
    public void testAcquireRepository()
    {
       String scopeId = "test.categorizations";
-      CategorizationScope scope = svc.createScope(account, scopeId);
-
-      CategorizationService repository = svc.getRepository(scope);
+      CategorizationService repository = svc.getService(CategorizationService.makeContext(account, scopeId));
       assertNotNull("No categorization repo created", repository);
    }
 
@@ -156,7 +142,7 @@ public abstract class CategorizationRepositoryTests
       String id = cmd.execute().get(10, TimeUnit.SECONDS);
       assertNotNull("No id provided", id);
 
-      CategorizationScheme scheme = repository.getById(id);
+      CategorizationScheme scheme = repository.getById(id).orElse(null);
       assertEquals(id, scheme.getId());
       assertEquals(key, scheme.getKey());
       assertEquals(label, scheme.getLabel());
@@ -178,7 +164,7 @@ public abstract class CategorizationRepositoryTests
 
       String id = cmd.execute().get(10, TimeUnit.SECONDS);
 
-      CategorizationScheme scheme = repository.get(key);
+      CategorizationScheme scheme = repository.get(key).orElse(null);
       assertEquals(id, scheme.getId());
       assertEquals(key, scheme.getKey());
       assertEquals(label, scheme.getLabel());
@@ -200,7 +186,7 @@ public abstract class CategorizationRepositoryTests
 
       String id = cmd.execute().get(10, TimeUnit.SECONDS);
 
-      CategorizationScheme first = repository.getById(id);
+      CategorizationScheme first = repository.getById(id).orElse(null);
 
       String key2 = "edit test";
       String label2 = "Revised Hierarchical Test Categorization";
@@ -214,7 +200,7 @@ public abstract class CategorizationRepositoryTests
       cmd.execute().get(10, TimeUnit.SECONDS);
 
       // ensure the values are modified
-      CategorizationScheme second = repository.getById(id);
+      CategorizationScheme second = repository.getById(id).orElse(null);
       assertEquals(id, second.getId());
       assertEquals(key2, second.getKey());
       assertEquals(label2, second.getLabel());
@@ -244,7 +230,7 @@ public abstract class CategorizationRepositoryTests
 
       String id = cmd.execute().get(10, TimeUnit.SECONDS);
 
-      CategorizationScheme first = repository.getById(id);
+      CategorizationScheme first = repository.getById(id).orElse(null);
       assertNotNull("Failed to obtain initial repository", first);
 
       repository.remove(id).get(10, TimeUnit.SECONDS);
@@ -266,7 +252,6 @@ public abstract class CategorizationRepositoryTests
       MockEntry mockEntry = entryResolver.create(entryDesc);
       EntryId mockRef = entryResolver.makeReference(mockEntry);
 
-      mockRef.id = "3XthwW";
       String token = repos.getResolverRegistry().tokenize(mockRef);
       System.out.println(token);
       EntryId restored = repos.getResolverRegistry().decodeToken(token);
@@ -279,9 +264,7 @@ public abstract class CategorizationRepositoryTests
    protected CategorizationService getDefaultRepo()
    {
       String scopeId = "test.categorizations";
-      CategorizationScope scope = svc.createScope(account, scopeId);
-      CategorizationService repository = svc.getRepository(scope);
-      return repository;
+      return svc.getService(CategorizationService.makeContext(account, scopeId));
    }
 
    public static class TreeCategorizationRepoTests extends CategorizationRepositoryTests
@@ -303,7 +286,7 @@ public abstract class CategorizationRepositoryTests
          try
          {
             String id = cmd.execute().get(10, TimeUnit.SECONDS);
-            return (TreeCategorization)repository.getById(id);
+            return (TreeCategorization)repository.getById(id).orElse(null);
          }
          catch (Exception ex)
          {
@@ -319,7 +302,7 @@ public abstract class CategorizationRepositoryTests
          buildDefaultTree(repository, scheme);
 
          String id = scheme.getId();
-         scheme = (TreeCategorization)repository.getById(id);
+         scheme = (TreeCategorization)repository.getById(id).orElse(null);
          TreeNode root = scheme.getRootNode();
 
          testChildren(root, "A");
@@ -346,7 +329,7 @@ public abstract class CategorizationRepositoryTests
          buildDefaultTree(repository, scheme);
 
          String id = scheme.getId();
-         scheme = repository.getById(id, TreeCategorization.class);
+         scheme = repository.getById(id, TreeCategorization.class).orElse(null);
 
          TreeNode nodeA = findByLabel(scheme, "A");
 
@@ -356,13 +339,13 @@ public abstract class CategorizationRepositoryTests
 
          command.execute().get(10, TimeUnit.SECONDS);
 
-         scheme = repository.getById(id, TreeCategorization.class);
+         scheme = repository.getById(id, TreeCategorization.class).orElse(null);
          nodeA = findByLabel(scheme, "A");
          EntryId ref = nodeA.getAssociatedEntryRef();
          MockEntry entry = nodeA.getAssociatedEntry(MockEntry.class);
 
          assertEquals(mockRef.id, ref.id);
-         assertEquals(mockRef.type, ref.type);
+         assertEquals(mockRef.getType(), ref.getType());
 
          assertEquals(mockEntry.getId(), entry.getId());
          assertEquals(mockEntry.getDescription(), entry.getDescription());
@@ -376,7 +359,7 @@ public abstract class CategorizationRepositoryTests
          buildDefaultTree(repository, scheme);
 
          String id = scheme.getId();
-         scheme = repository.getById(id, TreeCategorization.class);
+         scheme = repository.getById(id, TreeCategorization.class).orElse(null);
 
          String fId = findByLabel(scheme, "F").getId();
          String hId = findByLabel(scheme, "H").getId();
@@ -386,7 +369,7 @@ public abstract class CategorizationRepositoryTests
          command.removeNode(hId); // remove node H (and I as part of sub-tree)
          command.execute().get(10, TimeUnit.SECONDS);
 
-         scheme = repository.getById(id, TreeCategorization.class);
+         scheme = repository.getById(id, TreeCategorization.class).orElse(null);
          assertNull(findByLabel(scheme, "F"));
          assertNull(findByLabel(scheme, "H"));
          assertNull(findByLabel(scheme, "I"));
@@ -408,7 +391,7 @@ public abstract class CategorizationRepositoryTests
          buildDefaultTree(repository, scheme);
 
          String id = scheme.getId();
-         scheme = repository.getById(id, TreeCategorization.class);
+         scheme = repository.getById(id, TreeCategorization.class).orElse(null);
 
          String bId = findByLabel(scheme, "B").getId();
          TreeNode cNode = findByLabel(scheme, "C");
@@ -421,7 +404,7 @@ public abstract class CategorizationRepositoryTests
          command.move(bId, cId, ix);
          command.execute().get(10, TimeUnit.SECONDS);
 
-         scheme = repository.getById(id, TreeCategorization.class);
+         scheme = repository.getById(id, TreeCategorization.class).orElse(null);
          testChildren(scheme.getRootNode(), "A");
          testChildren(findByLabel(scheme, "A"), "C");
          testChildren(findByLabel(scheme, "B"), "D", "E", "F");
