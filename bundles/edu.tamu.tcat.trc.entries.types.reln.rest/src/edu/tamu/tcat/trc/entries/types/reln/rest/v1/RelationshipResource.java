@@ -15,6 +15,7 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln.rest.v1;
 
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -87,8 +88,16 @@ public class RelationshipResource
          cmd.setType(type);
          cmd.setDescription(relationship.description);
 
-         relationship.related.forEach(anchor -> editRelatedEntry(cmd, anchor));
-         relationship.target.forEach(anchor -> editTargetEntry(cmd, anchor));
+         relationship.related.stream()
+               .forEach(anchor -> {
+                  EntryId ref = new EntryId(anchor.ref.id, anchor.ref.type);
+                  applyAnchor(cmd.editTargetEntry(ref), anchor);
+               });
+         relationship.target.stream()
+               .forEach(anchor -> {
+                  EntryId ref = new EntryId(anchor.ref.id, anchor.ref.type);
+                  applyAnchor(cmd.editTargetEntry(ref), anchor);
+               });
 
          cmd.execute().get(10, TimeUnit.SECONDS);
 
@@ -117,25 +126,11 @@ public class RelationshipResource
       }
    }
 
-   public static void editRelatedEntry(EditRelationshipCommand cmd, RestApiV1.Anchor anchor)
+   public static void applyAnchor(AnchorMutator mutator, RestApiV1.Anchor anchor)
    {
-      EntryId ref = EntryId.fromMap(anchor.ref);
-      AnchorMutator mutator = cmd.editRelatedEntry(ref);
       anchor.properties.keySet().forEach(key -> {
-         String value = anchor.properties.get(key);
-         if (value == null)
-            mutator.addProperty(key, value);
-      });
-   }
-
-   public static void editTargetEntry(EditRelationshipCommand cmd, RestApiV1.Anchor anchor)
-   {
-      EntryId ref = EntryId.fromMap(anchor.ref);
-      AnchorMutator mutator = cmd.editTargetEntry(ref);
-      anchor.properties.keySet().forEach(key -> {
-         String value = anchor.properties.get(key);
-         if (value == null)
-            mutator.addProperty(key, value);
+         Set<String> values = anchor.properties.get(key);
+         values.forEach(value -> mutator.addProperty(key, value));
       });
    }
 

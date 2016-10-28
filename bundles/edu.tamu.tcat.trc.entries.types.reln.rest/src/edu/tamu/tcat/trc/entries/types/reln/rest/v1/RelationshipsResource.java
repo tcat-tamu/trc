@@ -41,6 +41,7 @@ import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipDirection;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchResult;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.search.solr.QueryService;
 import edu.tamu.tcat.trc.search.solr.SearchException;
 import edu.tamu.tcat.trc.services.rest.ApiUtils;
@@ -145,19 +146,26 @@ public class RelationshipsResource
    @Produces(MediaType.APPLICATION_JSON)
    public RestApiV1.Relationship createRelationship(RestApiV1.Relationship relationship)
    {
-      String id;
       try
       {
          RelationshipType type = repo.getTypeRegistry().resolve(relationship.typeId);
 
-         EditRelationshipCommand createCommand = repo.create();
-         createCommand.setType(type);
-         createCommand.setDescription(relationship.description);
+         EditRelationshipCommand cmd = repo.create();
+         cmd.setType(type);
+         cmd.setDescription(relationship.description);
 
-         relationship.related.forEach(anchor -> RelationshipResource.editRelatedEntry(createCommand, anchor));
-         relationship.target.forEach(anchor -> RelationshipResource.editTargetEntry(createCommand, anchor));
+         relationship.related.stream()
+               .forEach(anchor -> {
+                  EntryId ref = new EntryId(anchor.ref.id, anchor.ref.type);
+                  RelationshipResource.applyAnchor(cmd.editTargetEntry(ref), anchor);
+               });
+         relationship.target.stream()
+               .forEach(anchor -> {
+                  EntryId ref = new EntryId(anchor.ref.id, anchor.ref.type);
+                  RelationshipResource.applyAnchor(cmd.editTargetEntry(ref), anchor);
+               });
 
-         id = createCommand.execute().get(10, TimeUnit.SECONDS);
+         String id = cmd.execute().get(10, TimeUnit.SECONDS);
 
          // TODO use optional and handle appropriately.
          return RepoAdapter.toDTO(repo.get(id));

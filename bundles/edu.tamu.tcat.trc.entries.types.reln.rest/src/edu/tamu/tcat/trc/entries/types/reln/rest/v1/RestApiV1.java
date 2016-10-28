@@ -15,19 +15,23 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln.rest.v1;
 
+import static java.text.MessageFormat.format;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.stream.Stream;
 
-import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.google.common.base.Joiner;
 
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipDirection;
+import edu.tamu.tcat.trc.services.rest.ApiUtils;
 
 public class RestApiV1
 {
@@ -82,16 +86,16 @@ public class RestApiV1
    public static class Anchor
    {
       public String label;
-      public Map<String, String> ref = new HashMap<>();
-      public Map<String, String> properties = new HashMap<>();
+      public EntryReference ref;
+      public Map<String, Set<String>> properties = new HashMap<>();
    }
 
-//   public static class EntryReference
-//   {
-//      public String id;
-//      public String type;
-//      public String token;
-//   }
+   public static class EntryReference
+   {
+      public String id;
+      public String type;
+      public String token;
+   }
 
    /**
     * A DTO to be used as a REST query or path parameter. This class parses the String
@@ -104,23 +108,24 @@ public class RestApiV1
 
       public RelDirection(String d)
       {
+         dir = getRelationshipDirectoion(d);
+      }
+
+      private RelationshipDirection getRelationshipDirectoion(String d)
+      {
          if (d == null || d.trim().isEmpty())
+            return RelationshipDirection.any;
+
+         try
          {
-            dir = RelationshipDirection.any;
+            return RelationshipDirection.valueOf(d.toLowerCase());
          }
-         else
+         catch (Exception iea)
          {
-            try
-            {
-               dir = RelationshipDirection.valueOf(d.toLowerCase());
-            }
-            catch (Exception iea)
-            {
-               // TODO use String.join
-               Joiner joiner = Joiner.on(", ");
-               //FIXME: this needs to build a Response to properly report to the client
-               throw new BadRequestException("Invalid value for query parameter 'direction' [" + d + "]. Must be one of the following: " + joiner.join(RelationshipDirection.values()));
-            }
+            String msg = "Invalid value for query parameter 'direction' [{0}]. Must be one of the following: {1}";
+            String[] directions = (String[])Stream.of(RelationshipDirection.values()).map(Object::toString).toArray();
+            String errMsg = format(msg, d, String.join(", ", directions));
+            throw ApiUtils.raise(Response.Status.BAD_REQUEST, errMsg, Level.SEVERE, iea);
          }
       }
 

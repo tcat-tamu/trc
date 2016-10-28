@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import edu.tamu.tcat.trc.entries.types.reln.Anchor;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
+import edu.tamu.tcat.trc.resolver.EntryId;
 
 /**
  * An encapsulation of adapter methods to convert between the repository API and
@@ -48,10 +49,19 @@ public class RepoAdapter
       return dto;
    }
 
+   public static RestApiV1.EntryReference toDto(EntryId eId)
+   {
+      RestApiV1.EntryReference dto = new RestApiV1.EntryReference();
+      dto.id = eId.getId();
+      dto.type = eId.getType();
+
+      return dto;
+   }
+
    public static RestApiV1.Anchor toDto(Anchor anchor)
    {
       RestApiV1.Anchor dto = new RestApiV1.Anchor();
-      dto.ref = anchor.getTarget().toJsonForm();
+      dto.ref = toDto(anchor.getTarget());
       dto.properties = anchor.listProperties().stream()
             .collect(Collectors.toMap(
                key -> key,
