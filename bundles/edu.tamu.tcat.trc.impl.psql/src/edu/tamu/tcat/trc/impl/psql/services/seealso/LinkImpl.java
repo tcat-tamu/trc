@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.impl.psql.services.seealso.model;
+package edu.tamu.tcat.trc.impl.psql.services.seealso;
 
 import edu.tamu.tcat.trc.services.seealso.Link;
 

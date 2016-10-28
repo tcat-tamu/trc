@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.impl.psql.services.seealso.repo;
+package edu.tamu.tcat.trc.impl.psql.services.seealso;
 
 import static java.text.MessageFormat.format;
 
@@ -16,7 +16,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
-import edu.tamu.tcat.trc.impl.psql.services.seealso.model.LinkImpl;
 import edu.tamu.tcat.trc.repo.db.ColumnDefinition;
 import edu.tamu.tcat.trc.repo.db.ColumnDefinition.ColumnType;
 import edu.tamu.tcat.trc.repo.db.TableDefinition;
