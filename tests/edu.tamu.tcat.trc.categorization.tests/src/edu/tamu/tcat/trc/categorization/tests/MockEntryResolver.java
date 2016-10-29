@@ -25,6 +25,12 @@ class MockEntryResolver implements EntryResolver<MockEntry>
       return MockEntry.class;
    }
 
+   @Override
+   public String getLabel(MockEntry instance)
+   {
+      return "Mock Entry";
+   }
+
    public MockEntry create(String description)
    {
       MockEntry result = new MockEntry(description);
