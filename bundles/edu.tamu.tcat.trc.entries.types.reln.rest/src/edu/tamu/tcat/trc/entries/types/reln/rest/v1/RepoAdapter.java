@@ -15,10 +15,6 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln.rest.v1;
 
-import static java.util.stream.Collectors.toSet;
-
-import java.util.stream.Collectors;
-
 import edu.tamu.tcat.trc.entries.types.reln.Anchor;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
@@ -39,12 +35,15 @@ public class RepoAdapter
       dto.typeId = orig.getType().getIdentifier();
       dto.description = orig.getDescription();
 
-      dto.related = orig.getRelatedEntities().stream()
+      dto.related.clear();
+      orig.getRelatedEntities().stream()
             .map(RepoAdapter::toDto)
-            .collect(toSet());
-      dto.target = orig.getTargetEntities().stream()
+            .forEach(dto.related::add);
+
+      dto.targets.clear();
+      orig.getTargetEntities().stream()
             .map(RepoAdapter::toDto)
-            .collect(toSet());
+            .forEach(dto.targets::add);
 
       return dto;
    }
@@ -62,10 +61,9 @@ public class RepoAdapter
    {
       RestApiV1.Anchor dto = new RestApiV1.Anchor();
       dto.ref = toDto(anchor.getTarget());
-      dto.properties = anchor.listProperties().stream()
-            .collect(Collectors.toMap(
-               key -> key,
-               key -> anchor.getProperty(key)));
+      dto.properties.clear();
+      anchor.listProperties().stream()
+            .forEach(key -> dto.properties.put(key, anchor.getProperty(key)));
 
       return dto;
    }

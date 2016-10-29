@@ -15,9 +15,12 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln.search;
 
+import java.util.HashSet;
 import java.util.Set;
 
+import edu.tamu.tcat.trc.entries.types.reln.Anchor;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
 /**
  * JSON serializable summary information about a relationship entry.
@@ -29,37 +32,29 @@ public class RelnSearchProxy
    public String id;
    public String typeId;
    public String description;
-   public Set<String> related;
-   public Set<String> targets;
+   public final Set<String> related = new HashSet<>();
+   public final Set<String> targets = new HashSet<>();
 
-   public static RelnSearchProxy create(Relationship reln)
+   public static RelnSearchProxy create(Relationship reln, EntryResolverRegistry resolvers)
    {
       RelnSearchProxy result = new RelnSearchProxy();
       result.id = reln.getId();
       result.typeId = reln.getType().getIdentifier();
       result.description = reln.getDescription();
 
-      // TODO add #getLabel to resolver
+      result.related.clear();
+      reln.getRelatedEntities().stream()
+            .map(Anchor::getTarget)
+            .map(resolvers::tokenize)
+            .forEach(result.related::add);
 
-//      AnchorSet related = reln.getRelatedEntities();
-//      if (related != null)
-//      {
-//         result.relatedEntities = new HashSet<>();
-//         for (Anchor anchor : related.getAnchors())
-//         {
-//            result.relatedEntities.add(AnchorDTO.create(anchor));
-//         }
-//      }
-//
-//      AnchorSet target = reln.getTargetEntities();
-//      if (target != null)
-//      {
-//         result.targetEntities = new HashSet<>();
-//         for (Anchor anchor : target.getAnchors())
-//         {
-//            result.targetEntities.add(AnchorDTO.create(anchor));
-//         }
-//      }
+      result.targets.clear();
+      reln.getTargetEntities().stream()
+            .map(Anchor::getTarget)
+            .map(resolvers::tokenize)
+            .forEach(result.related::add);
+
+      // TODO add #getLabel to resolver
 
       return result;
    }

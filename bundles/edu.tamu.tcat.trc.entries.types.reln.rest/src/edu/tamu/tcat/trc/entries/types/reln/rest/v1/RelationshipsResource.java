@@ -42,6 +42,7 @@ import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipDirection;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchResult;
 import edu.tamu.tcat.trc.resolver.EntryId;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.QueryService;
 import edu.tamu.tcat.trc.search.solr.SearchException;
 import edu.tamu.tcat.trc.services.rest.ApiUtils;
@@ -53,10 +54,13 @@ public class RelationshipsResource
    private final RelationshipRepository repo;
    private final QueryService<RelationshipQueryCommand> queryService;
 
-   public RelationshipsResource(RelationshipRepository repo, QueryService<RelationshipQueryCommand> queryService)
+   private final EntryResolverRegistry resolvers;
+
+   public RelationshipsResource(RelationshipRepository repo, QueryService<RelationshipQueryCommand> queryService, EntryResolverRegistry resolvers)
    {
       this.repo = repo;
       this.queryService = queryService;
+      this.resolvers = resolvers;
    }
 
 
@@ -92,7 +96,7 @@ public class RelationshipsResource
 
          RelationshipSearchResult results = cmd.execute();
          RestApiV1.RelationshipSearchResultSet rs = new RestApiV1.RelationshipSearchResultSet();
-         rs.items = SearchAdapter.toDTO(results.get());
+         rs.items = SearchAdapter.toDTO(results.get(), resolvers, null);
 
          StringBuilder sb = new StringBuilder();
          try
@@ -159,7 +163,7 @@ public class RelationshipsResource
                   EntryId ref = new EntryId(anchor.ref.id, anchor.ref.type);
                   RelationshipResource.applyAnchor(cmd.editTargetEntry(ref), anchor);
                });
-         relationship.target.stream()
+         relationship.targets.stream()
                .forEach(anchor -> {
                   EntryId ref = new EntryId(anchor.ref.id, anchor.ref.type);
                   RelationshipResource.applyAnchor(cmd.editTargetEntry(ref), anchor);

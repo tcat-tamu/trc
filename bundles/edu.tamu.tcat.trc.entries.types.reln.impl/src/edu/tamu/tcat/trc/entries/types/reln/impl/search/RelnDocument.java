@@ -64,7 +64,7 @@ public class RelnDocument
                .map(resolvers::tokenize)
                .forEach(token -> doc.set(RelnSolrConfig.TARGET_ENTITIES, token));
 
-         doc.set(RelnSolrConfig.SEARCH_PROXY, RelnSearchProxy.create(reln));
+         doc.set(RelnSolrConfig.SEARCH_PROXY, RelnSearchProxy.create(reln, resolvers));
 
          return doc.build();
       }
@@ -96,7 +96,7 @@ public class RelnDocument
          doc.update(RelnSolrConfig.RELATED_ENTITIES, related);
          doc.update(RelnSolrConfig.TARGET_ENTITIES, targets);
 
-         doc.update(RelnSolrConfig.SEARCH_PROXY, RelnSearchProxy.create(reln));
+         doc.update(RelnSolrConfig.SEARCH_PROXY, RelnSearchProxy.create(reln, resolvers));
 
          return doc.build();
       }

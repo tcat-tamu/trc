@@ -93,7 +93,7 @@ public class RelationshipResource
                   EntryId ref = new EntryId(anchor.ref.id, anchor.ref.type);
                   applyAnchor(cmd.editTargetEntry(ref), anchor);
                });
-         relationship.target.stream()
+         relationship.targets.stream()
                .forEach(anchor -> {
                   EntryId ref = new EntryId(anchor.ref.id, anchor.ref.type);
                   applyAnchor(cmd.editTargetEntry(ref), anchor);

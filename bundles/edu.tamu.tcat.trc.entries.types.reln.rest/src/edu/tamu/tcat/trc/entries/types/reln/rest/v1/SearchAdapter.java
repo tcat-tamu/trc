@@ -19,7 +19,11 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelnSearchProxy;
+import edu.tamu.tcat.trc.resolver.EntryId;
+import edu.tamu.tcat.trc.resolver.EntryResolver;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
 /**
  * An encapsulation of adapter methods to convert between the search API and
@@ -29,17 +33,17 @@ public class SearchAdapter
 {
    private static final Logger logger = Logger.getLogger(SearchAdapter.class.getName());
 
-   public static List<RestApiV1.RelationshipSearchResult> toDTO(List<RelnSearchProxy> origList)
+   public static List<RestApiV1.RelationshipSearchResult> toDTO(List<RelnSearchProxy> origList, EntryResolverRegistry resolvers, Account account)
    {
       if (origList == null)
          return null;
 
       return origList.stream()
-            .map(SearchAdapter::toDTO)
+            .map(proxy -> toDTO(proxy, resolvers, account))
             .collect(Collectors.toList());
    }
 
-   public static RestApiV1.RelationshipSearchResult toDTO(RelnSearchProxy orig)
+   public static RestApiV1.RelationshipSearchResult toDTO(RelnSearchProxy orig, EntryResolverRegistry resolvers, Account account)
    {
       if (orig == null)
       {
@@ -51,19 +55,33 @@ public class SearchAdapter
       dto.description = orig.description;
       dto.typeId = orig.typeId;
 
-//      if (orig.relatedEntities != null)
-//      {
-//         dto.relatedEntities = orig.relatedEntities.stream()
-//               .map(RepoAdapter::toDTO)
-//               .collect(Collectors.toSet());
-//      }
-//
-//      if (orig.targetEntities != null)
-//      {
-//         dto.targetEntities = orig.targetEntities.stream()
-//               .map(RepoAdapter::toDTO)
-//               .collect(Collectors.toSet());
-//      }
+      dto.related.clear();
+      orig.related.stream()
+            .map(token -> createAnchor(token, resolvers, account))
+            .forEach(dto.related::add);
+
+      dto.targets.clear();
+      orig.targets.stream()
+            .map(token -> createAnchor(token, resolvers, account))
+            .forEach(dto.targets::add);
+
+      return dto;
+   }
+
+   private static RestApiV1.Anchor createAnchor(String token, EntryResolverRegistry resolvers, Account account)
+   {
+      EntryId entryId = resolvers.decodeToken(token);
+
+      RestApiV1.Anchor dto = new RestApiV1.Anchor();
+
+      dto.ref = new RestApiV1.EntryReference();
+      dto.ref.token = token;
+      dto.ref.id = entryId.getId();
+      dto.ref.type = entryId.getType();
+
+      EntryResolver<Object> resolver = resolvers.getResolver(entryId);
+      Object instance = resolver.resolve(account, entryId);
+      dto.label = resolver.getLabel(instance);
 
       return dto;
    }

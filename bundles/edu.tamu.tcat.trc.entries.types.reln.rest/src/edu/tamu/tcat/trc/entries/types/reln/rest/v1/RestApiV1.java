@@ -78,8 +78,8 @@ public class RestApiV1
       public String id;
       public String typeId;
       public String description;
-      public Set<Anchor> related;
-      public Set<Anchor> target;
+      public final Set<Anchor> related = new HashSet<>();
+      public final Set<Anchor> targets = new HashSet<>();
    }
 
    @JsonIgnoreProperties(ignoreUnknown = true)
@@ -87,7 +87,7 @@ public class RestApiV1
    {
       public String label;
       public EntryReference ref;
-      public Map<String, Set<String>> properties = new HashMap<>();
+      public final Map<String, Set<String>> properties = new HashMap<>();
    }
 
    public static class EntryReference
@@ -152,8 +152,8 @@ public class RestApiV1
       public String typeId;
       public String description;
       public String descriptionMimeType;
-      public Set<Anchor> relatedEntities;
-      public Set<Anchor> targetEntities;
+      public final Set<Anchor> related = new HashSet<>();
+      public final Set<Anchor> targets = new HashSet<>();
    }
 
    /**
@@ -193,6 +193,6 @@ public class RestApiV1
    {
       public String label;
       // TODO seems like the wrong structure
-      public Set<RelationshipSearchResult> relationships = new HashSet<>();
+      public final Set<RelationshipSearchResult> relationships = new HashSet<>();
    }
 }

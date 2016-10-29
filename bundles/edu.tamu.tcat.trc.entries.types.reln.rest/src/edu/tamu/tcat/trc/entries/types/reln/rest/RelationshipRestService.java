@@ -13,6 +13,7 @@ import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 import edu.tamu.tcat.trc.entries.types.reln.rest.v1.RelationshipTypeResource;
 import edu.tamu.tcat.trc.entries.types.reln.rest.v1.RelationshipsResource;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.QueryService;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
 
@@ -83,7 +84,8 @@ public class RelationshipRestService
       Account account = null;    // TODO get this from the request if this is possible here.
 
       RelationshipRepository repo = repos.getRepository(account, RelationshipRepository.class);
-      return new RelationshipsResource(repo, queryService);
+      EntryResolverRegistry resolvers = repos.getResolverRegistry();
+      return new RelationshipsResource(repo, queryService, resolvers);
    }
 
    @Path("relationships")
