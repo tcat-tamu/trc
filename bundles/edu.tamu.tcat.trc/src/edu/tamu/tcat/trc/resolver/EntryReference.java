@@ -11,6 +11,16 @@ import edu.tamu.tcat.trc.ResourceNotFoundException;
 public interface EntryReference<T>
 {
    /**
+    * @return A text label for this entry.
+    */
+   String getLabel();
+
+   /**
+    * @return A lightly marked HTML label for this entry.
+    */
+   String getHtmlLabel();
+
+   /**
     * @return The typed id associated with this entry.
     */
    EntryId getEntryId();

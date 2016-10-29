@@ -71,6 +71,22 @@ public interface EntryResolver<T>
    URI toUri(EntryId reference) throws InvalidReferenceException;
 
    /**
+    * @param instance The instance for which a label should be supplied.
+    * @return A display label for the supplied instance.
+    */
+   String getLabel(T instance);
+
+   /**
+    * @param instance The instance for which a label should be supplied.
+    * @return An HTML formatted display label for the supplied instance. Implementations
+    *       are expected to supply light, semantic markup for the label an rely on the
+    *       client to supply any additional visual styling.
+    */
+   default String getHtmlLabel(T instance) {
+      return getLabel(instance);
+   }
+
+   /**
     * Creates an {@link EntryId} from a given TRC entry.
     * @param instance The entry for which to construct a reference.
     * @return The constructed reference.

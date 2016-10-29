@@ -43,7 +43,6 @@ public interface EntryResolverRegistry
     */
    EntryId decodeToken(String token) throws IllegalArgumentException, InvalidReferenceException;
 
-
    /**
     * @param eId A typed entry identifier
     * @return An {@link EntryReference} for the given entry id.

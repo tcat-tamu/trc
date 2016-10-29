@@ -21,6 +21,16 @@ package edu.tamu.tcat.trc.entries.types.biblio;
 public interface Title
 {
    /**
+    * Standard title type to indicate a title commonly used to reference a work
+    * as shorthand when the use of the full title is not warrented. For example,
+    * Tractatus for Spinoza's Treatise Theological and Political.
+
+    */
+   public static final String SHORT = "short";
+   public static final String CANONICAL = "canonical";
+   public static final String BIBLIOGRAHIC = "bibliographic";
+
+   /**
     * @return The type of title: canonical, short, etc...
     */
    String getType();

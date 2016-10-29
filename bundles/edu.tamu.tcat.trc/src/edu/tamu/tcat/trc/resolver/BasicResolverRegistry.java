@@ -141,6 +141,18 @@ public class BasicResolverRegistry implements EntryResolverRegistry, EntryResolv
       }
 
       @Override
+      public String getLabel()
+      {
+         return resolver.getLabel(getEntry(null));
+      }
+
+      @Override
+      public String getHtmlLabel()
+      {
+         return resolver.getHtmlLabel(getEntry(null));
+      }
+
+      @Override
       public EntryId getEntryId()
       {
          return new EntryId(id, type);

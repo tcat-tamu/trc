@@ -16,6 +16,7 @@
 package edu.tamu.tcat.trc.entries.types.biblio;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 
@@ -35,11 +36,7 @@ public interface BibliographicEntry
     * single repository for analytical purposes.
     *
     * @return a application-defined type identifier for this work.
-    * @deprecated Client applications should use the categorizations service to
-    *       organize entries into groups. This will be removed in version 3.0
-    *       pending improved search tools
     */
-   @Deprecated
    String getType();
 
    /**
@@ -51,6 +48,18 @@ public interface BibliographicEntry
     * @return The title of this work.
     */
    TitleDefinition getTitle();
+
+   /**
+    * Obtain a title for this work.
+    *
+    * @param type The title types to obtain in order of preference.
+    * @return A single title for this work, selecting one of the supplied title types. If
+    *       none of the supplied types is available, will return the first title in
+    *       alphabetical order. If no titles have been provided, the returned optional will
+    *       be empty.
+    *
+    */
+   Optional<Title> getTitle(String... types);
 
    /**
     * @return Secondary authors associated with this work. This corresponds to authors that

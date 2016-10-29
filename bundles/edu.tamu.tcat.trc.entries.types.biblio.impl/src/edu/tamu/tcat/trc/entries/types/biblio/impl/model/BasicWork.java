@@ -3,7 +3,9 @@ package edu.tamu.tcat.trc.entries.types.biblio.impl.model;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.types.biblio.AuthorList;
@@ -11,6 +13,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.PublicationInfo;
+import edu.tamu.tcat.trc.entries.types.biblio.Title;
 import edu.tamu.tcat.trc.entries.types.biblio.TitleDefinition;
 
 public class BasicWork implements BibliographicEntry
@@ -102,6 +105,36 @@ public class BasicWork implements BibliographicEntry
    public TitleDefinition getTitle()
    {
       return title;
+   }
+
+   @Override
+   public Optional<Title> getTitle(String... types)
+   {
+      TreeSet<Title> titles = new TreeSet<>(BasicWork::compare);
+      titles.addAll(getTitle().get());
+
+      if (titles.isEmpty())
+         return Optional.empty();
+
+      Optional<Title> title = Optional.empty();
+      for (String type : types)
+      {
+         title = titles.stream()
+            .filter(t -> type.equalsIgnoreCase(t.getType()))
+            .findAny();
+
+         if (title.isPresent())
+            break;
+      }
+
+      return title.isPresent() ? title : Optional.of(titles.iterator().next());
+   }
+
+   private static int compare(Title a, Title b)
+   {
+      int score = a.getFullTitle().compareTo(b.getFullTitle());
+      return (score != 0)
+            ? score : Integer.compare(a.hashCode(), b.hashCode());
    }
 
    @Override

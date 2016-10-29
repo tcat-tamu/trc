@@ -1,5 +1,7 @@
 package edu.tamu.tcat.trc.entries.types.article.impl.repo;
 
+import static java.text.MessageFormat.format;
+
 import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.account.Account;
@@ -37,6 +39,18 @@ public class ArticleResolver extends EntryResolverBase<Article>
    protected String getId(Article article)
    {
       return article.getId();
+   }
+
+   @Override
+   public String getLabel(Article instance)
+   {
+      return instance.getTitle();
+   }
+
+   @Override
+   public String getHtmlLabel(Article instance)
+   {
+      return format("<span class='article-title'>{0}</span>", instance.getTitle());
    }
 
    @Override

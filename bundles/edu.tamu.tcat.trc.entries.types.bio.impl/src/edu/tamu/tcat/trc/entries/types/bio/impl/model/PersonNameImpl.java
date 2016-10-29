@@ -87,14 +87,6 @@ public class PersonNameImpl implements PersonName
    @Override
    public int hashCode()
    {
-      int result = 17;
-      result = 31 * result + (title == null ? 0 : title.hashCode());
-      result = 31 * result + (givenName == null ? 0 : givenName.hashCode());
-      result = 31 * result + (middleName == null ? 0 : middleName.hashCode());
-      result = 31 * result + (familyName == null ? 0 : familyName.hashCode());
-      result = 31 * result + (suffix == null ? 0 : suffix.hashCode());
-      result = 31 * result + (displayName == null ? 0 : displayName.hashCode());
-
-      return result;
+      return Objects.hash(title, givenName, middleName, familyName, suffix, displayName);
    }
 }

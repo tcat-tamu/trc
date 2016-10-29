@@ -153,6 +153,23 @@ public class SolrDocAdapter implements Function<BiographicalEntry, SolrInputDocu
     */
    private String getFormattedName(BiographicalEntry person)
    {
+      return MessageFormat.format("{0} ({1}-{2})",
+            formatName(person),
+            formatYear(person.getBirth()),
+            formatYear(person.getDeath()));
+   }
+
+   private String formatYear(HistoricalEvent evt)
+   {
+      LocalDate date = null;
+      if (evt != null && evt.getDate() != null)
+         date = evt.getDate().getCalendar();
+
+      return (date == null) ? "?" : String.valueOf(date.getYear());
+   }
+
+   private String formatName(BiographicalEntry person)
+   {
       String displayName = "unnamed";
       PersonName name = getDisplayName(person);
       if (name != null) {
@@ -163,13 +180,7 @@ public class SolrDocAdapter implements Function<BiographicalEntry, SolrInputDocu
                   guardNull(name.getFamilyName()));
          }
       }
-
-      LocalDate birthDate = person.getBirth().getDate().getCalendar();
-      LocalDate deathDate = person.getDeath().getDate().getCalendar();
-      return MessageFormat.format("{0} ({1}-{2})",
-            displayName.trim(),
-            (birthDate == null) ? "?" : String.valueOf(birthDate.getYear()),
-            (deathDate == null) ? "?" : String.valueOf(deathDate.getYear()));
+      return displayName.trim();
    }
 
    /**

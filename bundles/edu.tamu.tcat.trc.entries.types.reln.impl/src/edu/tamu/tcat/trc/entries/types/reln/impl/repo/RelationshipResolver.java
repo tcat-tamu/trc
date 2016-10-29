@@ -1,5 +1,7 @@
 package edu.tamu.tcat.trc.entries.types.reln.impl.repo;
 
+import static java.text.MessageFormat.format;
+
 import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.account.Account;
@@ -36,6 +38,12 @@ public class RelationshipResolver extends EntryResolverBase<Relationship>
    protected String getId(Relationship relationship)
    {
       return relationship.getId();
+   }
+
+   @Override
+   public String getLabel(Relationship instance)
+   {
+      return format("{0} relationship", instance.getType().getTitle());
    }
 
    @Override
