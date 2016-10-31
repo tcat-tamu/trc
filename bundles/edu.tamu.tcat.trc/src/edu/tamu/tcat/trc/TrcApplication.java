@@ -10,6 +10,7 @@ import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.TrcServiceManager;
 
+// TODO rename TrcFrameworkManager
 public interface TrcApplication
 {
    URI getApiEndpoint();
