@@ -29,7 +29,7 @@ import edu.tamu.tcat.trc.search.solr.impl.BasicFields;
 public class BioSolrConfig implements SolrIndexConfig
 {
    public static final SolrIndexField<String> ID = new BasicFields.BasicString("id");
-   public static final BasicFields.SearchProxyField<BioSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<>("personInfo", BioSearchProxy.class);
+   public static final BasicFields.SearchProxyField<BioSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<>("proxy", BioSearchProxy.class);
    public static final SolrIndexField<String> SYNTHETIC_NAME = new BasicFields.BasicString("syntheticName");
    public static final SolrIndexField<String> FAMILY_NAME = new BasicFields.BasicString("familyName");
    public static final SolrIndexField<String> DISPLAY_NAME = new BasicFields.BasicString("displayName");
@@ -39,6 +39,7 @@ public class BioSolrConfig implements SolrIndexConfig
    public static final SolrIndexField<LocalDate> DEATH_DATE = new BasicFields.BasicDate("deathDate");
    public static final SolrIndexField<String> DEATH_LOCATION = new BasicFields.BasicString("deathLocation");
    public static final SolrIndexField<String> SUMMARY = new BasicFields.BasicString("summary");
+   public static final SolrIndexField<String> ENTRY_REFERENCE = new BasicFields.BasicString("entryRef");
 
    @Override
    public void initialConfiguration(SolrQuery params)
@@ -84,7 +85,8 @@ public class BioSolrConfig implements SolrIndexConfig
                            DEATH_LOCATION,
                            BIRTH_DATE,
                            BIRTH_LOCATION,
-                           DEATH_DATE);
+                           DEATH_DATE,
+                           ENTRY_REFERENCE);
    }
 
    @Override
@@ -98,7 +100,8 @@ public class BioSolrConfig implements SolrIndexConfig
                            BIRTH_LOCATION,
                            BIRTH_DATE,
                            DEATH_LOCATION,
-                           DEATH_DATE);
+                           DEATH_DATE,
+                           ENTRY_REFERENCE);
    }
 
    @Override

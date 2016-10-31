@@ -30,16 +30,12 @@ import edu.tamu.tcat.trc.search.solr.impl.BasicFields;
 public class RelnSolrConfig implements SolrIndexConfig
 {
    public static final SolrIndexField<String> ID = new BasicFields.BasicString("id");
-   public static final BasicFields.SearchProxyField<RelnSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<RelnSearchProxy>("relationshipModel", RelnSearchProxy.class);
+   public static final BasicFields.SearchProxyField<RelnSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<RelnSearchProxy>("proxy", RelnSearchProxy.class);
    public static final SolrIndexField<String> DESCRIPTION = new BasicFields.BasicString("description");
-   public static final SolrIndexField<String> DESCRIPTION_MIME_TYPE = new BasicFields.BasicString("descriptionMimeType");
    public static final SolrIndexField<String> REL_TYPE = new BasicFields.BasicString("relationshipType");
    public static final SolrIndexField<String> RELATED_ENTITIES = new BasicFields.BasicString("relatedEntities");
    public static final SolrIndexField<String> TARGET_ENTITIES = new BasicFields.BasicString("targetEntities");
-   public static final SolrIndexField<String> PROV_CREATORS = new BasicFields.BasicString("provCreator");
-   // Using Instant for yyyy-MM-ddTHH:mm:ssZ
-   public static final SolrIndexField<Instant> PROV_CREATED_DATE = new BasicFields.BasicInstant("provCreateDate");
-   public static final SolrIndexField<Instant> PROV_MODIFIED_DATE = new BasicFields.BasicInstant("provModifiedDate");
+   public static final SolrIndexField<String> ENTRY_REFERENCE = new BasicFields.BasicString("entryRef");
 
    @Override
    public void initialConfiguration(SolrQuery params)
@@ -88,14 +84,10 @@ public class RelnSolrConfig implements SolrIndexConfig
    {
       return Arrays.asList(ID,
                            DESCRIPTION,
-                           DESCRIPTION_MIME_TYPE,
                            REL_TYPE,
                            RELATED_ENTITIES,
                            TARGET_ENTITIES,
-                           PROV_CREATORS,
-                           PROV_CREATED_DATE,
-                           PROV_MODIFIED_DATE
-                           );
+                           ENTRY_REFERENCE);
    }
 
    @Override
@@ -104,20 +96,16 @@ public class RelnSolrConfig implements SolrIndexConfig
       return Arrays.asList(ID,
                            SEARCH_PROXY,
                            DESCRIPTION,
-                           DESCRIPTION_MIME_TYPE,
                            REL_TYPE,
                            RELATED_ENTITIES,
                            TARGET_ENTITIES,
-                           PROV_CREATORS,
-                           PROV_CREATED_DATE,
-                           PROV_MODIFIED_DATE);
+                           ENTRY_REFERENCE);
    }
 
    @Override
    public Collection<? extends SolrIndexField<?>> getMultiValuedFields()
    {
       return Arrays.asList(RELATED_ENTITIES,
-                           TARGET_ENTITIES,
-                           PROV_CREATORS);
+                           TARGET_ENTITIES);
    }
 }

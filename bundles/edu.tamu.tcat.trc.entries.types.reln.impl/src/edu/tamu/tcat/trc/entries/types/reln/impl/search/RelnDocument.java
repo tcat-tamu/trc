@@ -66,6 +66,7 @@ public class RelnDocument
 
          doc.set(RelnSolrConfig.SEARCH_PROXY, RelnSearchProxy.create(reln, resolvers));
 
+         // TODO: Get Entry Reference and add it.
          return doc.build();
       }
       catch (Exception ex)
@@ -98,6 +99,7 @@ public class RelnDocument
 
          doc.update(RelnSolrConfig.SEARCH_PROXY, RelnSearchProxy.create(reln, resolvers));
 
+         // TODO: Get Entry Reference and add it.
          return doc.build();
       }
       catch (Exception ex)

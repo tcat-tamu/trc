@@ -122,7 +122,7 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
    public void queryType(String type) throws SearchException
    {
       // Add quotes so each term acts as a literal
-      qb.query(BiblioSolrConfig.TYPE, '"' + type + '"');
+//      qb.query(BiblioSolrConfig.TYPE, '"' + type + '"');
    }
 
    @Override

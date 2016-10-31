@@ -26,11 +26,10 @@ public abstract class IndexAdapter
          BiblioDocument doc = new BiblioDocument();
 
          doc.indexDocument.set(BiblioSolrConfig.ID, workDTO.id);
-         doc.indexDocument.set(BiblioSolrConfig.TYPE, workDTO.type);
          doc.addAuthors(workDTO.authors);
          doc.addTitles(workDTO.titles);
-         doc.indexDocument.set(BiblioSolrConfig.SERIES, workDTO.series);
          doc.indexDocument.set(BiblioSolrConfig.SUMMARY, workDTO.summary);
+//         doc.indexDocument.set(BiblioSolrConfig.ENTRY_REFERENCE, workDTO.);
 
          try
          {
@@ -62,8 +61,8 @@ public abstract class IndexAdapter
       doc.addAuthors(editionDTO.authors);
       doc.addTitles(editionDTO.titles);
       doc.addPublication(editionDTO.publicationInfo);
-      doc.indexDocument.set(BiblioSolrConfig.SERIES, editionDTO.series);
       doc.indexDocument.set(BiblioSolrConfig.SUMMARY, editionDTO.summary);
+//         doc.indexDocument.set(BiblioSolrConfig.ENTRY_REFERENCE, workDTO.);
 
       try
       {
@@ -92,8 +91,8 @@ public abstract class IndexAdapter
       doc.addAuthors(volumeDTO.authors);
       doc.addTitles(volumeDTO.titles);
       doc.addPublication(volumeDTO.publicationInfo);
-      doc.indexDocument.set(BiblioSolrConfig.SERIES, volumeDTO.series);
       doc.indexDocument.set(BiblioSolrConfig.SUMMARY, volumeDTO.summary);
+//         doc.indexDocument.set(BiblioSolrConfig.ENTRY_REFERENCE, workDTO.);
 
       try
       {
@@ -112,11 +111,10 @@ public abstract class IndexAdapter
       WorkDTO workDTO = WorkDTO.create(work);
 
       doc.indexDocument.update(BiblioSolrConfig.ID, workDTO.id);
-      doc.indexDocument.update(BiblioSolrConfig.TYPE, workDTO.type);
       doc.updateAuthors(workDTO.authors);
       doc.updateTitles(workDTO.titles);
-      doc.indexDocument.update(BiblioSolrConfig.SERIES, workDTO.series);
       doc.indexDocument.update(BiblioSolrConfig.SUMMARY, workDTO.summary);
+//         doc.indexDocument.set(BiblioSolrConfig.ENTRY_REFERENCE, workDTO.);
 
       try
       {
@@ -142,8 +140,8 @@ public abstract class IndexAdapter
       doc.updateAuthors(editionDTO.authors);
       doc.updateTitles(editionDTO.titles);
       doc.updatePublication(editionDTO.publicationInfo);
-      doc.indexDocument.update(BiblioSolrConfig.SERIES, editionDTO.series);
       doc.indexDocument.update(BiblioSolrConfig.SUMMARY, editionDTO.summary);
+//         doc.indexDocument.set(BiblioSolrConfig.ENTRY_REFERENCE, workDTO.);
 
       try
       {
@@ -172,8 +170,8 @@ public abstract class IndexAdapter
       doc.updateAuthors(volumeDTO.authors);
       doc.updateTitles(volumeDTO.titles);
       doc.updatePublication(volumeDTO.publicationInfo);
-      doc.indexDocument.update(BiblioSolrConfig.SERIES, volumeDTO.series);
       doc.indexDocument.update(BiblioSolrConfig.SUMMARY, volumeDTO.summary);
+//         doc.indexDocument.set(BiblioSolrConfig.ENTRY_REFERENCE, workDTO.);
 
       try
       {

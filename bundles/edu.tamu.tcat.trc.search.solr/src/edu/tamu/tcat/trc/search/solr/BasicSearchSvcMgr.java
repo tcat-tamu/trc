@@ -17,7 +17,9 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.util.NamedList;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 
@@ -312,6 +314,7 @@ public class BasicSearchSvcMgr implements SearchServiceManager
          task.run();
          try {
             solr.commit();
+
          } catch (Exception ex) {
             logger.log(Level.SEVERE, "Failed to commit changes to Solr", ex);
          }

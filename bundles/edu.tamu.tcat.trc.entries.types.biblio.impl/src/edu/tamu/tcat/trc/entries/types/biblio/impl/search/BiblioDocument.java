@@ -69,7 +69,6 @@ public class BiblioDocument
          else
             indexDocument.set(BiblioSolrConfig.AUTHOR_IDS, "");
          indexDocument.set(BiblioSolrConfig.AUTHOR_NAMES,  author.firstName + " " + author.lastName);
-         indexDocument.set(BiblioSolrConfig.AUTHOR_ROLES, author.role);    // not needed
       }
    }
 
@@ -91,39 +90,26 @@ public class BiblioDocument
 
       indexDocument.update(BiblioSolrConfig.AUTHOR_IDS, allIds);
       indexDocument.update(BiblioSolrConfig.AUTHOR_NAMES, allNames);
-      indexDocument.update(BiblioSolrConfig.AUTHOR_ROLES, allRoles);
    }
 
    public void addTitles(Collection<TitleDTO> titlesDV) throws SearchException
    {
       for (TitleDTO title : titlesDV)
       {
-         indexDocument.set(BiblioSolrConfig.TITLE_TYPES, title.type);
-         indexDocument.set(BiblioSolrConfig.LANGUAGES, title.lg);
          indexDocument.set(BiblioSolrConfig.TITLES, title.title);
-         indexDocument.set(BiblioSolrConfig.SUBTITLES, title.subtitle);
       }
    }
 
    public void updateTitles(Collection<TitleDTO> titlesDV) throws SearchException
    {
-      Collection<String> allTypes = new ArrayList<>();
-      Collection<String> allLangs = new ArrayList<>();
       Collection<String> allTitles = new ArrayList<>();
-      Collection<String> allSubTitles = new ArrayList<>();
 
       for (TitleDTO title : titlesDV)
       {
-         allTypes.add(title.type);
-         allLangs.add(title.lg);
          allTitles.add(title.title);
-         allSubTitles.add(title.subtitle);
       }
 
-      indexDocument.update(BiblioSolrConfig.TITLE_TYPES, allTypes);
-      indexDocument.update(BiblioSolrConfig.LANGUAGES, allLangs);
       indexDocument.update(BiblioSolrConfig.TITLES, allTitles);
-      indexDocument.update(BiblioSolrConfig.SUBTITLES, allSubTitles);
    }
 
    public void addPublication(PublicationInfoDTO publication) throws SearchException
@@ -141,10 +127,6 @@ public class BiblioDocument
       DateDescriptionDTO dateDescription = publication.date;
       if (dateDescription != null)
       {
-         String description = dateDescription.description;
-         if (description != null)
-            indexDocument.set(BiblioSolrConfig.PUBLICATION_DATE_STRING, description);
-
          LocalDate pubDate = extractDate(dateDescription.calendar);
          if (pubDate != null)
             indexDocument.set(BiblioSolrConfig.PUBLICATION_DATE, pubDate);
@@ -183,10 +165,6 @@ public class BiblioDocument
       DateDescriptionDTO dateDescription = publication.date;
       if (dateDescription != null)
       {
-          String description = dateDescription.description;
-          if (description != null)
-              indexDocument.update(BiblioSolrConfig.PUBLICATION_DATE_STRING, description);
-
           LocalDate pubDate = extractDate(dateDescription.calendar);
           // TODO if null, we need to remove it from the index
           if (pubDate != null)
