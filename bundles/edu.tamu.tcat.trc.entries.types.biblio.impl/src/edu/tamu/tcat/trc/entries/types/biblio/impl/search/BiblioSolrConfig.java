@@ -29,20 +29,15 @@ import edu.tamu.tcat.trc.search.solr.impl.BasicFields;
 public class BiblioSolrConfig implements SolrIndexConfig
 {
    public static final SolrIndexField<String> ID = new BasicFields.BasicString("id");
-   public static final BasicFields.SearchProxyField<BiblioSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<BiblioSearchProxy>("proxy", BiblioSearchProxy.class);
+   public static final SolrIndexField<String> ENTRY_REFERENCE = new BasicFields.BasicString("entryRef");
+   public static final SolrIndexField<String> SUMMARY = new BasicFields.BasicString("summary");          // NOTE - critical search field
    public static final SolrIndexField<String> AUTHOR_IDS = new BasicFields.BasicString("authorIds");
    public static final SolrIndexField<String> AUTHOR_NAMES = new BasicFields.BasicString("authorNames");
    public static final SolrIndexField<String> TITLES = new BasicFields.BasicString("titles");
    public static final SolrIndexField<String> PUBLISHER = new BasicFields.BasicString("publisher");
-   public static final SolrIndexField<String> PUBLISHER_LOCATION = new BasicFields.BasicString("publisherLocation");
-   // Using LocalDate for yyyy-MM-dd
-   public static final SolrIndexField<LocalDate> PUBLICATION_DATE = new BasicFields.BasicDate("publishDateValue");
-   public static final SolrIndexField<String> SUMMARY = new BasicFields.BasicString("summary");          // NOTE - critical search field
-   public static final SolrIndexField<String> EDITION_ID = new BasicFields.BasicString("editionId");
-   public static final SolrIndexField<String> EDITION_NAME = new BasicFields.BasicString("editionName");    // not needed (store in info)
-   public static final SolrIndexField<String> VOLUME_ID = new BasicFields.BasicString("volumeId");
-   public static final SolrIndexField<String> VOLUME_NUMBER = new BasicFields.BasicString("volumeNumber");  // not needed (store in info)
-   public static final SolrIndexField<String> ENTRY_REFERENCE = new BasicFields.BasicString("entryRef");
+   public static final SolrIndexField<String> PUBLISHER_LOCATION = new BasicFields.BasicString("pubLocation");
+   public static final SolrIndexField<LocalDate> PUBLICATION_DATE = new BasicFields.BasicDate("pubDate"); // Using LocalDate for yyyy-MM-dd
+   public static final BasicFields.SearchProxyField<BiblioSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<BiblioSearchProxy>("proxy", BiblioSearchProxy.class);
 
    @Override
    public void initialConfiguration(SolrQuery params)
@@ -92,38 +87,23 @@ public class BiblioSolrConfig implements SolrIndexConfig
    public Collection<? extends SolrIndexField<?>> getIndexedFields()
    {
       return Arrays.asList(ID,
-                           SEARCH_PROXY,
+                           ENTRY_REFERENCE,
+                           SUMMARY,
                            AUTHOR_IDS,
                            AUTHOR_NAMES,
                            TITLES,
                            PUBLISHER,
                            PUBLISHER_LOCATION,
                            PUBLICATION_DATE,
-                           SUMMARY,
-                           EDITION_ID,
-                           EDITION_NAME,
-                           VOLUME_ID,
-                           VOLUME_NUMBER,
-                           ENTRY_REFERENCE);
+                           SEARCH_PROXY);
    }
 
    @Override
    public Collection<? extends SolrIndexField<?>> getStoredFields()
    {
       return Arrays.asList(ID,
-                           SEARCH_PROXY,
-                           AUTHOR_IDS,
-                           AUTHOR_NAMES,
-                           TITLES,
-                           PUBLISHER,
-                           PUBLISHER_LOCATION,
-                           PUBLICATION_DATE,
-                           SUMMARY,
-                           EDITION_ID,
-                           EDITION_NAME,
-                           VOLUME_ID,
-                           VOLUME_NUMBER,
-                           ENTRY_REFERENCE);
+                           ENTRY_REFERENCE,
+                           SEARCH_PROXY);
    }
 
    @Override

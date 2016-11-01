@@ -3,10 +3,6 @@ package edu.tamu.tcat.trc.entries.types.biblio.impl.search;
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
-import edu.tamu.tcat.trc.entries.types.biblio.Edition;
-import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.EditionDTO;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.VolumeDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.ModelAdapter;
 import edu.tamu.tcat.trc.entries.types.biblio.search.BiblioSearchProxy;
@@ -29,7 +25,7 @@ public abstract class IndexAdapter
          doc.addAuthors(workDTO.authors);
          doc.addTitles(workDTO.titles);
          doc.indexDocument.set(BiblioSolrConfig.SUMMARY, workDTO.summary);
-//         doc.indexDocument.set(BiblioSolrConfig.ENTRY_REFERENCE, workDTO.);
+//         doc.indexDocument.set(BiblioSolrConfig.ENTRY_REFERENCE, entryRef);
 
          try
          {
@@ -48,63 +44,6 @@ public abstract class IndexAdapter
       }
    }
 
-   public static SolrInputDocument createEdition(String workId, Edition edition) throws SearchException
-   {
-      EditionDTO editionDTO = EditionDTO.create(edition);
-      StringBuilder editionId = new StringBuilder(workId)
-            .append(":")
-            .append(editionDTO.id);
-
-      BiblioDocument doc = new BiblioDocument();
-      doc.indexDocument.set(BiblioSolrConfig.ID, editionId.toString());
-      doc.indexDocument.set(BiblioSolrConfig.EDITION_NAME, editionDTO.editionName);
-      doc.addAuthors(editionDTO.authors);
-      doc.addTitles(editionDTO.titles);
-      doc.addPublication(editionDTO.publicationInfo);
-      doc.indexDocument.set(BiblioSolrConfig.SUMMARY, editionDTO.summary);
-//         doc.indexDocument.set(BiblioSolrConfig.ENTRY_REFERENCE, workDTO.);
-
-      try
-      {
-         doc.indexDocument.set(BiblioSolrConfig.SEARCH_PROXY, BiblioSearchProxy.create(workId, edition));
-      }
-      catch (Exception e)
-      {
-         throw new IllegalStateException("Failed to serialize BiblioSearchProxy data", e);
-      }
-      return doc.indexDocument.build();
-   }
-
-   public static SolrInputDocument createVolume(String workId, Edition edition, Volume volume) throws SearchException
-   {
-      VolumeDTO volumeDTO = VolumeDTO.create(volume);
-      StringBuilder volumeId = new StringBuilder(workId)
-            .append(":")
-            .append(edition.getId())
-            .append(":")
-            .append(volumeDTO.id);
-
-      BiblioDocument doc = new BiblioDocument();
-      doc.indexDocument.set(BiblioSolrConfig.ID, volumeId.toString());
-      doc.indexDocument.set(BiblioSolrConfig.EDITION_NAME, edition.getEditionName());
-      doc.indexDocument.set(BiblioSolrConfig.VOLUME_NUMBER, volumeDTO.volumeNumber);
-      doc.addAuthors(volumeDTO.authors);
-      doc.addTitles(volumeDTO.titles);
-      doc.addPublication(volumeDTO.publicationInfo);
-      doc.indexDocument.set(BiblioSolrConfig.SUMMARY, volumeDTO.summary);
-//         doc.indexDocument.set(BiblioSolrConfig.ENTRY_REFERENCE, workDTO.);
-
-      try
-      {
-         doc.indexDocument.set(BiblioSolrConfig.SEARCH_PROXY, BiblioSearchProxy.create(workId, edition.getId(), volume));
-      }
-      catch (Exception e)
-      {
-         throw new IllegalStateException("Failed to serialize BiblioSearchProxy data", e);
-      }
-      return doc.indexDocument.build();
-   }
-
    public static SolrInputDocument updateWork(BibliographicEntry work) throws SearchException
    {
       BiblioDocument doc = new BiblioDocument();
@@ -114,68 +53,11 @@ public abstract class IndexAdapter
       doc.updateAuthors(workDTO.authors);
       doc.updateTitles(workDTO.titles);
       doc.indexDocument.update(BiblioSolrConfig.SUMMARY, workDTO.summary);
-//         doc.indexDocument.set(BiblioSolrConfig.ENTRY_REFERENCE, workDTO.);
+//         doc.indexDocument.set(BiblioSolrConfig.ENTRY_REFERENCE, entryRef);
 
       try
       {
          doc.indexDocument.update(BiblioSolrConfig.SEARCH_PROXY, BiblioSearchProxy.create(work));
-      }
-      catch (Exception e)
-      {
-         throw new IllegalStateException("Failed to serialize BiblioSearchProxy data", e);
-      }
-      return doc.indexDocument.build();
-   }
-
-   public static SolrInputDocument updateEdition(String workId, Edition edition) throws SearchException
-   {
-      EditionDTO editionDTO = EditionDTO.create(edition);
-      StringBuilder editionId = new StringBuilder(workId)
-            .append(":")
-            .append(editionDTO.id);
-
-      BiblioDocument doc = new BiblioDocument();
-      doc.indexDocument.update(BiblioSolrConfig.ID, editionId.toString());
-      doc.indexDocument.update(BiblioSolrConfig.EDITION_NAME, editionDTO.editionName);
-      doc.updateAuthors(editionDTO.authors);
-      doc.updateTitles(editionDTO.titles);
-      doc.updatePublication(editionDTO.publicationInfo);
-      doc.indexDocument.update(BiblioSolrConfig.SUMMARY, editionDTO.summary);
-//         doc.indexDocument.set(BiblioSolrConfig.ENTRY_REFERENCE, workDTO.);
-
-      try
-      {
-         doc.indexDocument.update(BiblioSolrConfig.SEARCH_PROXY, BiblioSearchProxy.create(workId, edition));
-      }
-      catch (Exception e)
-      {
-         throw new IllegalStateException("Failed to serialize BiblioSearchProxy data", e);
-      }
-      return doc.indexDocument.build();
-   }
-
-   public static SolrInputDocument updateVolume(String workId, Edition edition, Volume volume) throws SearchException
-   {
-      VolumeDTO volumeDTO = VolumeDTO.create(volume);
-      StringBuilder volumeId = new StringBuilder(workId)
-            .append(":")
-            .append(edition.getId())
-            .append(":")
-            .append(volumeDTO.id);
-
-      BiblioDocument doc = new BiblioDocument();
-      doc.indexDocument.update(BiblioSolrConfig.ID, volumeId.toString());
-      doc.indexDocument.update(BiblioSolrConfig.EDITION_NAME, edition.getEditionName());
-      doc.indexDocument.update(BiblioSolrConfig.VOLUME_NUMBER, volumeDTO.volumeNumber);
-      doc.updateAuthors(volumeDTO.authors);
-      doc.updateTitles(volumeDTO.titles);
-      doc.updatePublication(volumeDTO.publicationInfo);
-      doc.indexDocument.update(BiblioSolrConfig.SUMMARY, volumeDTO.summary);
-//         doc.indexDocument.set(BiblioSolrConfig.ENTRY_REFERENCE, workDTO.);
-
-      try
-      {
-         doc.indexDocument.update(BiblioSolrConfig.SEARCH_PROXY, BiblioSearchProxy.create(workId, edition.getId(), volume));
       }
       catch (Exception e)
       {
