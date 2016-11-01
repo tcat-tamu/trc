@@ -36,13 +36,13 @@ public class SolrDocAdapter implements Function<BiographicalEntry, SolrInputDocu
 
          indexDocument.set(BioSolrConfig.SEARCH_PROXY, toProxy(person));
          indexDocument.set(BioSolrConfig.ID, person.getId());
-         indexDocument.set(BioSolrConfig.SYNTHETIC_NAME, constructSyntheticName(person.getNames()));
+         indexDocument.set(BioSolrConfig.ALT_NAMES, constructSyntheticName(person.getNames()));
 
          PersonName name = person.getCanonicalName();
          if (name != null)
          {
             indexDocument.set(BioSolrConfig.FAMILY_NAME, guardNull(name.getFamilyName()));
-            indexDocument.set(BioSolrConfig.DISPLAY_NAME, guardNull(name.getDisplayName()));
+            indexDocument.set(BioSolrConfig.GIVEN_NAME, guardNull(name.getGivenName()));
          }
 
          HistoricalEvent birth = person.getBirth();

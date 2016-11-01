@@ -29,18 +29,19 @@ import edu.tamu.tcat.trc.search.solr.impl.BasicFields;
 public class BioSolrConfig implements SolrIndexConfig
 {
    public static final SolrIndexField<String> ID = new BasicFields.BasicString("id");
-   public static final BasicFields.SearchProxyField<BioSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<>("proxy", BioSearchProxy.class);
-   public static final SolrIndexField<String> SYNTHETIC_NAME = new BasicFields.BasicString("syntheticName");
-   public static final SolrIndexField<String> FAMILY_NAME = new BasicFields.BasicString("familyName");
-   public static final SolrIndexField<String> DISPLAY_NAME = new BasicFields.BasicString("displayName");
-   // Using LocalDate for yyyy-MM-dd
-   public static final SolrIndexField<LocalDate> BIRTH_DATE = new BasicFields.BasicDate("birthDate");
-   public static final SolrIndexField<String> BIRTH_LOCATION = new BasicFields.BasicString("birthLocation");
-   public static final SolrIndexField<LocalDate> DEATH_DATE = new BasicFields.BasicDate("deathDate");
-   public static final SolrIndexField<String> DEATH_LOCATION = new BasicFields.BasicString("deathLocation");
-   public static final SolrIndexField<String> SUMMARY = new BasicFields.BasicString("summary");
    public static final SolrIndexField<String> ENTRY_REFERENCE = new BasicFields.BasicString("entryRef");
+   
+   public static final SolrIndexField<String> SUMMARY = new BasicFields.BasicString("summary");
+   public static final SolrIndexField<String> FAMILY_NAME = new BasicFields.BasicString("familyName");
+   public static final SolrIndexField<String> GIVEN_NAME = new BasicFields.BasicString("givenName");
+   public static final SolrIndexField<String> ALT_NAMES = new BasicFields.BasicString("altNames");
+   // Using LocalDate for yyyy-MM-dd
+   public static final SolrIndexField<String> BIRTH_LOCATION = new BasicFields.BasicString("birthLocation");
+   public static final SolrIndexField<LocalDate> BIRTH_DATE = new BasicFields.BasicDate("birthDate");
+   public static final SolrIndexField<String> DEATH_LOCATION = new BasicFields.BasicString("deathLocation");
+   public static final SolrIndexField<LocalDate> DEATH_DATE = new BasicFields.BasicDate("deathDate");
 
+   public static final BasicFields.SearchProxyField<BioSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<>("proxy", BioSearchProxy.class);
    @Override
    public void initialConfiguration(SolrQuery params)
    {
@@ -64,9 +65,6 @@ public class BioSolrConfig implements SolrIndexConfig
       StringBuilder qBuilder = new StringBuilder(q);
 
       params.set("q", qBuilder.toString());
-
-      // Basic query only searches over these fields
-      params.set("qf", "syntheticName");
    }
 
    @Override
@@ -79,35 +77,32 @@ public class BioSolrConfig implements SolrIndexConfig
    public Collection<? extends SolrIndexField<?>> getIndexedFields()
    {
       return Arrays.asList(ID,
-                           SYNTHETIC_NAME,
+                           ENTRY_REFERENCE,
+                           SUMMARY,
                            FAMILY_NAME,
-                           DISPLAY_NAME,
-                           DEATH_LOCATION,
-                           BIRTH_DATE,
+                           GIVEN_NAME,
+                           ALT_NAMES,
                            BIRTH_LOCATION,
-                           DEATH_DATE,
-                           ENTRY_REFERENCE);
+                           BIRTH_DATE,
+                           DEATH_LOCATION,
+                           DEATH_DATE);
    }
 
    @Override
    public Collection<? extends SolrIndexField<?>> getStoredFields()
    {
       return Arrays.asList(ID,
-                           SEARCH_PROXY,
-                           SYNTHETIC_NAME,
-                           FAMILY_NAME,
-                           DISPLAY_NAME,
+                           ENTRY_REFERENCE,
+                           SUMMARY,
                            BIRTH_LOCATION,
                            BIRTH_DATE,
                            DEATH_LOCATION,
-                           DEATH_DATE,
-                           ENTRY_REFERENCE);
+                           DEATH_DATE);
    }
 
    @Override
    public Collection<? extends SolrIndexField<?>> getMultiValuedFields()
    {
-      return Arrays.asList(FAMILY_NAME,
-                           DISPLAY_NAME);
+      return Arrays.asList(ALT_NAMES);
    }
 }
