@@ -79,7 +79,8 @@ public class SeeAlsoServiceImpl implements SeeAlsoService
          ps.setString(2, target);
 
          ResultSet resultSet = ps.executeQuery();
-         int count = resultSet.getInt(0);
+         resultSet.next();
+         int count = resultSet.getInt(1);
          if (count > 1)
             logger.log(Level.SEVERE, format("more than one record for link ({0}, {1}).", source, target));
 
