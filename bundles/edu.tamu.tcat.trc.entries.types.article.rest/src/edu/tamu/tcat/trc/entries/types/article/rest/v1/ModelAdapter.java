@@ -3,20 +3,20 @@ package edu.tamu.tcat.trc.entries.types.article.rest.v1;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.core.UriBuilder;
 
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
-import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor.ContactInfo;
 import edu.tamu.tcat.trc.entries.types.article.Footnote;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQuery;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy;
-import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy.AuthorRef;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
@@ -49,25 +49,31 @@ public abstract class ModelAdapter
       return compiledResults;
    }
 
-   private static RestApiV1.ArticleSearchResult toArticleDTO(ArticleSearchProxy article)
+   public static RestApiV1.Article adapt(Article article, EntryResolverRegistry resolvers)
    {
-      RestApiV1.ArticleSearchResult dto = new RestApiV1.ArticleSearchResult();
-      dto.id = article.id;
-      dto.title = article.title;
+      RestApiV1.Article dto = new RestApiV1.Article();
+      dto.id = article.getId().toString();
+      dto.reference = resolvers.getResolver(article).makeReference(article).toJsonForm();
+      dto.articleType = article.getArticleType();
 
-      dto.authors = getArticleList(article);
+      dto.title = article.getTitle();
+      dto.authors = convertAuthors(article.getAuthors());
+      dto.articleAbstract = article.getAbstract();
+      dto.body = article.getBody();
+
+      dto.footnotes = convertFootnotes(article.getFootnotes());
 
       return dto;
    }
 
-   private static List<RestApiV1.ArticleAuthor> getArticleList(ArticleSearchProxy article)
+   public static RestApiV1.Link makeLink(URI uri, String rel, String title)
    {
-      if (article.authors == null)
-         return new ArrayList<>();
+      RestApiV1.Link link = new RestApiV1.Link();
+      link.uri = uri;
+      link.rel = rel;
+      link.title = title;
 
-      return article.authors.stream()
-            .map(ModelAdapter::convertAuthor)
-            .collect(Collectors.toList());
+      return link;
    }
 
    public static  RestApiV1.QueryDetail toQueryDetail(URI baseUri, ArticleSearchResult result)
@@ -118,29 +124,13 @@ public abstract class ModelAdapter
       return detail;
    }
 
-   public static RestApiV1.Link makeLink(URI uri, String rel, String title)
+   private static RestApiV1.ArticleSearchResult toArticleDTO(ArticleSearchProxy article)
    {
-      RestApiV1.Link link = new RestApiV1.Link();
-      link.uri = uri;
-      link.rel = rel;
-      link.title = title;
+      RestApiV1.ArticleSearchResult dto = new RestApiV1.ArticleSearchResult();
+      dto.id = article.id;
+      dto.title = article.title;
 
-      return link;
-   }
-
-   public static RestApiV1.Article adapt(Article article, EntryResolverRegistry resolvers)
-   {
-      RestApiV1.Article dto = new RestApiV1.Article();
-      dto.id = article.getId().toString();
-      dto.reference = resolvers.getResolver(article).makeReference(article).toJsonForm();
-      dto.articleType = article.getArticleType();
-
-      dto.title = article.getTitle();
-      dto.authors = convertAuthors(article.getAuthors());
-      dto.articleAbstract = article.getAbstract();
-      dto.body = article.getBody();
-
-      dto.footnotes = convertFootnotes(article.getFootnotes());
+      dto.authors = new ArrayList<>(article.authors);
 
       return dto;
    }
@@ -167,39 +157,25 @@ public abstract class ModelAdapter
 
    private static List<RestApiV1.ArticleAuthor> convertAuthors(List<ArticleAuthor> authors)
    {
-      if (authors == null)
-         return new ArrayList<>();
-
-      return authors.stream()
-            .map(ModelAdapter::adapt)
-            .collect(Collectors.toList());
+      return (authors == null)
+            ? Collections.emptyList()
+            : authors.stream().map(ModelAdapter::adapt).collect(Collectors.toList());
    }
 
    private static RestApiV1.ArticleAuthor adapt(ArticleAuthor author)
    {
-      RestApiV1.ArticleAuthor authDto = new RestApiV1.ArticleAuthor();
-      authDto.id = author.getId();
-      authDto.name = author.getName();
-      authDto.affiliation = author.getAffiliation();
-      authDto.contact = adapt(author.getContactInfo());
-      return authDto;
-   }
+      RestApiV1.ArticleAuthor dto = new RestApiV1.ArticleAuthor();
+      dto.id = author.getId();
+      dto.name = author.getDisplayName();
+      dto.lastname = author.getLastname();
+      dto.firstname = author.getFirstname();
 
-   private static RestApiV1.Contact adapt(ContactInfo contactInfo)
-   {
-      RestApiV1.Contact contact = new RestApiV1.Contact();
-      contact.email = contactInfo.getEmail();
-      contact.phone = contactInfo.getPhone();
-      return contact;
-   }
+      dto.properties = author.getProperties().stream()
+            .collect(Collectors.toMap(
+                  Function.identity(),
+                  key -> author.getProperty(key).orElse("")
+            ));
 
-   private static RestApiV1.ArticleAuthor convertAuthor(AuthorRef author)
-   {
-
-      RestApiV1.ArticleAuthor authDto = new RestApiV1.ArticleAuthor();
-      authDto.id = author.id;
-      authDto.name = author.name;
-
-      return authDto;
+      return dto;
    }
 }

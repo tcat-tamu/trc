@@ -18,10 +18,14 @@ package edu.tamu.tcat.trc.entries.types.article.rest.v1;
 import static java.text.MessageFormat.format;
 
 import java.text.MessageFormat;
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
@@ -54,6 +58,9 @@ public class ArticleResource
 
    private static final String ERR_NOT_FOUND = "Could not find an article with the supplied id {0}";
    private static final String ERR_UNKNOWN_GET = "That's embrassing. Something went wrong while trying to retrieve {0}.";
+
+   private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
+   private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
 
    private final EntryRepositoryRegistry repo;
    private final RefCollectionService refRepo;
@@ -169,5 +176,14 @@ public class ArticleResource
          footnoteMutator.setContent(dto.content);
          footnoteMutator.setMimeType(dto.mimeType);
       });
+   }
+
+   public static String createSlug(String input)
+   {
+      // see http://stackoverflow.com/questions/1657193/java-code-library-for-generating-slugs-for-use-in-pretty-urls
+      String nowhitespace = WHITESPACE.matcher(input).replaceAll("-");
+      String normalized = Normalizer.normalize(nowhitespace, Form.NFD);
+      String slug = NONLATIN.matcher(normalized).replaceAll("");
+      return slug.toLowerCase(Locale.ENGLISH);
    }
 }

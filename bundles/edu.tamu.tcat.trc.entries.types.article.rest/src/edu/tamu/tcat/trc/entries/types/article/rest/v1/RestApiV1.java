@@ -17,7 +17,6 @@ package edu.tamu.tcat.trc.entries.types.article.rest.v1;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +39,7 @@ public abstract class RestApiV1
        */
       public Link self;
 
+      @Deprecated // to be converted to EntryId that supplied id, type, and token.
       public Map<String, String> reference = new HashMap<>();
 
       /** The unique identifier for this article. */
@@ -59,9 +59,6 @@ public abstract class RestApiV1
       /** The title of the document for display. */
       public String title;
 
-      /** Information about the publication of this article. */
-      public Publication pubInfo;
-
       /** The authors or other creators of this article. */
       public List<ArticleAuthor> authors;
 
@@ -74,23 +71,16 @@ public abstract class RestApiV1
 
       /** A map from footnote id to footnote. */
       public Map<String, Footnote> footnotes = new HashMap<>();
-
-      /** A map from footnote id to footnote. */
-      public List<LinkedResource> links = new ArrayList<>();
-   }
-
-   public static class Publication
-   {
-      public Date dateCreated;
-      public Date dateModified;
    }
 
    public static class ArticleAuthor
    {
       public String id;
       public String name;
-      public String affiliation;
-      public Contact contact;
+      public String lastname;
+      public String firstname;
+
+      public Map<String, String> properties = new HashMap<>();
    }
 
    public static class Contact
@@ -107,53 +97,6 @@ public abstract class RestApiV1
       public String mimeType;
    }
 
-   public static class Citation
-   {
-      public String citationID;
-      public List<CitationItem> citationItems = new ArrayList<>();
-      public ArticleProperties properties;
-   }
-
-   public static class CitationItem
-   {
-      public String id;
-      public String locator;
-      public String label;
-      @JsonProperty("suppress-author")
-      public String suppressAuthor;
-   }
-
-   public static class ArticleProperties
-   {
-      public String properties;
-   }
-
-   public static class Author
-   {
-      public String family;
-      public String given;
-   }
-
-   public static class Translator
-   {
-      public String family;
-      public String given;
-      public String literal;
-   }
-
-   /**
-    * A supplied reference to related material. Note that this may reference either content
-    * on the web or other content defined within the context of the TRC framework or
-    */
-   public static class LinkedResource
-   {
-      public String id;
-      public String type;
-      public String title;
-      public String uri;
-      public String rel;
-   }
-
    /**
     * @since 1.1
     */
@@ -161,8 +104,7 @@ public abstract class RestApiV1
    {
       public String id;
       public String title;
-      public Publication pubInfo;
-      public List<ArticleAuthor> authors;
+      public List<String> authors;
       public List<String> absHL = new ArrayList<>();
       public List<String> contentHL = new ArrayList<>();
    }
