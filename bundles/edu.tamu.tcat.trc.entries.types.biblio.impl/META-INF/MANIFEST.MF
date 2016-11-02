@@ -24,11 +24,11 @@ Import-Package: com.fasterxml.jackson.databind;version="2.3.1",
  edu.tamu.tcat.trc.resolver;version="1.3.0",
  edu.tamu.tcat.trc.search.solr;version="[1.3.0,2.0.0)",
  edu.tamu.tcat.trc.search.solr.impl;version="[1.3.0,2.0.0)",
- org.apache.solr.client.solrj;version="[5.5.0,6.0.0)",
- org.apache.solr.client.solrj.impl;version="[5.5.0,6.0.0)",
- org.apache.solr.client.solrj.response;version="[5.5.0,6.0.0)",
- org.apache.solr.common;version="[5.5.0,6.0.0)",
- org.apache.solr.common.params;version="5.5.0"
+ org.apache.solr.client.solrj;version="[6.2.0,7.0.0)",
+ org.apache.solr.client.solrj.impl;version="[6.2.0,7.0.0)",
+ org.apache.solr.client.solrj.response;version="[6.2.0,7.0.0)",
+ org.apache.solr.common;version="[6.2.0,7.0.0)",
+ org.apache.solr.common.params;version="[6.2.0,7.0.0)"
 Export-Package: 
  edu.tamu.tcat.trc.entries.types.biblio.impl;version="1.3.0",
  edu.tamu.tcat.trc.entries.types.biblio.impl.legacy,

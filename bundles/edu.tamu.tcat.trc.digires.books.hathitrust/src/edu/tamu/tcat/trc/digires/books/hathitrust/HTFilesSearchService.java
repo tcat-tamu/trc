@@ -36,7 +36,7 @@ import java.util.logging.Logger;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.common.SolrDocument;
@@ -66,7 +66,7 @@ public class HTFilesSearchService implements CopySearchService
 
    private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_INSTANT;
 
-   private Future<HttpSolrServer> solrServerFuture;
+   private Future<HttpSolrClient> solrServerFuture;
    private ConfigurationProperties props;
 
    public void setConfiguration(ConfigurationProperties props)
@@ -89,7 +89,7 @@ public class HTFilesSearchService implements CopySearchService
       solrServerFuture = exec.submit(() -> {
          try
          {
-            HttpSolrServer server = new HttpSolrServer(solrEndpoint.resolve(core).toString());
+            HttpSolrClient server = new HttpSolrClient(solrEndpoint.resolve(core).toString());
             SolrPingResponse pingResponse = server.ping();
             if (pingResponse == null || (pingResponse.getStatus() > 299 && pingResponse.getStatus() < 200))
             {
@@ -118,7 +118,7 @@ public class HTFilesSearchService implements CopySearchService
          try
          {
             // don't wait long, it should be either here or not at this point
-            solrServerFuture.get(1, TimeUnit.SECONDS).shutdown();
+            solrServerFuture.get(1, TimeUnit.SECONDS).close();
          }
          catch (Exception ex)
          {
@@ -138,7 +138,7 @@ public class HTFilesSearchService implements CopySearchService
       // HACK hard coded. Should be provided to the service
       try
       {
-         HttpSolrServer solrServer = solrServerFuture.get(2, TimeUnit.MINUTES);
+         HttpSolrClient solrServer = solrServerFuture.get(2, TimeUnit.MINUTES);
          Objects.requireNonNull(solrServer, "No active connection to Solr Server");
 
          String queryString = formatQueryString(query);
