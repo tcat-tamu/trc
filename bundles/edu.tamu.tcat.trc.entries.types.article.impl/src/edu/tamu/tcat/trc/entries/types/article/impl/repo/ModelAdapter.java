@@ -1,23 +1,26 @@
 package edu.tamu.tcat.trc.entries.types.article.impl.repo;
 
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
-import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor.ContactInfo;
 
 public abstract class ModelAdapter
 {
-   public DataModelV1.Article adapt(Article author)
+   public DataModelV1.Article adapt(Article article)
    {
       DataModelV1.Article dto = new DataModelV1.Article();
-      dto.id = author.getId();
-      dto.title = author.getTitle();
-      dto.slug = author.getSlug();
-      dto.contentType = author.getContentType();
-      dto.articleType = author.getArticleType();
-      dto.articleAbstract = author.getAbstract();
-      dto.body = author.getBody();
-
-      author.getAuthors().stream().map(ModelAdapter::adapt);
+      dto.id = article.getId();
+      dto.title = article.getTitle();
+      dto.slug = article.getSlug();
+      dto.authors =  article.getAuthors().stream()
+            .map(ModelAdapter::adapt)
+            .collect(Collectors.toList());
+      dto.contentType = article.getContentType();
+      dto.articleType = article.getArticleType();
+      dto.articleAbstract = article.getAbstract();
+      dto.body = article.getBody();
 
       return dto;
    }
@@ -26,21 +29,15 @@ public abstract class ModelAdapter
    {
       DataModelV1.ArticleAuthor dto = new DataModelV1.ArticleAuthor();
       dto.id = author.getId();
-      dto.name = author.getName();
+      dto.name = author.getDisplayName();
       dto.first = author.getFirstname();
       dto.last = author.getLastname();
-      dto.affiliation = author.getAffiliation();
 
-      dto.contact = adapt(author.getContactInfo());
-
-      return dto;
-   }
-
-   private static DataModelV1.ContactInfo adapt(ContactInfo contact)
-   {
-      DataModelV1.ContactInfo dto = new DataModelV1.ContactInfo();
-      dto.email = contact.getEmail();
-      dto.phone = contact.getPhone();
+      dto.properties = author.getProperties().stream()
+            .collect(Collectors.toMap(
+                  Function.identity(),
+                  key -> author.getProperty(key).orElse("")
+            ));
 
       return dto;
    }

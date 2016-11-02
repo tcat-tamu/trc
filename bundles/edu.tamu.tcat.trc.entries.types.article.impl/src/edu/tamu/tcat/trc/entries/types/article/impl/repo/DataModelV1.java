@@ -1,5 +1,6 @@
 package edu.tamu.tcat.trc.entries.types.article.impl.repo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,12 +42,8 @@ public abstract class DataModelV1
       public String articleAbstract;
       public String body;
 
-      public List<ArticleAuthor> authors;
+      public List<ArticleAuthor> authors = new ArrayList<>();
       public final Map<String, Footnote> footnotes = new HashMap<>();
-      // public PublicationDTO info;
-      // public List<CitationDTO> citation;
-      // public List<BibliographyDTO> bibliographies;
-      // public List<LinkDTO> links;
    }
 
    public static class ArticleAuthor
@@ -55,8 +52,8 @@ public abstract class DataModelV1
       public String name;
       public String first;
       public String last;
-      public String affiliation;
-      public ContactInfo contact = new ContactInfo();
+
+      public Map<String, String> properties = new HashMap<>();
 
       public static ArticleAuthor copy(ArticleAuthor orig)
       {
@@ -65,25 +62,9 @@ public abstract class DataModelV1
          author.name = orig.name;
          author.first = orig.first;
          author.last = orig.last;
-         author.affiliation = orig.affiliation;
-         author.contact = ContactInfo.copy(orig.contact);
+         author.properties = new HashMap<>(orig.properties);
 
          return author;
-      }
-   }
-
-   public static class ContactInfo
-   {
-      public String email;
-      public String phone;
-
-      public static ContactInfo copy(ContactInfo orig)
-      {
-         ContactInfo info = new ContactInfo();
-         info.email = orig.email;
-         info.phone = orig.phone;
-
-         return info;
       }
    }
 

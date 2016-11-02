@@ -233,6 +233,12 @@ public class EditArticleCommandFactory implements EditCommandFactory<DataModelV1
       }
 
       @Override
+      public void setDisplayName(String name)
+      {
+         changes.add("displayName", author -> author.name = name);
+      }
+
+      @Override
       public void setFirstname(String name)
       {
          changes.add("firstname", author -> author.first = name);
@@ -245,20 +251,23 @@ public class EditArticleCommandFactory implements EditCommandFactory<DataModelV1
       }
 
       @Override
-      public void setAffiliation(String affiliation)
+      public void setProperty(String key, String value)
       {
-         changes.add("affiliation", author -> author.affiliation = affiliation);
+         changes.add(format("property [{0}]", key),
+               dto -> dto.properties.put(key, value));
       }
 
       @Override
-      public void setEmailAddress(String email)
+      public void clearProperty(String key)
       {
-         changes.add("email", author -> {
-            if (author.contact == null)
-               author.contact = new DataModelV1.ContactInfo();
+         changes.add(format("property [CLEAR {0}]", key),
+               dto -> dto.properties.remove(key));
+      }
 
-            author.contact.email = email;
-         });
+      @Override
+      public void clearProperties()
+      {
+         changes.add("property [CLEAR]", dto -> dto.properties.clear());
       }
    }
 
