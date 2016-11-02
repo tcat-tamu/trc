@@ -24,11 +24,5 @@ public class ArticleSearchProxy
    public String id;
    public String title;
    public String articleType;
-   public List<AuthorRef> authors = new ArrayList<>();
-
-   public static class AuthorRef
-   {
-      public String id;
-      public String name;
-   }
+   public List<String> authors = new ArrayList<>();
 }

@@ -52,12 +52,6 @@ public interface EditArticleCommand extends EditEntryCommand<Article>
    void setSlug(String slug);
 
    /**
-    *
-    * @param pubData The publication and modification dates of the article
-    */
-//   void setPublicationInfo(PublicationDTO pubData );
-
-   /**
     * Adds an author with the specified id to this article.
     *
     * @param authorId The id of the author to add.
@@ -112,23 +106,6 @@ public interface EditArticleCommand extends EditEntryCommand<Article>
     */
    FootnoteMutator editFootnote(String id);
 
-//   /**
-//    *
-//    * @param ftNotes Footnotes added to the article
-//    */
-//   void setFootnotes(List<FootnoteDTO> ftNotes);
-//
-//   void setCitations(List<CitationDTO> citations);
-//
-//   /**
-//    *
-//    * @param bibliographies Articles or books referenced in the article
-//    */
-//   void setBibliography(List<BibliographyDTO> bibliographies);
-//
-//
-//   void setLinks(List<LinkDTO> links);
-
    /**
     * Executes these updates within the repository.
     *
@@ -137,7 +114,5 @@ public interface EditArticleCommand extends EditEntryCommand<Article>
     */
    @Override
    CompletableFuture<String> execute();
-
-
 
 }

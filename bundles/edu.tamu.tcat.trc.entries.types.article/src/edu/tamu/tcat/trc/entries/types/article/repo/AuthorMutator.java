@@ -22,14 +22,27 @@ public interface AuthorMutator
     */
    void setLastname(String name);
 
-   /**
-    * @param affiliation The affiliation of this author.
-    */
-   void setAffiliation(String affiliation);
+  /**
+   * @param name The display name of the author.
+   */
+   void setDisplayName(String name);
 
    /**
-    * @param email An email address to use to contact this author.
+    * Sets the value of the given property.
+    *
+    * @param key The property to set.
+    * @param value The associated value. May not be <code>null</code>, may be an empty string.
     */
-   void setEmailAddress(String email);
+   void setProperty(String key, String value);
 
+   /**
+    * Clears the value of the supplied property.
+    * @param key The property to clear.
+    */
+   void clearProperty(String key);
+
+   /**
+    * Clears all properties associated with this author.
+    */
+   void clearProperties();
 }

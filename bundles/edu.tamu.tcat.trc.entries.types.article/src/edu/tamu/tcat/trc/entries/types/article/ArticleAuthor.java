@@ -1,5 +1,8 @@
 package edu.tamu.tcat.trc.entries.types.article;
 
+import java.util.Optional;
+import java.util.Set;
+
 /**
  *  An identifier for an author of the article.
  *
@@ -7,21 +10,15 @@ package edu.tamu.tcat.trc.entries.types.article;
  */
 public interface ArticleAuthor
 {
-   // TODO need to deal with corporate authors, authors who don't have system accounts, etc.
-   //      NOTE that, without authoritative management of authors, this information cannot
-   //      be systematically updated for all authors.
-
    /**
-    * @return An internal identifier for this author. Note that currently, this references
-    *       an author within an individual work. The same author will have different id's
-    *       when used across different works.
+    * @return An internal identifier for this author.
     */
    String getId();
 
    /**
-    * @return The author's name.
+    * @return A display name for this author..
     */
-   String getName();
+   String getDisplayName();
 
    /**
     * @return The first or given name of this individual.
@@ -34,29 +31,13 @@ public interface ArticleAuthor
    String getLastname();
 
    /**
-    * @return The affiliation of the author
+    * @return The set of properties defined for this author.
     */
-   String getAffiliation();
+   Set<String> getProperties();
 
    /**
-    * @return Structured contact information for this author.
+    * @param key The property whose value should be retrieved.
+    * @return The value for the defined property.
     */
-   ContactInfo getContactInfo();
-
-   public interface ContactInfo
-   {
-      // NOTE using an object to support future expansion.
-      //      May use Map<String, String> instead.
-      /**
-       * @return Email for this author if available.
-       *    May be {@code null} or empty string.
-       */
-      String getEmail();
-
-      /**
-       * @return phone number for this author if available.
-       *    May be {@code null} or empty string.
-       */
-      String getPhone();
-   }
+   Optional<String> getProperty(String key);
 }
