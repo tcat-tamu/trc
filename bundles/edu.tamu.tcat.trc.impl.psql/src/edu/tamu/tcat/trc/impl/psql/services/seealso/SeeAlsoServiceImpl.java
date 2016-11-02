@@ -96,8 +96,8 @@ public class SeeAlsoServiceImpl implements SeeAlsoService
       String sql = format("SELECT {0}, {1} FROM {2} WHERE {0} = ? OR {1} = ?", COLUMN_SOURCE, COLUMN_TARGET, tableName);
       CompletableFuture<Collection<Link>> result = sqlExecutor.submit(conn -> {
          PreparedStatement ps = conn.prepareStatement(sql);
-         ps.setString(0, id);
          ps.setString(1, id);
+         ps.setString(2, id);
          ResultSet resultSet = ps.executeQuery();
          return hydrateModels(resultSet);
       });
@@ -112,7 +112,7 @@ public class SeeAlsoServiceImpl implements SeeAlsoService
       String sql = format("SELECT {0}, {1} FROM {2} WHERE {0} = ?", COLUMN_SOURCE, COLUMN_TARGET, tableName);
       CompletableFuture<Collection<Link>> result = sqlExecutor.submit(conn -> {
          PreparedStatement ps = conn.prepareStatement(sql);
-         ps.setString(0, source);
+         ps.setString(1, source);
          ResultSet resultSet = ps.executeQuery();
          return hydrateModels(resultSet);
       });
@@ -127,7 +127,7 @@ public class SeeAlsoServiceImpl implements SeeAlsoService
       CompletableFuture<Collection<Link>> result = sqlExecutor.submit(conn -> {
          String sql = format("SELECT {0}, {1} FROM {2} WHERE {1} = ?", COLUMN_SOURCE, COLUMN_TARGET, tableName);
          PreparedStatement ps = conn.prepareStatement(sql);
-         ps.setString(0, target);
+         ps.setString(1, target);
          ResultSet resultSet = ps.executeQuery();
          return hydrateModels(resultSet);
       });
@@ -142,8 +142,8 @@ public class SeeAlsoServiceImpl implements SeeAlsoService
       String sql = format("DELETE FROM {2} WHERE {0} = ? AND {1} = ?", COLUMN_SOURCE, COLUMN_TARGET, tableName);
       CompletableFuture<Boolean> result = sqlExecutor.submit(conn -> {
          PreparedStatement ps = conn.prepareStatement(sql);
-         ps.setString(0, source);
-         ps.setString(1, target);
+         ps.setString(1, source);
+         ps.setString(2, target);
          int updated = ps.executeUpdate();
          return Boolean.valueOf(updated > 0);
       });
@@ -158,8 +158,8 @@ public class SeeAlsoServiceImpl implements SeeAlsoService
       String sql = format("DELETE FROM {2} WHERE {0} = ? OR {1} = ?", COLUMN_SOURCE, COLUMN_TARGET, tableName);
       CompletableFuture<Boolean> result = sqlExecutor.submit(conn -> {
          PreparedStatement ps = conn.prepareStatement(sql);
-         ps.setString(0, id);
          ps.setString(1, id);
+         ps.setString(2, id);
          int updated = ps.executeUpdate();
          return Boolean.valueOf(updated > 0);
       });
