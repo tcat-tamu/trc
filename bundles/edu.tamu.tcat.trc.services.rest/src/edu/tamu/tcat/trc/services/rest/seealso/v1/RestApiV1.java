@@ -10,16 +10,16 @@ public abstract class RestApiV1
    public static class SeeAlso
    {
       /** The entry for which related links are to be returned. */
-      LinkTarget root;
+      public LinkTarget root;
 
       /** A map of the related links, grouped by the type of related item. */
-      Map<String, SortedSet<LinkTarget>> links = new HashMap<>();
+      public Map<String, SortedSet<LinkTarget>> links = new HashMap<>();
    }
 
    public static class SeeAlsoLink
    {
-      LinkTarget source = new LinkTarget();
-      LinkTarget target = new LinkTarget();
+      public LinkTarget source = new LinkTarget();
+      public LinkTarget target = new LinkTarget();
    }
 
    public static class LinkTarget
