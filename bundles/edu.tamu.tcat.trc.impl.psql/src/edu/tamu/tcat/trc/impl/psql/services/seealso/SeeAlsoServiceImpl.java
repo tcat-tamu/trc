@@ -50,8 +50,8 @@ public class SeeAlsoServiceImpl implements SeeAlsoService
       String sql = format("INSERT INTO {2} ({0}, {1}) VALUES (?, ?)", COLUMN_SOURCE, COLUMN_TARGET, tableName);
       CompletableFuture<LinkImpl> result = sqlExecutor.submit(conn -> {
          PreparedStatement ps = conn.prepareStatement(sql);
-         ps.setString(0, source);
-         ps.setString(1, target);
+         ps.setString(1, source);
+         ps.setString(2, target);
          ps.executeUpdate();
 
          return new LinkImpl(source, target);
@@ -75,8 +75,8 @@ public class SeeAlsoServiceImpl implements SeeAlsoService
       String sql = format("SELECT COUNT(*) FROM {2} WHERE {0} = ? AND {1} = ?", COLUMN_SOURCE, COLUMN_TARGET, tableName);
       CompletableFuture<Boolean> result = sqlExecutor.submit(conn -> {
          PreparedStatement ps = conn.prepareStatement(sql);
-         ps.setString(0, source);
-         ps.setString(1, target);
+         ps.setString(1, source);
+         ps.setString(2, target);
 
          ResultSet resultSet = ps.executeQuery();
          int count = resultSet.getInt(0);
