@@ -12,7 +12,8 @@ Import-Package: edu.tamu.tcat.account;version="[2.0.0,3.0.0)",
  edu.tamu.tcat.crypto;version="[1.1.0,2.0.0)",
  edu.tamu.tcat.osgi.config;version="[1.1.0,2.0.0)",
  edu.tamu.tcat.trc.repo;version="1.3.0",
- edu.tamu.tcat.trc.repo.id
+ edu.tamu.tcat.trc.repo.id,
+ edu.tamu.tcat.trc.search.solr;version="1.3.0"
 Export-Package: edu.tamu.tcat.trc;version="2.0.0",
  edu.tamu.tcat.trc.auth.account;version="1.3.0",
  edu.tamu.tcat.trc.auth.acl;version="1.3.0",

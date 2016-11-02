@@ -13,16 +13,22 @@ import edu.tamu.tcat.trc.repo.id.IdFactory;
 import edu.tamu.tcat.trc.repo.id.IdFactoryProvider;
 import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
+import edu.tamu.tcat.trc.search.solr.IndexService;
+import edu.tamu.tcat.trc.search.solr.IndexServiceStrategy;
+import edu.tamu.tcat.trc.search.solr.QueryService;
+import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
+import edu.tamu.tcat.trc.services.ServiceContext;
+import edu.tamu.tcat.trc.services.TrcServiceException;
 import edu.tamu.tcat.trc.services.TrcServiceManager;
 
 public class TrcApplicationImpl implements TrcApplication
 {
-
    private IdFactoryProvider idFactoryProvider;
    private ConfigurationProperties config;
    private EntryRepositoryRegistry repositories;
    private EntryResolverRegistry resolvers;
    private TrcServiceManager svcMgr;
+   private SearchServiceManager searchMgr;
 
    public TrcApplicationImpl()
    {
@@ -48,6 +54,11 @@ public class TrcApplicationImpl implements TrcApplication
    public void setServiceManager(TrcServiceManager svcMgr)
    {
       this.svcMgr = svcMgr;
+   }
+
+   public void setSearchManager(SearchServiceManager searchMgr)
+   {
+      this.searchMgr = searchMgr;
    }
 
    public void activate()
@@ -96,6 +107,36 @@ public class TrcApplicationImpl implements TrcApplication
    public IdFactory getIdFactory(String scope)
    {
       return idFactoryProvider.getIdFactory(scope);
+   }
+
+   @Override
+   public <Repo> Repo getRepository(Account account, Class<Repo> type) throws IllegalArgumentException
+   {
+      return repositories.getRepository(account, type);
+   }
+
+   @Override
+   public <ServiceType> ServiceType getService(ServiceContext<ServiceType> ctx) throws TrcServiceException
+   {
+      return svcMgr.getService(ctx);
+   }
+
+   @Override
+   public SearchServiceManager getSearchManager()
+   {
+      return searchMgr;
+   }
+
+   @Override
+   public <Entry> IndexService<Entry> getIndexService(Class<Entry> type)
+   {
+      return searchMgr.getIndexService(type);
+   }
+
+   @Override
+   public <Entry, QueryCmd> QueryService<QueryCmd> getQueryService(IndexServiceStrategy<Entry, QueryCmd> indexCfg)
+   {
+      return searchMgr.getQueryService(indexCfg);
    }
 
    @Override

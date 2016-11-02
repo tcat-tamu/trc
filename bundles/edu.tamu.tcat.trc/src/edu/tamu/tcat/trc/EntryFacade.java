@@ -25,7 +25,7 @@ public interface EntryFacade<EntryType>
     */
    EntryType getEntry();
 
-   EntryId getEntryRef();
+   EntryId getEntryId();
 
    /**
     * @return A collection of bibliographic references and citations that are associated

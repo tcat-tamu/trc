@@ -72,7 +72,7 @@ public class EntryFacadeImpl<EntryType> implements EntryFacade<EntryType>
    }
 
    @Override
-   public EntryId getEntryRef()
+   public EntryId getEntryId()
    {
       return ref;
    }
