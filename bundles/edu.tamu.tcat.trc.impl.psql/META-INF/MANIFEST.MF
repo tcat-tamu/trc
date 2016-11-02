@@ -44,6 +44,4 @@ Export-Package: edu.tamu.tcat.trc.impl.psql;version="2.0.0",
  edu.tamu.tcat.trc.impl.psql.services.categorization.model;version="2.0.0",
  edu.tamu.tcat.trc.impl.psql.services.categorization.repo;version="2.0.0",
  edu.tamu.tcat.trc.impl.psql.services.notes;version="2.0.0",
- edu.tamu.tcat.trc.impl.psql.services.seealso;version="2.0.0",
- edu.tamu.tcat.trc.impl.psql.services.seealso.model;version="2.0.0",
- edu.tamu.tcat.trc.impl.psql.services.seealso.repo;version="2.0.0"
+ edu.tamu.tcat.trc.impl.psql.services.seealso;version="2.0.0"
