@@ -72,14 +72,33 @@ public class RestApiV1
       public boolean isDirected;
    }
 
+   /**
+    *  Embodies an editorially defined relationship between two or more entities.
+    *  Entities that my participate in the TRC relationship system are typically
+    *  TRC Entries but may be any object that can be resolved through the
+    *  Entry Resolver system.
+    */
    @JsonIgnoreProperties(ignoreUnknown = true)
    public static class Relationship
    {
+      /** A unique identifier for this relationship. */
       public String id;
+
+      /** The id of the associated relationship type. */
       public String typeId;
+
+      /** An editorial description of this relationship as either plain text or lightly marked HTML. */
       public String description;
-      public final Set<Anchor> related = new HashSet<>();
-      public final Set<Anchor> targets = new HashSet<>();
+
+      /** Anchors for the entities related to this relationship. For directed relationships,
+       *  these entities represent the source or 'from' endpoint of the relationship. For
+       *  undirected relationships, the represent the collection of entities described by
+       *  the relationship. */
+      public Set<Anchor> related = new HashSet<>();
+
+      /** For directed relationships, anchors that comprise the destination or 'to' endpoint
+       *  of this relationship. For undirected relationships, this will be an empty set. */
+      public Set<Anchor> targets = new HashSet<>();
    }
 
    @JsonIgnoreProperties(ignoreUnknown = true)
@@ -87,13 +106,20 @@ public class RestApiV1
    {
       public String label;
       public EntryReference ref;
-      public final Map<String, Set<String>> properties = new HashMap<>();
+      public Map<String, Set<String>> properties = new HashMap<>();
    }
 
+   /** An identifier for an entry that can be resolved using the Entry Resolver system */
    public static class EntryReference
    {
+      /** The id of the referenced entry. Will be unique within the scope of a particular type. */
       public String id;
+
+      /** The semantic type of the referenced entry. Entry types are defined by the TRC
+       *  Entry implementation. */
       public String type;
+
+      /** An opaque token that uniquely identifies this entry. */
       public String token;
    }
 
@@ -152,8 +178,8 @@ public class RestApiV1
       public String typeId;
       public String description;
       public String descriptionMimeType;
-      public final Set<Anchor> related = new HashSet<>();
-      public final Set<Anchor> targets = new HashSet<>();
+      public Set<Anchor> related = new HashSet<>();
+      public Set<Anchor> targets = new HashSet<>();
    }
 
    /**
@@ -193,6 +219,6 @@ public class RestApiV1
    {
       public String label;
       // TODO seems like the wrong structure
-      public final Set<RelationshipSearchResult> relationships = new HashSet<>();
+      public Set<RelationshipSearchResult> relationships = new HashSet<>();
    }
 }
