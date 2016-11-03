@@ -42,7 +42,7 @@ public interface BibliographicEntry
    /**
     * @return The authors of this work.
     */
-   AuthorList getAuthors();
+   List<AuthorReference> getAuthors();
 
    /**
     * @return The title of this work.
@@ -68,7 +68,7 @@ public interface BibliographicEntry
     *    Trans by Willis. 1862. Willis would be the 'outher authors'.
     *
     */
-   AuthorList getOtherAuthors();
+   List<AuthorReference> getOtherAuthors();
 
    /**
     * @return The editions associated with this work sorted by publication date in ascending order.

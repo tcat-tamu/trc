@@ -1,7 +1,6 @@
 package edu.tamu.tcat.trc.entries.types.biblio;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -13,11 +12,16 @@ public abstract class BiblioEntryUtils
 {
    public static String parseAuthorName(BibliographicEntry entry)
    {
-      AuthorList authors = entry.getAuthors();
-      List<AuthorReference> authRef = new ArrayList<>();
-      authors.forEach(author -> authRef.add(author));
+      List<AuthorReference> authors = entry.getAuthors();
+      if (authors.isEmpty())
+         return null;
 
-      return getAuthorName(authRef);
+      AuthorReference ref = authors.get(0);
+      String name = trimToNull(ref.getLastName());
+      if (name == null)
+         name = trimToNull(ref.getFirstName());
+
+      return name;
    }
 
    public static String parsePublicationDate(BibliographicEntry entry)
@@ -88,20 +92,6 @@ public abstract class BiblioEntryUtils
       int score = a.getFullTitle().compareTo(b.getFullTitle());
       return (score != 0)
             ? score : Integer.compare(a.hashCode(), b.hashCode());
-   }
-
-   /** @return the first author's last name (or best approximate) */
-   private static String getAuthorName(List<AuthorReference> authors)
-   {
-      if (authors.isEmpty())
-         return null;
-
-      AuthorReference ref = authors.get(0);
-      String name = trimToNull(ref.getLastName());
-      if (name == null)
-         name = trimToNull(ref.getFirstName());
-
-      return name;
    }
 
    /** @return the year this work was published. May be null */
