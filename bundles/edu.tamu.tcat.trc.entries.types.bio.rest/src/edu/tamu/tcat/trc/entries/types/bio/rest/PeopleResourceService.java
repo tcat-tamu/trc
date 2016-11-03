@@ -21,17 +21,12 @@ import java.util.logging.Logger;
 
 import javax.ws.rs.Path;
 
-import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
+import edu.tamu.tcat.trc.TrcApplication;
 import edu.tamu.tcat.trc.entries.types.bio.impl.search.BioSearchStrategy;
-import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.PeopleResource;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioEntryQueryCommand;
-import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.QueryService;
 import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
-import edu.tamu.tcat.trc.services.TrcServiceManager;
 
 @Path("/")
 public class PeopleResourceService
@@ -40,32 +35,38 @@ public class PeopleResourceService
    private final static Logger logger = Logger.getLogger(PeopleResourceService.class.getName());
    // TODO make this core application logic
 
-   private EntryRepositoryRegistry registry;
+//   private EntryRepositoryRegistry registry;
+//   private ConfigurationProperties config;
+//   private TrcServiceManager serviceMgr;
+
    private SearchServiceManager searchMgr;
-   private ConfigurationProperties config;
    private QueryService<BioEntryQueryCommand> queryService;
-   private TrcServiceManager serviceMgr;
+   private TrcApplication trcMgr;
 
-   public void setConfig(ConfigurationProperties config)
-   {
-      this.config = config;
-   }
-
-   public void setRepoRegistry(EntryRepositoryRegistry registry)
-   {
-      this.registry = registry;
-   }
-
+//   public void setConfig(ConfigurationProperties config)
+//   {
+//      this.config = config;
+//   }
+//
+//   public void setRepoRegistry(EntryRepositoryRegistry registry)
+//   {
+//      this.registry = registry;
+//   }
+//
    public void setSearchSvcMgr(SearchServiceManager searchMgr)
    {
       this.searchMgr = searchMgr;
    }
+//
+//   public void setServiceMgr(TrcServiceManager serviceMgr)
+//   {
+//      this.serviceMgr = serviceMgr;
+//   }
 
-   public void setServiceMgr(TrcServiceManager serviceMgr)
+   public void setTrcApplication(TrcApplication trcMgr)
    {
-      this.serviceMgr = serviceMgr;
+      this.trcMgr = trcMgr;
    }
-
    // called by DS
    public void activate()
    {
@@ -74,9 +75,15 @@ public class PeopleResourceService
       try
       {
          Objects.requireNonNull(searchMgr, "No search service configured");
-         Objects.requireNonNull(serviceMgr, "No service manager configured");
+//         Objects.requireNonNull(serviceMgr, "No service manager configured");
 
-         BioSearchStrategy indexCfg = new BioSearchStrategy(config);
+//         config = trcMgr.getConfig();
+//         serviceMgr = trcMgr.getServiceManager();
+//         registry = trcMgr.getEntryRepositoryManager();
+//         resolvers = trcMgr.getResolverRegistry();
+
+
+         BioSearchStrategy indexCfg = new BioSearchStrategy(trcMgr.getConfig());
          queryService = searchMgr.getQueryService(indexCfg);
       }
       catch (Exception ex)
@@ -102,10 +109,6 @@ public class PeopleResourceService
    @Path("/people")
    public PeopleResource delgate()
    {
-      Account account = null;    // TODO get this from the request if this is possible here.
-
-      BiographicalEntryRepository repo = registry.getRepository(account, BiographicalEntryRepository.class);
-      EntryResolverRegistry resolverRegistry = registry.getResolverRegistry();
-      return new PeopleResource(repo, queryService, serviceMgr, resolverRegistry);
+      return new PeopleResource(trcMgr);
    }
 }

@@ -26,7 +26,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -40,9 +39,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import edu.tamu.tcat.account.jaxrs.bean.ContextBean;
-import edu.tamu.tcat.account.jaxrs.bean.TokenSecured;
-import edu.tamu.tcat.trc.auth.account.TrcAccount;
+import edu.tamu.tcat.trc.TrcApplication;
+import edu.tamu.tcat.trc.entries.types.bio.impl.search.BioSearchStrategy;
 import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.DateDescriptionMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
@@ -53,27 +51,27 @@ import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RepoAdapter;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.SearchAdapter;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioEntryQueryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.search.PersonSearchResult;
-import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.QueryService;
 import edu.tamu.tcat.trc.search.solr.SearchException;
-import edu.tamu.tcat.trc.services.TrcServiceManager;
 
 public class PeopleResource
 {
    // records internal errors accessing the REST
    static final Logger errorLogger = Logger.getLogger(PeopleResource.class.getName());
 
-   private final BiographicalEntryRepository repo;
-   private final QueryService<BioEntryQueryCommand> queryService;
-   private final TrcServiceManager serviceManager;
-   private final EntryResolverRegistry resolverRegistry;
+   private final TrcApplication app;
 
-   public PeopleResource(BiographicalEntryRepository repo, QueryService<BioEntryQueryCommand> queryService, TrcServiceManager serviceManager, EntryResolverRegistry resolverRegistry)
+//   public PeopleResource(BiographicalEntryRepository repo, QueryService<BioEntryQueryCommand> queryService, TrcServiceManager serviceManager, EntryResolverRegistry resolverRegistry)
+//   {
+//      this.repo = repo;
+//      this.queryService = queryService;
+//      this.serviceManager = serviceManager;
+//      this.resolverRegistry = resolverRegistry;
+//   }
+
+   public PeopleResource(TrcApplication app)
    {
-      this.repo = repo;
-      this.queryService = queryService;
-      this.serviceManager = serviceManager;
-      this.resolverRegistry = resolverRegistry;
+      this.app = app;
    }
 
    @GET
@@ -86,6 +84,8 @@ public class PeopleResource
                 @QueryParam(value = "max") @DefaultValue("100") int numResults)
    {
       //TrcAccount account = bean.get(TrcAccount.class);
+      BioSearchStrategy indexCfg = new BioSearchStrategy(app.getConfig());
+      QueryService<BioEntryQueryCommand> queryService = app.getQueryService(indexCfg);
       if (queryService == null)
       {
          Response response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -147,6 +147,7 @@ public class PeopleResource
    @Produces(MediaType.APPLICATION_JSON)
    public RestApiV1.Person createPerson(RestApiV1.Person person)
    {
+      BiographicalEntryRepository repo = app.getRepository(null, BiographicalEntryRepository.class);
       EditBiographicalEntryCommand command = repo.create();
       apply(command, person);
 
@@ -251,6 +252,6 @@ public class PeopleResource
    @Path("{personId}")
    public PersonResource getPerson(@PathParam(value="personId") String personId)
    {
-      return new PersonResource(repo, personId, serviceManager, resolverRegistry);
+      return new PersonResource(app, personId);
    }
 }

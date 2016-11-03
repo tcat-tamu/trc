@@ -9,27 +9,24 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import edu.tamu.tcat.trc.entries.core.repo.NoSuchEntryException;
+import edu.tamu.tcat.trc.EntryFacade;
+import edu.tamu.tcat.trc.ResourceNotFoundException;
+import edu.tamu.tcat.trc.TrcApplication;
 import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.ApiUtils;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RepoAdapter;
 import edu.tamu.tcat.trc.resolver.EntryId;
-import edu.tamu.tcat.trc.resolver.EntryResolver;
-import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
-import edu.tamu.tcat.trc.services.TrcServiceManager;
 import edu.tamu.tcat.trc.services.bibref.repo.RefCollectionService;
 import edu.tamu.tcat.trc.services.rest.bibref.ReferenceCollectionResource;
 
@@ -37,31 +34,31 @@ public class PersonResource
 {
    private static final Logger logger = Logger.getLogger(PersonResource.class.getName());
 
-   private final String personId;
-   private final BiographicalEntryRepository repo;
-   private final TrcServiceManager serviceManager;
-   private final EntryResolverRegistry resolverRegistry;
+   private final TrcApplication app;
+   private final EntryId entryId;
 
-   public PersonResource(BiographicalEntryRepository repo, String personId, TrcServiceManager serviceManager, EntryResolverRegistry resolverRegistry)
+   public PersonResource(TrcApplication app, String personId)
    {
-      this.repo = repo;
-      this.personId = personId;
-      this.serviceManager = serviceManager;
-      this.resolverRegistry = resolverRegistry;
+      this.app = app;
+      this.entryId = new EntryId(personId, BiographicalEntryRepository.ENTRY_TYPE_ID);
    }
 
    @GET
    @Produces(MediaType.APPLICATION_JSON)
    public RestApiV1.Person getPerson()
    {
+      String notFoundMsg = "Cannot find a biographical entry with id={0}. This may be because the entry does not exist, "
+            + "has been deleted or the current user does not have permission to access it.";
       try
       {
-         BiographicalEntry figure = repo.get(personId);
-         return RepoAdapter.toDTO(figure);
+         EntryFacade<BiographicalEntry> facade =
+               app.getEntryFacade(entryId, BiographicalEntry.class, null);
+         return facade.getEntry().map(RepoAdapter::toDTO)
+               .orElseThrow(() -> ApiUtils.raise(Response.Status.NOT_FOUND, format(notFoundMsg, entryId.getId()), Level.FINE, null));
       }
-      catch (NoSuchEntryException e)
+      catch (Exception e)
       {
-         throw new NotFoundException("No biographical entry is available " + personId);
+         throw ApiUtils.raise(Response.Status.NOT_FOUND, "Failed to retrieve biographical entry for " + entryId.getId(), Level.SEVERE, e);
       }
    }
 
@@ -70,21 +67,26 @@ public class PersonResource
    @Produces(MediaType.APPLICATION_JSON)
    public RestApiV1.Person updatePerson(RestApiV1.Person person)
    {
+      String personId = entryId.getId();
       if (person.id == null)
          person.id = personId;
 
       if (!Objects.equals(personId, person.id))
-         throw new BadRequestException("The id of the supplied person data does not match the URL");
+      {
+         String errMsg = "The id of the supplied person [{0}] data does not match resource id in the URL {1}";
+         throw ApiUtils.raise(Response.Status.BAD_REQUEST, format(errMsg, person.id, personId), Level.WARNING, null);
+      }
 
       try
       {
+         BiographicalEntryRepository repo = app.getRepository(null, BiographicalEntryRepository.class);
          EditBiographicalEntryCommand command = repo.edit(person.id);
          PeopleResource.apply(command, person);
 
          logger.log(Level.INFO, format("Updating biographic entry for {0} [{1}]", person.name.label, personId));
          return PeopleResource.execute(repo, command);
       }
-      catch (NoSuchEntryException ex)
+      catch (ResourceNotFoundException ex)
       {
          String msg = "Cannot edit bibliographic entry for [{0}]. No record found";
          throw ApiUtils.raise(Response.Status.NOT_FOUND, format(msg, personId), Level.FINE, ex);
@@ -97,19 +99,20 @@ public class PersonResource
    {
       try
       {
-         repo.remove(personId).get(10, TimeUnit.SECONDS);
+         EntryFacade<BiographicalEntry> entry = app.getEntryFacade(entryId, BiographicalEntry.class, null);
+         entry.remove().get(10, TimeUnit.SECONDS);
       }
       catch (InterruptedException | TimeoutException e)
       {
          String msg = "Oops. Things seem to be a bit busy now and we could not delete the bibliographic entry {0} in a timely manner. Please try again.";
-         throw ApiUtils.raise(Response.Status.SERVICE_UNAVAILABLE, format(msg, personId), Level.WARNING, e);
+         throw ApiUtils.raise(Response.Status.SERVICE_UNAVAILABLE, format(msg, entryId.getId()), Level.WARNING, e);
       }
       catch (ExecutionException e)
       {
          String msg = "Failed to delete biographic entry [{0}]";
          Throwable cause = e.getCause();
-         if (!NoSuchEntryException.class.isInstance(cause))
-            throw PeopleResource.handleExecutionException(format(msg,  personId), e);
+         if (!ResourceNotFoundException.class.isInstance(cause))
+            throw PeopleResource.handleExecutionException(format(msg,  entryId.getId()), e);
       }
 
       return Response.noContent().build();
@@ -118,15 +121,16 @@ public class PersonResource
    @Path("references")
    public ReferenceCollectionResource getReferences()
    {
-      RefCollectionService refsService = serviceManager.getService(RefCollectionService.makeContext(null));
+      try
+      {
+         RefCollectionService refsService = app.getService(RefCollectionService.makeContext(null));
+         return new ReferenceCollectionResource(refsService, entryId);
+      }
+      catch (Exception ex)
+      {
+         String format = format("Unable to generate references for {0}", entryId.getId());
+         throw ApiUtils.raise(Response.Status.INTERNAL_SERVER_ERROR, format, Level.SEVERE, null);
 
-      EntryId reference = repo.getOptionally(personId)
-            .map(person -> {
-               EntryResolver<BiographicalEntry> resolver = resolverRegistry.getResolver(person);
-               return resolver.makeReference(person);
-            })
-            .orElseThrow(() -> ApiUtils.raise(Response.Status.INTERNAL_SERVER_ERROR, format("Unable to generate reference for {0}", personId), Level.SEVERE, null));
-
-      return new ReferenceCollectionResource(refsService, reference);
+      }
    }
 }
