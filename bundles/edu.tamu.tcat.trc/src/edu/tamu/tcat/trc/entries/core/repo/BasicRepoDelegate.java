@@ -5,6 +5,7 @@ import static java.text.MessageFormat.format;
 import java.time.Instant;
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -67,12 +68,17 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
    {
    }
 
+   @Deprecated // use getOptionally
    public EntryType get(Account account, String id) throws NoSuchEntryException
    {
       String msg = "Unable to find {0} with id [{1}].";
-      return repo.get(id)
+      return getOptionally(account, id)
             .orElseThrow(() -> new NoSuchEntryException(format(msg, entryName, id)));
 
+   }
+   public Optional<EntryType> getOptionally(Account account, String id) throws NoSuchEntryException
+   {
+      return repo.get(id);
    }
 
    public Iterator<EntryType> listAll()

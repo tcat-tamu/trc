@@ -1,6 +1,7 @@
 package edu.tamu.tcat.trc.resolver;
 
 import java.net.URI;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -37,7 +38,7 @@ public interface EntryResolver<T>
     * @return An instance of the referenced entry.
     * @throws InvalidReferenceException If the supplied reference cannot be resolved.
     */
-   T resolve(Account account, EntryId reference) throws InvalidReferenceException;
+   Optional<T> resolve(Account account, EntryId reference) throws InvalidReferenceException;
 
    /**
     * Attempts to remove the supplied entry from its associated data store.

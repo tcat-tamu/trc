@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import edu.tamu.tcat.account.Account;
+import edu.tamu.tcat.trc.ResourceNotFoundException;
 
 /**
  * A basic implementation of the {@link EntryResolverRegistry}. Intended to be registered as
@@ -197,7 +198,9 @@ public class BasicResolverRegistry implements EntryResolverRegistry, EntryResolv
       @Override
       public T getEntry(Account account)
       {
-         return resolver.resolve(account, getEntryId());
+         String msg = "No entry of type {0} found for id={1} using account {3} [{4}].";
+         return resolver.resolve(account, getEntryId())
+               .orElseThrow(() -> new ResourceNotFoundException(format(msg, type, id, account.getDisplayName(), account.getId())));
       }
 
    }

@@ -2,6 +2,7 @@ package edu.tamu.tcat.trc.entries.types.reln.impl.repo;
 
 import static java.text.MessageFormat.format;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.account.Account;
@@ -26,12 +27,12 @@ public class RelationshipResolver extends EntryResolverBase<Relationship>
    }
 
    @Override
-   public Relationship resolve(Account account, EntryId reference) throws InvalidReferenceException
+   public Optional<Relationship> resolve(Account account, EntryId reference) throws InvalidReferenceException
    {
       if (!accepts(reference))
          throw new InvalidReferenceException(reference, "Unsupported reference type.");
 
-      return delegate.get(account, reference.getId());
+      return delegate.getOptionally(account, reference.getId());
    }
 
    @Override

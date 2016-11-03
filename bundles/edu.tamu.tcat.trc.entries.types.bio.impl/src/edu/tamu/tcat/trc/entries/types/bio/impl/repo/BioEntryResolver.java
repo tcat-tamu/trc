@@ -2,6 +2,7 @@ package edu.tamu.tcat.trc.entries.types.bio.impl.repo;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -28,12 +29,12 @@ public class BioEntryResolver extends EntryResolverBase<BiographicalEntry>
    }
 
    @Override
-   public BiographicalEntry resolve(Account account, EntryId reference) throws InvalidReferenceException
+   public Optional<BiographicalEntry> resolve(Account account, EntryId reference) throws InvalidReferenceException
    {
       if (!accepts(reference))
          throw new InvalidReferenceException(reference, "Unsupported reference type.");
 
-      return delegate.get(account, reference.getId());
+      return delegate.getOptionally(account, reference.getId());
    }
 
    @Override

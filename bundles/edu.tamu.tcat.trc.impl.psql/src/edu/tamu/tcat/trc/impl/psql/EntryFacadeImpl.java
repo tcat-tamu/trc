@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.account.Account;
@@ -65,10 +66,10 @@ public class EntryFacadeImpl<EntryType> implements EntryFacade<EntryType>
    }
 
    @Override
-   public synchronized EntryType getEntry()
+   public synchronized Optional<EntryType> getEntry()
    {
-      Object entry = resolver.resolve(account, ref);
-      return typeToken.cast(entry);
+      Optional<Object> entry = resolver.resolve(account, ref);
+      return entry.map(typeToken::cast);
    }
 
    @Override

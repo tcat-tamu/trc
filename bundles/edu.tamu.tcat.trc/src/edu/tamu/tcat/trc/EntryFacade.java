@@ -1,6 +1,7 @@
 package edu.tamu.tcat.trc;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
@@ -23,7 +24,7 @@ public interface EntryFacade<EntryType>
    /**
     * @return The entry represented by this facade.
     */
-   EntryType getEntry();
+   Optional<EntryType> getEntry() throws ResourceNotFoundException;
 
    EntryId getEntryId();
 

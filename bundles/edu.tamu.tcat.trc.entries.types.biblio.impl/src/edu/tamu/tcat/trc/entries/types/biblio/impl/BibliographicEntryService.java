@@ -3,6 +3,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.impl;
 import static java.text.MessageFormat.format;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -185,12 +186,12 @@ public class BibliographicEntryService
       }
 
       @Override
-      public BibliographicEntry resolve(Account account, EntryId reference) throws InvalidReferenceException
+      public Optional<BibliographicEntry> resolve(Account account, EntryId reference) throws InvalidReferenceException
       {
          if (!accepts(reference))
             throw new InvalidReferenceException(reference, "Unsupported reference type.");
 
-         return delegate.get(account, reference.getId());
+         return delegate.getOptionally(account, reference.getId());
       }
 
       @Override

@@ -16,6 +16,7 @@
 package edu.tamu.tcat.trc.entries.types.reln.rest.v1;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -80,8 +81,10 @@ public class SearchAdapter
       dto.ref.type = entryId.getType();
 
       EntryResolver<Object> resolver = resolvers.getResolver(entryId);
-      Object instance = resolver.resolve(account, entryId);
-      dto.label = resolver.getLabel(instance);
+      Optional<Object> instance = resolver.resolve(account, entryId);
+
+      dto.label = instance.map(entry -> resolver.getLabel(instance))
+                          .orElse("Invalid Anchor Reference");
 
       return dto;
    }

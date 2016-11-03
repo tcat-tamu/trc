@@ -2,6 +2,7 @@ package edu.tamu.tcat.trc.entries.types.article.impl.repo;
 
 import static java.text.MessageFormat.format;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.account.Account;
@@ -27,12 +28,12 @@ public class ArticleResolver extends EntryResolverBase<Article>
    }
 
    @Override
-   public Article resolve(Account account, EntryId reference) throws InvalidReferenceException
+   public Optional<Article> resolve(Account account, EntryId reference) throws InvalidReferenceException
    {
       if (!accepts(reference))
          throw new InvalidReferenceException(reference, "Unsupported reference type.");
 
-      return delegate.get(account, reference.getId());
+      return delegate.getOptionally(account, reference.getId());
    }
 
    @Override
