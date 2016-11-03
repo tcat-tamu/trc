@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
 
+@Deprecated
 public class VolumeDTO
 {
    public String id;

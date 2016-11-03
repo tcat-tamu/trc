@@ -18,6 +18,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.dto;
 import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.types.biblio.PublicationInfo;
 
+@Deprecated
 public class PublicationInfoDTO
 {
    public String place;

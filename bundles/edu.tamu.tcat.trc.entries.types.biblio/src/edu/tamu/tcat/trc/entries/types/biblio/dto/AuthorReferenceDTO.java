@@ -17,6 +17,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.dto;
 
 import edu.tamu.tcat.trc.entries.types.biblio.AuthorReference;
 
+@Deprecated
 public class AuthorReferenceDTO
 {
    public String authorId;

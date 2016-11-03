@@ -20,6 +20,7 @@ import java.util.Map;
 
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 
+@Deprecated
 public class CopyReferenceDTO
 {
    public String id;

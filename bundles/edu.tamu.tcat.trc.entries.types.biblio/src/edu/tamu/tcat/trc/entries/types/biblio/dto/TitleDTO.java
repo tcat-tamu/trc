@@ -17,6 +17,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.dto;
 
 import edu.tamu.tcat.trc.entries.types.biblio.Title;
 
+@Deprecated
 public class TitleDTO
 {
    public String type;   // short, default, undefined.

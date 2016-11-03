@@ -23,13 +23,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
+import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 
 
 /**
  * Represents a work
  */
+@Deprecated
 public class WorkDTO
 {
    public String id;

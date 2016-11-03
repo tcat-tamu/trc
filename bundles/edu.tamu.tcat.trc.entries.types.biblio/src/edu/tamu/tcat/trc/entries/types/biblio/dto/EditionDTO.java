@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 
+@Deprecated
 public class EditionDTO
 {
    public String id;
