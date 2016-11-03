@@ -1,42 +1,52 @@
 package edu.tamu.tcat.trc.entries.types.biblio.impl.search;
 
+import static java.util.stream.Collectors.toSet;
+
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.solr.common.SolrInputDocument;
 
+import edu.tamu.tcat.trc.EntryFacade;
+import edu.tamu.tcat.trc.ResourceNotFoundException;
+import edu.tamu.tcat.trc.entries.types.biblio.AuthorReference;
+import edu.tamu.tcat.trc.entries.types.biblio.BiblioEntryUtils;
 import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
-import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.ModelAdapter;
+import edu.tamu.tcat.trc.entries.types.biblio.Title;
+import edu.tamu.tcat.trc.entries.types.biblio.TitleDefinition;
 import edu.tamu.tcat.trc.entries.types.biblio.search.BiblioSearchProxy;
+import edu.tamu.tcat.trc.resolver.EntryId;
+import edu.tamu.tcat.trc.resolver.EntryResolver;
 import edu.tamu.tcat.trc.search.solr.SearchException;
+import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 
 public abstract class IndexAdapter
 {
-   public static SolrInputDocument createWork(BibliographicEntry entry)
-   {
-      return createWork(WorkDTO.create(entry));
-   }
-
-   public static SolrInputDocument createWork(WorkDTO workDTO)
+   public static SolrInputDocument createWork(EntryFacade<BibliographicEntry> entry)
    {
       try
       {
-         BiblioDocument doc = new BiblioDocument();
+         BibliographicEntry work = entry.getEntry()
+               .orElseThrow(() -> new ResourceNotFoundException());
 
-         doc.indexDocument.set(BiblioSolrConfig.ID, workDTO.id);
-         doc.addAuthors(workDTO.authors);
-         doc.addTitles(workDTO.titles);
-         doc.indexDocument.set(BiblioSolrConfig.SUMMARY, workDTO.summary);
-//         doc.indexDocument.set(BiblioSolrConfig.ENTRY_REFERENCE, entryRef);
+         TrcDocument doc = new TrcDocument(new BiblioSolrConfig());
 
-         try
-         {
-            doc.indexDocument.set(BiblioSolrConfig.SEARCH_PROXY, BiblioSearchProxy.create(ModelAdapter.adapt(workDTO)));
-         }
-         catch (Exception e)
-         {
-            throw new IllegalStateException("Failed to serialize BiblioSearchProxy data", e);
-         }
+         doc.set(BiblioSolrConfig.ID, work.getId());
+         doc.set(BiblioSolrConfig.SUMMARY, work.getSummary());
+         doc.set(BiblioSolrConfig.ENTRY_REFERENCE, entry.getToken());
 
-         return doc.indexDocument.build();
+         work.getAuthors().stream().forEach(author -> {
+            doc.set(BiblioSolrConfig.AUTHOR_IDS, author.getId() != null ? author.getId() : "");
+            doc.set(BiblioSolrConfig.AUTHOR_NAMES, author.getFirstName() + " " + author.getLastName());
+         });
+
+         Set<String> titles = getTitles(work);
+         titles.stream().forEach(title -> doc.set(BiblioSolrConfig.TITLES, title));
+
+         doc.set(BiblioSolrConfig.SEARCH_PROXY, toProxy(entry));
+
+         return doc.build();
       }
       catch (SearchException se)
       {
@@ -44,25 +54,95 @@ public abstract class IndexAdapter
       }
    }
 
-   public static SolrInputDocument updateWork(BibliographicEntry work) throws SearchException
+   public static SolrInputDocument updateWork(EntryFacade<BibliographicEntry> entry)
    {
-      BiblioDocument doc = new BiblioDocument();
-      WorkDTO workDTO = WorkDTO.create(work);
-
-      doc.indexDocument.update(BiblioSolrConfig.ID, workDTO.id);
-      doc.updateAuthors(workDTO.authors);
-      doc.updateTitles(workDTO.titles);
-      doc.indexDocument.update(BiblioSolrConfig.SUMMARY, workDTO.summary);
-//         doc.indexDocument.set(BiblioSolrConfig.ENTRY_REFERENCE, entryRef);
-
       try
       {
-         doc.indexDocument.update(BiblioSolrConfig.SEARCH_PROXY, BiblioSearchProxy.create(work));
+         BibliographicEntry work = entry.getEntry()
+               .orElseThrow(() -> new ResourceNotFoundException());
+
+         TrcDocument doc = new TrcDocument(new BiblioSolrConfig());
+
+         doc.update(BiblioSolrConfig.ID, work.getId());
+         doc.update(BiblioSolrConfig.SUMMARY, work.getSummary());
+         doc.update(BiblioSolrConfig.ENTRY_REFERENCE, entry.getToken());
+
+         doc.update(BiblioSolrConfig.AUTHOR_IDS,
+               work.getAuthors().stream()
+                     .map(author -> author.getId() != null ? author.getId() : "")
+                     .collect(toSet())
+               );
+         doc.update(BiblioSolrConfig.AUTHOR_NAMES,
+               work.getAuthors().stream()
+               .map(author -> author.getFirstName() + " " + author.getLastName())
+               .collect(toSet())
+               );
+         doc.update(BiblioSolrConfig.TITLES, getTitles(work));
+         doc.set(BiblioSolrConfig.SEARCH_PROXY, toProxy(entry));
+
+         return doc.build();
       }
-      catch (Exception e)
+      catch (SearchException se)
       {
-         throw new IllegalStateException("Failed to serialize BiblioSearchProxy data", e);
+         throw new IllegalStateException("Failed to create indexable document.", se);
       }
-      return doc.indexDocument.build();
+   }
+
+   private static Set<String> getTitles(BibliographicEntry work)
+   {
+      TitleDefinition titles = work.getTitle();
+      Set<String> strTitles = titles.getTypes().stream()
+            .map(titles::get)
+            .map(title -> title.map(t -> t.getFullTitle()))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(toSet());
+
+      return strTitles;
+   }
+
+   private static BiblioSearchProxy toProxy(EntryFacade<BibliographicEntry> entry)
+   {
+      EntryId entryId = entry.getEntryId();
+      EntryResolver<BibliographicEntry> resolver = entry.getResolver();
+      BibliographicEntry work = entry.getEntry().orElseThrow(() -> new ResourceNotFoundException());
+
+      BiblioSearchProxy result = new BiblioSearchProxy();
+
+      result.id = entryId.getId();
+      result.uri = resolver.toUri(entryId).toString();
+      result.token = entry.getToken();
+      result.type = work.getType();
+
+      result.authors = work.getAuthors().stream()
+            .map(IndexAdapter::adapt)
+            .collect(Collectors.toList());
+      result.title = BiblioEntryUtils.parseTitle(work, Title.SHORT, Title.CANONICAL)
+            .orElse("No Title Available");
+      result.label = resolver.getHtmlLabel(work);
+      result.pubYear = BiblioEntryUtils.parsePublicationDate(work);
+
+      result.summary = work.getSummary();
+
+      return result;
+   }
+
+   private static BiblioSearchProxy.AuthorProxy adapt(AuthorReference author)
+   {
+      BiblioSearchProxy.AuthorProxy dto = new BiblioSearchProxy.AuthorProxy();
+      if (author == null)
+         return dto;
+
+      dto.authorId = author.getId();
+      dto.firstName = guardNull(author.getFirstName());
+      dto.lastName = guardNull(author.getLastName());
+      dto.role = guardNull(author.getRole());
+
+      return dto;
+   }
+
+   private static String guardNull(String str)
+   {
+      return (str == null || str.trim().isEmpty()) ? "" : str.trim();
    }
 }

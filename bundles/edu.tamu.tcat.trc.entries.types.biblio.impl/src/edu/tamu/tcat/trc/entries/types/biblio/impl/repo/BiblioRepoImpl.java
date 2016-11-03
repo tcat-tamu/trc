@@ -3,24 +3,25 @@ package edu.tamu.tcat.trc.entries.types.biblio.impl.repo;
 import static java.text.MessageFormat.format;
 
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
+import edu.tamu.tcat.trc.entries.core.repo.NoSuchEntryException;
 import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.BibliographicEntryRepository;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand;
 
 public class BiblioRepoImpl implements BibliographicEntryRepository
 {
    private final Account account;
-   private final BasicRepoDelegate<BibliographicEntry, WorkDTO, EditBibliographicEntryCommand> delegate;
+   private final BasicRepoDelegate<BibliographicEntry, DataModelV1.WorkDTO, EditBibliographicEntryCommand> delegate;
 
-   public BiblioRepoImpl(BasicRepoDelegate<BibliographicEntry, WorkDTO, EditBibliographicEntryCommand> delegate, Account account)
+   public BiblioRepoImpl(BasicRepoDelegate<BibliographicEntry, DataModelV1.WorkDTO, EditBibliographicEntryCommand> delegate, Account account)
    {
       this.delegate = delegate;
       this.account = account;
@@ -35,7 +36,14 @@ public class BiblioRepoImpl implements BibliographicEntryRepository
    @Override
    public BibliographicEntry get(String id)
    {
-      return delegate.get(account, id);
+      String notFound = "No record found for bibliographic entry id={1}.";
+      return getOptionally(id).orElseThrow(() -> new NoSuchEntryException(format(notFound, id)));
+   }
+
+   @Override
+   public Optional<BibliographicEntry> getOptionally(String id)
+   {
+      return delegate.getOptionally(account, id);
    }
 
    @Override

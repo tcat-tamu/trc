@@ -15,9 +15,11 @@
  */
 package edu.tamu.tcat.trc.entries.types.biblio.impl.model;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
+import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.DataModelV1;
 
 public class BasicCopyReference implements CopyReference
 {
@@ -28,19 +30,14 @@ public class BasicCopyReference implements CopyReference
    private final String summary;
    private final String rights;
 
-   public BasicCopyReference(String id,
-                             String type,
-                             Map<String, String> properties,
-                             String title,
-                             String summary,
-                             String rights)
+   public BasicCopyReference(DataModelV1.CopyReferenceDTO dto)
    {
-      this.id = id;
-      this.type = type;
-      this.properties = properties;
-      this.title = title != null ? title : "";
-      this.summary = summary != null ? summary : "";
-      this.rights = rights != null ? rights : "";
+      this.id = dto.id;
+      this.type = dto.type;
+      this.properties = new HashMap<>(dto.properties);
+      this.title = dto.title != null ? dto.title : "";
+      this.summary = dto.summary != null ? dto.summary : "";
+      this.rights = dto.rights != null ? dto.rights : "";
    }
 
    @Override

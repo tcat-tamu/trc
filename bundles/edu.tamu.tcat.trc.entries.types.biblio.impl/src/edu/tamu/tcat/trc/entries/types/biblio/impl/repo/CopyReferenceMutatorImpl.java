@@ -3,7 +3,6 @@ package edu.tamu.tcat.trc.entries.types.biblio.impl.repo;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.tamu.tcat.trc.entries.types.biblio.dto.CopyReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.CopyReferenceMutator;
 import edu.tamu.tcat.trc.repo.ChangeSet;
 
@@ -11,9 +10,9 @@ public class CopyReferenceMutatorImpl implements CopyReferenceMutator
 {
 //   private CopyReferenceDTO copyReference;
    private final String id;
-   private final ChangeSet<CopyReferenceDTO> changes;
+   private final ChangeSet<DataModelV1.CopyReferenceDTO> changes;
 
-   public CopyReferenceMutatorImpl(String id, ChangeSet<CopyReferenceDTO> refChanges)
+   public CopyReferenceMutatorImpl(String id, ChangeSet<DataModelV1.CopyReferenceDTO> refChanges)
    {
       this.id = id;
       this.changes = refChanges;

@@ -3,6 +3,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.impl.model;
 import java.util.Objects;
 
 import edu.tamu.tcat.trc.entries.types.biblio.Title;
+import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.DataModelV1;
 
 public class BasicTitle implements Title
 {
@@ -11,15 +12,12 @@ public class BasicTitle implements Title
    String type;
    String language;
 
-   public BasicTitle(String type,
-                     String title,
-                     String subTitle,
-                     String language)
+   public BasicTitle(DataModelV1.TitleDTO dto)
    {
-      this.title = title;
-      this.subTitle = subTitle;
-      this.type = type;
-      this.language = language;
+      this.title = dto.title;
+      this.subTitle = dto.subtitle;
+      this.type = dto.type;
+      this.language = dto.lg;
    }
 
    @Override

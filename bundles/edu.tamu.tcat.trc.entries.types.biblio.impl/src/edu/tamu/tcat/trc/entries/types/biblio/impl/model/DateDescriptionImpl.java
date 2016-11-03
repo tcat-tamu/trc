@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.DataModelV1;
-import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.DataModelV1.DateDescriptionDTO;
 
 final class DateDescriptionImpl implements DateDescription
 {
@@ -15,10 +14,10 @@ final class DateDescriptionImpl implements DateDescription
    private final String description;
    private final LocalDate value;
 
-   DateDescriptionImpl(DataModelV1.DateDescriptionDTO dv)
+   DateDescriptionImpl(DataModelV1.DateDescriptionDTO dto)
    {
-      this.description = dv.description;
-      this.value = extractCalendarDate(dv);
+      this.description = dto.description;
+      this.value = extractCalendarDate(dto);
    }
 
    private static LocalDate extractCalendarDate(DataModelV1.DateDescriptionDTO dv)

@@ -369,17 +369,17 @@ public abstract class DataModelV1
    public static class WorkDTO
    {
       public String id;
-      @Deprecated // see note on Work#getType()
       public String type;
       public List<AuthorReferenceDTO> authors = new ArrayList<>();
       public Collection<TitleDTO> titles = new ArrayList<>();
-      @Deprecated
-      public List<AuthorReferenceDTO> otherAuthors = new ArrayList<>();
       public List<EditionDTO> editions = new ArrayList<>();
       public String series;
       public String summary;
       public String defaultCopyReferenceId;
       public Set<CopyReferenceDTO> copyReferences = new HashSet<>();
+
+      @Deprecated // maintained for legacy data preservation purposes.
+      public List<AuthorReferenceDTO> otherAuthors = new ArrayList<>();
    }
 
    public static class EditionDTO

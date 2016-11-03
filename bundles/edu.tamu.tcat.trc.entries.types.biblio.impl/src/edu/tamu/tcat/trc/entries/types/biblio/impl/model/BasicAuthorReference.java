@@ -1,23 +1,21 @@
 package edu.tamu.tcat.trc.entries.types.biblio.impl.model;
 
 import edu.tamu.tcat.trc.entries.types.biblio.AuthorReference;
+import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.DataModelV1;
 
 public class BasicAuthorReference implements AuthorReference
 {
-   String id;
-   String firstName;
-   String lastName;
-   String role;
+   private final String id;
+   private final String firstName;
+   private final String lastName;
+   private final String role;
 
-   public BasicAuthorReference(String id,
-                               String firstName,
-                               String lastName,
-                               String role)
+   public BasicAuthorReference(DataModelV1.AuthorReferenceDTO dto)
    {
-      this.id = id;
-      this.firstName = firstName;
-      this.lastName = lastName;
-      this.role = role;
+      this.id = dto.authorId;
+      this.firstName = dto.firstName;
+      this.lastName = dto.lastName;
+      this.role = dto.role;
    }
 
    @Override

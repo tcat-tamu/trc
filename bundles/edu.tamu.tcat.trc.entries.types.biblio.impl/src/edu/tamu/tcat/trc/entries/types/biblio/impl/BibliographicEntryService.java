@@ -9,16 +9,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.account.Account;
+import edu.tamu.tcat.trc.TrcApplication;
 import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistrar;
 import edu.tamu.tcat.trc.entries.types.biblio.BiblioEntryUtils;
 import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.Title;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.WorkDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.impl.model.BasicWork;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.BiblioRepoImpl;
+import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.DataModelV1;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.EditWorkCommandFactory;
-import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.ModelAdapter;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.search.BibliographicSearchStrategy;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.BibliographicEntryRepository;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand;
@@ -48,17 +49,24 @@ public class BibliographicEntryService
    private EntryRepositoryRegistrar context;
    private SearchServiceManager indexSvcMgr;
 
-   private DocumentRepository<BibliographicEntry, WorkDTO, EditBibliographicEntryCommand> docRepo;
-   private BasicRepoDelegate<BibliographicEntry, WorkDTO, EditBibliographicEntryCommand> delegate;
+   private DocumentRepository<BibliographicEntry, DataModelV1.WorkDTO, EditBibliographicEntryCommand> docRepo;
+   private BasicRepoDelegate<BibliographicEntry, DataModelV1.WorkDTO, EditBibliographicEntryCommand> delegate;
 
    private EntryResolverRegistrar.Registration resolverReg;
    private EntryRepositoryRegistrar.Registration repoReg;
    private EntryRepository.ObserverRegistration searchReg;
 
+   private TrcApplication trcCtx;
+
    public void setRepoContext(EntryRepositoryRegistrar context)
    {
       logger.fine(format("[{0}] setting repository context", getClass().getName()));
       this.context = context;
+   }
+
+   public void setTrcContext(TrcApplication trcCtx)
+   {
+      this.trcCtx = trcCtx;
    }
 
    public void setSearchSvcMgr(SearchServiceManager indexSvcFactory)
@@ -85,7 +93,10 @@ public class BibliographicEntryService
          Objects.requireNonNull(resolverReg);
          Objects.requireNonNull(repoReg);
 
-         initSearch();
+         if (indexSvcMgr != null)
+            initSearch();
+         else
+            logger.log(Level.WARNING, "Index support has not been configured for " + getClass().getSimpleName());
 
          logger.fine("Activated " + getClass().getSimpleName());
       }
@@ -130,30 +141,31 @@ public class BibliographicEntryService
       initDelegate();
 
       this.resolverReg = context.registerResolver(new BibliographicEntryResolver());
-      this.repoReg = context.registerRepository(BibliographicEntryRepository.class, account -> new BiblioRepoImpl(delegate, account));
+      this.repoReg = context.registerRepository(BibliographicEntryRepository.class,
+            account -> new BiblioRepoImpl(delegate, account));
    }
 
    private void initDocRepo()
    {
-      DocRepoBuilder<BibliographicEntry, WorkDTO, EditBibliographicEntryCommand> builder = context.getDocRepoBuilder();
+      DocRepoBuilder<BibliographicEntry, DataModelV1.WorkDTO, EditBibliographicEntryCommand> builder = context.getDocRepoBuilder();
       builder.setTableName(TABLE_NAME);
       builder.setDataColumn(SCHEMA_DATA_FIELD);
       builder.setEditCommandFactory(new EditWorkCommandFactory(context::getIdFactory));
-      builder.setDataAdapter(ModelAdapter::adapt);
-      builder.setStorageType(WorkDTO.class);
+      builder.setDataAdapter(BasicWork::new);
+      builder.setStorageType(DataModelV1.WorkDTO.class);
 
       docRepo = builder.build();
    }
 
    private void initDelegate()
    {
-      BasicRepoDelegate.Builder<BibliographicEntry, WorkDTO, EditBibliographicEntryCommand> delegateBuilder =
+      BasicRepoDelegate.Builder<BibliographicEntry, DataModelV1.WorkDTO, EditBibliographicEntryCommand> delegateBuilder =
             new BasicRepoDelegate.Builder<>();
 
       delegateBuilder.setEntryName("bibliographic");
       delegateBuilder.setIdFactory(context.getIdFactory(ID_CONTEXT_WORKS));
       delegateBuilder.setEntryResolvers(context.getResolverRegistry());
-      delegateBuilder.setAdapter(ModelAdapter::adapt);
+      delegateBuilder.setAdapter(BasicWork::new);
       delegateBuilder.setDocumentRepo(docRepo);
 
       delegate = delegateBuilder.build();
@@ -161,12 +173,7 @@ public class BibliographicEntryService
 
    private void initSearch()
    {
-      if (indexSvcMgr == null)
-      {
-         logger.log(Level.WARNING, "Index support has not been configured for " + getClass().getSimpleName());
-         return;
-      }
-      BibliographicSearchStrategy indexCfg = new BibliographicSearchStrategy();
+      BibliographicSearchStrategy indexCfg = new BibliographicSearchStrategy(trcCtx);
       IndexService<BibliographicEntry> indexSvc = indexSvcMgr.configure(indexCfg);
 
       BiblioRepoImpl repo = new BiblioRepoImpl(delegate, null);     // TODO USE SEARCH ACCT

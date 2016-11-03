@@ -1,85 +1,73 @@
 package edu.tamu.tcat.trc.entries.types.biblio.impl.model;
 
-import java.time.LocalDate;
-import java.util.Comparator;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
-import edu.tamu.tcat.trc.entries.common.DateDescription;
-import edu.tamu.tcat.trc.entries.types.biblio.AuthorList;
+import edu.tamu.tcat.trc.entries.types.biblio.AuthorReference;
 import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
-import edu.tamu.tcat.trc.entries.types.biblio.PublicationInfo;
 import edu.tamu.tcat.trc.entries.types.biblio.Title;
 import edu.tamu.tcat.trc.entries.types.biblio.TitleDefinition;
+import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.DataModelV1;
 
 public class BasicWork implements BibliographicEntry
 {
    private final String id;
-   @Deprecated // see note on Work#getType()
    private final String type;
-   private final AuthorList authors;
+   private final List<AuthorReference> authors;
    private final TitleDefinition title;
-   private final AuthorList otherAuthors;
+   private final List<AuthorReference> otherAuthors;
+
+//   private final AuthorList authors;
+//   private final AuthorList otherAuthors;
    private final List<Edition> editions;
    private final String series;
    private final String summary;
    private final CopyReference defaultCopyReference;
    private final Set<CopyReference> copyReferences;
 
-   public BasicWork(String id,
-                    AuthorList authors,
-                    TitleDefinition title,
-                    AuthorList otherAuthors,
-                    List<Edition> editions,
-                    String series,
-                    String summary,
-                    CopyReference defaultCopyReference,
-                    Set<CopyReference> copyReferences)
+   public BasicWork(DataModelV1.WorkDTO dto)
    {
-      this(id,
-           null,
-           authors,
-           title,
-           otherAuthors,
-           editions,
-           series,
-           summary,
-           defaultCopyReference,
-           copyReferences);
-   }
+      this.id = dto.id;
+      this.type = dto.type;
 
-   public BasicWork(String id,
-                    String type,
-                    AuthorList authors,
-                    TitleDefinition title,
-                    AuthorList otherAuthors,
-                    List<Edition> editions,
-                    String series,
-                    String summary,
-                    CopyReference defaultCopyReference,
-                    Set<CopyReference> copyReferences)
-   {
-      this.id = id;
+      this.series = dto.series;
+      this.summary = dto.summary;
 
-      this.type = type;
+      this.authors = dto.authors != null
+            ? dto.authors.stream().map(BasicAuthorReference::new).collect(toList())
+            : Collections.emptyList();
 
-      // TODO: should copies be created of aggregate types?
-      this.authors = authors;
-      this.title = title;
-      this.otherAuthors = otherAuthors;
+      Collection<Title> titles = dto.titles != null
+            ? dto.titles.stream().map(BasicTitle::new).collect(toList())
+            : Collections.emptyList();
+      this.title = new BasicTitleDefinition(titles);
 
-      // ensure editions are sorted properly
-      editions.sort(Comparator.comparing(BasicWork::extractPublicationDate));
-      this.editions = editions;
+      this.editions = dto.editions != null
+            ? dto.editions.stream().map(BasicEdition::new).collect(toList())
+            : Collections.emptyList();
 
-      this.series = series;
-      this.summary = summary;
-      this.defaultCopyReference = defaultCopyReference;
-      this.copyReferences = copyReferences;
+      this.otherAuthors = dto.otherAuthors != null
+            ? dto.otherAuthors.stream().map(BasicAuthorReference::new).collect(toList())
+            : Collections.emptyList();
+
+      this.copyReferences = dto.copyReferences != null
+            ? dto.copyReferences.stream().map(BasicCopyReference::new).collect(toSet())
+            : Collections.emptySet();
+
+      this.defaultCopyReference = copyReferences.stream()
+            .filter(copyReference -> Objects.equals(copyReference.getId(), dto.defaultCopyReferenceId))
+            .findFirst()
+            .orElse(!copyReferences.isEmpty() ? copyReferences.iterator().next() : null);
    }
 
    @Override
@@ -96,9 +84,9 @@ public class BasicWork implements BibliographicEntry
    }
 
    @Override
-   public AuthorList getAuthors()
+   public List<AuthorReference> getAuthors()
    {
-      return authors;
+      return Collections.unmodifiableList(authors);
    }
 
    @Override
@@ -138,9 +126,9 @@ public class BasicWork implements BibliographicEntry
    }
 
    @Override
-   public AuthorList getOtherAuthors()
+   public List<AuthorReference> getOtherAuthors()
    {
-      return otherAuthors;
+      return Collections.unmodifiableList(otherAuthors);
    }
 
    @Override
@@ -183,34 +171,5 @@ public class BasicWork implements BibliographicEntry
    public Set<CopyReference> getCopyReferences()
    {
       return copyReferences;
-   }
-
-   /**
-    * Extract publication date information from an edition.
-    *
-    * @param edition
-    * @return
-    */
-   private static String extractPublicationDate(Edition edition) {
-      String editionName = edition.getEditionName() == null ? "" : edition.getEditionName();
-      PublicationInfo publicationInfo = edition.getPublicationInfo();
-
-      if (publicationInfo == null) {
-         return editionName;
-      }
-
-      DateDescription publicationDate = publicationInfo.getPublicationDate();
-
-      if (publicationDate == null) {
-         return editionName;
-      }
-
-      LocalDate date = publicationDate.getCalendar();
-
-      if (date == null) {
-         return editionName;
-      }
-
-      return date.toString();
    }
 }

@@ -68,6 +68,7 @@ public class BiblioDocument
             indexDocument.set(BiblioSolrConfig.AUTHOR_IDS, author.authorId);
          else
             indexDocument.set(BiblioSolrConfig.AUTHOR_IDS, "");
+
          indexDocument.set(BiblioSolrConfig.AUTHOR_NAMES,  author.firstName + " " + author.lastName);
       }
    }
