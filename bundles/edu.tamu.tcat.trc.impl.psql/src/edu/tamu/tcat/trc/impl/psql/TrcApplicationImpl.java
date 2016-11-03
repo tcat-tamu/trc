@@ -142,14 +142,13 @@ public class TrcApplicationImpl implements TrcApplication
    @Override
    public <T> EntryFacade<T> getEntryFacade(EntryId ref, Class<T> type, Account account)
    {
-      return new EntryFacadeImpl<>(svcMgr, repositories, ref, account, type);
+      return new EntryFacadeImpl<>(ref, type, account, this);
    }
 
    @Override
    public <T> EntryFacade<T> getEntryFacade(T entry, Class<T> type, Account account)
    {
-      EntryId ref = resolvers.getResolver(entry).makeReference(entry);
-      return new EntryFacadeImpl<>(svcMgr, repositories, ref, account, type);
+      return new EntryFacadeImpl<>(entry, type, account, this);
    }
 
 }

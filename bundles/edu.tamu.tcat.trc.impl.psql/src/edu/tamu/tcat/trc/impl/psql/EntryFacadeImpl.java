@@ -10,13 +10,12 @@ import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.EntryFacade;
-import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
+import edu.tamu.tcat.trc.TrcApplication;
 import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolver;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.resolver.InvalidReferenceException;
 import edu.tamu.tcat.trc.services.ServiceContext;
-import edu.tamu.tcat.trc.services.TrcServiceManager;
 import edu.tamu.tcat.trc.services.bibref.ReferenceCollection;
 import edu.tamu.tcat.trc.services.bibref.repo.EditBibliographyCommand;
 import edu.tamu.tcat.trc.services.bibref.repo.RefCollectionService;
@@ -28,36 +27,26 @@ import edu.tamu.tcat.trc.services.seealso.SeeAlsoService;
 
 public class EntryFacadeImpl<EntryType> implements EntryFacade<EntryType>
 {
-   private final TrcServiceManager svcMgr;
    private final EntryId ref;
    private final Account account;
    private final Class<EntryType> typeToken;
-
-   private final EntryResolverRegistry resolvers;
-   private final EntryResolver<Object> resolver;
 
    private final ReferenceServiceDelegate refSvcDelegate;
    private final NoteServiceDelegate notesSvcDelegate;
    private final SeeAlsoSvcDelegate seeAlsoSvcDelegate;
 
-   public EntryFacadeImpl(TrcServiceManager svcMgr, EntryRepositoryRegistry repoRegistry, EntryId ref, Account acct, Class<EntryType> typeToken)
+   private Optional<EntryType> entry = null;
+   private TrcApplication trcCtx;
+
+   public EntryFacadeImpl(EntryId ref, Class<EntryType> typeToken, Account acct, TrcApplication trcCtx)
    {
-      this.svcMgr = svcMgr;
+      this.trcCtx = trcCtx;
+
       this.ref = ref;
       this.account = acct;
       this.typeToken = typeToken;
 
-      resolvers = repoRegistry.getResolverRegistry();
-      resolver = resolvers.getResolver(ref);
-
-      Class<Object> refType = resolver.getType();
-      if (!typeToken.isAssignableFrom(refType))
-      {
-         // fail fast if we have a type mismatch
-         String string = "The supplied entry reference {0} is not compatible with the expected entry type {1}."
-               + "The supplied entry is an instance of {2}";
-         throw new InvalidReferenceException(ref, format(string, ref, typeToken, refType));
-      }
+      checkTypeCompatibility(ref, typeToken, trcCtx);
 
       // spin up delgates to manage specific services
       refSvcDelegate = new ReferenceServiceDelegate();
@@ -65,12 +54,50 @@ public class EntryFacadeImpl<EntryType> implements EntryFacade<EntryType>
       seeAlsoSvcDelegate = new SeeAlsoSvcDelegate();
    }
 
+   public EntryFacadeImpl(EntryType instance, Class<EntryType> typeToken, Account acct, TrcApplication trcCtx)
+   {
+      this.trcCtx = trcCtx;
+
+      this.entry = Optional.of(instance);
+      this.ref = trcCtx.getResolverRegistry().getResolver(instance).makeReference(instance);
+
+      this.account = acct;
+      this.typeToken = typeToken;
+
+      checkTypeCompatibility(ref, typeToken, trcCtx);
+
+      // spin up delgates to manage specific services
+      refSvcDelegate = new ReferenceServiceDelegate();
+      notesSvcDelegate = new NoteServiceDelegate();
+      seeAlsoSvcDelegate = new SeeAlsoSvcDelegate();
+   }
+
+   private static void checkTypeCompatibility(EntryId ref, Class<?> typeToken, TrcApplication trcCtx)
+   {
+      EntryResolver<?> resolver = trcCtx.getResolverRegistry().getResolver(ref);
+      Class<?> refType = resolver.getType();
+      if (!typeToken.isAssignableFrom(refType))
+      {
+         // fail fast if we have a type mismatch
+         String string = "The supplied entry reference {0} is not compatible with the expected entry type {1}."
+               + "The supplied entry is an instance of {2}";
+         throw new InvalidReferenceException(ref, format(string, ref, typeToken, refType));
+      }
+   }
+
    @Override
    public synchronized Optional<EntryType> getEntry()
    {
-      Optional<Object> entry = resolver.resolve(account, ref);
-      return entry.map(typeToken::cast);
+      if (entry == null)
+      {
+         // HACK this is awkward
+         EntryResolver<Object> resolver = trcCtx.getResolverRegistry().getResolver(ref);
+         entry = resolver.resolve(account, ref).map(typeToken::cast);
+      }
+
+      return entry;
    }
+
 
    @Override
    public EntryId getEntryId()
@@ -129,6 +156,7 @@ public class EntryFacadeImpl<EntryType> implements EntryFacade<EntryType>
    @Override
    public CompletableFuture<Void> remove()
    {
+      EntryResolver<Object> resolver = trcCtx.getResolverRegistry().getResolver(ref);
       return resolver.remove(account, ref)
                  .thenAccept(flag -> seeAlsoSvcDelegate.remove())
                  .thenAccept(flag -> notesSvcDelegate.remove())
@@ -144,8 +172,8 @@ public class EntryFacadeImpl<EntryType> implements EntryFacade<EntryType>
       public ReferenceServiceDelegate()
       {
          ServiceContext<RefCollectionService> ctx = RefCollectionService.makeContext(account);
-         refSvc = svcMgr.getService(ctx);
-         token = resolvers.tokenize(ref);
+         refSvc = trcCtx.getService(ctx);
+         token = trcCtx.getResolverRegistry().tokenize(ref);
       }
 
       public ReferenceCollection getReferences()
@@ -171,7 +199,7 @@ public class EntryFacadeImpl<EntryType> implements EntryFacade<EntryType>
       public NoteServiceDelegate()
       {
          // TODO will need to allow for multiple contexts
-         notesSvc = svcMgr.getService(NotesService.makeContext(account));
+         notesSvc = trcCtx.getService(NotesService.makeContext(account));
       }
 
       public Collection<Note> getNotes()
@@ -203,12 +231,13 @@ public class EntryFacadeImpl<EntryType> implements EntryFacade<EntryType>
 
       public SeeAlsoSvcDelegate()
       {
-         service = svcMgr.getService(SeeAlsoService.makeContext(account));
-         source = Objects.requireNonNull(resolvers.tokenize(ref));
+         service = trcCtx.getService(SeeAlsoService.makeContext(account));
+         source = Objects.requireNonNull(trcCtx.getResolverRegistry().tokenize(ref));
       }
 
       public Collection<EntryId> getLinks()
       {
+         EntryResolverRegistry resolvers = trcCtx.getResolverRegistry();
          return service.getFor(source).stream()
                .map(link -> source.equals(link.getSource()) ? link.getTarget() : link.getSource())
                .map(resolvers::decodeToken)
@@ -217,13 +246,13 @@ public class EntryFacadeImpl<EntryType> implements EntryFacade<EntryType>
 
       public Link link(EntryId ref)
       {
-         String target = resolvers.tokenize(ref);
+         String target = trcCtx.getResolverRegistry().tokenize(ref);
          return service.create(source, target);
       }
 
       public boolean removeLink(EntryId ref)
       {
-         String target = resolvers.tokenize(ref);
+         String target = trcCtx.getResolverRegistry().tokenize(ref);
          return service.delete(source, target);
       }
 
