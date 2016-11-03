@@ -34,6 +34,7 @@ public class ReferenceCollectionResource
 
    public ReferenceCollectionResource(RefCollectionService repo, EntryId targetRef)
    {
+      // TODO refactor to use TrcApplication
       this.repo = repo;
       this.targetRef = targetRef;
    }
