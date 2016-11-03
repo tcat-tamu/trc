@@ -33,6 +33,7 @@ import org.junit.Test;
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
+import edu.tamu.tcat.trc.ResourceNotFoundException;
 import edu.tamu.tcat.trc.entries.core.repo.NoSuchEntryException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.impl.ArticleEntryService;
@@ -232,7 +233,7 @@ public class ArticleRepoTests
       // Note - there is no obligation that the reolver id be the same as the article id,
       // so we won't test for that
 
-      Article resolved = resolver.resolve(null, articleRef);
+      Article resolved = resolver.resolve(null, articleRef).orElseThrow(() -> new ResourceNotFoundException());
       assertNotNull(resolved);
       assertEquals(article.getId(), resolved.getId());
       assertEquals(article.getArticleType(), resolved.getArticleType());

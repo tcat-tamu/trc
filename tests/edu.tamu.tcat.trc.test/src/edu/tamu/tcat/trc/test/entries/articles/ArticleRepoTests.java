@@ -232,7 +232,7 @@ public class ArticleRepoTests
       // Note - there is no obligation that the reolver id be the same as the article id,
       // so we won't test for that
 
-      Article resolved = resolver.resolve(null, articleRef);
+      Article resolved = resolver.resolve(null, articleRef).orElseThrow(() -> new ResourceNotFoundException());
       assertNotNull(resolved);
       assertEquals(article.getId(), resolved.getId());
       assertEquals(article.getArticleType(), resolved.getArticleType());

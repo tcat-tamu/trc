@@ -7,9 +7,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.sql.PreparedStatement;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -86,16 +84,6 @@ public abstract class CategorizationRepositoryTests
       repos.registerResolver(entryResolver);
 
       svc = new CategorizationServiceFactory(repos);
-//      svc.bindSqlExecutor(exec);
-//      svc.bindIdProvider(idProvider);
-//      svc.bindEntryRepoResolver(repos);
-      // TODO configure search
-
-      Map<String, Object> props = new HashMap<>();
-      props.put(CategorizationServiceFactory.PARAM_ID_CTX, "trc.services.categorization.schemes.ids");
-      props.put(CategorizationServiceFactory.PARAM_NODE_CTX, "trc.services.categorization.nodes.ids");
-      props.put(CategorizationServiceFactory.PARAM_TABLE_NAME, TBL_NAME);
-      svc.activate(props);
    }
 
    @After
@@ -255,8 +243,8 @@ public abstract class CategorizationRepositoryTests
       String token = repos.getResolverRegistry().tokenize(mockRef);
       System.out.println(token);
       EntryId restored = repos.getResolverRegistry().decodeToken(token);
-      assertEquals(mockRef.id, restored.id);
-      assertEquals(mockRef.type, restored.type);
+      assertEquals(mockRef.getId(), restored.getId());
+      assertEquals(mockRef.getType(), restored.getType());
    }
 
    protected abstract Strategy getStrategy();
@@ -344,7 +332,7 @@ public abstract class CategorizationRepositoryTests
          EntryId ref = nodeA.getAssociatedEntryRef();
          MockEntry entry = nodeA.getAssociatedEntry(MockEntry.class);
 
-         assertEquals(mockRef.id, ref.id);
+         assertEquals(mockRef.getId(), ref.getId());
          assertEquals(mockRef.getType(), ref.getType());
 
          assertEquals(mockEntry.getId(), entry.getId());
