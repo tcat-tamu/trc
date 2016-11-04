@@ -31,7 +31,7 @@ public class EditionCollectionResource
     */
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public List<RestApiV1.Edition> listEditions()
+   public List<BiblioRestApiV1.Edition> listEditions()
    {
       return collectionPersistenceAdapter.get().stream()
             .map(RepoAdapter::toDTO)
@@ -46,7 +46,7 @@ public class EditionCollectionResource
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.Edition createEdition(RestApiV1.Edition edition)
+   public BiblioRestApiV1.Edition createEdition(BiblioRestApiV1.Edition edition)
    {
       String id = collectionPersistenceAdapter.create(mutator -> RepoAdapter.apply(edition, mutator));
       Edition createdEdition = collectionPersistenceAdapter.get(id).get();

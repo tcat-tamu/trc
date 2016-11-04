@@ -29,7 +29,7 @@ import edu.tamu.tcat.trc.resolver.EntryIdDto;
  * An encapsulation of the data vehicle types used to process JSON requests and responses
  * for version 1 of the TRC REST API for Bibliographic entries.
  */
-public class RestApiV1
+public class BiblioRestApiV1
 {
    public static class WorkSearchResultSet
    {

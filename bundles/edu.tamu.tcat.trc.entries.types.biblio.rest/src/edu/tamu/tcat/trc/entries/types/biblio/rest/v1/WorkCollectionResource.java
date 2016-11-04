@@ -5,6 +5,9 @@ import static java.util.stream.Collectors.toList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,6 +24,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -37,8 +41,8 @@ import edu.tamu.tcat.trc.entries.types.biblio.search.WorkQueryCommand;
 import edu.tamu.tcat.trc.resolver.EntryIdDto;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.QueryService;
-import edu.tamu.tcat.trc.search.solr.SearchException;
 import edu.tamu.tcat.trc.services.TrcServiceManager;
+import edu.tamu.tcat.trc.services.rest.ApiUtils;
 
 public class WorkCollectionResource
 {
@@ -69,58 +73,23 @@ public class WorkCollectionResource
     */
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.WorkSearchResultSet
+   public BiblioRestApiV1.WorkSearchResultSet
    searchWorks(@QueryParam(value = "q") String query,
                @QueryParam(value = "a") List<String> authorNames,
                @QueryParam(value = "t") List<String> titles,
                @QueryParam(value = "aid") List<String> authorIds, // specify same param with multiple values to get a list
-               @QueryParam(value = "dr") List<RestApiV1.DateRangeParam> dateRanges,
+               @QueryParam(value = "dr") List<BiblioRestApiV1.DateRangeParam> dateRanges,
                @QueryParam(value = "type") String type,
                @QueryParam(value = "off") @DefaultValue("0")   int offset,
                @QueryParam(value = "max") @DefaultValue("100") int numResults)
    {
       SearchWorksResult worksResult;
 
-      try
-      {
-         WorkQueryCommand cmd = queryService.createQuery();
-
-         // First, set query parameters
-         //NOTE: a query can work without any parameters, so no need to validate that at least a 'q'
-         //      or other advanced criteria was supplied
-         if (query != null)
-            cmd.query(query);
-
-         if (type != null)
-            cmd.queryType(type);
-
-         authorNames.stream().forEach(cmd::queryAuthorName);
-         titles.stream().forEach(cmd::queryTitle);
-
-         // now filters/facets
-         cmd.addFilterAuthor(authorIds);
-         for (RestApiV1.DateRangeParam dr : dateRanges)
-         {
-            cmd.addFilterDate(dr.start, dr.end);
-         }
-
-         // now meta fields
-         cmd.setMaxResults(numResults);
-         cmd.setOffset(offset);
-
-         // execute query
-         worksResult = cmd.execute();
-      }
-      catch (SearchException e)
-      {
-         String message = "Unable to search for works.";
-         logger.log(Level.SEVERE, message, e);
-         throw new InternalServerErrorException(message, e);
-      }
+      worksResult = executeSearch(query, authorNames, titles, authorIds, dateRanges, type, offset, numResults);
 
 
       // assemble search response data vehicle
-      RestApiV1.WorkSearchResultSet resultSet = new RestApiV1.WorkSearchResultSet();
+      BiblioRestApiV1.WorkSearchResultSet resultSet = new BiblioRestApiV1.WorkSearchResultSet();
       List<BiblioSearchProxy> results = worksResult.get();
       resultSet.items = adapt(results);
 
@@ -157,6 +126,59 @@ public class WorkCollectionResource
       return resultSet;
    }
 
+   private SearchWorksResult executeSearch(String query,
+                                           List<String> authorNames,
+                                           List<String> titles,
+                                           List<String> authorIds,
+                                           List<BiblioRestApiV1.DateRangeParam> dateRanges,
+                                           String type, int offset, int numResults) throws Error
+   {
+      try
+      {
+         WorkQueryCommand cmd = queryService.createQuery();
+
+         // First, set query parameters
+         //NOTE: a query can work without any parameters, so no need to validate that at least a 'q'
+         //      or other advanced criteria was supplied
+         if (query != null)
+            cmd.query(query);
+
+         if (type != null)
+            cmd.queryType(type);
+
+         authorNames.stream().forEach(cmd::queryAuthorName);
+         titles.stream().forEach(cmd::queryTitle);
+
+         // now filters/facets
+         cmd.addFilterAuthor(authorIds);
+         for (BiblioRestApiV1.DateRangeParam dr : dateRanges)
+         {
+            cmd.addFilterDate(dr.start, dr.end);
+         }
+
+         // now meta fields
+         cmd.setMaxResults(numResults);
+         cmd.setOffset(offset);
+
+         // execute query
+         return cmd.execute().get(10, TimeUnit.SECONDS);
+      }
+      catch (ExecutionException e)
+      {
+         Throwable cause = e.getCause();
+         if (Error.class.isInstance(cause))
+            throw Error.class.cast(cause);
+
+         String msg = "Unable to retrieve works search results.";
+         throw ApiUtils.raise(Response.Status.INTERNAL_SERVER_ERROR, msg, Level.SEVERE, (Exception)cause);
+      }
+      catch (InterruptedException | TimeoutException e)
+      {
+         String msg = "Oops. Things seem to be taking a bit longer than expected. Please try again later.";
+         throw ApiUtils.raise(Response.Status.SERVICE_UNAVAILABLE, msg, Level.WARNING, e);
+      }
+   }
+
    /**
     * Saves a new work object
     *
@@ -165,7 +187,7 @@ public class WorkCollectionResource
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.Work createWork(RestApiV1.Work work)
+   public BiblioRestApiV1.Work createWork(BiblioRestApiV1.Work work)
    {
       EditBibliographicEntryCommand command = repo.create();
       RepoAdapter.apply(work, command);
@@ -197,16 +219,16 @@ public class WorkCollectionResource
       return new WorkResource(helper, serviceMgr, resolvers);
    }
 
-   private List<RestApiV1.WorkSearchResult> adapt(List<BiblioSearchProxy> origList)
+   private List<BiblioRestApiV1.WorkSearchResult> adapt(List<BiblioSearchProxy> origList)
    {
       return origList == null
             ? Collections.emptyList()
             : origList.stream().map(this::adapt).collect(toList());
    }
 
-   private RestApiV1.WorkSearchResult adapt(BiblioSearchProxy orig)
+   private BiblioRestApiV1.WorkSearchResult adapt(BiblioSearchProxy orig)
    {
-      RestApiV1.WorkSearchResult dto = new RestApiV1.WorkSearchResult();
+      BiblioRestApiV1.WorkSearchResult dto = new BiblioRestApiV1.WorkSearchResult();
       dto.id = orig.id;
       dto.ref = orig.token == null ? null : EntryIdDto.adapt(resolvers.getReference(orig.token));
       dto.type = orig.type;
@@ -220,9 +242,9 @@ public class WorkCollectionResource
       return dto;
    }
 
-   private RestApiV1.AuthorRef adapt(BiblioSearchProxy.AuthorProxy author)
+   private BiblioRestApiV1.AuthorRef adapt(BiblioSearchProxy.AuthorProxy author)
    {
-      RestApiV1.AuthorRef dto = new RestApiV1.AuthorRef();
+      BiblioRestApiV1.AuthorRef dto = new BiblioRestApiV1.AuthorRef();
       dto.authorId = author.authorId;
       dto.firstName = author.firstName;
       dto.lastName = author.lastName;

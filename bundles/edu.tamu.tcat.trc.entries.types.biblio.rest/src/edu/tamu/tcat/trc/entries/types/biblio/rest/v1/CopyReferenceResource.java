@@ -28,7 +28,7 @@ public class CopyReferenceResource
     */
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.CopyReference getCopyReference()
+   public BiblioRestApiV1.CopyReference getCopyReference()
    {
       CopyReference reference = repoHelper.get();
       return RepoAdapter.toDTO(reference);
@@ -42,7 +42,7 @@ public class CopyReferenceResource
    @PUT
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.CopyReference updateCopyReference(RestApiV1.CopyReference updatedCopyReference)
+   public BiblioRestApiV1.CopyReference updateCopyReference(BiblioRestApiV1.CopyReference updatedCopyReference)
    {
       repoHelper.edit(mutator -> {
          if (updatedCopyReference.id != mutator.getId())

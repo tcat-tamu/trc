@@ -56,7 +56,7 @@ public class VolumeResource
 
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.Volume getVolume()
+   public BiblioRestApiV1.Volume getVolume()
    {
       Volume volume = volumePersistenceAdapter.get();
       return RepoAdapter.toDTO(volume);
@@ -65,7 +65,7 @@ public class VolumeResource
    @PUT
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.Volume updateVolume(RestApiV1.Volume volume)
+   public BiblioRestApiV1.Volume updateVolume(BiblioRestApiV1.Volume volume)
    {
       volumePersistenceAdapter.edit(mutator -> {
          if (!Objects.equals(volume.id, mutator.getId()))

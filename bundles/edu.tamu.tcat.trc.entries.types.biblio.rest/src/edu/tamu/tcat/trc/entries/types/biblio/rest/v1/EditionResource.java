@@ -62,7 +62,7 @@ public class EditionResource
     */
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.Edition getEdition()
+   public BiblioRestApiV1.Edition getEdition()
    {
       Edition edition = editionPersistenceAdapter.get();
       return RepoAdapter.toDTO(edition);
@@ -76,7 +76,7 @@ public class EditionResource
     */
    @PUT
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.Edition updateEdition(RestApiV1.Edition edition)
+   public BiblioRestApiV1.Edition updateEdition(BiblioRestApiV1.Edition edition)
    {
       editionPersistenceAdapter.edit(mutator -> {
          if (!Objects.equals(edition.id, mutator.getId()))

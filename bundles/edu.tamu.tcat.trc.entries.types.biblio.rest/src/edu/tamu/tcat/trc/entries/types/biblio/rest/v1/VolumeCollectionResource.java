@@ -32,7 +32,7 @@ public class VolumeCollectionResource
     */
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public List<RestApiV1.Volume> listVolumes()
+   public List<BiblioRestApiV1.Volume> listVolumes()
    {
       return repoHelper.get().stream()
             .map(RepoAdapter::toDTO)
@@ -47,7 +47,7 @@ public class VolumeCollectionResource
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.Volume createVolume(RestApiV1.Volume volume)
+   public BiblioRestApiV1.Volume createVolume(BiblioRestApiV1.Volume volume)
    {
       String id = repoHelper.create(mutator -> RepoAdapter.apply(volume, mutator));
       Volume createdVolume = repoHelper.get(id).get();

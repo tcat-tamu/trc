@@ -42,7 +42,7 @@ public class CopyReferenceCollectionResource
 
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public List<RestApiV1.CopyReference> getByWorkId()
+   public List<BiblioRestApiV1.CopyReference> getByWorkId()
    {
       return repoHelper.get().stream()
             .map(RepoAdapter::toDTO)
@@ -65,7 +65,7 @@ public class CopyReferenceCollectionResource
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.CopyReference createCopyReference(RestApiV1.CopyReference dto)
+   public BiblioRestApiV1.CopyReference createCopyReference(BiblioRestApiV1.CopyReference dto)
    {
       String id = repoHelper.create(mutator -> RepoAdapter.apply(dto, mutator));
       CopyReference copyReference = repoHelper.get(id).get();

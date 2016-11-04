@@ -59,7 +59,7 @@ public class WorkResource
     */
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.Work getWork()
+   public BiblioRestApiV1.Work getWork()
    {
       BibliographicEntry work = workPersistenceAdapter.get();
       return RepoAdapter.toDTO(work, resolverRegistry);
@@ -73,7 +73,7 @@ public class WorkResource
    @PUT
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.Work updateWork(RestApiV1.Work updatedWork)
+   public BiblioRestApiV1.Work updateWork(BiblioRestApiV1.Work updatedWork)
    {
       workPersistenceAdapter.edit(command -> {
          if (!Objects.equals(updatedWork.id, command.getId()))

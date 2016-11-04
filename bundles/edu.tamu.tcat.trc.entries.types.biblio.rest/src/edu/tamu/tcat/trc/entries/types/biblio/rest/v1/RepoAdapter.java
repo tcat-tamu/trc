@@ -47,18 +47,18 @@ import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
 /**
  * An encapsulation of adapter methods to convert between the repository API and
- * the {@link RestApiV1} schema DTOs.
+ * the {@link BiblioRestApiV1} schema DTOs.
  */
 public class RepoAdapter
 {
-   public static RestApiV1.Work toDTO(BibliographicEntry work, EntryResolverRegistry resolvers)
+   public static BiblioRestApiV1.Work toDTO(BibliographicEntry work, EntryResolverRegistry resolvers)
    {
       if (work == null)
       {
          return null;
       }
 
-      RestApiV1.Work dto = new RestApiV1.Work();
+      BiblioRestApiV1.Work dto = new BiblioRestApiV1.Work();
 
       dto.id = work.getId();
 
@@ -99,12 +99,12 @@ public class RepoAdapter
       return dto;
    }
 
-   public static RestApiV1.AuthorRef toDTO(AuthorReferenceDTO orig)
+   public static BiblioRestApiV1.AuthorRef toDTO(AuthorReferenceDTO orig)
    {
       if (orig == null)
          return null;
 
-      RestApiV1.AuthorRef dto = new RestApiV1.AuthorRef();
+      BiblioRestApiV1.AuthorRef dto = new BiblioRestApiV1.AuthorRef();
       dto.authorId = orig.authorId;
       dto.lastName = orig.lastName;
       dto.firstName = orig.firstName;
@@ -113,9 +113,9 @@ public class RepoAdapter
       return dto;
    }
 
-   public static RestApiV1.Edition toDTO(Edition ed)
+   public static BiblioRestApiV1.Edition toDTO(Edition ed)
    {
-      RestApiV1.Edition dto = new RestApiV1.Edition();
+      BiblioRestApiV1.Edition dto = new BiblioRestApiV1.Edition();
       dto.id = ed.getId();
 
       dto.editionName = ed.getEditionName();
@@ -155,23 +155,23 @@ public class RepoAdapter
       return dto;
    }
 
-   public static RestApiV1.PublicationInfo toDTO(PublicationInfo orig)
+   public static BiblioRestApiV1.PublicationInfo toDTO(PublicationInfo orig)
    {
       if (orig == null)
          return null;
 
-      RestApiV1.PublicationInfo dto = new RestApiV1.PublicationInfo();
+      BiblioRestApiV1.PublicationInfo dto = new BiblioRestApiV1.PublicationInfo();
       dto.publisher = orig.getPublisher();
       dto.place = orig.getLocation();
       dto.date = toDTO(orig.getPublicationDate());
       return dto;
    }
 
-   public static RestApiV1.DateDescription toDTO(DateDescription orig)
+   public static BiblioRestApiV1.DateDescription toDTO(DateDescription orig)
    {
       if (orig == null)
          return null;
-      RestApiV1.DateDescription dto = new RestApiV1.DateDescription();
+      BiblioRestApiV1.DateDescription dto = new BiblioRestApiV1.DateDescription();
       LocalDate d = orig.getCalendar();
       if (d != null)
       {
@@ -183,12 +183,12 @@ public class RepoAdapter
       return dto;
    }
 
-   public static RestApiV1.Volume toDTO(Volume vol)
+   public static BiblioRestApiV1.Volume toDTO(Volume vol)
    {
       if (vol == null)
          return null;
 
-      RestApiV1.Volume dto = new RestApiV1.Volume();
+      BiblioRestApiV1.Volume dto = new BiblioRestApiV1.Volume();
       dto.id = vol.getId();
 
       dto.volumeNumber = vol.getVolumeNumber();
@@ -224,12 +224,12 @@ public class RepoAdapter
       return dto;
    }
 
-   public static RestApiV1.Title toDTO(Title orig)
+   public static BiblioRestApiV1.Title toDTO(Title orig)
    {
       if (orig == null)
          return null;
 
-      RestApiV1.Title dto = new RestApiV1.Title();
+      BiblioRestApiV1.Title dto = new BiblioRestApiV1.Title();
       dto.type = orig.getType();
       dto.lg = orig.getLanguage();
       dto.title = orig.getTitle();
@@ -237,12 +237,12 @@ public class RepoAdapter
       return dto;
    }
 
-   public static RestApiV1.AuthorRef toDTO(AuthorReference author)
+   public static BiblioRestApiV1.AuthorRef toDTO(AuthorReference author)
    {
       if (author == null)
          return null;
 
-      RestApiV1.AuthorRef dto = new RestApiV1.AuthorRef();
+      BiblioRestApiV1.AuthorRef dto = new BiblioRestApiV1.AuthorRef();
       dto.authorId = author.getId();
 
       String fName = author.getFirstName();
@@ -255,14 +255,14 @@ public class RepoAdapter
       return dto;
    }
 
-   public static RestApiV1.CopyReference toDTO(CopyReference copyReference)
+   public static BiblioRestApiV1.CopyReference toDTO(CopyReference copyReference)
    {
       if (copyReference == null)
       {
          return null;
       }
 
-      RestApiV1.CopyReference dto = new RestApiV1.CopyReference();
+      BiblioRestApiV1.CopyReference dto = new BiblioRestApiV1.CopyReference();
 
       dto.id = copyReference.getId();
       dto.type = copyReference.getType();
@@ -274,7 +274,7 @@ public class RepoAdapter
       return dto;
    }
 
-   public static AuthorReferenceDTO toRepo(RestApiV1.AuthorRef orig)
+   public static AuthorReferenceDTO toRepo(BiblioRestApiV1.AuthorRef orig)
    {
       if (orig == null)
          return null;
@@ -288,7 +288,7 @@ public class RepoAdapter
       return dto;
    }
 
-   public static PublicationInfoDTO toRepo(RestApiV1.PublicationInfo orig)
+   public static PublicationInfoDTO toRepo(BiblioRestApiV1.PublicationInfo orig)
    {
       if (orig == null)
          return null;
@@ -301,7 +301,7 @@ public class RepoAdapter
       return dto;
    }
 
-   public static DateDescriptionDTO toRepo(RestApiV1.DateDescription orig)
+   public static DateDescriptionDTO toRepo(BiblioRestApiV1.DateDescription orig)
    {
       if (orig == null)
          return null;
@@ -313,7 +313,7 @@ public class RepoAdapter
       return dto;
    }
 
-   public static TitleDTO toRepo(RestApiV1.Title orig)
+   public static TitleDTO toRepo(BiblioRestApiV1.Title orig)
    {
       if (orig == null)
          return null;
@@ -327,7 +327,7 @@ public class RepoAdapter
       return dto;
    }
 
-   public static void apply(RestApiV1.Work work, EditBibliographicEntryCommand command)
+   public static void apply(BiblioRestApiV1.Work work, EditBibliographicEntryCommand command)
    {
       List<AuthorReferenceDTO> authors = work.authors.stream()
             .map(RepoAdapter::toRepo)
@@ -391,7 +391,7 @@ public class RepoAdapter
       }
    }
 
-   public static void apply(RestApiV1.Edition edition, EditionMutator mutator)
+   public static void apply(BiblioRestApiV1.Edition edition, EditionMutator mutator)
    {
       mutator.setEditionName(edition.editionName);
 
@@ -460,7 +460,7 @@ public class RepoAdapter
       }
    }
 
-   public static void apply(RestApiV1.Volume volume, VolumeMutator mutator)
+   public static void apply(BiblioRestApiV1.Volume volume, VolumeMutator mutator)
    {
       mutator.setVolumeNumber(volume.volumeNumber);
 
@@ -511,7 +511,7 @@ public class RepoAdapter
       }
    }
 
-   public static void apply(RestApiV1.CopyReference dto, CopyReferenceMutator mutator)
+   public static void apply(BiblioRestApiV1.CopyReference dto, CopyReferenceMutator mutator)
    {
       mutator.setType(dto.type);
       mutator.setProperties(dto.properties);
