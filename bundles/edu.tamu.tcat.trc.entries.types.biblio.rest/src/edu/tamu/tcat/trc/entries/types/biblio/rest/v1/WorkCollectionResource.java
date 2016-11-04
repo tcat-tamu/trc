@@ -1,6 +1,9 @@
 package edu.tamu.tcat.trc.entries.types.biblio.rest.v1;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -31,6 +34,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.rest.EntityPersistenceAdapter;
 import edu.tamu.tcat.trc.entries.types.biblio.search.BiblioSearchProxy;
 import edu.tamu.tcat.trc.entries.types.biblio.search.SearchWorksResult;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkQueryCommand;
+import edu.tamu.tcat.trc.resolver.EntryIdDto;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.QueryService;
 import edu.tamu.tcat.trc.search.solr.SearchException;
@@ -43,14 +47,14 @@ public class WorkCollectionResource
    private final BibliographicEntryRepository repo;
    private final QueryService<WorkSolrQueryCommand> queryService;
    private final TrcServiceManager serviceMgr;
-   private final EntryResolverRegistry resolverRegistry;
+   private final EntryResolverRegistry resolvers;
 
    public WorkCollectionResource(BibliographicEntryRepository repo, QueryService<WorkSolrQueryCommand> queryService, TrcServiceManager serviceMgr, EntryResolverRegistry resolverRegistry)
    {
       this.repo = repo;
       this.queryService = queryService;
       this.serviceMgr = serviceMgr;
-      this.resolverRegistry = resolverRegistry;
+      this.resolvers = resolverRegistry;
    }
 
    /**
@@ -118,26 +122,26 @@ public class WorkCollectionResource
       // assemble search response data vehicle
       RestApiV1.WorkSearchResultSet resultSet = new RestApiV1.WorkSearchResultSet();
       List<BiblioSearchProxy> results = worksResult.get();
-      resultSet.items = SearchAdapter.toDTO(results);
+      resultSet.items = adapt(results);
 
-      QueryStringBuilder qsbCommon = new QueryStringBuilder();
+      QueryStringBuilder qsb = new QueryStringBuilder();
 
       // query parameters common to current/next/previous queries
-      qsbCommon.add("q", query);
-      qsbCommon.add("type", type);
-      authorNames.stream().forEach(name -> qsbCommon.add("a", name));
-      titles.stream().forEach(title -> qsbCommon.add("t", title));
-      authorIds.stream().forEach(authorId -> qsbCommon.add("aid", authorId));
-      dateRanges.stream().forEach(dateRange -> qsbCommon.add("dr", dateRange.toValue()));
-      qsbCommon.add("max", Integer.valueOf(numResults));
+      qsb.add("q", query);
+      qsb.add("type", type);
+      authorNames.stream().forEach(name -> qsb.add("a", name));
+      titles.stream().forEach(title -> qsb.add("t", title));
+      authorIds.stream().forEach(authorId -> qsb.add("aid", authorId));
+      dateRanges.stream().forEach(dateRange -> qsb.add("dr", dateRange.toValue()));
+      qsb.add("max", Integer.valueOf(numResults));
 
       // query parameters specific to the current query
-      QueryStringBuilder qsbCurrent = new QueryStringBuilder(qsbCommon);
+      QueryStringBuilder qsbCurrent = new QueryStringBuilder(qsb);
       qsbCurrent.add("off", Integer.valueOf(offset));
       resultSet.qs = qsbCurrent.toString();
 
       // query parameters specific to the next query
-      QueryStringBuilder qsbNext = new QueryStringBuilder(qsbCommon);
+      QueryStringBuilder qsbNext = new QueryStringBuilder(qsb);
       qsbNext.add("off", Integer.valueOf(offset + numResults));
       resultSet.qsNext = qsbNext.toString();
 
@@ -145,7 +149,7 @@ public class WorkCollectionResource
       // only include previous query if available
       if (offset > 0)
       {
-         QueryStringBuilder qsbPrev = new QueryStringBuilder(qsbCommon);
+         QueryStringBuilder qsbPrev = new QueryStringBuilder(qsb);
          qsbPrev.add("off", Integer.valueOf(Math.max(0, offset - numResults)));
          resultSet.qsPrev = qsbPrev.toString();
       }
@@ -170,7 +174,7 @@ public class WorkCollectionResource
       {
          String id = command.execute().get();
          BibliographicEntry createdWork = repo.get(id);
-         return RepoAdapter.toDTO(createdWork);
+         return RepoAdapter.toDTO(createdWork, resolvers);
       }
       catch (Exception e)
       {
@@ -190,7 +194,41 @@ public class WorkCollectionResource
    public WorkResource getWork(@PathParam("id") String id)
    {
       EntityPersistenceAdapter<BibliographicEntry, EditBibliographicEntryCommand> helper = new WorkPersistenceAdapter(id);
-      return new WorkResource(helper, serviceMgr, resolverRegistry);
+      return new WorkResource(helper, serviceMgr, resolvers);
+   }
+
+   private List<RestApiV1.WorkSearchResult> adapt(List<BiblioSearchProxy> origList)
+   {
+      return origList == null
+            ? Collections.emptyList()
+            : origList.stream().map(this::adapt).collect(toList());
+   }
+
+   private RestApiV1.WorkSearchResult adapt(BiblioSearchProxy orig)
+   {
+      RestApiV1.WorkSearchResult dto = new RestApiV1.WorkSearchResult();
+      dto.id = orig.id;
+      dto.ref = orig.token == null ? null : EntryIdDto.adapt(resolvers.getReference(orig.token));
+      dto.type = orig.type;
+      dto.label = orig.label;
+      dto.title = orig.title;
+      dto.uri = orig.uri;
+      dto.pubYear = orig.pubYear;
+      dto.summary = orig.summary;
+      if (orig.authors != null)
+         dto.authors = orig.authors.stream().map(this::adapt).collect(toList());
+      return dto;
+   }
+
+   private RestApiV1.AuthorRef adapt(BiblioSearchProxy.AuthorProxy author)
+   {
+      RestApiV1.AuthorRef dto = new RestApiV1.AuthorRef();
+      dto.authorId = author.authorId;
+      dto.firstName = author.firstName;
+      dto.lastName = author.lastName;
+      dto.role = author.role;
+
+      return dto;
    }
 
    private class WorkPersistenceAdapter implements EntityPersistenceAdapter<BibliographicEntry, EditBibliographicEntryCommand>

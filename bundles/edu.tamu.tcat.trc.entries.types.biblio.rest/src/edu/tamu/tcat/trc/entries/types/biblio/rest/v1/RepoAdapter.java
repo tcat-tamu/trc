@@ -28,12 +28,12 @@ import javax.ws.rs.BadRequestException;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.types.biblio.AuthorReference;
+import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.CopyReference;
 import edu.tamu.tcat.trc.entries.types.biblio.Edition;
 import edu.tamu.tcat.trc.entries.types.biblio.PublicationInfo;
 import edu.tamu.tcat.trc.entries.types.biblio.Title;
 import edu.tamu.tcat.trc.entries.types.biblio.Volume;
-import edu.tamu.tcat.trc.entries.types.biblio.BibliographicEntry;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.DateDescriptionDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDTO;
@@ -42,6 +42,8 @@ import edu.tamu.tcat.trc.entries.types.biblio.repo.CopyReferenceMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditionMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.VolumeMutator;
+import edu.tamu.tcat.trc.resolver.EntryIdDto;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
 /**
  * An encapsulation of adapter methods to convert between the repository API and
@@ -49,7 +51,7 @@ import edu.tamu.tcat.trc.entries.types.biblio.repo.VolumeMutator;
  */
 public class RepoAdapter
 {
-   public static RestApiV1.Work toDTO(BibliographicEntry work)
+   public static RestApiV1.Work toDTO(BibliographicEntry work, EntryResolverRegistry resolvers)
    {
       if (work == null)
       {
@@ -59,6 +61,8 @@ public class RepoAdapter
       RestApiV1.Work dto = new RestApiV1.Work();
 
       dto.id = work.getId();
+
+      dto.ref = EntryIdDto.adapt(resolvers.getResolver(work).makeReference(work), resolvers);
 
       dto.type = work.getType();
 

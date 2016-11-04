@@ -16,11 +16,14 @@
 package edu.tamu.tcat.trc.entries.types.biblio.rest.v1;
 
 import java.time.Year;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import edu.tamu.tcat.trc.resolver.EntryIdDto;
 
 /**
  * An encapsulation of the data vehicle types used to process JSON requests and responses
@@ -41,11 +44,12 @@ public class RestApiV1
    {
       // work id; used in URIs
       public String id;
-      @Deprecated // see note on Work#getType()
+      public EntryIdDto ref;
       public String type;
       // relative uri to the work, e.g. /work/{id}
       public String uri;
-      public List<AuthorRef> authors;
+
+      public List<AuthorRef> authors = new ArrayList<>();
       public String title;
       public String label;
       public String summary;
@@ -63,6 +67,7 @@ public class RestApiV1
    public static class Work
    {
       public String id;
+      public EntryIdDto ref;
       @Deprecated // see note on Work#getType()
       public String type;
       public List<AuthorRef> authors;

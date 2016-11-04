@@ -7,41 +7,28 @@ import java.util.logging.Logger;
 import javax.ws.rs.Path;
 
 import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
+import edu.tamu.tcat.trc.TrcApplication;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.search.BibliographicSearchStrategy;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.search.WorkSolrQueryCommand;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.BibliographicEntryRepository;
 import edu.tamu.tcat.trc.entries.types.biblio.rest.v1.WorkCollectionResource;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.QueryService;
-import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
-import edu.tamu.tcat.trc.services.TrcServiceManager;
 
 @Path("/")
 public class BiblioRestApiService
 {
    private final static Logger logger = Logger.getLogger(BiblioRestApiService.class.getName());
 
-   private EntryRepositoryRegistry registry;
-   private SearchServiceManager searchMgr;
 
    private QueryService<WorkSolrQueryCommand> queryService;
 
-   private TrcServiceManager serviceMgr;
 
-   public void setRepoRegistry(EntryRepositoryRegistry registry)
-   {
-      this.registry = registry;
-   }
+   private TrcApplication trcCtx;
 
-   public void setSearchSvcMgr(SearchServiceManager searchMgr)
+   public void setTrcContext(TrcApplication trcCtx)
    {
-      this.searchMgr = searchMgr;
-   }
-
-   public void setServiceMgr(TrcServiceManager serviceMgr)
-   {
-      this.serviceMgr = serviceMgr;
+      this.trcCtx = trcCtx;
    }
 
 
@@ -56,11 +43,10 @@ public class BiblioRestApiService
 
       try
       {
-         Objects.requireNonNull(searchMgr, "No search service configured");
-         Objects.requireNonNull(serviceMgr, "No service manager configured");
+         Objects.requireNonNull(trcCtx, "No TRC context configured");
 
-         BibliographicSearchStrategy indexCfg = new BibliographicSearchStrategy();
-         queryService = searchMgr.getQueryService(indexCfg);
+         BibliographicSearchStrategy indexCfg = new BibliographicSearchStrategy(trcCtx);
+         queryService = trcCtx.getQueryService(indexCfg);
       }
       catch (Exception ex)
       {
@@ -80,21 +66,17 @@ public class BiblioRestApiService
    @Path("v1/works")
    public WorkCollectionResource getV1Endpoint()
    {
-      Account account = null;    // TODO get this from the request if this is possible here.
+      Account account = null;
 
-      BibliographicEntryRepository repo = registry.getRepository(account, BibliographicEntryRepository.class);
-      EntryResolverRegistry resolverRegistry = registry.getResolverRegistry();
-      return new WorkCollectionResource(repo, queryService, serviceMgr, resolverRegistry);
+      BibliographicEntryRepository repo = trcCtx.getRepository(account, BibliographicEntryRepository.class);
+      EntryResolverRegistry resolverRegistry = trcCtx.getResolverRegistry();
+      return new WorkCollectionResource(repo, queryService, trcCtx.getServiceManager(), resolverRegistry);
    }
 
    @Path("works")
    public WorkCollectionResource getDefaultEndpoint()
    {
-      Account account = null;    // TODO get this from the request if this is possible here.
-
-      BibliographicEntryRepository repo = registry.getRepository(account, BibliographicEntryRepository.class);
-      EntryResolverRegistry resolverRegistry = registry.getResolverRegistry();
-      return new WorkCollectionResource(repo, queryService, serviceMgr, resolverRegistry);
+      return getV1Endpoint();
    }
 
 

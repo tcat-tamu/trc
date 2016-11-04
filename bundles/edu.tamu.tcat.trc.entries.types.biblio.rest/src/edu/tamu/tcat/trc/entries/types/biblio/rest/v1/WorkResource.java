@@ -62,7 +62,7 @@ public class WorkResource
    public RestApiV1.Work getWork()
    {
       BibliographicEntry work = workPersistenceAdapter.get();
-      return RepoAdapter.toDTO(work);
+      return RepoAdapter.toDTO(work, resolverRegistry);
    }
 
    /**
