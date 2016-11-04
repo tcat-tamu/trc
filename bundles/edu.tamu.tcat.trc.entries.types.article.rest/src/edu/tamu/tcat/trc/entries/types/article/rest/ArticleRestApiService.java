@@ -1,21 +1,18 @@
 package edu.tamu.tcat.trc.entries.types.article.rest;
 
 import java.net.URI;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Path;
 
-import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
+import edu.tamu.tcat.trc.TrcApplication;
 import edu.tamu.tcat.trc.entries.types.article.impl.search.ArticleSearchStrategy;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.rest.v1.ArticlesCollectionResource;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.search.solr.QueryService;
-import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
 import edu.tamu.tcat.trc.services.ServiceContext;
-import edu.tamu.tcat.trc.services.TrcServiceManager;
 import edu.tamu.tcat.trc.services.bibref.repo.RefCollectionService;
 
 /**
@@ -28,28 +25,13 @@ public class ArticleRestApiService
 {
    private final static Logger logger = Logger.getLogger(ArticleRestApiService.class.getName());
 
-   private URI endpoint;
-   private EntryRepositoryRegistry repoSvc;
-   private SearchServiceManager searchMgr;
-
    private QueryService<ArticleQueryCommand> queryService;
 
-   private TrcServiceManager svcMgr;
+   private TrcApplication trcCtx;
 
-   public void setRepoRegistry(EntryRepositoryRegistry repoSvc)
+   public void setTrcContext(TrcApplication trcCtx)
    {
-      this.repoSvc = repoSvc;
-      this.endpoint = repoSvc.getApiEndpoint();
-   }
-
-   public void setSearchSvcMgr(SearchServiceManager searchMgr)
-   {
-      this.searchMgr = searchMgr;
-   }
-
-   public void bind(TrcServiceManager svcMgr)
-   {
-      this.svcMgr = svcMgr;
+      this.trcCtx = trcCtx;
    }
 
    public void activate()
@@ -57,17 +39,11 @@ public class ArticleRestApiService
       try
       {
          logger.info(() -> "Activating " + getClass().getSimpleName());
-         Objects.requireNonNull(repoSvc, "Article repository service is not configured.");
-         if (endpoint == null)
-         {
-            logger.warning("No API endpoint for TRC is configured. Links returned via the REST API will not function correctly.");
-            endpoint = URI.create("http://localhost/");
-         }
 
          try
          {
-            ArticleSearchStrategy indexCfg = new ArticleSearchStrategy();
-            queryService = searchMgr.getQueryService(indexCfg);
+            ArticleSearchStrategy indexCfg = new ArticleSearchStrategy(trcCtx.getResolverRegistry());
+            queryService = trcCtx.getQueryService(indexCfg);
          }
          catch (Exception ex)
          {
@@ -92,8 +68,10 @@ public class ArticleRestApiService
    {
       ServiceContext<RefCollectionService> ctx = RefCollectionService.makeContext(null);
 
-      RefCollectionService refRepo = svcMgr.getService(ctx);
-      URI resolve = endpoint.resolve(ArticleRepository.ENTRY_URI_BASE);
-      return new ArticlesCollectionResource(repoSvc, queryService, refRepo, resolve);
+      RefCollectionService refRepo = trcCtx.getService(ctx);
+      URI resolve = trcCtx.getApiEndpoint().resolve(ArticleRepository.ENTRY_URI_BASE);
+
+      // TODO HACK need to simplify this.
+      return new ArticlesCollectionResource(trcCtx.getEntryRepositoryManager(), queryService, refRepo, resolve);
    }
 }

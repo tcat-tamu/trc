@@ -15,29 +15,38 @@
  */
 package edu.tamu.tcat.trc.entries.types.article.impl.search;
 
+import static java.util.stream.Collectors.toList;
+
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.trc.entries.types.article.Article;
+import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy;
+import edu.tamu.tcat.trc.resolver.EntryId;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 
 
 public class SearchAdapter
 {
-   public static SolrInputDocument adapt(Article article)
+   public static SolrInputDocument adapt(Article article, EntryResolverRegistry resolvers)
    {
       TrcDocument doc = new TrcDocument(new ArticleSolrConfig());
 
       try
       {
-         doc.set(ArticleSolrConfig.SEARCH_PROXY, makeSearchProxy(article));
+         String token = resolvers.tokenize(new EntryId(article.getId(), ArticleRepository.ENTRY_TYPE_ID));
+         doc.set(ArticleSolrConfig.SEARCH_PROXY, makeSearchProxy(article, token));
 
          doc.set(ArticleSolrConfig.ID, article.getId());
          doc.set(ArticleSolrConfig.TITLE, guardNull(article.getTitle()));
          doc.set(ArticleSolrConfig.ARTICLE_ABSTRACT, guardNull(article.getAbstract()));
          doc.set(ArticleSolrConfig.ARTICLE_CONTENT, guardNull(article.getBody()));
+         doc.set(ArticleSolrConfig.ENTRY_REFERENCE, token);
 
-         // TODO index authors
+         article.getAuthors().stream()
+            .map(author -> author.getDisplayName())
+            .forEach(name -> doc.set(ArticleSolrConfig.AUTHOR_NAMES, name));
 
          return doc.build();
       }
@@ -47,14 +56,17 @@ public class SearchAdapter
       }
    }
 
-   private static ArticleSearchProxy makeSearchProxy(Article dto)
+   private static ArticleSearchProxy makeSearchProxy(Article article, String token)
    {
       ArticleSearchProxy proxy = new ArticleSearchProxy();
-      proxy.id = dto.getId();
-      proxy.title = dto.getTitle();
-      proxy.articleType = dto.getArticleType();
+      proxy.id = article.getId();
+      proxy.token = token;
+      proxy.title = article.getTitle();
+      proxy.articleType = article.getArticleType();
 
-      // TODO add authors
+      proxy.authors = article.getAuthors().stream()
+            .map(author -> author.getDisplayName())
+            .collect(toList());
 
       return proxy;
    }

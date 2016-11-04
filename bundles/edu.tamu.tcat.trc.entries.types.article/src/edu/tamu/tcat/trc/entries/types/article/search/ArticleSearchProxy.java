@@ -20,8 +20,8 @@ import java.util.List;
 
 public class ArticleSearchProxy
 {
-   // Returns a light weight article for search results
    public String id;
+   public String token;
    public String title;
    public String articleType;
    public List<String> authors = new ArrayList<>();

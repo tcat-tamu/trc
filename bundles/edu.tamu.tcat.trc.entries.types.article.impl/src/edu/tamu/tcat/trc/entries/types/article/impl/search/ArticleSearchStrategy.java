@@ -6,6 +6,7 @@ import org.apache.solr.common.SolrInputDocument;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQuery;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.IndexServiceStrategy;
 import edu.tamu.tcat.trc.search.solr.SearchException;
 import edu.tamu.tcat.trc.search.solr.SolrIndexConfig;
@@ -17,9 +18,11 @@ public class ArticleSearchStrategy implements IndexServiceStrategy<Article, Arti
 
 
    private final ArticleSolrConfig searchCfg;
+   private final EntryResolverRegistry resolvers;
 
-   public ArticleSearchStrategy()
+   public ArticleSearchStrategy(EntryResolverRegistry resolvers)
    {
+      this.resolvers = resolvers;
       searchCfg = new ArticleSolrConfig();
    }
 
@@ -45,7 +48,7 @@ public class ArticleSearchStrategy implements IndexServiceStrategy<Article, Arti
    @Override
    public SolrInputDocument getDocument(Article article)
    {
-      return SearchAdapter.adapt(article);
+      return SearchAdapter.adapt(article, resolvers);
    }
 
    @Override

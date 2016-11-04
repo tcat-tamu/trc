@@ -18,6 +18,8 @@ import edu.tamu.tcat.trc.entries.types.article.Footnote;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQuery;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
+import edu.tamu.tcat.trc.resolver.EntryId;
+import edu.tamu.tcat.trc.resolver.EntryIdDto;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
 /**
@@ -25,7 +27,7 @@ import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
  */
 public abstract class ModelAdapter
 {
-   public static List<RestApiV1.ArticleSearchResult> toDTO(ArticleSearchResult results)
+   public static List<RestApiV1.ArticleSearchResult> toDTO(ArticleSearchResult results, EntryResolverRegistry resolvers)
    {
       List<ArticleSearchProxy> proxies = results.getResults();
       Map<String, Map<String, List<String>>> hits = results.getHits();
@@ -33,7 +35,7 @@ public abstract class ModelAdapter
          return new ArrayList<>();
 
       List<RestApiV1.ArticleSearchResult> compiledResults = proxies.stream()
-                    .map(ModelAdapter::toArticleDTO)
+                    .map(article -> toArticleDTO(article, resolvers))
                     .collect(Collectors.toList());
 
       compiledResults.forEach((article)->
@@ -53,7 +55,8 @@ public abstract class ModelAdapter
    {
       RestApiV1.Article dto = new RestApiV1.Article();
       dto.id = article.getId().toString();
-      dto.reference = resolvers.getResolver(article).makeReference(article).toJsonForm();
+      EntryId entryId = resolvers.getResolver(article).makeReference(article);
+      dto.ref = EntryIdDto.adapt(entryId, resolvers);
       dto.articleType = article.getArticleType();
 
       dto.title = article.getTitle();
@@ -124,13 +127,14 @@ public abstract class ModelAdapter
       return detail;
    }
 
-   private static RestApiV1.ArticleSearchResult toArticleDTO(ArticleSearchProxy article)
+   private static RestApiV1.ArticleSearchResult toArticleDTO(ArticleSearchProxy article, EntryResolverRegistry resolvers)
    {
       RestApiV1.ArticleSearchResult dto = new RestApiV1.ArticleSearchResult();
       dto.id = article.id;
+      dto.ref = article.token == null ? null : EntryIdDto.adapt(resolvers.getReference(article.token));
       dto.title = article.title;
 
-      dto.authors = new ArrayList<>(article.authors);
+      dto.authors = article.authors == null ? new ArrayList<>() : new ArrayList<>(article.authors);
 
       return dto;
    }

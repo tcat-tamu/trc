@@ -23,6 +23,8 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import edu.tamu.tcat.trc.resolver.EntryIdDto;
+
 
 public abstract class RestApiV1
 {
@@ -39,15 +41,15 @@ public abstract class RestApiV1
        */
       public Link self;
 
-      @Deprecated // to be converted to EntryId that supplied id, type, and token.
-      public Map<String, String> reference = new HashMap<>();
-
       /** The unique identifier for this article. */
       public String id;
 
       /** The version of this article. Modifications will increment the version of the
        *  article. Reserved for future use. */
       public int version;
+
+      /** A unique token that identifies this article with the entry resolver registry */
+      public EntryIdDto ref;
 
       /** An application defined type for this article. For example, an application may wish
        *  to distinguish between editorials, book reviews, and research papers. */
@@ -103,6 +105,7 @@ public abstract class RestApiV1
    public static class ArticleSearchResult
    {
       public String id;
+      public EntryIdDto ref;
       public String title;
       public List<String> authors;
       public List<String> absHL = new ArrayList<>();

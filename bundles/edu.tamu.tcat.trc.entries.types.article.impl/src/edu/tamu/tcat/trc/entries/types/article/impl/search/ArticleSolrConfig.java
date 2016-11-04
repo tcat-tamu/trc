@@ -31,6 +31,7 @@ import edu.tamu.tcat.trc.search.solr.impl.BasicFields;
 public class ArticleSolrConfig implements SolrIndexConfig
 {
    public static final SolrIndexField<String> ID = new BasicFields.BasicString("id");
+   public static final SolrIndexField<String> ENTRY_REFERENCE = new BasicFields.BasicString("entryRef");
    public static final SolrIndexField<String> TITLE = new BasicFields.BasicString("title");
    public static final SolrIndexField<String> AUTHOR_ID = new BasicFields.BasicString("author_id");
    public static final SolrIndexField<String> ASSOCIATED_ENTRY = new BasicFields.BasicString("associated_entry");
@@ -51,21 +52,16 @@ public class ArticleSolrConfig implements SolrIndexConfig
    @Override
    public void initialConfiguration(SolrQuery params) throws SearchException
    {
-      /*
-       * Using eDisMax seemed like a more adventagous way of doing the query. This will allow
-       * additional solr Paramaters to be set in order to 'fine tune' the query.
-       */
-      params.set("defType", "edismax");
-      params.set("qf",TITLE.getName(), AUTHOR_NAMES.getName(), ARTICLE_CONTENT.getName(), ARTICLE_ABSTRACT.getName());
-      params.set("qf",TITLE.getName(), CATCH_ALL_NAMES, ARTICLE_CONTENT.getName(), ARTICLE_ABSTRACT.getName());
-
-      params.set("hl", "true");
-      params.set("hl.fl", ARTICLE_ABSTRACT.getName(), ARTICLE_CONTENT.getName());
-
-      // TODO refactor, enable more general configuration tooling
-      params.set("facet", "true");
-      params.set("facet.field", AUTHOR_NAMES.getName());
-      params.set("facet.mincount", "1");
+//      params.set("qf",TITLE.getName(), AUTHOR_NAMES.getName(), ARTICLE_CONTENT.getName(), ARTICLE_ABSTRACT.getName());
+//      params.set("qf",TITLE.getName(), CATCH_ALL_NAMES, ARTICLE_CONTENT.getName(), ARTICLE_ABSTRACT.getName());
+//
+//      params.set("hl", "true");
+//      params.set("hl.fl", ARTICLE_ABSTRACT.getName(), ARTICLE_CONTENT.getName());
+//
+//      // TODO refactor, enable more general configuration tooling
+//      params.set("facet", "true");
+//      params.set("facet.field", AUTHOR_NAMES.getName());
+//      params.set("facet.mincount", "1");
    }
 
    /**

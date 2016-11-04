@@ -157,7 +157,7 @@ public class ArticleEntryService
          return;
       }
 
-      ArticleSearchStrategy strategy = new ArticleSearchStrategy();
+      ArticleSearchStrategy strategy = new ArticleSearchStrategy(context.getResolverRegistry());
       IndexService<Article> indexSvc = indexSvcMgr.configure(strategy);
 
       ArticleRepoImpl repo = new ArticleRepoImpl(delegate, null);     // USE SEARCH ACCT

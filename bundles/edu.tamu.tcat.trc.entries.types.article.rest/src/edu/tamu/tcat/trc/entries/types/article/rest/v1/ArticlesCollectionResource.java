@@ -48,10 +48,9 @@ public class ArticlesCollectionResource
    private final ObjectMapper mapper;
    private final EntryRepositoryRegistry repoSvc;
    private final QueryService<ArticleQueryCommand> queryService;
-
+   private final RefCollectionService refRepo;
    private final URI endpoint;
 
-   private RefCollectionService refRepo;
 
    public ArticlesCollectionResource(EntryRepositoryRegistry repoSvc,
                                      QueryService<ArticleQueryCommand> queryService,
@@ -90,7 +89,7 @@ public class ArticlesCollectionResource
          ArticleSearchResult results = articleQryCmd.execute();
 
          RestApiV1.ArticleSearchResultSet rs = new RestApiV1.ArticleSearchResultSet();
-         rs.articles = ModelAdapter.toDTO(results);
+         rs.articles = ModelAdapter.toDTO(results, repoSvc.getResolverRegistry());
          rs.query = ModelAdapter.toQueryDetail(uriInfo.getAbsolutePath(), results);
 
          return rs;
