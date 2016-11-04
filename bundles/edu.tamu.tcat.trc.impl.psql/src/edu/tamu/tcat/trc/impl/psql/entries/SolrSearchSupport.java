@@ -66,6 +66,7 @@ public class SolrSearchSupport<EntryType>
          logger.log(Level.INFO, format("Reindexing all documents for " + repo.getClass().getSimpleName()));
 
          solr.deleteByQuery("*:*");
+         solr.commit();
          StreamSupport.stream(entries.spliterator(), false)
             .map(strategy::getDocument)
             .forEach(this::index);
