@@ -79,13 +79,13 @@ public class RelationshipSolrQueryCommand implements RelationshipQueryCommand
       switch(direction)
       {
          case any:
-            criteria.add("(relatedEntities:\"" + entityString + "\" OR targetEntities:\"" + entityString + "\")");
+            criteria.add("(related:\"" + entityString + "\" OR target:\"" + entityString + "\")");
             break;
          case to:
-            criteria.add("targetEntities:\"" + entityString + "\"");
+            criteria.add("target:\"" + entityString + "\"");
             break;
          case from:
-            criteria.add("relatedEntities:\"" + entityString + "\"");
+            criteria.add("related:\"" + entityString + "\"");
             break;
          default:
             throw new IllegalStateException("Relationship direction not defined");
@@ -96,7 +96,7 @@ public class RelationshipSolrQueryCommand implements RelationshipQueryCommand
    public void byType(String typeId)
    {
       Objects.requireNonNull(typeId, "typeId may not be null");
-      criteria.add("relationshipType:\"" + typeId + "\"");
+      criteria.add("relnType:\"" + typeId + "\"");
    }
 
    @Override

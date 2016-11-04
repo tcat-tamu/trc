@@ -29,12 +29,12 @@ import edu.tamu.tcat.trc.search.solr.impl.BasicFields;
 public class RelnSolrConfig implements SolrIndexConfig
 {
    public static final SolrIndexField<String> ID = new BasicFields.BasicString("id");
-   public static final BasicFields.SearchProxyField<RelnSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<>("proxy", RelnSearchProxy.class);
-   public static final SolrIndexField<String> DESCRIPTION = new BasicFields.BasicString("description");
-   public static final SolrIndexField<String> REL_TYPE = new BasicFields.BasicString("relationshipType");
-   public static final SolrIndexField<String> RELATED_ENTITIES = new BasicFields.BasicString("relatedEntities");
-   public static final SolrIndexField<String> TARGET_ENTITIES = new BasicFields.BasicString("targetEntities");
    public static final SolrIndexField<String> ENTRY_REFERENCE = new BasicFields.BasicString("entryRef");
+   public static final SolrIndexField<String> REL_TYPE = new BasicFields.BasicString("relnType");
+   public static final SolrIndexField<String> DESCRIPTION = new BasicFields.BasicString("summary");
+   public static final SolrIndexField<String> RELATED_ENTITIES = new BasicFields.BasicString("related");
+   public static final SolrIndexField<String> TARGET_ENTITIES = new BasicFields.BasicString("target");
+   public static final BasicFields.SearchProxyField<RelnSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<RelnSearchProxy>("proxy", RelnSearchProxy.class);
 
    @Override
    public void initialConfiguration(SolrQuery params)
