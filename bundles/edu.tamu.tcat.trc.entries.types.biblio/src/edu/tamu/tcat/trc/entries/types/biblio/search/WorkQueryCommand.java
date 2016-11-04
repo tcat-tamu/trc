@@ -18,6 +18,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.search;
 import java.time.Period;
 import java.time.Year;
 import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Command for use in querying the associated {@link WorkSearchService} which provides
@@ -42,11 +43,11 @@ public interface WorkQueryCommand
     * @return
     * @throws SearchException
     */
+   CompletableFuture<SearchWorksResult> execute();
    /*
     * In keeping with the "spirit of search", the window (offset + length) and other paramters
     * are configured in the query itself and not in a result with a long lifecycle.
     */
-   SearchWorksResult execute();
 
    /**
     * Supply a "basic" free-text, keyword query to be executed. In general, the supplied query will

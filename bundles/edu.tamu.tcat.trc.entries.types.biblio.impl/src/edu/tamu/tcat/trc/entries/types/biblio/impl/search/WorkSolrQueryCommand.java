@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
+import java.util.concurrent.CompletableFuture;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -32,6 +32,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 
 import edu.tamu.tcat.trc.entries.types.biblio.search.BiblioSearchProxy;
+import edu.tamu.tcat.trc.entries.types.biblio.search.SearchWorksResult;
 import edu.tamu.tcat.trc.entries.types.biblio.search.WorkQueryCommand;
 import edu.tamu.tcat.trc.search.solr.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.DateRangeDTO;
@@ -39,7 +40,6 @@ import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
 public class WorkSolrQueryCommand implements WorkQueryCommand
 {
-   private static final Logger logger = Logger.getLogger(WorkSolrQueryCommand.class.getName());
    private static final int DEFAULT_MAX_RESULTS = 25;
 
    private final SolrClient solr;
@@ -56,8 +56,9 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
    }
 
    @Override
-   public SolrWorksResults execute() throws SearchException
+   public CompletableFuture<SearchWorksResult> execute() throws SearchException
    {
+      CompletableFuture<SearchWorksResult> result = new CompletableFuture<>();
       try
       {
          if (authorIds != null)
@@ -70,12 +71,14 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
          SolrDocumentList results = response.getResults();
 
          List<BiblioSearchProxy> works = qb.unpack(results, BiblioSolrConfig.SEARCH_PROXY);
-         return new SolrWorksResults(this, works);
+         result.complete(new SolrWorksResults(this, works));
       }
       catch (SolrServerException | IOException e)
       {
-         throw new SearchException("An error occurred while querying the works core", e);
+         result.completeExceptionally(new SearchException("An error occurred while querying the works core", e));
       }
+
+      return result;
    }
 
    private void addDateRange(DateRangeDTO dr)
