@@ -38,6 +38,7 @@ import edu.tamu.tcat.trc.entries.types.reln.repo.AnchorMutator;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 import edu.tamu.tcat.trc.resolver.EntryId;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
 @Path("/relationships/{id}")
 public class RelationshipResource
@@ -47,11 +48,13 @@ public class RelationshipResource
 
    private final String relnId;
    private final RelationshipRepository repo;
+   private final EntryResolverRegistry resolvers;
 
-   public RelationshipResource(String relnId, RelationshipRepository repo)
+   public RelationshipResource(String relnId, RelationshipRepository repo, EntryResolverRegistry resolvers)
    {
       this.relnId = relnId;
       this.repo = repo;
+      this.resolvers = resolvers;
    }
 
    @GET
@@ -61,7 +64,7 @@ public class RelationshipResource
       logger.fine(() -> "Retrieving relationship [relationship/" + relnId + "]");
       try {
          Relationship reln = repo.get(relnId);
-         return RepoAdapter.toDTO(reln);
+         return RepoAdapter.toDTO(reln, resolvers);
       }
       catch (Exception perEx)
       {
@@ -102,7 +105,7 @@ public class RelationshipResource
          cmd.execute().get(10, TimeUnit.SECONDS);
 
          Relationship reln = repo.get(relnId);
-         return RepoAdapter.toDTO(reln);
+         return RepoAdapter.toDTO(reln, resolvers);
       }
       catch (Exception e)
       {

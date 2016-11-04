@@ -15,15 +15,23 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln.impl.search;
 
+import static java.text.MessageFormat.format;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
-import java.util.Set;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.trc.entries.types.reln.Anchor;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelnSearchProxy;
+import edu.tamu.tcat.trc.resolver.EntryId;
+import edu.tamu.tcat.trc.resolver.EntryIdDto;
+import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 
@@ -32,6 +40,8 @@ import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
  */
 public class RelnDocument
 {
+   private final static Logger logger = Logger.getLogger(RelnDocument.class.getName());
+
    // composed instead of extended to not expose TrcDocument as API to this class
    private TrcDocument indexDocument;
 
@@ -64,7 +74,7 @@ public class RelnDocument
                .map(resolvers::tokenize)
                .forEach(token -> doc.set(RelnSolrConfig.TARGET_ENTITIES, token));
 
-         doc.set(RelnSolrConfig.SEARCH_PROXY, RelnSearchProxy.create(reln, resolvers));
+         doc.set(RelnSolrConfig.SEARCH_PROXY, makeProxy(reln, resolvers));
 
          // TODO: Get Entry Reference and add it.
          return doc.build();
@@ -75,36 +85,50 @@ public class RelnDocument
       }
    }
 
-   public static SolrInputDocument update(Relationship reln, EntryResolverRegistry resolvers)
+   public static RelnSearchProxy makeProxy(Relationship reln, EntryResolverRegistry resolvers)
    {
-      TrcDocument doc = new TrcDocument(new RelnSolrConfig());
+      RelnSearchProxy result = new RelnSearchProxy();
+      result.id = reln.getId();
+      result.token = resolvers.tokenize(resolvers.getResolver(reln).makeReference(reln));
+      result.typeId = reln.getType().getIdentifier();
+      result.description = reln.getDescription();
+
+      result.related = reln.getRelatedEntities().stream()
+            .map(anchor -> adapt(anchor, resolvers))
+            .filter(opt -> opt.isPresent())
+            .map(Optional::get)
+            .collect(toSet());
+
+      result.targets = reln.getTargetEntities().stream()
+            .map(anchor -> adapt(anchor, resolvers))
+            .filter(opt -> opt.isPresent())
+            .map(Optional::get)
+            .collect(toSet());
+
+      return result;
+   }
+
+   private static Optional<RelnSearchProxy.Anchor> adapt(Anchor anchor, EntryResolverRegistry resolvers)
+   {
       try
       {
+         EntryReference<?> reference = resolvers.getReference(anchor.getTarget());
 
-         doc.set(RelnSolrConfig.ID, reln.getId());
-         doc.update(RelnSolrConfig.DESCRIPTION, reln.getDescription());
-         doc.update(RelnSolrConfig.REL_TYPE, reln.getType().getIdentifier());
+         RelnSearchProxy.Anchor dto = new RelnSearchProxy.Anchor();
+         dto.label = reference.getHtmlLabel();
+         dto.ref = EntryIdDto.adapt(reference);
+         dto.properties = anchor.listProperties().stream()
+                  .collect(toMap(Function.identity(), key -> anchor.getProperty(key)));
 
-         Set<String> related = reln.getRelatedEntities().stream()
-            .map(Anchor::getTarget)
-            .map(resolvers::tokenize)
-            .collect(toSet());
-         Set<String> targets = reln.getTargetEntities().stream()
-            .map(Anchor::getTarget)
-            .map(resolvers::tokenize)
-            .collect(toSet());
-
-         doc.update(RelnSolrConfig.RELATED_ENTITIES, related);
-         doc.update(RelnSolrConfig.TARGET_ENTITIES, targets);
-
-         doc.update(RelnSolrConfig.SEARCH_PROXY, RelnSearchProxy.create(reln, resolvers));
-
-         // TODO: Get Entry Reference and add it.
-         return doc.build();
+         return Optional.of(dto);
       }
       catch (Exception ex)
       {
-         throw new IllegalStateException("Failed to construct document to index for relationship" + reln);
+         EntryId target = anchor.getTarget();
+         String msg = "Failed to restore relationship anchor. Bad anchor target {0} [type={1}].";
+         logger.log(Level.WARNING, format(msg, target.getId(), target.getType()), ex);
+
+         return Optional.empty();
       }
    }
 }

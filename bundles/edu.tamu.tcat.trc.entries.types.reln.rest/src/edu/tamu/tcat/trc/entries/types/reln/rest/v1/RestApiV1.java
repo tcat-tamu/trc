@@ -31,6 +31,7 @@ import javax.ws.rs.core.Response;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipDirection;
+import edu.tamu.tcat.trc.resolver.EntryIdDto;
 import edu.tamu.tcat.trc.services.rest.ApiUtils;
 
 public class RestApiV1
@@ -84,6 +85,9 @@ public class RestApiV1
       /** A unique identifier for this relationship. */
       public String id;
 
+      /** A reference containing alternate identification info for this relationship */
+      public EntryIdDto ref;
+
       /** The id of the associated relationship type. */
       public String typeId;
 
@@ -105,22 +109,8 @@ public class RestApiV1
    public static class Anchor
    {
       public String label;
-      public EntryReference ref;
+      public EntryIdDto ref;
       public Map<String, Set<String>> properties = new HashMap<>();
-   }
-
-   /** An identifier for an entry that can be resolved using the Entry Resolver system */
-   public static class EntryReference
-   {
-      /** The id of the referenced entry. Will be unique within the scope of a particular type. */
-      public String id;
-
-      /** The semantic type of the referenced entry. Entry types are defined by the TRC
-       *  Entry implementation. */
-      public String type;
-
-      /** An opaque token that uniquely identifies this entry. */
-      public String token;
    }
 
    /**
@@ -175,6 +165,7 @@ public class RestApiV1
    public static class RelationshipSearchResult
    {
       public String id;
+      public EntryIdDto ref;
       public String typeId;
       public String description;
       public String descriptionMimeType;

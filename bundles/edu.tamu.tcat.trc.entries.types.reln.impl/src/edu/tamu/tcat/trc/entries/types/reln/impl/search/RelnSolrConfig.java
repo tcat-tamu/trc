@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,7 +15,6 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln.impl.search;
 
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -30,7 +29,7 @@ import edu.tamu.tcat.trc.search.solr.impl.BasicFields;
 public class RelnSolrConfig implements SolrIndexConfig
 {
    public static final SolrIndexField<String> ID = new BasicFields.BasicString("id");
-   public static final BasicFields.SearchProxyField<RelnSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<RelnSearchProxy>("proxy", RelnSearchProxy.class);
+   public static final BasicFields.SearchProxyField<RelnSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<>("proxy", RelnSearchProxy.class);
    public static final SolrIndexField<String> DESCRIPTION = new BasicFields.BasicString("description");
    public static final SolrIndexField<String> REL_TYPE = new BasicFields.BasicString("relationshipType");
    public static final SolrIndexField<String> RELATED_ENTITIES = new BasicFields.BasicString("relatedEntities");
@@ -40,12 +39,6 @@ public class RelnSolrConfig implements SolrIndexConfig
    @Override
    public void initialConfiguration(SolrQuery params)
    {
-      //HACK: relationship query does not use edismax
-//      /*
-//       * Using eDisMax seemed like a more adventagous way of doing the query. This will allow
-//       * additional solr Paramaters to be set in order to 'fine tune' the query.
-//       */
-//      params.set("defType", "edismax");
    }
 
    @Override

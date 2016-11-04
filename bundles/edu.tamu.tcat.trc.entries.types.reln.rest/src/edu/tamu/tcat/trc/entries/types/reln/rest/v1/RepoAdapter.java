@@ -15,10 +15,13 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln.rest.v1;
 
+import java.util.stream.Collectors;
+
 import edu.tamu.tcat.trc.entries.types.reln.Anchor;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
-import edu.tamu.tcat.trc.resolver.EntryId;
+import edu.tamu.tcat.trc.resolver.EntryIdDto;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
 /**
  * An encapsulation of adapter methods to convert between the repository API and
@@ -26,41 +29,31 @@ import edu.tamu.tcat.trc.resolver.EntryId;
  */
 public class RepoAdapter
 {
-   public static RestApiV1.Relationship toDTO(Relationship orig)
+   public static RestApiV1.Relationship toDTO(Relationship orig, EntryResolverRegistry resolvers)
    {
       if (orig == null)
          return null;
       RestApiV1.Relationship dto = new RestApiV1.Relationship();
       dto.id = orig.getId();
+      dto.ref = EntryIdDto.adapt(resolvers.getResolver(orig).makeReference(orig), resolvers);
       dto.typeId = orig.getType().getIdentifier();
       dto.description = orig.getDescription();
 
-      dto.related.clear();
-      orig.getRelatedEntities().stream()
-            .map(RepoAdapter::toDto)
-            .forEach(dto.related::add);
+      dto.related = orig.getRelatedEntities().stream()
+            .map(anchor -> toDto(anchor, resolvers))
+            .collect(Collectors.toSet());
 
-      dto.targets.clear();
-      orig.getTargetEntities().stream()
-            .map(RepoAdapter::toDto)
-            .forEach(dto.targets::add);
+      dto.targets = orig.getTargetEntities().stream()
+            .map(anchor -> toDto(anchor, resolvers))
+            .collect(Collectors.toSet());
 
       return dto;
    }
 
-   public static RestApiV1.EntryReference toDto(EntryId eId)
-   {
-      RestApiV1.EntryReference dto = new RestApiV1.EntryReference();
-      dto.id = eId.getId();
-      dto.type = eId.getType();
-
-      return dto;
-   }
-
-   public static RestApiV1.Anchor toDto(Anchor anchor)
+   public static RestApiV1.Anchor toDto(Anchor anchor, EntryResolverRegistry resolvers)
    {
       RestApiV1.Anchor dto = new RestApiV1.Anchor();
-      dto.ref = toDto(anchor.getTarget());
+      dto.ref = EntryIdDto.adapt(anchor.getTarget(), resolvers);
       dto.properties.clear();
       anchor.listProperties().stream()
             .forEach(key -> dto.properties.put(key, anchor.getProperty(key)));

@@ -172,7 +172,7 @@ public class RelationshipsResource
          String id = cmd.execute().get(10, TimeUnit.SECONDS);
 
          // TODO use optional and handle appropriately.
-         return RepoAdapter.toDTO(repo.get(id));
+         return RepoAdapter.toDTO(repo.get(id), resolvers);
       }
       catch (Exception e)
       {
@@ -184,6 +184,6 @@ public class RelationshipsResource
    @Path("/{id}")
    public RelationshipResource getRelationship(@PathParam("id") String relnId)
    {
-      return new RelationshipResource(relnId, repo);
+      return new RelationshipResource(relnId, repo, resolvers);
    }
 }

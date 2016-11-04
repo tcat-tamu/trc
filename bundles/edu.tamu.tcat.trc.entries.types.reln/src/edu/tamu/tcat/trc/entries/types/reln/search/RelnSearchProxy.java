@@ -15,12 +15,12 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln.search;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-import edu.tamu.tcat.trc.entries.types.reln.Anchor;
-import edu.tamu.tcat.trc.entries.types.reln.Relationship;
-import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
+import edu.tamu.tcat.trc.resolver.EntryIdDto;
 
 /**
  * JSON serializable summary information about a relationship entry.
@@ -30,32 +30,17 @@ import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 public class RelnSearchProxy
 {
    public String id;
+   public String token;
    public String typeId;
    public String description;
-   public final Set<String> related = new HashSet<>();
-   public final Set<String> targets = new HashSet<>();
 
-   public static RelnSearchProxy create(Relationship reln, EntryResolverRegistry resolvers)
+   public Set<Anchor> related = new HashSet<>();
+   public Set<Anchor> targets = new HashSet<>();
+
+   public static class Anchor
    {
-      RelnSearchProxy result = new RelnSearchProxy();
-      result.id = reln.getId();
-      result.typeId = reln.getType().getIdentifier();
-      result.description = reln.getDescription();
-
-      result.related.clear();
-      reln.getRelatedEntities().stream()
-            .map(Anchor::getTarget)
-            .map(resolvers::tokenize)
-            .forEach(result.related::add);
-
-      result.targets.clear();
-      reln.getTargetEntities().stream()
-            .map(Anchor::getTarget)
-            .map(resolvers::tokenize)
-            .forEach(result.related::add);
-
-      // TODO add #getLabel to resolver
-
-      return result;
+      public String label;
+      public EntryIdDto ref;
+      public Map<String, Set<String>> properties = new HashMap<>();
    }
 }
