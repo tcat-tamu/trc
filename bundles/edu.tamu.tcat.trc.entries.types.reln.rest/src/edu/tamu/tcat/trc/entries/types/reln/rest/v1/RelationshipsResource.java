@@ -16,7 +16,6 @@
 package edu.tamu.tcat.trc.entries.types.reln.rest.v1;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -42,6 +41,7 @@ import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipDirection;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchResult;
 import edu.tamu.tcat.trc.resolver.EntryId;
+import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.QueryService;
 import edu.tamu.tcat.trc.search.solr.SearchException;
@@ -69,14 +69,15 @@ public class RelationshipsResource
    @GET
    @Produces(MediaType.APPLICATION_JSON)
    public List<RestApiV1.RelationshipSearchResult>
-   searchRelationships(@QueryParam(value="entity") URI entity,
+   searchRelationships(@QueryParam(value="entity") String token,
                        @QueryParam(value="type") String type,
                        @QueryParam(value="direction") RestApiV1.RelDirection direction,
                        @QueryParam(value = "off") @DefaultValue("0")   int offset,
                        @QueryParam(value = "max") @DefaultValue("100") int numResults)
    throws Exception
    {
-      if (entity == null)
+      // TODO use object
+      if (token == null)
          throw new BadRequestException("No \"entity\" parameter value was provided.");
 
       try
@@ -85,7 +86,9 @@ public class RelationshipsResource
          RelationshipDirection dir = RelationshipDirection.any;
          if (direction != null)
             dir = direction.dir;
-         cmd.forEntity(entity, dir);
+
+         EntryReference<Object> ref = resolvers.getReference(token);
+         cmd.query(ref.getEntryId(), dir);
 
          if (type != null) {
             cmd.byType(type);
@@ -94,32 +97,12 @@ public class RelationshipsResource
          cmd.setOffset(offset);
          cmd.setMaxResults(numResults);
 
-         RelationshipSearchResult results = cmd.execute();
+         // HACK this throws many things that aren't caught and properly handled
+         RelationshipSearchResult results = cmd.execute().get(10, TimeUnit.SECONDS);
          RestApiV1.RelationshipSearchResultSet rs = new RestApiV1.RelationshipSearchResultSet();
          rs.items = SearchAdapter.toDTO(results.get(), resolvers, null);
 
-         StringBuilder sb = new StringBuilder();
-         try
-         {
-            app(sb, "entity", entity.toString());
-            app(sb, "type", type);
-            if (direction != null)
-               app(sb, "direction", direction.toValue());
-         }
-         catch (Exception e)
-         {
-            throw new SearchException("Failed building querystring", e);
-         }
-
-         rs.qs = "off="+offset+"&max="+numResults+"&"+sb.toString();
-         // TODO: does this depend on the number of results returned
-         //      (i.e. whether < numResults), or do we assume there are infinite results?
-         rs.qsNext = "off="+(offset + numResults)+"&max="+numResults+"&"+sb.toString();
-         if (offset >= numResults)
-            rs.qsPrev = "off="+(offset - numResults)+"&max="+numResults+"&"+sb.toString();
-         // first page got off; reset to zero offset
-         else if (offset > 0 && offset < numResults)
-            rs.qsPrev = "off="+(0)+"&max="+numResults+"&"+sb.toString();
+         updateLinks(rs, ref, direction, type, offset, numResults);
 
          //HACK: until the JS is ready to accept this data vehicle, just send the list of results
          return rs.items;
@@ -129,6 +112,33 @@ public class RelationshipsResource
          debug.log(Level.SEVERE, "Error", e);
          throw new SearchException(e);
       }
+   }
+
+
+   private void updateLinks(RestApiV1.RelationshipSearchResultSet rs, EntryReference<Object> ref, RestApiV1.RelDirection direction, String type, int offset, int numResults)
+   {
+      StringBuilder sb = new StringBuilder();
+      try
+      {
+         app(sb, "entity", ref.getToken());
+         app(sb, "type", type);
+         if (direction != null)
+            app(sb, "direction", direction.toValue());
+      }
+      catch (Exception e)
+      {
+         throw new SearchException("Failed building querystring", e);
+      }
+
+      rs.qs = "off="+offset+"&max="+numResults+"&"+sb.toString();
+      // TODO: does this depend on the number of results returned
+      //      (i.e. whether < numResults), or do we assume there are infinite results?
+      rs.qsNext = "off="+(offset + numResults)+"&max="+numResults+"&"+sb.toString();
+      if (offset >= numResults)
+         rs.qsPrev = "off="+(offset - numResults)+"&max="+numResults+"&"+sb.toString();
+      // first page got off; reset to zero offset
+      else if (offset > 0 && offset < numResults)
+         rs.qsPrev = "off="+(0)+"&max="+numResults+"&"+sb.toString();
    }
 
    private static void app(StringBuilder sb, String p, String v)

@@ -1,36 +1,29 @@
 package edu.tamu.tcat.trc.entries.types.reln.rest;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Path;
 
-import edu.tamu.tcat.account.Account;
-import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
+import edu.tamu.tcat.trc.TrcApplication;
 import edu.tamu.tcat.trc.entries.types.reln.impl.search.RelnSearchStrategy;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
 import edu.tamu.tcat.trc.entries.types.reln.rest.v1.RelationshipTypeResource;
 import edu.tamu.tcat.trc.entries.types.reln.rest.v1.RelationshipsResource;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
-import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.QueryService;
-import edu.tamu.tcat.trc.search.solr.SearchServiceManager;
 
 @Path("/")
 public class RelationshipRestService
 {
    private final static Logger logger = Logger.getLogger(RelationshipRestService.class.getName());
 
-   private EntryRepositoryRegistry repos;
    private RelationshipTypeRegistry typeRegistry;
+   private TrcApplication trcCtx;
 
-   private SearchServiceManager searchMgr;
-   private QueryService<RelationshipQueryCommand> queryService;
-
-   public void setRepoRegistry(EntryRepositoryRegistry registry)
+   public void setTrcContext(TrcApplication trcCtx)
    {
-      this.repos = registry;
+      this.trcCtx = trcCtx;
    }
 
    public void setTypeRegistry(RelationshipTypeRegistry registry)
@@ -38,10 +31,6 @@ public class RelationshipRestService
       this.typeRegistry = registry;
    }
 
-   public void setSearchSvcMgr(SearchServiceManager searchMgr)
-   {
-      this.searchMgr = searchMgr;
-   }
 
    /**
     * Lifecycle management callback (usually called by framework service layer)
@@ -51,41 +40,16 @@ public class RelationshipRestService
    public void activate()
    {
       logger.info("Activating " + getClass().getSimpleName());
-      if (searchMgr == null)
-      {
-         logger.warning("No search service has provided to " + getClass().getSimpleName());
-         return;
-      }
-
-      try
-      {
-         RelnSearchStrategy indexCfg = new RelnSearchStrategy(repos.getResolverRegistry());
-         queryService = searchMgr.getQueryService(indexCfg);
-      }
-      catch (Exception ex)
-      {
-         logger.log(Level.SEVERE, "Failed to load query service for relationship entries REST servivce", ex);
-         throw ex;
-      }
    }
-
-   /**
-    * Lifecycle management callback (usually called by framework service layer)
-    * This method should be called when the services provided by this class are no longer needed.
-    */
-   public void dispose()
-   {
-   }
-
 
    @Path("v1/relationships")
    public RelationshipsResource getV1Endpoint()
    {
-      Account account = null;    // TODO get this from the request if this is possible here.
+      RelnSearchStrategy indexCfg = new RelnSearchStrategy(trcCtx);
+      QueryService<RelationshipQueryCommand> queryService = trcCtx.getQueryService(indexCfg);
 
-      RelationshipRepository repo = repos.getRepository(account, RelationshipRepository.class);
-      EntryResolverRegistry resolvers = repos.getResolverRegistry();
-      return new RelationshipsResource(repo, queryService, resolvers);
+      RelationshipRepository repo = trcCtx.getRepository(null, RelationshipRepository.class);
+      return new RelationshipsResource(repo, queryService, trcCtx.getResolverRegistry());
    }
 
    @Path("relationships")

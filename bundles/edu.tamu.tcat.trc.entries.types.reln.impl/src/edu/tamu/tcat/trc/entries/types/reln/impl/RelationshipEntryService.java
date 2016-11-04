@@ -1,7 +1,5 @@
 package edu.tamu.tcat.trc.entries.types.reln.impl;
 
-import static java.text.MessageFormat.format;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -12,6 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.account.Account;
+import edu.tamu.tcat.trc.TrcApplication;
 import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistrar;
@@ -59,6 +58,12 @@ public class RelationshipEntryService
 
    private EntryResolverRegistry resolvers;
 
+   private TrcApplication trcCtx;
+
+   public void setTrcContext(TrcApplication trcCtx)
+   {
+      this.trcCtx = trcCtx;
+   }
 
    public void setRepoContext(EntryRepositoryRegistrar ctx)
    {
@@ -68,12 +73,6 @@ public class RelationshipEntryService
    public void setTypeRegistry(RelationshipTypeRegistry typeReg)
    {
       this.typeReg = typeReg;
-   }
-
-   public void setSearchSvcMgr(SearchServiceManager indexSvcFactory)
-   {
-      logger.fine(format("[{0}] setting search service manager", getClass().getName()));
-      this.indexSvcMgr = indexSvcFactory;
    }
 
    /**
@@ -86,7 +85,8 @@ public class RelationshipEntryService
       {
          logger.info("Activating " + getClass().getSimpleName());
 
-         resolvers = ctx.getResolverRegistry();
+         this.resolvers = trcCtx.getResolverRegistry();
+         this.indexSvcMgr = trcCtx.getSearchManager();
 
          initRepo();
 
@@ -185,7 +185,7 @@ public class RelationshipEntryService
          logger.log(Level.WARNING, "Index support has not been configured for " + getClass().getSimpleName());
          return;
       }
-      RelnSearchStrategy indexCfg = new RelnSearchStrategy(resolvers);
+      RelnSearchStrategy indexCfg = new RelnSearchStrategy(trcCtx);
       IndexService<Relationship> indexSvc = indexSvcMgr.configure(indexCfg);
 
       RelationshipRepositoryImpl repo = new RelationshipRepositoryImpl(null);     // USE SEARCH ACCT

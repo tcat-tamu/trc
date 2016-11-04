@@ -15,15 +15,15 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln.search;
 
-import java.net.URI;
+import java.util.concurrent.CompletableFuture;
+
+import edu.tamu.tcat.trc.resolver.EntryId;
 
 public interface RelationshipQueryCommand
 {
-   RelationshipSearchResult execute();
+   CompletableFuture<RelationshipSearchResult> execute();
 
-   //TODO: convert this query to use edismax and rename methods to proper pattern
-   @Deprecated // rename to "query*" or "filter*"
-   void forEntity(URI entity, RelationshipDirection direction);
+   void query(EntryId id, RelationshipDirection direction);
 
    @Deprecated // rename to "query*" or "filter*"
    void byType(String typeId);

@@ -15,11 +15,11 @@
  */
 package edu.tamu.tcat.trc.entries.types.reln.impl.search;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -27,9 +27,14 @@ import org.apache.solr.common.SolrDocumentList;
 
 import com.google.common.base.Joiner;
 
+import edu.tamu.tcat.trc.EntryFacade;
+import edu.tamu.tcat.trc.TrcApplication;
+import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipDirection;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
+import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchResult;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelnSearchProxy;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.search.solr.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
@@ -39,53 +44,59 @@ public class RelationshipSolrQueryCommand implements RelationshipQueryCommand
 
    private final SolrClient solr;
    private final TrcQueryBuilder qb;
+   private final TrcApplication trcCtx;
 
    private Collection<String> criteria = new ArrayList<>();
 
 
-   public RelationshipSolrQueryCommand(SolrClient solr, TrcQueryBuilder qb)
+
+   public RelationshipSolrQueryCommand(TrcApplication trcCtx, SolrClient solr, TrcQueryBuilder qb)
    {
+      this.trcCtx = trcCtx;
       this.solr = solr;
       this.qb = qb;
       qb.max(DEFAULT_MAX_RESULTS);
    }
 
    @Override
-   public SolrRelnResults execute() throws SearchException
+   public CompletableFuture<RelationshipSearchResult> execute() throws SearchException
    {
+      CompletableFuture<RelationshipSearchResult> result = new CompletableFuture<>();
       try
       {
-         //HACK: relationship query should use edismax
          String queryString = Joiner.on(" AND ").join(criteria);
          qb.basic(queryString);
          QueryResponse response = solr.query(qb.get());
          SolrDocumentList results = response.getResults();
 
          List<RelnSearchProxy> relns = qb.unpack(results, RelnSolrConfig.SEARCH_PROXY);
-         return new SolrRelnResults(this, relns);
+         result.complete(new SolrRelnResults(this, relns));
       }
       catch (Exception e)
       {
-         throw new SearchException("An error occurred while querying the author core: " + e, e);
+         result.completeExceptionally(new SearchException("An error occurred while querying the author core: " + e, e));
       }
+
+      return result;
    }
 
    @Override
-   public void forEntity(URI entity, RelationshipDirection direction)
+   public void query(EntryId entryId, RelationshipDirection direction)
    {
-      Objects.requireNonNull(entity, "Entity URI must be provided");
-      String entityString = entity.toString();
+      Objects.requireNonNull(entryId, "Entity URI must be provided");
+      EntryFacade<Relationship> facade = trcCtx.getEntryFacade(entryId, Relationship.class, null);
+      String token = facade.getToken();
 
       switch(direction)
       {
          case any:
-            criteria.add("(related:\"" + entityString + "\" OR target:\"" + entityString + "\")");
+            criteria.add("(related:\"" + token + "\" OR target:\"" + token + "\")");
             break;
          case to:
-            criteria.add("target:\"" + entityString + "\"");
+            criteria.add("target:\"" + token + "\"");
             break;
          case from:
-            criteria.add("related:\"" + entityString + "\"");
+            criteria.add("related:\"" + token + "\"");
             break;
          default:
             throw new IllegalStateException("Relationship direction not defined");
