@@ -24,11 +24,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
@@ -62,39 +60,13 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
    {
       try
       {
-
-
          if (authorIds != null)
-         {
-            authorIds.stream().forEach(id -> {
-               try
-               {
-                  qb.query(BiblioSolrConfig.AUTHOR_IDS, id);
-               }
-               catch (SearchException se)
-               {
-                  logger.log(Level.SEVERE, "Failed to update work query", se);
-               }
-            });
-         }
+            authorIds.stream().forEach(this::addAuthor);
+
          if (dates != null)
-         {
-            for (DateRangeDTO dr : dates)
-               qb.filterRange(BiblioSolrConfig.PUBLICATION_DATE,
-                              // For a "year" query, search from 1 Jan of start year through 31 Dec of end year (inclusive)
-                              LocalDate.of(dr.start.getValue(), Month.JANUARY, 1),
-                              LocalDate.of(dr.end.getValue(), Month.DECEMBER, 31));
-         }
+            dates.stream().forEach(this::addDateRange);
 
-         // FIXME HACK: Avoid searching over editions and volumes, only for "basic" search
-         SolrQuery params = (SolrQuery)qb.get();
-         String queryStr = params.get("q");
-         StringBuilder qBuilder = new StringBuilder(queryStr != null ? queryStr : "");
-         qBuilder.append(" -editionName:(*)")
-                 .append(" -volumeNumber:(*)");
-         params.set("q", qBuilder.toString());
-
-         QueryResponse response = solr.query(params);
+         QueryResponse response = solr.query(qb.get());
          SolrDocumentList results = response.getResults();
 
          List<BiblioSearchProxy> works = qb.unpack(results, BiblioSolrConfig.SEARCH_PROXY);
@@ -104,6 +76,19 @@ public class WorkSolrQueryCommand implements WorkQueryCommand
       {
          throw new SearchException("An error occurred while querying the works core", e);
       }
+   }
+
+   private void addDateRange(DateRangeDTO dr)
+   {
+      qb.filterRange(BiblioSolrConfig.PUBLICATION_DATE,
+                     // For a "year" query, search from 1 Jan of start year through 31 Dec of end year (inclusive)
+                     LocalDate.of(dr.start.getValue(), Month.JANUARY, 1),
+                     LocalDate.of(dr.end.getValue(), Month.DECEMBER, 31));
+   }
+
+   private void addAuthor(String id)
+   {
+      qb.query(BiblioSolrConfig.AUTHOR_IDS, id);
    }
 
    @Override

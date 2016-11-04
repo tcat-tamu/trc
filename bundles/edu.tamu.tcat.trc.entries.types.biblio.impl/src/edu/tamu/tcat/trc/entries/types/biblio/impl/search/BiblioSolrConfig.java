@@ -51,19 +51,7 @@ public class BiblioSolrConfig implements SolrIndexConfig
       if (q == null || q.trim().isEmpty())
          q = "*:*";
 
-      // NOTE query against all fields, boosted appropriately, free text
-      //      I think that means *:(qBasic)
-      // NOTE in general, if this is applied, the other query params are unlikely to be applied
-      StringBuilder qBuilder = new StringBuilder(q);
-
-      // Avoid searching over editions and volumes, only for "basic" search
-      qBuilder.append(" -editionName:(*)")
-              .append(" -volumeNumber:(*)");
-
-      params.set("q", qBuilder.toString());
-
-      // Basic query only searches over these fields
-      params.set("qf", "titles^3 authorNames authorIds");
+      params.set("q", q);
    }
 
    @Override

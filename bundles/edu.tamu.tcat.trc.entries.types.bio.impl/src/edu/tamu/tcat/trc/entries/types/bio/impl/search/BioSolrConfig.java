@@ -30,7 +30,7 @@ public class BioSolrConfig implements SolrIndexConfig
 {
    public static final SolrIndexField<String> ID = new BasicFields.BasicString("id");
    public static final SolrIndexField<String> ENTRY_REFERENCE = new BasicFields.BasicString("entryRef");
-   
+
    public static final SolrIndexField<String> SUMMARY = new BasicFields.BasicString("summary");
    public static final SolrIndexField<String> FAMILY_NAME = new BasicFields.BasicString("familyName");
    public static final SolrIndexField<String> GIVEN_NAME = new BasicFields.BasicString("givenName");
@@ -42,14 +42,11 @@ public class BioSolrConfig implements SolrIndexConfig
    public static final SolrIndexField<LocalDate> DEATH_DATE = new BasicFields.BasicDate("deathDate");
 
    public static final BasicFields.SearchProxyField<BioSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<>("proxy", BioSearchProxy.class);
+
+
    @Override
    public void initialConfiguration(SolrQuery params)
    {
-      /*
-       * Using eDisMax seemed like a more adventagous way of doing the query. This will allow
-       * additional solr Paramaters to be set in order to 'fine tune' the query.
-       */
-      params.set("defType", "edismax");
    }
 
    @Override
