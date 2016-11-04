@@ -15,7 +15,6 @@
  */
 package edu.tamu.tcat.trc.entries.types.article.impl.search;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -32,19 +31,16 @@ public class ArticleSolrConfig implements SolrIndexConfig
 {
    public static final SolrIndexField<String> ID = new BasicFields.BasicString("id");
    public static final SolrIndexField<String> ENTRY_REFERENCE = new BasicFields.BasicString("entryRef");
+   public static final SolrIndexField<String> AUTHORS = new BasicFields.BasicString("authors");
    public static final SolrIndexField<String> TITLE = new BasicFields.BasicString("title");
-   public static final SolrIndexField<String> AUTHOR_ID = new BasicFields.BasicString("author_id");
-   public static final SolrIndexField<String> ASSOCIATED_ENTRY = new BasicFields.BasicString("associated_entry");
-   public static final SolrIndexField<String> ARTICLE_CONTENT = new BasicFields.BasicString("article_content");
-   public static final SolrIndexField<String> ARTICLE_MIME_TYPE = new BasicFields.BasicString("mime_type");
-   public static final SolrIndexField<String> AUTHOR_NAMES = new BasicFields.BasicString("author_names");
-   public static final SolrIndexField<String> ARTICLE_ABSTRACT = new BasicFields.BasicString("article_abstract");
-   public static final SolrIndexField<LocalDate>   PUBLISHED = new BasicFields.BasicDate("published");
+   public static final SolrIndexField<String> ARTICLE_ABSTRACT = new BasicFields.BasicString("abstract");
+   public static final SolrIndexField<String> ARTICLE_CONTENT = new BasicFields.BasicString("text");
+   public static final SolrIndexField<String> ARTICLE_TYPE = new BasicFields.BasicString("type");
 
    public static final String CATCH_ALL_NAMES = "catchAllNames";
 
    public static final BasicFields.SearchProxyField<ArticleSearchProxy> SEARCH_PROXY =
-         new BasicFields.SearchProxyField<>("article_dto", ArticleSearchProxy.class);
+         new BasicFields.SearchProxyField<>("proxy", ArticleSearchProxy.class);
 
    /**
     * @since 1.1
@@ -88,19 +84,19 @@ public class ArticleSolrConfig implements SolrIndexConfig
    @Override
    public Collection<? extends SolrIndexField<?>> getIndexedFields()
    {
-      return Arrays.asList(ID, AUTHOR_ID, AUTHOR_NAMES, ARTICLE_ABSTRACT, PUBLISHED, ASSOCIATED_ENTRY, ARTICLE_CONTENT, ARTICLE_MIME_TYPE);
+      return Arrays.asList(ID, ENTRY_REFERENCE, AUTHORS, TITLE, ARTICLE_ABSTRACT, ARTICLE_CONTENT, ARTICLE_TYPE, SEARCH_PROXY);
    }
 
    @Override
    public Collection<? extends SolrIndexField<?>> getStoredFields()
    {
-      return Arrays.asList(ID, AUTHOR_ID, AUTHOR_NAMES, ARTICLE_ABSTRACT, PUBLISHED, ASSOCIATED_ENTRY, ARTICLE_CONTENT, ARTICLE_MIME_TYPE, SEARCH_PROXY);
+      return Arrays.asList(ID, ENTRY_REFERENCE, AUTHORS, TITLE, SEARCH_PROXY);
    }
 
    @Override
    public Collection<? extends SolrIndexField<?>> getMultiValuedFields()
    {
-      return Arrays.asList();
+      return Arrays.asList(AUTHORS);
    }
 
 }

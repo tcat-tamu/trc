@@ -39,14 +39,16 @@ public class SearchAdapter
          doc.set(ArticleSolrConfig.SEARCH_PROXY, makeSearchProxy(article, token));
 
          doc.set(ArticleSolrConfig.ID, article.getId());
-         doc.set(ArticleSolrConfig.TITLE, guardNull(article.getTitle()));
-         doc.set(ArticleSolrConfig.ARTICLE_ABSTRACT, guardNull(article.getAbstract()));
-         doc.set(ArticleSolrConfig.ARTICLE_CONTENT, guardNull(article.getBody()));
          doc.set(ArticleSolrConfig.ENTRY_REFERENCE, token);
 
          article.getAuthors().stream()
             .map(author -> author.getDisplayName())
-            .forEach(name -> doc.set(ArticleSolrConfig.AUTHOR_NAMES, name));
+            .forEach(name -> doc.set(ArticleSolrConfig.AUTHORS, name));
+
+         doc.set(ArticleSolrConfig.TITLE, guardNull(article.getTitle()));
+         doc.set(ArticleSolrConfig.ARTICLE_ABSTRACT, guardNull(article.getAbstract()));
+         doc.set(ArticleSolrConfig.ARTICLE_CONTENT, guardNull(article.getBody()));
+         doc.set(ArticleSolrConfig.ARTICLE_TYPE, guardNull(article.getArticleType()));
 
          return doc.build();
       }
