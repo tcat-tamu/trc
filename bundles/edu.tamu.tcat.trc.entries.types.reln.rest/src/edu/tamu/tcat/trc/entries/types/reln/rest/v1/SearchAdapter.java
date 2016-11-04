@@ -82,7 +82,7 @@ public class SearchAdapter
       EntryResolver<Object> resolver = resolvers.getResolver(entryId);
       Optional<Object> instance = resolver.resolve(account, entryId);
 
-      dto.label = instance.map(entry -> resolver.getLabel(instance))
+      dto.label = instance.map(entry -> resolver.getLabel(entry))
                           .orElse("Invalid Anchor Reference");
 
       return dto;

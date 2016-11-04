@@ -47,7 +47,6 @@ public class BibliographicEntryService
 
 
    private EntryRepositoryRegistrar context;
-   private SearchServiceManager indexSvcMgr;
 
    private DocumentRepository<BibliographicEntry, DataModelV1.WorkDTO, EditBibliographicEntryCommand> docRepo;
    private BasicRepoDelegate<BibliographicEntry, DataModelV1.WorkDTO, EditBibliographicEntryCommand> delegate;
@@ -69,12 +68,6 @@ public class BibliographicEntryService
       this.trcCtx = trcCtx;
    }
 
-   public void setSearchSvcMgr(SearchServiceManager indexSvcFactory)
-   {
-      logger.fine(format("[{0}] setting search service manager", getClass().getName()));
-      this.indexSvcMgr = indexSvcFactory;
-   }
-
    /**
     * Lifecycle management method (usually called by framework service layer)
     * Called when all dependencies have been provided and the service is ready to run.
@@ -93,10 +86,7 @@ public class BibliographicEntryService
          Objects.requireNonNull(resolverReg);
          Objects.requireNonNull(repoReg);
 
-         if (indexSvcMgr != null)
-            initSearch();
-         else
-            logger.log(Level.WARNING, "Index support has not been configured for " + getClass().getSimpleName());
+         initSearch();
 
          logger.fine("Activated " + getClass().getSimpleName());
       }
@@ -173,8 +163,9 @@ public class BibliographicEntryService
 
    private void initSearch()
    {
+      SearchServiceManager searchMgr = trcCtx.getSearchManager();
       BibliographicSearchStrategy indexCfg = new BibliographicSearchStrategy(trcCtx);
-      IndexService<BibliographicEntry> indexSvc = indexSvcMgr.configure(indexCfg);
+      IndexService<BibliographicEntry> indexSvc = searchMgr.configure(indexCfg);
 
       BiblioRepoImpl repo = new BiblioRepoImpl(delegate, null);     // TODO USE SEARCH ACCT
       SolrSearchSupport<BibliographicEntry> mediator = new SolrSearchSupport<>(indexSvc, indexCfg);

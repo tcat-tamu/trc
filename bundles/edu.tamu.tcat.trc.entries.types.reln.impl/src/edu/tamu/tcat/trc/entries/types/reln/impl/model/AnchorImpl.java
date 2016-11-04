@@ -17,7 +17,7 @@ public class AnchorImpl implements Anchor
 
    public AnchorImpl(DataModelV1.Anchor dto, EntryResolverRegistry resolvers)
    {
-      this.properties = new HashMap<>(dto.properties);
+      this.properties = dto.properties.isEmpty()? new HashMap<>() : new HashMap<>(dto.properties);
       this.ref = resolvers.decodeToken(dto.ref);
    }
 

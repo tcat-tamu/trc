@@ -28,6 +28,7 @@ import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.trc.entries.types.reln.Anchor;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
+import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelnSearchProxy;
 import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryIdDto;
@@ -75,7 +76,10 @@ public class RelnDocument
                .forEach(token -> doc.set(RelnSolrConfig.TARGET_ENTITIES, token));
 
          doc.set(RelnSolrConfig.SEARCH_PROXY, makeProxy(reln, resolvers));
-
+         
+         EntryId entryId = new EntryId(reln.getId(), RelationshipRepository.ENTRY_TYPE_ID);
+         
+         doc.set(RelnSolrConfig.ENTRY_REFERENCE, resolvers.tokenize(entryId));
          // TODO: Get Entry Reference and add it.
          return doc.build();
       }
@@ -87,9 +91,10 @@ public class RelnDocument
 
    public static RelnSearchProxy makeProxy(Relationship reln, EntryResolverRegistry resolvers)
    {
+      EntryId entryId = new EntryId(reln.getId(), RelationshipRepository.ENTRY_TYPE_ID);
       RelnSearchProxy result = new RelnSearchProxy();
       result.id = reln.getId();
-      result.token = resolvers.tokenize(resolvers.getResolver(reln).makeReference(reln));
+      result.token = resolvers.tokenize(entryId);
       result.typeId = reln.getType().getIdentifier();
       result.description = reln.getDescription();
 
