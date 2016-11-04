@@ -13,6 +13,7 @@ import org.apache.solr.common.SolrInputDocument;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioEntryQueryCommand;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.IndexServiceStrategy;
 import edu.tamu.tcat.trc.search.solr.SearchException;
 import edu.tamu.tcat.trc.search.solr.SolrIndexConfig;
@@ -31,9 +32,12 @@ public class BioSearchStrategy implements IndexServiceStrategy<BiographicalEntry
 
    private final SentenceDetectorME detector;
 
-   public BioSearchStrategy(ConfigurationProperties config)
+   private final EntryResolverRegistry resolvers;
+
+   public BioSearchStrategy(ConfigurationProperties config, EntryResolverRegistry resolvers)
    {
       this.detector = initSentenceDetector(config);
+      this.resolvers = resolvers;
    }
 
    private SentenceDetectorME initSentenceDetector(ConfigurationProperties config)
@@ -78,7 +82,7 @@ public class BioSearchStrategy implements IndexServiceStrategy<BiographicalEntry
    @Override
    public SolrInputDocument getDocument(BiographicalEntry person)
    {
-      SolrDocAdapter adapter = new SolrDocAdapter(this::extractFirstSentence);
+      SolrDocAdapter adapter = new SolrDocAdapter(this::extractFirstSentence, resolvers);
       return adapter.apply(person);
    }
 

@@ -150,7 +150,7 @@ public class BiographicalEntryService
          return;
       }
 
-      BioSearchStrategy indexCfg = new BioSearchStrategy(ctx.getConfig());
+      BioSearchStrategy indexCfg = new BioSearchStrategy(ctx.getConfig(), ctx.getResolverRegistry());
       IndexService<BiographicalEntry> indexSvc = indexSvcMgr.configure(indexCfg);
 
       BioEntryRepoImpl repo = new BioEntryRepoImpl(delegate, null);     // USE SEARCH ACCT

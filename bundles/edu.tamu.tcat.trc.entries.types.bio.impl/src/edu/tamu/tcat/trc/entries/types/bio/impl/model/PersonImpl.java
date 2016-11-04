@@ -23,14 +23,14 @@ public class PersonImpl implements BiographicalEntry
    {
       this.id = figure.id;
       this.canonicalName = new PersonNameImpl(getCanonicalName(figure));
-      
+
       if (figure.names != null)
          this.names = figure.names.stream()
                      .map(PersonNameImpl::new)
                      .collect(Collectors.toSet());
       else
          this.names = new HashSet<>();
-      
+
       this.birth = (figure.birth != null) ? new HistoricalEventImpl(figure.birth) : null;
       this.death = (figure.death != null) ? new HistoricalEventImpl(figure.death) : null;
 
@@ -139,6 +139,4 @@ public class PersonImpl implements BiographicalEntry
       fallbackName.displayName = "Name Unknown";
       return fallbackName;
    }
-
-   // equals and hash code?
 }

@@ -16,13 +16,15 @@
 package edu.tamu.tcat.trc.entries.types.bio.impl.search;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 
-import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioEntryQueryCommand;
+import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
+import edu.tamu.tcat.trc.entries.types.bio.search.PersonSearchResult;
 import edu.tamu.tcat.trc.search.solr.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
@@ -41,20 +43,24 @@ public class PeopleSolrQueryCommand implements BioEntryQueryCommand
    }
 
    @Override
-   public SolrPersonResults executeSync() throws SearchException
+   public CompletableFuture<PersonSearchResult> execute() throws SearchException
    {
+      CompletableFuture<PersonSearchResult> result = new CompletableFuture<>();
       try
       {
          QueryResponse response = solr.query(qb.get());
          SolrDocumentList results = response.getResults();
 
          List<BioSearchProxy> people = qb.unpack(results, BioSolrConfig.SEARCH_PROXY);
-         return new SolrPersonResults(this, people);
+         SolrPersonResults searchResults = new SolrPersonResults(this, people);
+         result.complete(searchResults);
       }
       catch (Exception e)
       {
-         throw new SearchException("An error occurred while querying the author core: " + e, e);
+         result.completeExceptionally(new SearchException("An error occurred while querying the author core: " + e, e));
       }
+
+      return result;
    }
 
    @Override

@@ -2,8 +2,6 @@ package edu.tamu.tcat.trc.entries.types.bio.impl.search;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -13,7 +11,10 @@ import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
 import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
+import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
+import edu.tamu.tcat.trc.resolver.EntryId;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.SearchException;
 import edu.tamu.tcat.trc.search.solr.SolrIndexField;
 import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
@@ -21,10 +22,12 @@ import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 public class SolrDocAdapter implements Function<BiographicalEntry, SolrInputDocument>
 {
    private final Function<String, String> sentenceParser;
+   private final EntryResolverRegistry resolvers;
 
-   public SolrDocAdapter(Function<String, String> sentenceParser)
+   public SolrDocAdapter(Function<String, String> sentenceParser, EntryResolverRegistry resolvers)
    {
       this.sentenceParser = sentenceParser;
+      this.resolvers = resolvers;
    }
 
    @Override
@@ -33,31 +36,19 @@ public class SolrDocAdapter implements Function<BiographicalEntry, SolrInputDocu
       try
       {
          TrcDocument indexDocument = new TrcDocument(new BioSolrConfig());
+         EntryId entryId = new EntryId(person.getId(), BiographicalEntryRepository.ENTRY_TYPE_ID);
+         String token = resolvers.tokenize(entryId);
 
-         indexDocument.set(BioSolrConfig.SEARCH_PROXY, toProxy(person));
+         indexDocument.set(BioSolrConfig.SEARCH_PROXY, toProxy(person, token));
          indexDocument.set(BioSolrConfig.ID, person.getId());
-         indexDocument.set(BioSolrConfig.ALT_NAMES, constructSyntheticName(person.getNames()));
+         indexDocument.set(BioSolrConfig.ENTRY_REFERENCE, token);
 
-         PersonName name = person.getCanonicalName();
-         if (name != null)
-         {
-            indexDocument.set(BioSolrConfig.FAMILY_NAME, guardNull(name.getFamilyName()));
-            indexDocument.set(BioSolrConfig.GIVEN_NAME, guardNull(name.getGivenName()));
-         }
+         setName(person, indexDocument);
+         setBirth(person, indexDocument);
+         setDeath(person, indexDocument);
 
-         HistoricalEvent birth = person.getBirth();
-         if (birth != null)
-         {
-            indexDocument.set(BioSolrConfig.BIRTH_LOCATION, guardNull(birth.getLocation()));
-            setDateValue(indexDocument, BioSolrConfig.BIRTH_DATE, birth.getDate());
-         }
-
-         HistoricalEvent death = person.getDeath();
-         if (death != null)
-         {
-            indexDocument.set(BioSolrConfig.DEATH_LOCATION, guardNull(death.getLocation()));
-            setDateValue(indexDocument, BioSolrConfig.DEATH_DATE, death.getDate());
-         }
+         person.getAlternativeNames().forEach(name ->
+               indexDocument.set(BioSolrConfig.ALT_NAMES, makeAltNameText(name)));
 
          indexDocument.set(BioSolrConfig.SUMMARY, guardNull(person.getSummary()));
          return indexDocument.build();
@@ -68,54 +59,34 @@ public class SolrDocAdapter implements Function<BiographicalEntry, SolrInputDocu
       }
    }
 
-
-
-   private BioSearchProxy toProxy(BiographicalEntry person)
+   private void setName(BiographicalEntry person, TrcDocument indexDocument)
    {
-      BioSearchProxy proxy = new BioSearchProxy();
-      proxy.id = person.getId();
+      PersonName name = getDisplayName(person);
+      if (name == null)
+         return;
 
-      PersonName dname = getDisplayName(person);
-      proxy.displayName.family = dname.getFamilyName();
-      proxy.displayName.given = dname.getGivenName();
-      proxy.displayName.display = dname.getDisplayName();
-      proxy.formattedName = getFormattedName(person);
-      proxy.summaryExcerpt = getSummaryExcerpt(person);
-
-      return proxy;
+      indexDocument.set(BioSolrConfig.FAMILY_NAME, guardNull(name.getFamilyName()));
+      indexDocument.set(BioSolrConfig.GIVEN_NAME, guardNull(name.getGivenName()));
    }
 
-   /**
-    * Constructs a synthetic name that contains the various values (title, first name,
-    * family name, etc) from different names associated with this person. Each portion
-    * of a person's name is collected into a set of 'name parts' that is then concatenated
-    * to form a string-valued synthetic name. This allows all of the various name tokens to
-    * be included in the search.
-    *
-    * @param names A set of names associated with a person.
-    * @return A synthetic name that contains a union of the different name fields.
-    */
-   private static String constructSyntheticName(Collection<PersonName> names)
+   private void setBirth(BiographicalEntry person, TrcDocument indexDocument)
    {
-      Set<String> nameParts = new HashSet<>();
-      for(PersonName name : names)
-      {
-         nameParts.add(name.getTitle());
-         nameParts.add(name.getGivenName());
-         nameParts.add(name.getMiddleName());
-         nameParts.add(name.getFamilyName());
-      }
+      HistoricalEvent birth = person.getBirth();
+      if (birth == null)
+         return;
 
-      StringBuilder sb = new StringBuilder();
-      for (String part : nameParts)
-      {
-         if (part == null)
-            continue;
+      indexDocument.set(BioSolrConfig.BIRTH_LOCATION, guardNull(birth.getLocation()));
+      setDateValue(indexDocument, BioSolrConfig.BIRTH_DATE, birth.getDate());
+   }
 
-         sb.append(part).append(" ");
-      }
+   private void setDeath(BiographicalEntry person, TrcDocument indexDocument)
+   {
+      HistoricalEvent death = person.getDeath();
+      if (death == null)
+         return;
 
-      return sb.toString().trim();
+      indexDocument.set(BioSolrConfig.DEATH_LOCATION, guardNull(death.getLocation()));
+      setDateValue(indexDocument, BioSolrConfig.DEATH_DATE, death.getDate());
    }
 
    /**
@@ -138,10 +109,30 @@ public class SolrDocAdapter implements Function<BiographicalEntry, SolrInputDocu
       doc.set(field, value);
    }
 
-   private static String guardNull(String value)
+   private static String makeAltNameText(PersonName name)
    {
-      String result = value == null ? "" : value;
-      return result.trim();
+      return String.join(" ", guardNull(name.getTitle()),
+                              guardNull(name.getGivenName()),
+                              guardNull(name.getMiddleName()),
+                              guardNull(name.getFamilyName()),
+                              guardNull(name.getSuffix()),
+                              guardNull(name.getDisplayName()));
+   }
+
+   private BioSearchProxy toProxy(BiographicalEntry person, String token)
+   {
+      BioSearchProxy proxy = new BioSearchProxy();
+      proxy.id = person.getId();
+      proxy.token = token;
+
+      PersonName dname = getDisplayName(person);
+      proxy.formattedName = getFormattedName(person);
+      proxy.displayName.family = dname.getFamilyName();
+      proxy.displayName.given = dname.getGivenName();
+      proxy.displayName.display = dname.getDisplayName();
+      proxy.summaryExcerpt = getSummaryExcerpt(person);
+
+      return proxy;
    }
 
    /**
@@ -170,7 +161,7 @@ public class SolrDocAdapter implements Function<BiographicalEntry, SolrInputDocu
 
    private String formatName(BiographicalEntry person)
    {
-      String displayName = "unnamed";
+      String displayName = "Name Not Available";
       PersonName name = getDisplayName(person);
       if (name != null) {
          displayName = name.getDisplayName();
@@ -184,10 +175,8 @@ public class SolrDocAdapter implements Function<BiographicalEntry, SolrInputDocu
    }
 
    /**
-    * Gets a display name for a person
-    *
-    * @param person
-    * @return
+    * Gets a display name for a person using the canonical name by default or the first
+    * available alternative name if the canonical name is not supplied.
     */
    private PersonName getDisplayName(BiographicalEntry person)
    {
@@ -206,22 +195,21 @@ public class SolrDocAdapter implements Function<BiographicalEntry, SolrInputDocu
 
    /**
     * Gets a summary excerpt for a person
-    *
-    * @param person
-    * @return
     */
    private String getSummaryExcerpt(BiographicalEntry person)
    {
-      // remove HTML tags for sentence extraction
       String summary = person.getSummary();
-
       if (summary == null)
-      {
          return "";
-      }
 
+      // remove HTML tags for sentence extraction
       String summaryStripped = summary.replaceAll("<[^>]+>", "");
       return sentenceParser.apply(summaryStripped);
+   }
+
+   private static String guardNull(String value)
+   {
+      return value == null ? "" : value.trim();
    }
 
    /**
