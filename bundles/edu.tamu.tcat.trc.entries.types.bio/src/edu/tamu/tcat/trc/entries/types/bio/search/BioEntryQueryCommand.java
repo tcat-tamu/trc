@@ -66,29 +66,5 @@ public interface BioEntryQueryCommand
     */
    void setMaxResults(int max);
 
-   /**
-    * Execute the query command.
-    * @return The matching search results.
-    * @throws SearchException If errors are encountered executing the supplied query.
-    * @deprecated Use {@link #execute()} instead.
-    */
-   @Deprecated
-   PersonSearchResult executeSync();
-
-   default CompletableFuture<PersonSearchResult> execute()
-   {
-      CompletableFuture<PersonSearchResult> results = new CompletableFuture<>();
-
-      try
-      {
-         PersonSearchResult rs = this.executeSync();
-         results.complete(rs);
-      }
-      catch (Exception ex)
-      {
-         results.completeExceptionally(ex);
-      }
-
-      return results;
-   }
+   CompletableFuture<PersonSearchResult> execute();
 }
