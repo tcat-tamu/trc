@@ -40,6 +40,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import edu.tamu.tcat.trc.TrcApplication;
+import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.impl.search.BioSearchStrategy;
 import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.DateDescriptionMutator;
@@ -52,7 +53,6 @@ import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.SearchAdapter;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioEntryQueryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.search.PersonSearchResult;
 import edu.tamu.tcat.trc.search.solr.QueryService;
-import edu.tamu.tcat.trc.search.solr.SearchException;
 
 public class PeopleResource
 {
@@ -84,7 +84,7 @@ public class PeopleResource
                 @QueryParam(value = "max") @DefaultValue("100") int numResults)
    {
       //TrcAccount account = bean.get(TrcAccount.class);
-      BioSearchStrategy indexCfg = new BioSearchStrategy(app.getConfig());
+      BioSearchStrategy indexCfg = new BioSearchStrategy(app.getConfig(), app.getResolverRegistry());
       QueryService<BioEntryQueryCommand> queryService = app.getQueryService(indexCfg);
       if (queryService == null)
       {
@@ -104,17 +104,18 @@ public class PeopleResource
             cmd.queryAll();
          cmd.setOffset(offset);
          cmd.setMaxResults(numResults);
-         PersonSearchResult results = cmd.executeSync();
+         PersonSearchResult results = cmd.execute().get(10, TimeUnit.SECONDS);
 
          RestApiV1.PersonSearchResultSet rs = new RestApiV1.PersonSearchResultSet();
-         rs.items = SearchAdapter.toDTO(results.get());
+         rs.items = SearchAdapter.toDTO(results.get(), app.getResolverRegistry());
 
          buildQueryLinks(rs, q, offset, numResults);
 
          return rs;
       }
-      catch (SearchException e)
+      catch (Exception e)
       {
+         // TODO this isn't the right error
          errorLogger.log(Level.SEVERE, "Error", e);
          throw new InternalServerErrorException("Failed to execute search", e);
       }
@@ -152,7 +153,8 @@ public class PeopleResource
       apply(command, person);
 
       errorLogger.log(Level.INFO, format("Creating new biographic entry for {0}", person.name.label));
-      return execute(repo, command);
+      BiographicalEntry result = execute(repo, command);
+      return RepoAdapter.toDTO(result, app.getResolverRegistry());
    }
 
 
@@ -186,15 +188,14 @@ public class PeopleResource
     *
     * @throws WebApplicationException For problems encountered during execution
     */
-   static RestApiV1.Person execute(BiographicalEntryRepository repo, EditBiographicalEntryCommand command)
+   static BiographicalEntry execute(BiographicalEntryRepository repo, EditBiographicalEntryCommand command)
    {
       try
       {
          String id = command.execute().get(10, TimeUnit.SECONDS);
 
-         // presumably we could just return the person that was supplied, but this ensures that we get
-         // the result as stored locally.
-         return RepoAdapter.toDTO(repo.get(id));
+         // ensures that we get the result as stored locally.
+         return repo.get(id);
       }
       catch (InterruptedException | TimeoutException e)
       {

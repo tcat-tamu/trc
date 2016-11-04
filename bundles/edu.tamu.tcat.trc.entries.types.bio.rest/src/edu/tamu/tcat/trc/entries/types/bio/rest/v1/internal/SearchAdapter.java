@@ -20,6 +20,9 @@ import java.util.List;
 
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.RestApiV1;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
+import edu.tamu.tcat.trc.resolver.EntryIdDto;
+import edu.tamu.tcat.trc.resolver.EntryReference;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
 /**
  * An encapsulation of adapter methods to convert between the search API and
@@ -27,7 +30,7 @@ import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
  */
 public class SearchAdapter
 {
-   public static List<RestApiV1.SimplePerson> toDTO(List<BioSearchProxy> origList)
+   public static List<RestApiV1.SimplePerson> toDTO(List<BioSearchProxy> origList, EntryResolverRegistry resolvers)
    {
       if (origList == null)
          return null;
@@ -35,10 +38,12 @@ public class SearchAdapter
       List<RestApiV1.SimplePerson> dtoList = new ArrayList<>();
       for (BioSearchProxy orig : origList)
       {
+         EntryReference<BioSearchProxy> reference = resolvers.getReference(orig.token);
          RestApiV1.SimplePerson dto = new RestApiV1.SimplePerson();
-         dto.id = orig.id;
-         dto.name = toDTO(orig.displayName);
-         dto.label = orig.formattedName;
+         dto.id = reference.getId();
+         dto.ref = EntryIdDto.adapt(reference);
+         dto.name = adapt(orig.displayName);
+         dto.label = reference.getHtmlLabel();
          dto.summaryExcerpt = orig.summaryExcerpt;
 
          dtoList.add(dto);
@@ -47,7 +52,7 @@ public class SearchAdapter
       return dtoList;
    }
 
-   private static RestApiV1.PersonName toDTO(BioSearchProxy.PersonNameDTO orig)
+   private static RestApiV1.PersonName adapt(BioSearchProxy.PersonNameDTO orig)
    {
       if (orig == null)
          return null;

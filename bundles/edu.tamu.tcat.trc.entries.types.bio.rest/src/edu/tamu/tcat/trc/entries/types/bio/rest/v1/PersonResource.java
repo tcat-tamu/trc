@@ -53,7 +53,8 @@ public class PersonResource
       {
          EntryFacade<BiographicalEntry> facade =
                app.getEntryFacade(entryId, BiographicalEntry.class, null);
-         return facade.getEntry().map(RepoAdapter::toDTO)
+
+         return facade.getEntry().map(entry -> RepoAdapter.toDTO(entry, app.getResolverRegistry()))
                .orElseThrow(() -> ApiUtils.raise(Response.Status.NOT_FOUND, format(notFoundMsg, entryId.getId()), Level.FINE, null));
       }
       catch (Exception e)
@@ -84,7 +85,8 @@ public class PersonResource
          PeopleResource.apply(command, person);
 
          logger.log(Level.INFO, format("Updating biographic entry for {0} [{1}]", person.name.label, personId));
-         return PeopleResource.execute(repo, command);
+         BiographicalEntry result = PeopleResource.execute(repo, command);
+         return RepoAdapter.toDTO(result, app.getResolverRegistry());
       }
       catch (ResourceNotFoundException ex)
       {

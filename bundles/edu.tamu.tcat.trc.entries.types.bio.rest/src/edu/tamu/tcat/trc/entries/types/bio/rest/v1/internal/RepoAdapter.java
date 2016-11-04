@@ -24,6 +24,8 @@ import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
 import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.RestApiV1;
+import edu.tamu.tcat.trc.resolver.EntryIdDto;
+import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
 /**
  * An encapsulation of adapter methods to convert between the repository API and
@@ -31,12 +33,13 @@ import edu.tamu.tcat.trc.entries.types.bio.rest.v1.RestApiV1;
  */
 public class RepoAdapter
 {
-   public static RestApiV1.Person toDTO(BiographicalEntry orig)
+   public static RestApiV1.Person toDTO(BiographicalEntry orig, EntryResolverRegistry resolvers)
    {
       if (orig == null)
          return null;
       RestApiV1.Person dto = new RestApiV1.Person();
       dto.id = orig.getId();
+      dto.ref = EntryIdDto.adapt(resolvers.getResolver(orig).makeReference(orig), resolvers);
 
       PersonName canonicalName = orig.getCanonicalName();
       if (canonicalName != null) {

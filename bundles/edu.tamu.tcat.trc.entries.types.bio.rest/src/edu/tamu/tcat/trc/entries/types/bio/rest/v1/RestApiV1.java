@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import edu.tamu.tcat.trc.resolver.EntryIdDto;
+
 /**
  * An encapsulation of the data vehicle types used to process JSON requests and responses
  * for version 1 of the TRC REST API for Persons.
@@ -80,6 +82,9 @@ public class RestApiV1
       /** The unique identifier for this person. */
       public String id;
 
+      /** A unique token that identifies this person to the entry resolver. */
+      public EntryIdDto ref;
+
       /**
        *  The primary name used to identify this person for the purposes of this biographical
        *  entry. Note that the selection of a primary name reflects an editorial decision that
@@ -132,6 +137,9 @@ public class RestApiV1
 
       /** Unique id of this person. */
       public String id;
+
+      /** A unique token that identifies this person to the entry resolver. */
+      public EntryIdDto ref;
 
       /** Structured representation of this person's name. */
       public PersonName name;
@@ -207,15 +215,7 @@ public class RestApiV1
       @Override
       public int hashCode()
       {
-         int result = 17;
-         result = 31 * result + ((label == null) ? 0 : label.hashCode());
-         result = 31 * result + ((title == null) ? 0 : title.hashCode());
-         result = 31 * result + ((givenName == null) ? 0 : givenName.hashCode());
-         result = 31 * result + ((middleName == null) ? 0 : middleName.hashCode());
-         result = 31 * result + ((familyName == null) ? 0 : familyName.hashCode());
-         result = 31 * result + ((suffix == null) ? 0 : suffix.hashCode());
-
-         return result;
+         return Objects.hash(label, title, givenName, middleName, familyName, suffix);
       }
    }
 
