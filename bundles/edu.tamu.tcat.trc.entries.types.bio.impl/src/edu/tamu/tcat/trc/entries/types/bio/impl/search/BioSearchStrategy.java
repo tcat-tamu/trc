@@ -11,6 +11,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.common.SolrInputDocument;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
+import edu.tamu.tcat.trc.TrcApplication;
 import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioEntryQueryCommand;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
@@ -34,10 +35,17 @@ public class BioSearchStrategy implements IndexServiceStrategy<BiographicalEntry
 
    private final EntryResolverRegistry resolvers;
 
+   @Deprecated
    public BioSearchStrategy(ConfigurationProperties config, EntryResolverRegistry resolvers)
    {
       this.detector = initSentenceDetector(config);
       this.resolvers = resolvers;
+   }
+
+   public BioSearchStrategy(TrcApplication trcCtx)
+   {
+      this.detector = initSentenceDetector(trcCtx.getConfig());
+      this.resolvers = trcCtx.getResolverRegistry();
    }
 
    private SentenceDetectorME initSentenceDetector(ConfigurationProperties config)
