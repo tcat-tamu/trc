@@ -28,6 +28,11 @@ public class BioSearchProxy
     * ID corresponding to the {@link BiographicalEntry} object that this simple data vehicle represents.
     */
    public String id;
+   
+   /**
+    * A unique token that identifies this biographical entry to the entry resolver.
+    */
+   public String token;
 
    /**
     * Display name for this person (for use when populating fields)
