@@ -228,7 +228,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    @Override
    public Iterator<RecordType> listAll()
    {
-      return new PagedRecordIterator<>(this::getPersonBlock, json -> adapter.apply(parse(json)), 100);
+      return new PagedRecordIterator<>(this::getPageBlock, json -> adapter.apply(parse(json)), 100);
    }
 
    public boolean exists(String id)
@@ -301,25 +301,30 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    {
       // FIXME this looks like a mess
       UpdateContextImpl context = new UpdateContextImpl(id, ActionType.REMOVE, account, () -> {
-         try
-         {
+         try {
             return loadStoredRecord(id);
-         }
-         catch (Exception e)
-         {
-            // removing a non-existent record is okay, but future should resolve to {@code false}.
-            return null;
+         } catch (Exception e) {
+            String string = "Internal error trying to restore document {0} from repo {1}";
+            logger.log(Level.SEVERE, format(string, id, this.tablename), e);
+            return Optional.empty();
          }
       });
 
       // HACK it would be nice if we could directly return the result of doDelete,
       //      UpdateStrategy would then have to support a custom result type
       CompletableFuture<Boolean> resultFuture = new CompletableFuture<>();
+      UpdateStrategyImpl updater = new UpdateStrategyImpl(context,
+            dto -> {
+               return doDelete(id).exceptionally(ex -> {
+                  resultFuture.completeExceptionally(ex);
+                  return false;
+               }).thenApply(result -> {
+                  if (!resultFuture.isDone())
+                     resultFuture.complete(result);
+                  return null;   // the object has been removed
+               });
+            });
 
-      UpdateStrategyImpl updater = new UpdateStrategyImpl(context, dto -> doDelete(id).thenApply(result -> {
-         resultFuture.complete(result);
-         return null;
-      }));
 
       updater.update(ctx -> null);
 
@@ -344,7 +349,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       return () -> postCommitTasks.remove(observerId);
    }
 
-   private Future<List<String>> getPersonBlock(int offset, int limit)
+   private Future<List<String>> getPageBlock(int offset, int limit)
    {
 
       return exec.submit((conn) -> getPageBlock(conn, offset, limit));
@@ -355,9 +360,16 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       if (Thread.interrupted())
          throw new InterruptedException();
 
-      String template = "SELECT {0} FROM {1} ORDER BY {2} LIMIT {3} OFFSET {4}";
-      String sql = format(template, schema.getDataField(), tablename,
-            schema.getIdField(), Integer.toString(limit), Integer.toString(offset));
+      String template = "SELECT {0} FROM {1} {2} ORDER BY {3} LIMIT {4} OFFSET {5}";
+      String removedField = schema.getRemovedField();
+      String filterRemoved = (removedField != null) ? format("WHERE {0} IS NULL", removedField) : "";
+      String sql = format(template,
+            schema.getDataField(),
+            tablename,
+            filterRemoved,
+            schema.getIdField(),
+            Integer.toString(limit),
+            Integer.toString(offset));
 
       List<String> jsonData = new ArrayList<>();
       try (Statement stmt = conn.createStatement())
