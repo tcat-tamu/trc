@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.resolver.EntryId;
+import edu.tamu.tcat.trc.resolver.EntryResolver;
 import edu.tamu.tcat.trc.services.bibref.ReferenceCollection;
 import edu.tamu.tcat.trc.services.bibref.repo.EditBibliographyCommand;
 import edu.tamu.tcat.trc.services.notes.EditNoteCommand;
@@ -27,6 +28,10 @@ public interface EntryFacade<EntryType>
    Optional<EntryType> getEntry() throws ResourceNotFoundException;
 
    EntryId getEntryId();
+
+   String getToken();
+
+   EntryResolver<EntryType> getResolver();
 
    /**
     * @return A collection of bibliographic references and citations that are associated

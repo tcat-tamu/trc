@@ -5,6 +5,7 @@ import static java.text.MessageFormat.format;
 import java.net.URI;
 import java.util.Base64;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -130,15 +131,21 @@ public class BasicResolverRegistry implements EntryResolverRegistry, EntryResolv
 
    private class EntryRefImpl<T> implements EntryReference<T>
    {
-      private final String id;
-      private final String type;
       private final EntryResolver<T> resolver;
+      private final ConcurrentHashMap<UUID, Optional<T>> cache = new ConcurrentHashMap<>();
+      private EntryId entryId;
 
       public EntryRefImpl(String id, String type)
       {
-         this.id = id;
-         this.type = type;
+         this.entryId = new EntryId(id, type);
          this.resolver = BasicResolverRegistry.this.getResolver(id, type);
+      }
+
+      public EntryRefImpl(T instance)
+      {
+         this.resolver = BasicResolverRegistry.this.getResolver(instance);
+         this.entryId = this.resolver.makeReference(instance);
+         this.cache.put(new UUID(0, 0), Optional.of(instance));
       }
 
       @Override
@@ -156,7 +163,7 @@ public class BasicResolverRegistry implements EntryResolverRegistry, EntryResolv
       @Override
       public EntryId getEntryId()
       {
-         return new EntryId(id, type);
+         return this.entryId;
       }
 
       @Override
@@ -174,19 +181,19 @@ public class BasicResolverRegistry implements EntryResolverRegistry, EntryResolv
       @Override
       public String getId()
       {
-         return id;
+         return entryId.getId();
       }
 
       @Override
       public String getType()
       {
-         return type;
+         return entryId.getType();
       }
 
       @Override
       public String getToken()
       {
-         return tokenize(id, type);
+         return tokenize(entryId.getId(), entryId.getType());
       }
 
       @Override
@@ -196,11 +203,25 @@ public class BasicResolverRegistry implements EntryResolverRegistry, EntryResolv
       }
 
       @Override
-      public T getEntry(Account account)
+      public synchronized T getEntry(Account account)
       {
+         UUID id = account != null ? account.getId() : new UUID(0, 0);
+         Optional<T> result = get(account);
+
          String msg = "No entry of type {0} found for id={1} using account {3} [{4}].";
-         return resolver.resolve(account, getEntryId())
-               .orElseThrow(() -> new ResourceNotFoundException(format(msg, type, id, account.getDisplayName(), account.getId())));
+         return result.orElseThrow(() -> {
+            String eId = entryId.getId();
+            String type = entryId.getType();
+            String name = account != null ? account.getDisplayName() : "Anonymous";
+
+            return new ResourceNotFoundException(format(msg, type, eId, name, id));
+         });
+      }
+
+      public synchronized Optional<T> get(Account account)
+      {
+         UUID id = account != null ? account.getId() : new UUID(0, 0);
+         return cache.computeIfAbsent(id, key -> resolver.resolve(account, getEntryId()));
       }
 
    }

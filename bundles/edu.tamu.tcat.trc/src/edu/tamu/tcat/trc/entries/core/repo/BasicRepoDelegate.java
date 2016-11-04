@@ -76,6 +76,7 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
             .orElseThrow(() -> new NoSuchEntryException(format(msg, entryName, id)));
 
    }
+
    public Optional<EntryType> getOptionally(Account account, String id) throws NoSuchEntryException
    {
       return repo.get(id);

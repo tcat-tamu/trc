@@ -106,6 +106,18 @@ public class EntryFacadeImpl<EntryType> implements EntryFacade<EntryType>
    }
 
    @Override
+   public String getToken()
+   {
+      return this.trcCtx.getResolverRegistry().tokenize(ref);
+   }
+
+   @Override
+   public EntryResolver<EntryType> getResolver()
+   {
+      return trcCtx.getResolverRegistry().getResolver(ref);
+   }
+
+   @Override
    public ReferenceCollection getReferences()
    {
       return refSvcDelegate.getReferences();
