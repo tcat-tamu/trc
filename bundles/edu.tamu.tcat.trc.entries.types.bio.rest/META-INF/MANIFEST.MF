@@ -5,8 +5,7 @@ Bundle-SymbolicName: edu.tamu.tcat.trc.entries.types.bio.rest
 Bundle-Version: 1.3.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: edu.tamu.tcat.trc.entries.types.bio.rest;version="1.3.0",
- edu.tamu.tcat.trc.entries.types.bio.rest.v1;version="1.3.0",
- edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal;version="1.3.0";x-internal:=true
+ edu.tamu.tcat.trc.entries.types.bio.rest.v1;version="1.3.0"
 Import-Package: edu.tamu.tcat.account;version="[2.0.0,3.0.0)",
  edu.tamu.tcat.account.jaxrs.bean;version="[2.0.0,3.0.0)",
  edu.tamu.tcat.osgi.config;version="[1.1.0,2.0.0)",
@@ -22,6 +21,7 @@ Import-Package: edu.tamu.tcat.account;version="[2.0.0,3.0.0)",
  edu.tamu.tcat.trc.search.solr;version="1.3.0",
  edu.tamu.tcat.trc.services;version="1.3.0",
  edu.tamu.tcat.trc.services.bibref.repo;version="2.0.0",
+ edu.tamu.tcat.trc.services.rest;version="2.0.0",
  edu.tamu.tcat.trc.services.rest.bibref,
  javax.ws.rs;version="2.0.0",
  javax.ws.rs.core;version="2.0.0"

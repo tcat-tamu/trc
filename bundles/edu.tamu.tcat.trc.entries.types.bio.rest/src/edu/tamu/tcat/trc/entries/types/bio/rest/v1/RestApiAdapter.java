@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal;
+package edu.tamu.tcat.trc.entries.types.bio.rest.v1;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -25,7 +25,6 @@ import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
 import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
-import edu.tamu.tcat.trc.entries.types.bio.rest.v1.RestApiV1;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
 import edu.tamu.tcat.trc.resolver.EntryIdDto;
 import edu.tamu.tcat.trc.resolver.EntryReference;
@@ -112,16 +111,16 @@ public class RestApiAdapter
       return dto;
    }
 
-   public static List<RestApiV1.SimplePerson> adapt(List<BioSearchProxy> origList, EntryResolverRegistry resolvers)
+   public static List<RestApiV1.BasicBioEntry> adapt(List<BioSearchProxy> origList, EntryResolverRegistry resolvers)
    {
       if (origList == null)
          return null;
 
-      List<RestApiV1.SimplePerson> dtoList = new ArrayList<>();
+      List<RestApiV1.BasicBioEntry> dtoList = new ArrayList<>();
       for (BioSearchProxy orig : origList)
       {
          EntryReference<BioSearchProxy> reference = resolvers.getReference(orig.token);
-         RestApiV1.SimplePerson dto = new RestApiV1.SimplePerson();
+         RestApiV1.BasicBioEntry dto = new RestApiV1.BasicBioEntry();
          dto.id = reference.getId();
          dto.ref = EntryIdDto.adapt(reference);
          dto.name = adapt(orig.displayName);

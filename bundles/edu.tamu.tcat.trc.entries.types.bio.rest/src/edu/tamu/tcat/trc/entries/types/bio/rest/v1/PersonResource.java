@@ -24,10 +24,9 @@ import edu.tamu.tcat.trc.TrcApplication;
 import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
-import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.ApiUtils;
-import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RestApiAdapter;
 import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.services.bibref.repo.RefCollectionService;
+import edu.tamu.tcat.trc.services.rest.ApiUtils;
 import edu.tamu.tcat.trc.services.rest.bibref.ReferenceCollectionResource;
 
 public class PersonResource

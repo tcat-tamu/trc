@@ -47,11 +47,10 @@ import edu.tamu.tcat.trc.entries.types.bio.repo.DateDescriptionMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.HistoricalEventMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNameMutator;
-import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.ApiUtils;
-import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RestApiAdapter;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioEntryQueryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.search.PersonSearchResult;
 import edu.tamu.tcat.trc.search.solr.QueryService;
+import edu.tamu.tcat.trc.services.rest.ApiUtils;
 
 public class PeopleResource
 {

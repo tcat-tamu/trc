@@ -131,10 +131,8 @@ public class RestApiV1
     * search results where basic information is needed while minimizing the amount of data
     * transferred for each record.
     */
-   public static class SimplePerson
+   public static class BasicBioEntry
    {
-      public EntryMeta meta;
-
       /** Unique id of this person. */
       public String id;
 
@@ -274,7 +272,7 @@ public class RestApiV1
 
    public static class PersonSearchResultSet
    {
-      public List<SimplePerson> items;
+      public List<BasicBioEntry> items;
       /** The querystring that resulted in this result set */
       public String qs;
       public String qsNext;
