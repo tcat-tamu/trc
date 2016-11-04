@@ -41,17 +41,11 @@ public class FullTextPageConfig implements SolrIndexConfig
 
    public FullTextPageConfig()
    {
-      // TODO Auto-generated constructor stub
    }
 
    @Override
    public void initialConfiguration(SolrQuery params) throws SearchException
    {
-      /*
-       * Using eDisMax seemed like a more adventagous way of doing the query. This will allow
-       * additional solr Paramaters to be set in order to 'fine tune' the query.
-       */
-      params.set("defType", "edismax");
    }
 
    // TODO ulg -- can we configure some of this in a plugin?

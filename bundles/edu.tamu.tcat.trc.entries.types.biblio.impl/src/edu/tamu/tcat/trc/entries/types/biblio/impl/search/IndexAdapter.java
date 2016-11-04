@@ -23,6 +23,8 @@ import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
 
 public abstract class IndexAdapter
 {
+   // TODO see SolrDocAdapter in bio for an alternative impl strategy
+
    public static SolrInputDocument createWork(EntryFacade<BibliographicEntry> entry)
    {
       try

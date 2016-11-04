@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -44,11 +44,6 @@ public class FullTextVolumeConfig implements SolrIndexConfig
    @Override
    public void initialConfiguration(SolrQuery params) throws SearchException
    {
-      /*
-       * Using eDisMax seemed like a more adventagous way of doing the query. This will allow
-       * additional solr Paramaters to be set in order to 'fine tune' the query.
-       */
-      params.set("defType", "edismax");
    }
 
    @Override

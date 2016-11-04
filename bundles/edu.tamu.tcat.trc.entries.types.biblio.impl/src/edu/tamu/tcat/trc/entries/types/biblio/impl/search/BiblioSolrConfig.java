@@ -37,16 +37,11 @@ public class BiblioSolrConfig implements SolrIndexConfig
    public static final SolrIndexField<String> PUBLISHER = new BasicFields.BasicString("publisher");
    public static final SolrIndexField<String> PUBLISHER_LOCATION = new BasicFields.BasicString("pubLocation");
    public static final SolrIndexField<LocalDate> PUBLICATION_DATE = new BasicFields.BasicDate("pubDate"); // Using LocalDate for yyyy-MM-dd
-   public static final BasicFields.SearchProxyField<BiblioSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<BiblioSearchProxy>("proxy", BiblioSearchProxy.class);
+   public static final BasicFields.SearchProxyField<BiblioSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<>("proxy", BiblioSearchProxy.class);
 
    @Override
    public void initialConfiguration(SolrQuery params)
    {
-      /*
-       * Using eDisMax seemed like a more adventagous way of doing the query. This will allow
-       * additional solr Paramaters to be set in order to 'fine tune' the query.
-       */
-      params.set("defType", "edismax");
    }
 
    @Override
