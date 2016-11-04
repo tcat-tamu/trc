@@ -74,6 +74,11 @@ public class EntryId
    @Deprecated
    public static EntryId fromMap(Map<String, String> dto)
    {
+      if (dto == null)
+      {
+         return null;
+      }
+
       String id = dto.get(ID);
       String type = dto.get(TYPE);
 
