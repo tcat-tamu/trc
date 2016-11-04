@@ -38,7 +38,7 @@ public class BasicEdition implements Edition
       this.series = dto.series;
       this.summary = dto.summary;
       this.editionName = dto.editionName;
-      this.publicationInfo = new BasicPublicationInfo(dto.publicationInfo);
+      this.publicationInfo = new BasicPublicationInfo(dto.publicationInfo == null ? new DataModelV1.PublicationInfoDTO() : dto.publicationInfo);
 
       this.authors = dto.authors != null
             ? dto.authors.stream().map(BasicAuthorReference::new).collect(toList())

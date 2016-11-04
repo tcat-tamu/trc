@@ -2,6 +2,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.impl.model;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.types.biblio.PublicationInfo;
+import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.DataModelV1;
 import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.DataModelV1.PublicationInfoDTO;
 
 public class BasicPublicationInfo implements PublicationInfo
@@ -14,7 +15,7 @@ public class BasicPublicationInfo implements PublicationInfo
    {
       this.place = dto.place;
       this.publisher = dto.publisher;
-      this.date = new DateDescriptionImpl(dto.date);
+      this.date = new DateDescriptionImpl(dto.date == null ? new DataModelV1.DateDescriptionDTO() : dto.date);
    }
 
    @Override
