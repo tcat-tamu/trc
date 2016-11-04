@@ -17,6 +17,8 @@ package edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.common.DateDescription;
@@ -24,44 +26,47 @@ import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
 import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.RestApiV1;
+import edu.tamu.tcat.trc.entries.types.bio.search.BioSearchProxy;
 import edu.tamu.tcat.trc.resolver.EntryIdDto;
+import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
 /**
  * An encapsulation of adapter methods to convert between the repository API and
  * the {@link RestApiV1} schema DTOs.
  */
-public class RepoAdapter
+public class RestApiAdapter
 {
-   public static RestApiV1.Person toDTO(BiographicalEntry orig, EntryResolverRegistry resolvers)
+   public static RestApiV1.Person adapt(BiographicalEntry orig, EntryResolverRegistry resolvers)
    {
       if (orig == null)
          return null;
+
       RestApiV1.Person dto = new RestApiV1.Person();
       dto.id = orig.getId();
       dto.ref = EntryIdDto.adapt(resolvers.getResolver(orig).makeReference(orig), resolvers);
 
       PersonName canonicalName = orig.getCanonicalName();
       if (canonicalName != null) {
-         dto.name = toDTO(canonicalName);
+         dto.name = adapt(canonicalName);
       }
 
       dto.altNames = orig.getAlternativeNames().stream()
-                     .map(RepoAdapter::toDTO)
+                     .map(RestApiAdapter::adapt)
                      .collect(Collectors.toSet());
       // remove name from altNames - for legacy reasons, the list of altnNames
       //    originally included all names associated with this person.
       if (dto.altNames.contains(dto.name))
          dto.altNames.remove(dto.name);
 
-      dto.birth = toDTO(orig.getBirth());
-      dto.death = toDTO(orig.getDeath());
+      dto.birth = adapt(orig.getBirth());
+      dto.death = adapt(orig.getDeath());
       dto.summary = orig.getSummary();
 
       return dto;
    }
 
-   public static RestApiV1.PersonName toDTO(PersonName orig)
+   public static RestApiV1.PersonName adapt(PersonName orig)
    {
       if (orig == null)
          return null;
@@ -78,7 +83,7 @@ public class RepoAdapter
       return dto;
    }
 
-   public static RestApiV1.HistoricalEvent toDTO(HistoricalEvent orig)
+   public static RestApiV1.HistoricalEvent adapt(HistoricalEvent orig)
    {
       if (orig == null)
          return null;
@@ -87,11 +92,11 @@ public class RepoAdapter
       dto.title = orig.getTitle();
       dto.description = orig.getDescription();
       dto.location = orig.getLocation();
-      dto.date = toDTO(orig.getDate());
+      dto.date = adapt(orig.getDate());
       return dto;
    }
 
-   public static RestApiV1.DateDescription toDTO(DateDescription orig)
+   public static RestApiV1.DateDescription adapt(DateDescription orig)
    {
       if (orig == null)
          return null;
@@ -103,6 +108,41 @@ public class RepoAdapter
       }
 
       dto.description = orig.getDescription();
+
+      return dto;
+   }
+
+   public static List<RestApiV1.SimplePerson> adapt(List<BioSearchProxy> origList, EntryResolverRegistry resolvers)
+   {
+      if (origList == null)
+         return null;
+
+      List<RestApiV1.SimplePerson> dtoList = new ArrayList<>();
+      for (BioSearchProxy orig : origList)
+      {
+         EntryReference<BioSearchProxy> reference = resolvers.getReference(orig.token);
+         RestApiV1.SimplePerson dto = new RestApiV1.SimplePerson();
+         dto.id = reference.getId();
+         dto.ref = EntryIdDto.adapt(reference);
+         dto.name = adapt(orig.displayName);
+         dto.label = reference.getHtmlLabel();
+         dto.summaryExcerpt = orig.summaryExcerpt;
+
+         dtoList.add(dto);
+      }
+
+      return dtoList;
+   }
+
+   private static RestApiV1.PersonName adapt(BioSearchProxy.PersonNameDTO orig)
+   {
+      if (orig == null)
+         return null;
+
+      RestApiV1.PersonName dto = new RestApiV1.PersonName();
+      dto.givenName = orig.given;
+      dto.familyName = orig.family;
+      dto.label = orig.display;
 
       return dto;
    }

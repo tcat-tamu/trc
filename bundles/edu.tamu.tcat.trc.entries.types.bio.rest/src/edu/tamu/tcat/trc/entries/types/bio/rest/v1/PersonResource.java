@@ -25,7 +25,7 @@ import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.ApiUtils;
-import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RepoAdapter;
+import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RestApiAdapter;
 import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.services.bibref.repo.RefCollectionService;
 import edu.tamu.tcat.trc.services.rest.bibref.ReferenceCollectionResource;
@@ -54,7 +54,7 @@ public class PersonResource
          EntryFacade<BiographicalEntry> facade =
                app.getEntryFacade(entryId, BiographicalEntry.class, null);
 
-         return facade.getEntry().map(entry -> RepoAdapter.toDTO(entry, app.getResolverRegistry()))
+         return facade.getEntry().map(entry -> RestApiAdapter.adapt(entry, app.getResolverRegistry()))
                .orElseThrow(() -> ApiUtils.raise(Response.Status.NOT_FOUND, format(notFoundMsg, entryId.getId()), Level.FINE, null));
       }
       catch (Exception e)
@@ -86,7 +86,7 @@ public class PersonResource
 
          logger.log(Level.INFO, format("Updating biographic entry for {0} [{1}]", person.name.label, personId));
          BiographicalEntry result = PeopleResource.execute(repo, command);
-         return RepoAdapter.toDTO(result, app.getResolverRegistry());
+         return RestApiAdapter.adapt(result, app.getResolverRegistry());
       }
       catch (ResourceNotFoundException ex)
       {

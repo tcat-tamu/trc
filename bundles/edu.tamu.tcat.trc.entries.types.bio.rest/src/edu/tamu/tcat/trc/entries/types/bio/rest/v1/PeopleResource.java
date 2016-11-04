@@ -48,8 +48,7 @@ import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.HistoricalEventMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNameMutator;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.ApiUtils;
-import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RepoAdapter;
-import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.SearchAdapter;
+import edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal.RestApiAdapter;
 import edu.tamu.tcat.trc.entries.types.bio.search.BioEntryQueryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.search.PersonSearchResult;
 import edu.tamu.tcat.trc.search.solr.QueryService;
@@ -60,14 +59,6 @@ public class PeopleResource
    static final Logger errorLogger = Logger.getLogger(PeopleResource.class.getName());
 
    private final TrcApplication app;
-
-//   public PeopleResource(BiographicalEntryRepository repo, QueryService<BioEntryQueryCommand> queryService, TrcServiceManager serviceManager, EntryResolverRegistry resolverRegistry)
-//   {
-//      this.repo = repo;
-//      this.queryService = queryService;
-//      this.serviceManager = serviceManager;
-//      this.resolverRegistry = resolverRegistry;
-//   }
 
    public PeopleResource(TrcApplication app)
    {
@@ -107,7 +98,7 @@ public class PeopleResource
          PersonSearchResult results = cmd.execute().get(10, TimeUnit.SECONDS);
 
          RestApiV1.PersonSearchResultSet rs = new RestApiV1.PersonSearchResultSet();
-         rs.items = SearchAdapter.toDTO(results.get(), app.getResolverRegistry());
+         rs.items = RestApiAdapter.adapt(results.get(), app.getResolverRegistry());
 
          buildQueryLinks(rs, q, offset, numResults);
 
@@ -154,7 +145,7 @@ public class PeopleResource
 
       errorLogger.log(Level.INFO, format("Creating new biographic entry for {0}", person.name.label));
       BiographicalEntry result = execute(repo, command);
-      return RepoAdapter.toDTO(result, app.getResolverRegistry());
+      return RestApiAdapter.adapt(result, app.getResolverRegistry());
    }
 
 
