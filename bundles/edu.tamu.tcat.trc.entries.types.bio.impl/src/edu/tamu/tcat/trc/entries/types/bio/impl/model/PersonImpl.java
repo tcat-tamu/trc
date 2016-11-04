@@ -125,7 +125,7 @@ public class PersonImpl implements BiographicalEntry
    private static DataModelV1.PersonName getCanonicalName(DataModelV1.Person figure)
    {
       // try the 'displayName' first
-      if (figure.displayName != null) {
+      if (hasDisplayName(figure)) {
          return figure.displayName;
       }
 
@@ -138,5 +138,13 @@ public class PersonImpl implements BiographicalEntry
       DataModelV1.PersonName fallbackName = new DataModelV1.PersonName();
       fallbackName.displayName = "Name Unknown";
       return fallbackName;
+   }
+
+   private static boolean hasDisplayName(DataModelV1.Person figure)
+   {
+      if (figure.displayName == null)
+         return false;
+
+      return figure.displayName.id != null || figure.displayName.familyName != null;
    }
 }
