@@ -34,7 +34,7 @@ public class BasicCopyReference implements CopyReference
    {
       this.id = dto.id;
       this.type = dto.type;
-      this.properties = new HashMap<>(dto.properties);
+      this.properties = dto.properties == null ? new HashMap<>() : new HashMap<>(dto.properties);
       this.title = dto.title != null ? dto.title : "";
       this.summary = dto.summary != null ? dto.summary : "";
       this.rights = dto.rights != null ? dto.rights : "";
