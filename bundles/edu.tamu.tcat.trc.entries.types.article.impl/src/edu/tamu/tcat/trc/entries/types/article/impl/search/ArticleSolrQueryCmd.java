@@ -1,5 +1,6 @@
 package edu.tamu.tcat.trc.entries.types.article.impl.search;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -81,12 +82,12 @@ public class ArticleSolrQueryCmd implements ArticleQueryCommand
          // HACK what is this structure - presumably it is field/document id or vice/versa, but this
          //      isn't clear.
          Map<String, Map<String, List<String>>> highlighting = response.getHighlighting();
-         List<FacetValueList> facets = response.getFacetFields().stream()
-               .map(SolrArticleResults::adapt)
-               .collect(Collectors.toList());
+//         List<FacetValueList> facets = response.getFacetFields().stream()
+//               .map(SolrArticleResults::adapt)
+//               .collect(Collectors.toList());
 
          List<ArticleSearchProxy> articles = qb.unpack(results, ArticleSolrConfig.SEARCH_PROXY);
-         SolrArticleResults searchResults = new SolrArticleResults(query, articles, highlighting, facets, results.getNumFound());
+         SolrArticleResults searchResults = new SolrArticleResults(query, articles, highlighting, Collections.emptyList(), results.getNumFound());
          result.complete(searchResults);
       }
       catch (Exception e)
