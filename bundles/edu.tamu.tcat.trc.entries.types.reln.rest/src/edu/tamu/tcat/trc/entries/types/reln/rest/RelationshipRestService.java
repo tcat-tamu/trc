@@ -31,7 +31,6 @@ public class RelationshipRestService
       this.typeRegistry = registry;
    }
 
-
    /**
     * Lifecycle management callback (usually called by framework service layer)
     * This method should be called once all dependent services have been provided and the resource

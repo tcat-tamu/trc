@@ -1,8 +1,11 @@
 package edu.tamu.tcat.trc.entries.types.reln.impl;
 
+import static java.text.MessageFormat.format;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
@@ -14,6 +17,7 @@ import edu.tamu.tcat.trc.TrcApplication;
 import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistrar;
+import edu.tamu.tcat.trc.entries.core.repo.NoSuchEntryException;
 import edu.tamu.tcat.trc.entries.types.reln.GroupedRelationshipSet;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipInferenceStrategy;
@@ -211,7 +215,15 @@ public class RelationshipEntryService
       @Override
       public Relationship get(String id)
       {
-         return delegate.get(account, id);
+         String msg = "Cannot find relationship with id {0}.";
+         return getOptionally(id)
+               .orElseThrow(() -> new NoSuchEntryException(format(msg, id)));
+      }
+
+      @Override
+      public Optional<Relationship> getOptionally(String id)
+      {
+         return delegate.getOptionally(account, id);
       }
 
       @Override
