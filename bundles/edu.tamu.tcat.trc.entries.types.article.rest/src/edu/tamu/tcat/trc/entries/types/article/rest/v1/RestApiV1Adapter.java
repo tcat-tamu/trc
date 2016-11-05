@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import javax.ws.rs.core.UriBuilder;
 
+import edu.tamu.tcat.trc.TrcApplication;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.ArticleAuthor;
 import edu.tamu.tcat.trc.entries.types.article.Footnote;
@@ -25,9 +26,16 @@ import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 /**
  * @since 1.1
  */
-public abstract class ModelAdapter
+public class RestApiV1Adapter
 {
-   public static List<RestApiV1.ArticleSearchResult> toDTO(ArticleSearchResult results, EntryResolverRegistry resolvers)
+   private EntryResolverRegistry resolvers;
+
+   public RestApiV1Adapter(TrcApplication trcCtx)
+   {
+      resolvers = trcCtx.getResolverRegistry();
+   }
+
+   public List<RestApiV1.ArticleSearchResult> toDTO(ArticleSearchResult results)
    {
       List<ArticleSearchProxy> proxies = results.getResults();
       Map<String, Map<String, List<String>>> hits = results.getHits();
@@ -35,7 +43,7 @@ public abstract class ModelAdapter
          return new ArrayList<>();
 
       List<RestApiV1.ArticleSearchResult> compiledResults = proxies.stream()
-                    .map(article -> toArticleDTO(article, resolvers))
+                    .map(this::toArticleDTO)
                     .collect(Collectors.toList());
 
       compiledResults.forEach((article)->
@@ -51,7 +59,7 @@ public abstract class ModelAdapter
       return compiledResults;
    }
 
-   public static RestApiV1.Article adapt(Article article, EntryResolverRegistry resolvers)
+   public RestApiV1.Article adapt(Article article)
    {
       RestApiV1.Article dto = new RestApiV1.Article();
       dto.id = article.getId().toString();
@@ -69,7 +77,7 @@ public abstract class ModelAdapter
       return dto;
    }
 
-   public static RestApiV1.Link makeLink(URI uri, String rel, String title)
+   public RestApiV1.Link makeLink(URI uri, String rel, String title)
    {
       RestApiV1.Link link = new RestApiV1.Link();
       link.uri = uri;
@@ -79,7 +87,7 @@ public abstract class ModelAdapter
       return link;
    }
 
-   public static  RestApiV1.QueryDetail toQueryDetail(URI baseUri, ArticleSearchResult result)
+   public RestApiV1.QueryDetail toQueryDetail(URI baseUri, ArticleSearchResult result)
    {
       ArticleQuery query = result.getQuery();
 
@@ -127,7 +135,7 @@ public abstract class ModelAdapter
       return detail;
    }
 
-   private static RestApiV1.ArticleSearchResult toArticleDTO(ArticleSearchProxy article, EntryResolverRegistry resolvers)
+   private RestApiV1.ArticleSearchResult toArticleDTO(ArticleSearchProxy article)
    {
       RestApiV1.ArticleSearchResult dto = new RestApiV1.ArticleSearchResult();
       dto.id = article.id;
@@ -139,7 +147,7 @@ public abstract class ModelAdapter
       return dto;
    }
 
-   private static Map<String, RestApiV1.Footnote> convertFootnotes(Collection<Footnote> footnotes)
+   private Map<String, RestApiV1.Footnote> convertFootnotes(Collection<Footnote> footnotes)
    {
 
       Map<String, RestApiV1.Footnote> footnoteDTOs = new HashMap<>();
@@ -159,14 +167,14 @@ public abstract class ModelAdapter
       return footnoteDTOs;
    }
 
-   private static List<RestApiV1.ArticleAuthor> convertAuthors(List<ArticleAuthor> authors)
+   private List<RestApiV1.ArticleAuthor> convertAuthors(List<ArticleAuthor> authors)
    {
       return (authors == null)
             ? Collections.emptyList()
-            : authors.stream().map(ModelAdapter::adapt).collect(Collectors.toList());
+            : authors.stream().map(this::adapt).collect(Collectors.toList());
    }
 
-   private static RestApiV1.ArticleAuthor adapt(ArticleAuthor author)
+   private RestApiV1.ArticleAuthor adapt(ArticleAuthor author)
    {
       RestApiV1.ArticleAuthor dto = new RestApiV1.ArticleAuthor();
       dto.id = author.getId();

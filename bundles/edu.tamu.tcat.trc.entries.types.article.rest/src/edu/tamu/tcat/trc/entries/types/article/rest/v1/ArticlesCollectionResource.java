@@ -24,18 +24,15 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
+import edu.tamu.tcat.trc.TrcApplication;
 import edu.tamu.tcat.trc.entries.types.article.Article;
+import edu.tamu.tcat.trc.entries.types.article.impl.search.ArticleSearchStrategy;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
 import edu.tamu.tcat.trc.search.solr.QueryService;
 import edu.tamu.tcat.trc.search.solr.SearchException;
-import edu.tamu.tcat.trc.services.bibref.repo.RefCollectionService;
 
 /**
  *  REST API sub-resource that represents a collection of articles and the actions that
@@ -45,25 +42,15 @@ public class ArticlesCollectionResource
 {
    private final static Logger logger = Logger.getLogger(ArticlesCollectionResource.class.getName());
 
-   private final ObjectMapper mapper;
-   private final EntryRepositoryRegistry repoSvc;
-   private final QueryService<ArticleQueryCommand> queryService;
-   private final RefCollectionService refRepo;
+   private final TrcApplication trcCtx;
+   private final RestApiV1Adapter adapter;
    private final URI endpoint;
 
-
-   public ArticlesCollectionResource(EntryRepositoryRegistry repoSvc,
-                                     QueryService<ArticleQueryCommand> queryService,
-                                     RefCollectionService refRepo,
-                                     URI endpoint)
+   public ArticlesCollectionResource(TrcApplication trcCtx, URI endpoint)
    {
-      this.repoSvc = repoSvc;
-      this.queryService = queryService;
-      this.refRepo = refRepo;
-      this.endpoint = endpoint != null ? endpoint : URI.create("http://localhost/articles/");
-
-      this.mapper = new ObjectMapper();
-      this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      this.trcCtx = trcCtx;
+      this.adapter = new RestApiV1Adapter(trcCtx);
+      this.endpoint = endpoint;
    }
 
    @GET
@@ -74,6 +61,7 @@ public class ArticlesCollectionResource
           @QueryParam(value = "offset") @DefaultValue("0") int offset,
           @QueryParam(value = "max") @DefaultValue("100") int numResults)
    {
+      QueryService<ArticleQueryCommand> queryService = trcCtx.getQueryService(new ArticleSearchStrategy(trcCtx.getResolverRegistry()));
       if (queryService == null)
          throw new InternalServerErrorException("Searching for articles is not currently supported.");
 
@@ -82,15 +70,16 @@ public class ArticlesCollectionResource
          ArticleQueryCommand articleQryCmd = queryService.createQuery();
 
          if (q != null && !q.trim().isEmpty())
-            articleQryCmd.setQuery(q);
+            articleQryCmd.query(q);
 
          articleQryCmd.setOffset(offset);
          articleQryCmd.setMaxResults(numResults);
-         ArticleSearchResult results = articleQryCmd.execute();
+         ArticleSearchResult results = articleQryCmd.execute().get(10, TimeUnit.SECONDS);
+         new RestApiV1Adapter(trcCtx);
 
          RestApiV1.ArticleSearchResultSet rs = new RestApiV1.ArticleSearchResultSet();
-         rs.articles = ModelAdapter.toDTO(results, repoSvc.getResolverRegistry());
-         rs.query = ModelAdapter.toQueryDetail(uriInfo.getAbsolutePath(), results);
+         rs.articles = adapter.toDTO(results);
+         rs.query = adapter.toQueryDetail(uriInfo.getAbsolutePath(), results);
 
          return rs;
       }
@@ -120,14 +109,14 @@ public class ArticlesCollectionResource
       // TODO need to assess and fix error handling.
       try
       {
-         ArticleRepository articleRepo = repoSvc.getRepository(null, ArticleRepository.class);
+         ArticleRepository articleRepo = trcCtx.getRepository(null, ArticleRepository.class);
          EditArticleCommand editCmd = articleRepo.create();
          ArticleResource.apply(editCmd, article);
 
          article.id = editCmd.execute().get(10, TimeUnit.SECONDS);
          Article stored = articleRepo.get(article.id);
-
-         return buildResponse(ModelAdapter.adapt(stored, repoSvc.getResolverRegistry()));
+         RestApiV1Adapter adapter = new RestApiV1Adapter(trcCtx);
+         return buildResponse(adapter.adapt(stored));
       }
       catch (ExecutionException ex)
       {
@@ -145,7 +134,7 @@ public class ArticlesCollectionResource
    @Path("{articleId}")
    public ArticleResource get(@PathParam(value="articleId") String articleId)
    {
-      return new ArticleResource(repoSvc, refRepo, articleId);
+      return new ArticleResource(trcCtx, articleId);
    }
 
    private Response buildResponse(RestApiV1.Article dto)
@@ -156,7 +145,8 @@ public class ArticlesCollectionResource
       linkBuilder.rel("self");
       linkBuilder.title(dto.title);
       Link link = linkBuilder.build();
-      dto.self = ModelAdapter.makeLink(uri, "self", dto.title);
+
+      dto.self = adapter.makeLink(uri, "self", dto.title);
 
       // might be created on creation, but I think it is good to return the created article
       // rather than just the ID

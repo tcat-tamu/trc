@@ -29,7 +29,6 @@ public class ArticleSearchStrategy implements IndexServiceStrategy<Article, Arti
    @Override
    public Class<Article> getType()
    {
-      // TODO Auto-generated method stub
       return Article.class;
    }
 

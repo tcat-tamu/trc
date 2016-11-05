@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import edu.tamu.tcat.trc.TrcApplication;
 import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistrar;
@@ -35,7 +36,7 @@ public class ArticleEntryService
    private static final String SCHEMA_DATA_FIELD = "data";
 
    private EntryRepositoryRegistrar context;
-   private SearchServiceManager indexSvcMgr;
+//   private SearchServiceManager indexSvcMgr;
 
    private EntryRepositoryRegistrar.Registration repoReg;
    private EntryResolverRegistrar.Registration resolverReg;
@@ -44,15 +45,16 @@ public class ArticleEntryService
    private DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> docRepo;
    private BasicRepoDelegate<Article, DataModelV1.Article, EditArticleCommand> delegate;
 
+   private TrcApplication trcCtx;
+
+   public void setTrcContext(TrcApplication trcCtx)
+   {
+      this.trcCtx = trcCtx;
+   }
+
    public void setRepoContext(EntryRepositoryRegistrar ctx)
    {
       this.context = ctx;
-   }
-
-
-   public void setSearchSvcMgr(SearchServiceManager indexSvcFactory)
-   {
-      this.indexSvcMgr = indexSvcFactory;
    }
 
    /**
@@ -151,6 +153,7 @@ public class ArticleEntryService
 
    private void initSearch()
    {
+      SearchServiceManager indexSvcMgr = trcCtx.getSearchManager();
       if (indexSvcMgr == null)
       {
          logger.log(Level.WARNING, "Index support has not been configured for " + getClass().getSimpleName());

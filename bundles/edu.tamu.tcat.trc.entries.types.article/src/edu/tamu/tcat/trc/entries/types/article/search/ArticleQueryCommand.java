@@ -1,5 +1,7 @@
 package edu.tamu.tcat.trc.entries.types.article.search;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * A command-based API for parameterizing and executing a search for articles.
  * @since 1.1
@@ -12,13 +14,13 @@ public interface ArticleQueryCommand
     * @return The search results.
     * @throws SearchException If there were problems executing the search.
     */
-   ArticleSearchResult execute();
+   CompletableFuture<ArticleSearchResult> execute();
 
    /**
     * @param q A free-text query to be executed over the title and content of the article. This
     *       corresponds to the common notion of text entered into a search box.
     */
-   void setQuery(String q);
+   void query(String q);
 
    // TODO add author query by name and/or id
 

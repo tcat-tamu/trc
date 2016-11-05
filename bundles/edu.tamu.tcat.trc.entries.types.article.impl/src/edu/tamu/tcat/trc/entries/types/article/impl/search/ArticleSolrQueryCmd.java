@@ -2,6 +2,7 @@ package edu.tamu.tcat.trc.entries.types.article.impl.search;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import org.apache.solr.client.solrj.SolrClient;
@@ -11,6 +12,7 @@ import org.apache.solr.common.SolrDocumentList;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQuery;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy;
+import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult.FacetValueList;
 import edu.tamu.tcat.trc.search.solr.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
@@ -40,7 +42,7 @@ public class ArticleSolrQueryCmd implements ArticleQueryCommand
    }
 
    @Override
-   public void setQuery(String q)
+   public void query(String q)
    {
       this.query.q = q;
    }
@@ -61,11 +63,12 @@ public class ArticleSolrQueryCmd implements ArticleQueryCommand
    }
 
    @Override
-   public SolrArticleResults execute() throws SearchException
+   public CompletableFuture<ArticleSearchResult> execute() throws SearchException
    {
       String q = (query.q == null || query.q.trim().isEmpty()) ? "*:*" : query.q;
       qb.basic(q);
 
+      CompletableFuture<ArticleSearchResult> result = new CompletableFuture<>();
       try
       {
          QueryResponse response = solr.query(qb.get());
@@ -83,12 +86,16 @@ public class ArticleSolrQueryCmd implements ArticleQueryCommand
                .collect(Collectors.toList());
 
          List<ArticleSearchProxy> articles = qb.unpack(results, ArticleSolrConfig.SEARCH_PROXY);
-         return new SolrArticleResults(query, articles, highlighting, facets, results.getNumFound());
+         SolrArticleResults searchResults = new SolrArticleResults(query, articles, highlighting, facets, results.getNumFound());
+         result.complete(searchResults);
       }
       catch (Exception e)
       {
-         throw new SearchException("An error occurred while querying the article core: " + e, e);
+         String msg = "An error occurred while querying the article core.";
+         result.completeExceptionally(new SearchException(msg, e));
       }
+
+      return result;
    }
 
 

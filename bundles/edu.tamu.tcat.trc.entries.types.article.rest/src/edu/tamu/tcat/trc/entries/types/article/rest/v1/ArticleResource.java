@@ -38,10 +38,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
+import edu.tamu.tcat.trc.TrcApplication;
 import edu.tamu.tcat.trc.entries.core.repo.NoSuchEntryException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
@@ -62,20 +59,16 @@ public class ArticleResource
    private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
    private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
 
-   private final EntryRepositoryRegistry repo;
-   private final RefCollectionService refRepo;
    private final String articleId;
+   private final TrcApplication trcCtx;
 
-   private final ObjectMapper mapper;
+   private final RestApiV1Adapter adapter;
 
-   public ArticleResource(EntryRepositoryRegistry repoSvc, RefCollectionService refRepo, String articleId)
+   public ArticleResource(TrcApplication trcCtx, String articleId)
    {
-      this.repo = repoSvc;
-      this.refRepo = refRepo;
+      this.trcCtx = trcCtx;
       this.articleId = articleId;
-
-      mapper = new ObjectMapper();
-      mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      this.adapter = new RestApiV1Adapter(trcCtx);
    }
 
    @GET
@@ -84,10 +77,10 @@ public class ArticleResource
    {
       try
       {
-         ArticleRepository articleRepo = repo.getRepository(null, ArticleRepository.class);
+         ArticleRepository articleRepo = trcCtx.getRepository(null, ArticleRepository.class);
          Article article = articleRepo.get(articleId);
 
-         return ModelAdapter.adapt(article, repo.getResolverRegistry());
+         return adapter.adapt(article);
       }
       catch (NoSuchEntryException e)
       {
@@ -105,7 +98,8 @@ public class ArticleResource
    public ReferenceCollectionResource getReferences()
    {
       EntryId entryRef = new EntryId(articleId, ArticleRepository.ENTRY_TYPE_ID);
-      return new ReferenceCollectionResource(refRepo, entryRef);
+      RefCollectionService recCollectionSvc = trcCtx.getService(RefCollectionService.makeContext(null));
+      return new ReferenceCollectionResource(recCollectionSvc, entryRef);
    }
 
    @PUT
@@ -114,7 +108,7 @@ public class ArticleResource
    public RestApiV1.Article update(RestApiV1.Article article)
    {
       // TODO add support for partial updates
-      ArticleRepository articleRepo = repo.getRepository(null, ArticleRepository.class);
+      ArticleRepository articleRepo = trcCtx.getRepository(null, ArticleRepository.class);
       try
       {
          EditArticleCommand editCmd = articleRepo.edit(articleId);
@@ -126,7 +120,7 @@ public class ArticleResource
          // both the changes that were applied in this update (already present in article)
          // and any changes that may have been applied prior to this.
          Article current = articleRepo.get(articleId);
-         return ModelAdapter.adapt(current, repo.getResolverRegistry());
+         return adapter.adapt(current);
       }
       catch (NoSuchEntryException noEx)
       {
@@ -144,7 +138,7 @@ public class ArticleResource
    @DELETE
    public void delete()
    {
-      ArticleRepository articleRepo = repo.getRepository(null, ArticleRepository.class);
+      ArticleRepository articleRepo = trcCtx.getRepository(null, ArticleRepository.class);
       try
       {
          // TODO send appropriate response.
