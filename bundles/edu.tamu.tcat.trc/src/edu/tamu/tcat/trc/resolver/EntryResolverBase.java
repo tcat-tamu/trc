@@ -51,7 +51,7 @@ public abstract class EntryResolverBase<EntryType> implements EntryResolver<Entr
    @Override
    public URI toUri(EntryId reference) throws InvalidReferenceException
    {
-      if (!accepts(reference.getType()))
+      if (!accepts(reference))
          throw new InvalidReferenceException(reference, "Unsupported reference type.");
 
       // format: <api_endpoint>/entries/biographical/{articleId}
