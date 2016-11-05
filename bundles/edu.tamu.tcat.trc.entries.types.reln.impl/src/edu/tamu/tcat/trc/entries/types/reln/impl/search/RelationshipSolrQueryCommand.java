@@ -84,8 +84,7 @@ public class RelationshipSolrQueryCommand implements RelationshipQueryCommand
    public void query(EntryId entryId, RelationshipDirection direction)
    {
       Objects.requireNonNull(entryId, "Entity URI must be provided");
-      EntryFacade<Relationship> facade = trcCtx.getEntryFacade(entryId, Relationship.class, null);
-      String token = facade.getToken();
+      String token = trcCtx.getResolverRegistry().tokenize(entryId);
 
       switch(direction)
       {
