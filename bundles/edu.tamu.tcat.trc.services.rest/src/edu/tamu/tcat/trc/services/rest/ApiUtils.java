@@ -12,6 +12,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * This utils class was copied from edu.tamu.tcat.trc.entries.types.bio.rest.v1.internal...
  * perhaps it should be made available in a shared TRC REST helper class
@@ -19,6 +22,15 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 public abstract class ApiUtils
 {
    private final static Logger logger = Logger.getLogger(ApiUtils.class.getName());
+   private final static ObjectMapper mapper = new ObjectMapper();
+   static {
+      mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+   }
+
+   public static ObjectMapper getObjectMapper()
+   {
+      return mapper;
+   }
 
    /**
     * Raises a {@link WebApplicationException} with the supplied status and error message.
