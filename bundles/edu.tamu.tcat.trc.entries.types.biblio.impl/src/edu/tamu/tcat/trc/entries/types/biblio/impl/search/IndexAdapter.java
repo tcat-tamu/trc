@@ -2,6 +2,7 @@ package edu.tamu.tcat.trc.entries.types.biblio.impl.search;
 
 import static java.util.stream.Collectors.toSet;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -95,12 +96,19 @@ public abstract class IndexAdapter
       TitleDefinition titles = work.getTitle();
       Set<String> strTitles = titles.getTypes().stream()
             .map(titles::get)
-            .map(title -> title.map(t -> t.getFullTitle()))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
+            .map(IndexAdapter::getTitle)
+            .filter(t -> !Objects.isNull(t))
             .collect(toSet());
 
       return strTitles;
+   }
+
+   private static String getTitle(Optional<Title> title)
+   {
+      // HACK this replaces a block of stream oriented logic that compiled on
+      //      dev machines but not on the build server.
+
+      return title.map(Title::getFullTitle).orElse(null);
    }
 
    private static BiblioSearchProxy toProxy(EntryFacade<BibliographicEntry> entry)
