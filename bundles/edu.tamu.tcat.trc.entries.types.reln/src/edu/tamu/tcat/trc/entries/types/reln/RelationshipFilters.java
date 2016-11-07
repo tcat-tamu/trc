@@ -32,11 +32,13 @@ public abstract class RelationshipFilters
             .allMatch(eId -> eId.getType().equals(entryType));
    }
 
+   @SafeVarargs
    public static Predicate<Relationship> and(Predicate<Relationship>... predicates)
    {
       return (reln) -> Stream.of(predicates).allMatch(pred -> pred.test(reln));
    }
 
+   @SafeVarargs
    public static Predicate<Relationship> or(Predicate<Relationship>... predicates)
    {
       return (reln) -> Stream.of(predicates).anyMatch(pred -> pred.test(reln));

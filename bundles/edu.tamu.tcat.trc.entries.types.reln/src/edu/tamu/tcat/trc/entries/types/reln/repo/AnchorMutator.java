@@ -6,6 +6,11 @@ package edu.tamu.tcat.trc.entries.types.reln.repo;
 public interface AnchorMutator
 {
    /**
+    * @param label The display label for this mutator.
+    */
+   void setLabel(String label);
+
+   /**
     * @param key A key that identifies the property to set.
     * @param value The value to set. May not be <code>null</code>.
     */
@@ -16,4 +21,5 @@ public interface AnchorMutator
     * @param key A key that identifies the property to clear.
     */
    void clearProperty(String key);
+
 }

@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 public abstract class DataModelV1
 {
 
@@ -29,10 +31,14 @@ public abstract class DataModelV1
       public List<Anchor> targets = new ArrayList<>();
    }
 
+   @JsonIgnoreProperties(ignoreUnknown = true)
    public static class Anchor
    {
       /** A tokenized representation of the entry reference associated with this anchor. */
       public String ref;
+
+      /** A display label for this anchor. */
+      public String label;
 
       /** Application defined properties associated with this anchor. */
       public Map<String, Set<String>> properties = new HashMap<>();

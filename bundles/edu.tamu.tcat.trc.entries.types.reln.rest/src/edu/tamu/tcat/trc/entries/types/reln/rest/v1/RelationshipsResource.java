@@ -37,10 +37,10 @@ import javax.ws.rs.core.Response;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
+import edu.tamu.tcat.trc.entries.types.reln.rest.v1.RelationshipResource.UpdateHelper;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipDirection;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchResult;
-import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.QueryService;
@@ -164,20 +164,8 @@ public class RelationshipsResource
       {
          RelationshipType type = repo.getTypeRegistry().resolve(relationship.typeId);
 
-         EditRelationshipCommand cmd = repo.create();
-         cmd.setType(type);
-         cmd.setDescription(relationship.description);
-
-         relationship.related.stream()
-               .forEach(anchor -> {
-                  EntryId ref = resolvers.decodeToken(anchor.ref);
-                  RelationshipResource.applyAnchor(cmd.editTargetEntry(ref), anchor);
-               });
-         relationship.targets.stream()
-               .forEach(anchor -> {
-                  EntryId ref = resolvers.decodeToken(anchor.ref);
-                  RelationshipResource.applyAnchor(cmd.editTargetEntry(ref), anchor);
-               });
+         UpdateHelper helper = new UpdateHelper(repo, resolvers);
+         EditRelationshipCommand cmd = helper.applyChanges(repo.create(), relationship);
 
          String id = cmd.execute().get(10, TimeUnit.SECONDS);
 

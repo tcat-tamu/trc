@@ -18,6 +18,12 @@ public class AnchorMutatorImpl implements AnchorMutator
    }
 
    @Override
+   public void setLabel(String label)
+   {
+      changes.add("label", dto -> dto.label = label);
+   }
+
+   @Override
    public void addProperty(String key, String value)
    {
       Objects.requireNonNull(value);

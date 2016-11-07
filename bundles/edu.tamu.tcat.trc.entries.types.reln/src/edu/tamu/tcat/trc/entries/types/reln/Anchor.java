@@ -42,6 +42,11 @@ public interface Anchor
    EntryId getTarget();
 
    /**
+    * @return A display label for this entry.
+    */
+   String getLabel();
+
+   /**
     * @return A list of the application-defined properties that have been supplied
     *    for this anchor.
     */
