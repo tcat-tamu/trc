@@ -37,7 +37,6 @@ import javax.ws.rs.core.Response;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
-import edu.tamu.tcat.trc.entries.types.reln.rest.v1.RelationshipResource.UpdateHelper;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipDirection;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipQueryCommand;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipSearchResult;
