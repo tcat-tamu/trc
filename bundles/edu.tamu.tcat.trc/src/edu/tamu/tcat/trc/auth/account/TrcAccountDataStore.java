@@ -16,6 +16,10 @@ import edu.tamu.tcat.account.store.AccountStore;
  */
 public interface TrcAccountDataStore extends AccountStore
 {
+   static TrcAccount GUEST = new TrcSystemAccount("Guest User", "guest.user", 0);
+
+   static TrcAccount SYSTEM = new TrcSystemAccount("System Internal User", "internal.user.system", 1);
+   static TrcAccount SEARCH = new TrcSystemAccount("Search Internal User", "internal.user.search", 2);
 
    @Override
    TrcAccount getAccount(UUID id);
