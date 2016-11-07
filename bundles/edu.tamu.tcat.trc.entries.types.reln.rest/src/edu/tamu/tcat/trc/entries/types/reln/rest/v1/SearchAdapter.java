@@ -32,7 +32,7 @@ import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
  */
 public class SearchAdapter
 {
-   public static List<RestApiV1.RelationshipSearchResult> toDTO(List<RelnSearchProxy> origList, EntryResolverRegistry resolvers, Account account)
+   public static List<RestApiV1.Relationship> toDTO(List<RelnSearchProxy> origList, EntryResolverRegistry resolvers, Account account)
    {
       if (origList == null)
          return null;
@@ -42,14 +42,14 @@ public class SearchAdapter
             .collect(Collectors.toList());
    }
 
-   public static RestApiV1.RelationshipSearchResult toDTO(RelnSearchProxy orig, EntryResolverRegistry resolvers, Account account)
+   public static RestApiV1.Relationship toDTO(RelnSearchProxy orig, EntryResolverRegistry resolvers, Account account)
    {
       if (orig == null)
       {
          return null;
       }
 
-      RestApiV1.RelationshipSearchResult dto = new RestApiV1.RelationshipSearchResult();
+      RestApiV1.Relationship dto = new RestApiV1.Relationship();
       dto.id = orig.id;
       dto.ref = orig.token == null ? null : EntryIdDto.adapt(resolvers.getReference(orig.token));
       dto.description = orig.description;

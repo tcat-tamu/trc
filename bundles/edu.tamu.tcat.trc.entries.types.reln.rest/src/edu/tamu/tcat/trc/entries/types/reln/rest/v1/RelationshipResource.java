@@ -77,7 +77,7 @@ public class RelationshipResource
    @PUT
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.Relationship update(RestApiV1.Relationship relationship)
+   public RestApiV1.Relationship update(RestApiV1.SimpleRelationship relationship)
    {
       logger.fine(() -> "Updating relationship [relationship/" + relnId + "]\n" + relationship);
 
@@ -93,12 +93,12 @@ public class RelationshipResource
 
          relationship.related.stream()
                .forEach(anchor -> {
-                  EntryId ref = new EntryId(anchor.ref.id, anchor.ref.type);
+                  EntryId ref = resolvers.decodeToken(anchor.ref);
                   applyAnchor(cmd.editTargetEntry(ref), anchor);
                });
          relationship.targets.stream()
                .forEach(anchor -> {
-                  EntryId ref = new EntryId(anchor.ref.id, anchor.ref.type);
+                  EntryId ref = resolvers.decodeToken(anchor.ref);
                   applyAnchor(cmd.editTargetEntry(ref), anchor);
                });
 
@@ -129,7 +129,7 @@ public class RelationshipResource
       }
    }
 
-   public static void applyAnchor(AnchorMutator mutator, RestApiV1.Anchor anchor)
+   public static void applyAnchor(AnchorMutator mutator, RestApiV1.SimpleAnchor anchor)
    {
       anchor.properties.keySet().forEach(key -> {
          Set<String> values = anchor.properties.get(key);
@@ -137,7 +137,7 @@ public class RelationshipResource
       });
    }
 
-   private void checkRelationshipValidity(RestApiV1.Relationship reln, String id)
+   private void checkRelationshipValidity(RestApiV1.SimpleRelationship reln, String id)
    {
       if (!reln.id.equals(id))
       {

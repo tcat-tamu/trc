@@ -68,7 +68,7 @@ public class RelationshipsResource
    // /relationships?entity=<uri>[&type=<type_id>][&direction=from|to|any]
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   public List<RestApiV1.RelationshipSearchResult>
+   public List<RestApiV1.Relationship>
    searchRelationships(@QueryParam(value="entity") String token,
                        @QueryParam(value="type") String type,
                        @QueryParam(value="direction") RestApiV1.RelDirection direction,
@@ -158,7 +158,7 @@ public class RelationshipsResource
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   public RestApiV1.Relationship createRelationship(RestApiV1.Relationship relationship)
+   public RestApiV1.Relationship createRelationship(RestApiV1.SimpleRelationship relationship)
    {
       try
       {
@@ -170,12 +170,12 @@ public class RelationshipsResource
 
          relationship.related.stream()
                .forEach(anchor -> {
-                  EntryId ref = new EntryId(anchor.ref.id, anchor.ref.type);
+                  EntryId ref = resolvers.decodeToken(anchor.ref);
                   RelationshipResource.applyAnchor(cmd.editTargetEntry(ref), anchor);
                });
          relationship.targets.stream()
                .forEach(anchor -> {
-                  EntryId ref = new EntryId(anchor.ref.id, anchor.ref.type);
+                  EntryId ref = resolvers.decodeToken(anchor.ref);
                   RelationshipResource.applyAnchor(cmd.editTargetEntry(ref), anchor);
                });
 

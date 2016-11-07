@@ -105,11 +105,47 @@ public class RestApiV1
       public Set<Anchor> targets = new HashSet<>();
    }
 
+   /**
+    *  Used to supply information to the server for creation or update operations.
+    */
+   @JsonIgnoreProperties(ignoreUnknown = true)
+   public static class SimpleRelationship
+   {
+      /** A unique identifier for this relationship. Not supplied for creation. */
+      public String id;
+
+      /** The id of the associated relationship type. */
+      public String typeId;
+
+      /** An editorial description of this relationship as either plain text or lightly marked HTML. */
+      public String description;
+
+      /** Anchors for the entities related to this relationship. For directed relationships,
+       *  these entities represent the source or 'from' endpoint of the relationship. For
+       *  undirected relationships, the represent the collection of entities described by
+       *  the relationship. */
+      public Set<SimpleAnchor> related = new HashSet<>();
+
+      /** For directed relationships, anchors that comprise the destination or 'to' endpoint
+       *  of this relationship. For undirected relationships, this will be an empty set. */
+      public Set<SimpleAnchor> targets = new HashSet<>();
+   }
+
    @JsonIgnoreProperties(ignoreUnknown = true)
    public static class Anchor
    {
       public String label;
       public EntryIdDto ref;
+      public Map<String, Set<String>> properties = new HashMap<>();
+   }
+
+   @JsonIgnoreProperties(ignoreUnknown = true)
+   public static class SimpleAnchor
+   {
+      public String label;
+
+      public String ref;
+
       public Map<String, Set<String>> properties = new HashMap<>();
    }
 
@@ -154,24 +190,14 @@ public class RestApiV1
    @JsonIgnoreProperties(ignoreUnknown = true)
    public static class RelationshipSearchResultSet
    {
-      public List<RelationshipSearchResult> items;
+      public List<Relationship> items;
       /** The querystring that resulted in this result set */
       public String qs;
       public String qsNext;
       public String qsPrev;
    }
 
-   @JsonIgnoreProperties(ignoreUnknown = true)
-   public static class RelationshipSearchResult
-   {
-      public String id;
-      public EntryIdDto ref;
-      public String typeId;
-      public String description;
-      public String descriptionMimeType;
-      public Set<Anchor> related = new HashSet<>();
-      public Set<Anchor> targets = new HashSet<>();
-   }
+
 
    /**
     * Given a referent entry, this result set will contain all corresponding relationships grouped
@@ -210,6 +236,6 @@ public class RestApiV1
    {
       public String label;
       // TODO seems like the wrong structure
-      public Set<RelationshipSearchResult> relationships = new HashSet<>();
+      public Set<Relationship> relationships = new HashSet<>();
    }
 }
