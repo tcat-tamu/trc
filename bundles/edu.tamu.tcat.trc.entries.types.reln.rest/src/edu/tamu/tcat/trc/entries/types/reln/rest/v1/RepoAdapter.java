@@ -71,7 +71,6 @@ public class RepoAdapter
       dto.isDirected = relnType.isDirected();
       dto.description = relnType.getDescription();
 
-      // TODO Auto-generated method stub
-      return null;
+      return dto;
    }
 }
