@@ -627,7 +627,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          }
          catch (Exception ex)
          {
-            String template = "Post-commit task failed while following update of entry {0}. Update id: {1}\n\tReason: {2}";
+            String template = "Post-commit task failed following update of entry {0}. Update id: {1}\n\tReason: {2}";
             String msg = format(template, context.getId(), context.getUpdateId(), ex.getMessage());
             context.addError(msg);
             logger.log(Level.WARNING, msg, ex);
