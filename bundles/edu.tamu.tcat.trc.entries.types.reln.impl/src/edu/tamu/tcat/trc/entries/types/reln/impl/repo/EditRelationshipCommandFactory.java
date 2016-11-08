@@ -13,7 +13,6 @@ import java.util.function.Function;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipException;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 import edu.tamu.tcat.trc.entries.types.reln.impl.repo.DataModelV1.Anchor;
-import edu.tamu.tcat.trc.entries.types.reln.impl.repo.DataModelV1.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.repo.AnchorMutator;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
@@ -89,7 +88,8 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<DataMo
             return dto.related.stream()
                         .filter(a -> a.ref.equals(token))
                         .findAny()
-                        .orElse(makeAnchor(dto.related, token));
+                        .map(q -> { System.out.println("Found: " + token); return q; } )
+                        .orElseGet(() -> makeAnchor(dto.related, token));
          });
 
          return new AnchorMutatorImpl(partial);
@@ -120,7 +120,7 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<DataMo
             return dto.targets.stream()
                         .filter(a -> a.ref.equals(token))
                         .findAny()
-                        .orElse(makeAnchor(dto.targets, token));
+                        .orElseGet(() -> makeAnchor(dto.targets, token));
          });
 
          return new AnchorMutatorImpl(partial);
@@ -140,7 +140,7 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<DataMo
       @Override
       public void clearTargetEntries()
       {
-         changes.add("targets [CLEAR]", dto -> dto.related = new ArrayList<>());
+         changes.add("targets [CLEAR]", dto -> dto.targets = new ArrayList<>());
       }
 
       @Override
@@ -182,13 +182,13 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<DataMo
       private DataModelV1.Relationship prepModifiedData(UpdateContext<DataModelV1.Relationship> ctx)
       {
          DataModelV1.Relationship orig = ctx.getOriginal();
-      
+
          if (orig != null)
             return clone(orig);
-      
+
          DataModelV1.Relationship dto = new DataModelV1.Relationship();
          dto.id = this.id;
-      
+
          return dto;
       }
 
