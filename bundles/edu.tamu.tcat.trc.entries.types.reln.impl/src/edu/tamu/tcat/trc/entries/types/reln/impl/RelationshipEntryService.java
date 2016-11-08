@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.TrcApplication;
+import edu.tamu.tcat.trc.auth.account.TrcAccountDataStore;
 import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistrar;
@@ -192,7 +193,7 @@ public class RelationshipEntryService
       RelnSearchStrategy indexCfg = new RelnSearchStrategy(trcCtx);
       IndexService<Relationship> indexSvc = indexSvcMgr.configure(indexCfg);
 
-      RelationshipRepositoryImpl repo = new RelationshipRepositoryImpl(null);     // USE SEARCH ACCT
+      RelationshipRepositoryImpl repo = new RelationshipRepositoryImpl(TrcAccountDataStore.SEARCH);
       SolrSearchSupport<Relationship> mediator = new SolrSearchSupport<>(indexSvc, indexCfg);
       searchReg = repo.onUpdate(mediator::handleUpdate);
    }
