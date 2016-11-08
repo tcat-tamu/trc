@@ -34,7 +34,7 @@ public class RelnSolrConfig implements SolrIndexConfig
    public static final SolrIndexField<String> DESCRIPTION = new BasicFields.BasicString("summary");
    public static final SolrIndexField<String> RELATED_ENTITIES = new BasicFields.BasicString("related");
    public static final SolrIndexField<String> TARGET_ENTITIES = new BasicFields.BasicString("target");
-   public static final BasicFields.SearchProxyField<RelnSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<RelnSearchProxy>("proxy", RelnSearchProxy.class);
+   public static final BasicFields.SearchProxyField<RelnSearchProxy> SEARCH_PROXY = new BasicFields.SearchProxyField<>("proxy", RelnSearchProxy.class);
 
    @Override
    public void initialConfiguration(SolrQuery params)

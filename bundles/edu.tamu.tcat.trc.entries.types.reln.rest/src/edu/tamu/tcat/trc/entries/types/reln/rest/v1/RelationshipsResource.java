@@ -34,7 +34,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipRepository;
 import edu.tamu.tcat.trc.entries.types.reln.search.RelationshipDirection;
@@ -161,8 +160,6 @@ public class RelationshipsResource
    {
       try
       {
-         RelationshipType type = repo.getTypeRegistry().resolve(relationship.typeId);
-
          UpdateHelper helper = new UpdateHelper(repo, resolvers);
          EditRelationshipCommand cmd = helper.applyChanges(repo.create(), relationship);
 
