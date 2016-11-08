@@ -44,16 +44,25 @@ public class UpdateHelper
       cmd.setType(type);
       cmd.setDescription(relationship.description);
 
-      relationship.related.stream()
-            .forEach(anchor -> {
-               EntryId ref = resolvers.decodeToken(anchor.ref);
-               applyAnchor(cmd.editTargetEntry(ref), anchor);
-            });
-      relationship.targets.stream()
-            .forEach(anchor -> {
-               EntryId ref = resolvers.decodeToken(anchor.ref);
-               applyAnchor(cmd.editTargetEntry(ref), anchor);
-            });
+      if (relationship.related != null)
+      {
+         cmd.clearRelatedEntries();
+         relationship.related.stream()
+               .forEach(anchor -> {
+                  EntryId ref = resolvers.decodeToken(anchor.ref);
+                  applyAnchor(cmd.editRelatedEntry(ref), anchor);
+               });
+      }
+
+      if (relationship.targets != null)
+      {
+         cmd.clearTargetEntries();
+         relationship.targets.stream()
+               .forEach(anchor -> {
+                  EntryId ref = resolvers.decodeToken(anchor.ref);
+                  applyAnchor(cmd.editTargetEntry(ref), anchor);
+               });
+      }
 
       return cmd;
    }
