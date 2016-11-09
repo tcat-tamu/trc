@@ -43,19 +43,6 @@ public class RelnDocument
 {
    private final static Logger logger = Logger.getLogger(RelnDocument.class.getName());
 
-   // composed instead of extended to not expose TrcDocument as API to this class
-   private TrcDocument indexDocument;
-
-   public RelnDocument()
-   {
-      indexDocument = new TrcDocument(new RelnSolrConfig());
-   }
-
-   public SolrInputDocument getDocument()
-   {
-      return indexDocument.build();
-   }
-
    public static SolrInputDocument create(Relationship reln, EntryResolverRegistry resolvers)
    {
       TrcDocument doc = new TrcDocument(new RelnSolrConfig());
@@ -76,9 +63,9 @@ public class RelnDocument
                .forEach(token -> doc.set(RelnSolrConfig.TARGET_ENTITIES, token));
 
          doc.set(RelnSolrConfig.SEARCH_PROXY, makeProxy(reln, resolvers));
-         
+
          EntryId entryId = new EntryId(reln.getId(), RelationshipRepository.ENTRY_TYPE_ID);
-         
+
          doc.set(RelnSolrConfig.ENTRY_REFERENCE, resolvers.tokenize(entryId));
          // TODO: Get Entry Reference and add it.
          return doc.build();
@@ -120,7 +107,7 @@ public class RelnDocument
          EntryReference<?> reference = resolvers.getReference(anchor.getTarget());
 
          RelnSearchProxy.Anchor dto = new RelnSearchProxy.Anchor();
-         dto.label = reference.getHtmlLabel();
+         dto.label = anchor.getLabel() != null ? anchor.getLabel() : reference.getHtmlLabel();
          dto.ref = EntryIdDto.adapt(reference);
          dto.properties = anchor.listProperties().stream()
                   .collect(toMap(Function.identity(), key -> anchor.getProperty(key)));

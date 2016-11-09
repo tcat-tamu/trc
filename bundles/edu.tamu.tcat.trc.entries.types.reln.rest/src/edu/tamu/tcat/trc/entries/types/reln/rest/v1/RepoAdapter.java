@@ -20,7 +20,9 @@ import java.util.stream.Collectors;
 import edu.tamu.tcat.trc.entries.types.reln.Anchor;
 import edu.tamu.tcat.trc.entries.types.reln.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
+import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryIdDto;
+import edu.tamu.tcat.trc.resolver.EntryReference;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
 /**
@@ -54,12 +56,32 @@ public class RepoAdapter
    public static RestApiV1.Anchor toDto(Anchor anchor, EntryResolverRegistry resolvers)
    {
       RestApiV1.Anchor dto = new RestApiV1.Anchor();
-      dto.ref = EntryIdDto.adapt(anchor.getTarget(), resolvers);
+      EntryId entryId = anchor.getTarget();
+      dto.ref = EntryIdDto.adapt(entryId, resolvers);
+      dto.label = getLabel(anchor, resolvers);
       dto.properties.clear();
       anchor.listProperties().stream()
             .forEach(key -> dto.properties.put(key, anchor.getProperty(key)));
 
       return dto;
+   }
+
+   private static String getLabel(Anchor anchor, EntryResolverRegistry resolvers)
+   {
+      String label = anchor.getLabel();
+      if (label != null && !label.trim().isEmpty())
+         return label;
+
+      try
+      {
+         EntryReference<?> ref = resolvers.getReference(anchor.getTarget());
+         return ref.getHtmlLabel();
+      }
+      catch (Exception ex)
+      {
+         return "Unknown reference";
+      }
+
    }
 
    public static RestApiV1.RelationshipType toDto(RelationshipType relnType)
