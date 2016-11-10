@@ -78,12 +78,16 @@ public class SearchAdapter
       dto.ref.id = anchor.ref.id;
       dto.ref.type = anchor.ref.type;
       dto.ref.token = anchor.ref.token;
+      dto.label = anchor.label;
 
-      EntryResolver<Object> resolver = resolvers.getResolver(entryId);
-      Optional<Object> instance = resolver.resolve(account, entryId);
+      if (dto.label == null)
+      {
+         EntryResolver<Object> resolver = resolvers.getResolver(entryId);
+         Optional<Object> instance = resolver.resolve(account, entryId);
 
-      dto.label = instance.map(entry -> resolver.getLabel(entry))
-                          .orElse("Invalid Anchor Reference");
+         dto.label = instance.map(entry -> resolver.getHtmlLabel(entry))
+               .orElse("Invalid Anchor Reference");
+      }
 
       return dto;
    }
