@@ -4,12 +4,16 @@ import java.util.Optional;
 
 /**
  * Supplied to the repository during the initial configuration in order to be used to create
- * new {@link RecordEditCommand}s. This allows the client application to provide an API for
- * updating records that can connect into the underlying data storage layer managed by
- * the repository.
+ * new edit commands and initialize data vehicles prior to modification and storage. This allows
+ * the client application to provide an API for updating records that can connect into the
+ * underlying data storage layer managed by the repository.
  *
  * @param <StorageType> The repository's internal data storage type
  * @param <EditCmdType> The type of the edit command object produced by this factory
+ *
+ * @see DocRepoBuilder
+ * @see DocumentRepository
+ * @see ExecutableUpdateContext
  */
 public interface EditCommandFactory<StorageType, EditCmdType>
 {

@@ -3,10 +3,18 @@ package edu.tamu.tcat.trc.repo;
 import java.util.function.Function;
 
 /**
- * A builder for use in constructing a document repository. Note that while this is expected
- * primarily to support document oriented storage of JSON-records within an NoSQL (Not only SQL)
- * database and the documentation and terminology reflect that use-case, the API is intended to
- * be useful for other storage technologies as well (e.g., file system or Amazon S3).
+ * A builder for use in constructing a {@link DocumentRepository}. Applications that leverage
+ * the {@code DocumentRepository} micro-framework for object persistence need to configure
+ * the data store by providing two main components: an {@link EditCommandFactory} that can
+ * be used to create EditCommand instances used to modify domain objects and an adapter
+ * function that converts between the data structure used for internal storage and instances
+ * of the immutable domain model that will be exposed to clients of the framework.
+ *
+ * <p>Applications that use the {@code DocumentRepository} should obtain a builder specific
+ * for the implementation they intend to use. In many cases, it may be advisable to create
+ * a simple provider class that will return properly initialized {@code DocRepoBuilder}
+ * instances as this will make it easier to ensure consistency across multiple components
+ * and to change the underlying implementation at a later date if needed.
  *
  * @param <RecordType> The Java type of the domain model object.
  * @param <StorageType> The JSON serializable data type that will be stored. In most cases, this

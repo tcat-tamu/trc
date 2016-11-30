@@ -13,10 +13,19 @@ import java.util.function.Supplier;
 import edu.tamu.tcat.account.Account;
 
 /**
- *  A simple, document-oriented data store that performs basic CRUD operations over NoSQL-like
- *  database structures. Repository implementations are designed to store data using as
- *  string-valued objects that are decorated with basic metadata including a unique identifier,
- *  dates of creation and modification and a status code.
+ *  A simple document-oriented data store that performs basic CRUD operations over NoSQL-like
+ *  database structures. A primary goal of the {@code DocumentRepository} is to provide a
+ *  simplified API for data-persistence that allows applications to define domain model objects
+ *  that closely match their needs without implementing the details of data-persistence. The core
+ *  {@code DocumentRepository} implementation provides support for CRUD operations, notification
+ *  of update events, caching, etc.
+ *
+ *  <p>Domain objects managed by the {@code DocumentRepository} are expected to be immutable.
+ *  To allow flexibility between the domain model API and stored representation of the document, an
+ *  intermediate DTO is used to represent the stored form of the record. These records are updated
+ *  using an using an EditCommand that provides a domain specific API for modifying a record (via
+ *  its stored representation) and encapsulates discrete updates to the record within the execution
+ *  of an instance of the command object.
  *
  *  <p>This is designed to support applications with relatively straight-forward document
  *  storage needs that can be backed by a wide range of underlying technologies such as
@@ -25,28 +34,32 @@ import edu.tamu.tcat.account.Account;
  *  optionally the names of the fields used to store metadata values (id, date created, date
  *  modified and status) as well as allowable status values.
  *
- *  <p>
- *  Note that one core use-case is to store data objects that are serialized as a text-based
+ *  <p>Note that one core use-case is to store data objects that are serialized as a text-based
  *  document such as JSON or XML. This detail, however, is implementation dependent.
  *  Implementations could use byte-oriented storage or other tools as needed, for example, to
  *  store image data, optimized JSON serialization or other formats.
  *
- *  <p>
- *  Repositories
+ *  <p>Applications are expected to select an implementation or implementation family that is
+ *  appropriate to their needs and to configure that using the {@link DocRepoBuilder} provided by
+ *  that implementation.
  *
- *  <p>
- *  Repositories may be used directly, but are typically wrapped with
- *
- *  <p>customized extensions - e.g. a property store
- *  <p>discovery -- use search
- *
- *
+ * @param <RecordType> The domain model associated with this repository.
+ * @param <EditCommandType> The type of the edit command used to modify document records.
+ *       Instances will be instantiated by the {@link EditCommandFactory} configured for
+ *       this repository. These commands represent a transactional modification to the
+ *       document record and will be executed or else will fail to execute as a unit.
+ *       When instantiated, an edit command will be supplied an {@link ExecutableUpdateContext}
+ *       that represents the update to be performed with the command. Command execution is
+ *       achieved by invoking the {@link ExecutableUpdateContext#update(java.util.function.Function)}
+ *       method of the supplied update context.
  */
 public interface DocumentRepository<RecordType, EditCommandType>
 {
    // TODO provide access to a more richly structured PagedResult API.
    // TODO use MD5 or SHA256 hashes to ensure data integrity, add crytography, etc. Use Jackson's SMILE format.
-
+   // TODO Define simple integration with search/query system
+   // TODO Provide simple property-based queries
+   
    /**
     * Releases all resources associated with this repository. This method must be called once
     * the repository is no longer needed in order to allow it to clean up any resources that
@@ -206,6 +219,4 @@ public interface DocumentRepository<RecordType, EditCommandType>
          throw new RepositoryException(message.get(), e);
       }
    }
-
-
 }
