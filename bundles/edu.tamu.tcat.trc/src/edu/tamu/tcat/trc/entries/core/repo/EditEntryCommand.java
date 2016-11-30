@@ -5,7 +5,7 @@ import java.util.concurrent.ExecutionException;
 
 /**
  *  Base interface for edit commands. Entries within the TRC framework are immutable objects.
- *  They care modified, either during initial creation or to update existing entries via an
+ *  They are modified, either during initial creation or to update existing entries via an
  *  edit command. These commands represent a transactional modification to the object and
  *  will be executed or else will fail to execute as a unit. Commands are executed within the
  *  scope of a single actor (and Account holder).
@@ -14,12 +14,10 @@ import java.util.concurrent.ExecutionException;
  *  Sub-elements of an entry (for example, structured references to a list of authors, or
  *  editions to a book) may be modified using mutators.
  *
- *
  *  @param <EntryType> The type of entry that is edited by this command.
  */
 public interface EditEntryCommand<EntryType>
 {
-
 
    /**
     * Executes this command. All changes made using this command will take effect
