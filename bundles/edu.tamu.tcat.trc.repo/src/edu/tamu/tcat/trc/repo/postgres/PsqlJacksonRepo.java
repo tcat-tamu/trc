@@ -27,6 +27,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -46,11 +47,11 @@ import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
-import edu.tamu.tcat.trc.repo.EditCommandFactory.UpdateStrategy;
 import edu.tamu.tcat.trc.repo.EntryUpdateObserver;
+import edu.tamu.tcat.trc.repo.ExecutableUpdateContext;
 import edu.tamu.tcat.trc.repo.RepositoryException;
-import edu.tamu.tcat.trc.repo.UpdateContext;
 import edu.tamu.tcat.trc.repo.UpdateContext.ActionType;
+import edu.tamu.tcat.trc.repo.UpdateContext.UpdateStatus;
 
 public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements DocumentRepository<RecordType, DTO, EditCommandType>
 {
@@ -233,54 +234,48 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    @Override
    public EditCommandType create(Account account, String id) throws UnsupportedOperationException
    {
-      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.CREATE, account, () -> Optional.empty());
-      UpdateStrategyImpl updater = new UpdateStrategyImpl(context, dto -> doCreate(id, dto));
-
-      return this.cmdFactory.create(id, updater);
+      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.CREATE, account, Optional::empty, dto -> doCreate(id, dto));
+      return this.cmdFactory.create(context);
    }
 
    @Override
    public EditCommandType edit(Account account, String id) throws RepositoryException
    {
-      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.EDIT, account, () -> loadStoredRecord(id));
-      UpdateStrategyImpl updater = new UpdateStrategyImpl(context, dto -> doEdit(id, dto));
-
-      return this.cmdFactory.edit(id, updater);
+      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.EDIT, account, () -> loadStoredRecord(id), dto -> doEdit(id, dto));
+      return this.cmdFactory.create(context);
    }
 
    @Override
    public CompletableFuture<Boolean> delete(Account account, String id)
    {
-      // FIXME this looks like a mess
-      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.REMOVE, account, () -> {
-         try {
-            return loadStoredRecord(id);
-         } catch (Exception e) {
-            String string = "Internal error trying to restore document {0} from repo {1}";
-            logger.log(Level.SEVERE, format(string, id, this.tablename), e);
-            return Optional.empty();
-         }
-      });
-
-      // HACK it would be nice if we could directly return the result of doDelete,
-      //      UpdateStrategy would then have to support a custom result type
       CompletableFuture<Boolean> resultFuture = new CompletableFuture<>();
-      UpdateStrategyImpl updater = new UpdateStrategyImpl(context,
-            dto -> {
-               return doDelete(id).exceptionally(ex -> {
-                  resultFuture.completeExceptionally(ex);
-                  return false;
-               }).thenApply(result -> {
-                  if (!resultFuture.isDone())
-                     resultFuture.complete(result);
-                  return null;   // the object has been removed
-               });
+      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.REMOVE, account, () -> loadStoredRecordSafe(id), makeDeletionExec(id, resultFuture));
+
+      context.update(dto -> dto);
+      return resultFuture;
+   }
+
+   private Function<DTO, CompletableFuture<DTO>> makeDeletionExec(String id, CompletableFuture<Boolean> resultFuture)
+   {
+      // HACK There's a mismatch between the API on the ExecutableUpdateContext and the repo.
+      //      The context update expects to return a DTO (which in the delete case should be null), but
+      //      this masks the boolean value that indicates whether the database was actually modified.
+      //      As a work-around, we capture the result of the doDelete(String) method and supply that value
+      //      to a secondary future.
+      return dto -> {
+         CompletableFuture<DTO> future = doDelete(id)
+            .exceptionally(ex -> {
+                resultFuture.completeExceptionally(ex);
+                return false;
+             })
+            .thenApply(result -> {
+               if (!resultFuture.isDone())
+                  resultFuture.complete(result);
+               return (DTO)null;
             });
 
-
-      updater.update(ctx -> null);
-
-      return resultFuture;
+         return future;
+      };
    }
 
    @Override
@@ -351,6 +346,23 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
       Optional<String> json = unwrap(future, () -> format("Failed to load DTO for entry with id={0}", id));
       return json.map(this::parse);
+   }
+
+   /**
+    * Same as {@link #loadStoredRecord(String)} but suppresses any exceptions that may be thrown.
+    */
+   private Optional<DTO> loadStoredRecordSafe(String id)
+   {
+      try
+      {
+         return loadStoredRecord(id);
+      }
+      catch (Exception e)
+      {
+         String string = "Internal error trying to restore document {0} from repo {1}";
+         logger.log(Level.SEVERE, format(string, id, this.tablename), e);
+         return Optional.empty();
+      }
    }
 
    private DTO parse(String json)
@@ -506,121 +518,97 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       return mapper;
    }
 
-   private class UpdateStrategyImpl implements UpdateStrategy<DTO>
+   public class UpdateContextState
    {
-      private final UpdateContextImpl context;
-      private final Function<DTO, CompletableFuture<DTO>> updateAction;
-
-      /**
-       *
-       * @param entryId The id of the object being updated.
-       * @param updateAction The persistence action to invoke (typically create, update or delete)
-       *       on the DTO object submitted by the edit command.
-       */
-      UpdateStrategyImpl(UpdateContextImpl context, Function<DTO, CompletableFuture<DTO>> updateAction)
-      {
-         this.context = context;
-         this.updateAction = updateAction;
-      }
-
-      @Override
-      public CompletableFuture<DTO> update(Function<UpdateContext<DTO>, DTO> generator)
-      {
-         context.start();
-
-         DTO dto = generator.apply(context);
-         context.modified.complete(dto);
-
-         try
-         {
-            preCommitTasks.entrySet().parallelStream()
-               .forEach(entry -> firePreCommitTask(entry.getKey(), entry.getValue()));
-         }
-         catch (Exception ex)
-         {
-            String template = "Aborting update for entry {0}. Update id: {1}\n\tReason: {2}";
-            String msg = format(template, context.getId(), context.getUpdateId(), ex.getMessage());
-            logger.log(Level.WARNING, msg, ex);
-
-            context.addError(msg);
-            CompletableFuture<DTO> failure = new CompletableFuture<>();
-            failure.completeExceptionally(ex);
-            return failure;
-         }
-
-         CompletableFuture<DTO> result = updateAction.apply(dto);
-
-         // fire post-commit hooks]
-         result
-            .thenRun(() -> context.timestamp = Instant.now())
-            .thenRunAsync(() -> {
-               postCommitTasks.entrySet().parallelStream()
-                              .forEach(entry -> firePostCommitTask(entry.getKey(), entry.getValue()));
-            })
-            .thenRun(() -> context.finish());
-
-         return result;
-      }
-
-      private void firePreCommitTask(UUID taskId, EntryUpdateObserver<DTO> task)
-      {
-         task.notify(context);
-      }
-
-      private void firePostCommitTask(UUID taskId, EntryUpdateObserver<DTO> task)
-      {
-         try
-         {
-            task.notify(context);
-         }
-         catch (Exception ex)
-         {
-            String template = "Post-commit task failed following update of entry {0}. Update id: {1}\n\tReason: {2}";
-            String msg = format(template, context.getId(), context.getUpdateId(), ex.getMessage());
-            context.addError(msg);
-            logger.log(Level.WARNING, msg, ex);
-         }
-      }
+      public UpdateStatus status;
+      public UUID updateId;
+      public String entryId;
+      public ActionType action;
+      public String actor;
+      public String actorId;
+      public DTO initial;
+      public DTO original;
+      public String timestamp;
+      public DTO modified;
+      public List<String> errors;
    }
 
-   private class UpdateContextImpl implements UpdateContext<DTO>
+   private class UpdateContextImpl implements ExecutableUpdateContext<DTO>
    {
+      private final AtomicReference<UpdateStatus> status = new AtomicReference<>();
+
       private final UUID updateId = UUID.randomUUID();
-      private Instant timestamp = null;
       private final String entryId;
       private final ActionType action;
       private final Account actor;
       private final Supplier<Optional<DTO>> supplier;
 
-      private DTO initial;
-      private CompletableFuture<DTO> original;
+      private final Optional<DTO> initial;
+
+      // execution phase
+      private final CompletableFuture<Optional<DTO>> original = new CompletableFuture<>();
+
+      // post-commit phase
+      private Instant timestamp = null;
       private CompletableFuture<DTO> modified = new CompletableFuture<>();
 
       private final List<String> errors = new CopyOnWriteArrayList<>();
 
-      UpdateContextImpl(String id, ActionType action, Account actor, Supplier<Optional<DTO>> supplier)
+      private final Function<DTO, CompletableFuture<DTO>> exec;
+
+      UpdateContextImpl(String id, ActionType action, Account actor, Supplier<Optional<DTO>> supplier, Function<DTO, CompletableFuture<DTO>> exec)
       {
          this.entryId = id;
          this.action = action;
          this.actor = actor;
          this.supplier = supplier;
+         this.exec = exec;
 
-         this.initial = supplier.get().orElse(null);
+         this.initial = supplier.get();
+         status.set(UpdateStatus.PENDING);
+      }
+
+      private void transitionState(UpdateStatus expected, UpdateStatus to, String errMsg)
+      {
+         if (!status.compareAndSet(UpdateStatus.PENDING, UpdateStatus.SUBMITTED))
+         {
+            String tmplate = "{0} Expected update context to have status {1} but found {2}";
+            String msg = format(tmplate, errMsg, UpdateStatus.SUBMITTED, status.get());
+
+            fail(msg);
+            throw new IllegalStateException(msg);
+         }
+      }
+
+      public void fail(String msg)
+      {
+         if (status.get() == UpdateStatus.ERROR)
+            return;
+
+         addError(msg);
+         status.set(UpdateStatus.ERROR);
+      }
+
+      private void markSubmitted()
+      {
+         transitionState(UpdateStatus.PENDING, UpdateStatus.SUBMITTED, "Cannot submit update.");
       }
 
       private void start()
       {
+         transitionState(UpdateStatus.SUBMITTED, UpdateStatus.INPROGRESS, "Cannot start update.");
+
          synchronized (this)
          {
-            if (original != null)
-               throw new IllegalStateException("Update context has already been initialized");
-
-            original = new CompletableFuture<>();
             try {
                // NOTE could block forever depending on supplier impl.
-               Optional<DTO> orig = supplier.get();
-               original.complete(orig.orElse(null));
-            } catch (Exception ex) {
+               original.complete(supplier.get());
+            }
+            catch (Exception ex)
+            {
+               // TODO likely should fail at this point.
+               String string = "Failed to retrieve original state for {0} while executing update {1}.";
+               logger.log(Level.SEVERE, format(string, getId(), getUpdateId()), ex);
                original.completeExceptionally(ex);
             }
          }
@@ -628,7 +616,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
       private void finish()
       {
-         // no-op -- reserved for future use
+         transitionState(UpdateStatus.INPROGRESS, UpdateStatus.COMPLETED, "Cannot finish update.");
       }
 
       @Override
@@ -677,19 +665,19 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       }
 
       @Override
-      public DTO getInitialState()
+      public Optional<DTO> getInitialState()
       {
          return initial;
       }
 
       @Override
-      public DTO getOriginal()
+      public Optional<DTO> getOriginal()
       {
          // HACK wait arbitrary time to prevent waiting forever
          return getOriginal(1, TimeUnit.MINUTES);
       }
 
-      public DTO getOriginal(long time, TimeUnit units)
+      public Optional<DTO> getOriginal(long time, TimeUnit units)
       {
          synchronized (this)
          {
@@ -745,7 +733,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          }
          catch (TimeoutException e)
          {
-            String ERR_TIMEOUT = "Failed to retrieve modified {0} in a timely fashion";
+            String ERR_TIMEOUT = "Failed to retrieve modified entry {0} in a timely fashion";
             throw new RepositoryException(format(ERR_TIMEOUT, entryId), e);
          }
          catch (ExecutionException e)
@@ -758,6 +746,72 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
             String ERR_FAILED = "Failed to obtain modified entry {0}";
             throw new RepositoryException(format(ERR_FAILED, entryId), e);
+         }
+      }
+
+      @Override
+      public CompletableFuture<DTO> update(Function<DTO, DTO> generator)
+      {
+         markSubmitted();  // TODO this is not thread confined. Could have conflicting values for original.
+         start();
+
+         try
+         {
+            preCommitTasks.entrySet().parallelStream()
+               .forEach(entry -> firePreCommitTask(entry.getKey(), entry.getValue()));
+         }
+         catch (Exception ex)
+         {
+            String template = "Aborting update for entry {0}. Update id: {1}\n\tReason: {2}";
+            String msg = format(template, getId(), getUpdateId(), ex.getMessage());
+            logger.log(Level.WARNING, msg, ex);
+
+            addError(msg);
+            CompletableFuture<DTO> failure = new CompletableFuture<>();
+            failure.completeExceptionally(ex);
+            return failure;
+         }
+
+         DTO orig = cmdFactory.initialize(getId(), getOriginal());
+         DTO dto = generator.apply(orig);
+         modified.complete(dto);
+         CompletableFuture<DTO> result = exec.apply(dto);
+
+         // fire post-commit hooks]
+         result
+            .thenRun(() -> timestamp = Instant.now())
+            .thenRunAsync(this::firePostCommitTasks)
+            .thenRun(this::finish);
+
+         return result;
+      }
+
+      private void firePostCommitTasks()
+      {
+         postCommitTasks.entrySet().parallelStream()
+            .forEach(entry -> firePostCommitTask(entry.getKey(), entry.getValue()));
+      }
+
+      private void firePreCommitTask(UUID taskId, EntryUpdateObserver<DTO> task)
+      {
+         task.notify(this);
+      }
+
+      private void firePostCommitTask(UUID taskId, EntryUpdateObserver<DTO> task)
+      {
+         try
+         {
+            task.notify(this);
+         }
+         catch (Exception ex)
+         {
+            String template = "Post-commit task failed following update of entry {0}."
+                  + "\n\tUpdate id: {1}"
+                  + "\n\tTask id:   {2}"
+                  + "\n\tReason:    {3}";
+            String msg = format(template, getId(), getUpdateId(), taskId, ex.getMessage());
+            addError(msg);
+            logger.log(Level.WARNING, msg, ex);
          }
       }
    }

@@ -2,6 +2,7 @@ package edu.tamu.tcat.trc.repo;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import edu.tamu.tcat.account.Account;
@@ -27,13 +28,27 @@ public interface UpdateContext<StorageType>
    {
       CREATE, EDIT, REMOVE;
    }
-//   TODO
-//   * Allow pre-commit and post commit actions to log status (make into a monitor
-//       and support notification)
-//       - include completion/stage status
-//   * Include support for progress monitoring
-//   * Make log serializable to support post use lookups
-//   * Provide access to associated entry (API type)
+
+   public enum UpdateStatus
+   {
+      /** Update has been created and is awaiting execution of the associated edit command. */
+      PENDING,
+
+      /** Edit command has been executed and scheduled to run against the underlying persistence store. */
+      SUBMITTED,
+
+      /** Update is currently being executed by the repository. */
+      INPROGRESS,
+
+      /** Update has completed successfully. */
+      COMPLETED,
+
+      /** Update has been canceled and was not submitted. */
+      CANCELED,
+
+      /** An error prevented the successful exectuion of this update.*/
+      ERROR
+   }
 
    /**
     *
@@ -48,8 +63,7 @@ public interface UpdateContext<StorageType>
    UUID getUpdateId();
 
    /**
-    * Returns the timestamp when this update was executed. Must only be called in the post commit
-    * phase of the action.
+    * Returns the timestamp when this update was executed. Only available during the post-commit phase.
     *
     * @return The timestamp when this update was executed.
     */
@@ -85,7 +99,7 @@ public interface UpdateContext<StorageType>
     *    execution of changes to the context. It is the responsibility of
     *
     */
-   StorageType getInitialState();
+   Optional<StorageType> getInitialState();
 
    /**
     * @return The pre-commit representation of the entry prior to being modified. Note that
@@ -93,7 +107,7 @@ public interface UpdateContext<StorageType>
     *    created entry. This instance is loaded during the update execution stage before
     *    any other actions are applied. The returned object MUST NOT be modified by the caller.
     */
-   StorageType getOriginal();
+   Optional<StorageType> getOriginal();
 
    /**
     * @return The modified representation of the entry. This is the form of the entry that
