@@ -54,6 +54,8 @@ import edu.tamu.tcat.trc.repo.RecordUpdateObserver;
 import edu.tamu.tcat.trc.repo.RepositoryException;
 import edu.tamu.tcat.trc.repo.UpdateActionType;
 import edu.tamu.tcat.trc.repo.UpdateContext;
+import edu.tamu.tcat.trc.repo.UpdateContext.Severity;
+import edu.tamu.tcat.trc.repo.UpdateContext.UpdateProblem;
 import edu.tamu.tcat.trc.repo.UpdateContext.UpdateStatus;
 
 public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements DocumentRepository<RecordType, EditCommandType>
@@ -544,6 +546,38 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       public List<String> errors;
    }
 
+   private static class UpdateProblemImpl implements UpdateProblem
+   {
+      private final Severity severity;
+      private final String message;
+      private final Exception ex;
+
+      public UpdateProblemImpl(Severity severity, String msg, Exception ex)
+      {
+         this.severity = severity;
+         this.message = msg;
+         this.ex = ex;
+      }
+
+      @Override
+      public Severity getSeverity()
+      {
+         return severity;
+      }
+
+      @Override
+      public String getMessage()
+      {
+         return message;
+      }
+
+      @Override
+      public Exception getException()
+      {
+         return ex;
+      }
+
+   }
    private class UpdateContextImpl implements ExecutableUpdateContext<DTO>
    {
       private final AtomicReference<UpdateStatus> status = new AtomicReference<>();
@@ -563,7 +597,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       private Instant timestamp = null;
       private CompletableFuture<DTO> modified = new CompletableFuture<>();
 
-      private final List<String> errors = new CopyOnWriteArrayList<>();
+      private final List<UpdateProblemImpl> errors = new CopyOnWriteArrayList<>();
 
       private final Function<DTO, CompletableFuture<DTO>> exec;
 
@@ -593,10 +627,11 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
       public void fail(String msg)
       {
+         // TODO this logic is inverted. Should allow addError to
          if (status.get() == UpdateStatus.ERROR)
             return;
 
-         addError(msg);
+         addError(Severity.ERROR, msg, null);
          status.set(UpdateStatus.ERROR);
       }
 
@@ -664,13 +699,13 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       }
 
       @Override
-      public void addError(String msg)
+      public void addError(Severity severity, String msg, Exception ex)
       {
-         errors.add(msg);
+         errors.add(new UpdateProblemImpl(severity, msg, ex));
       }
 
       @Override
-      public List<String> listErrors()
+      public List<UpdateProblem> listErrors()
       {
          return Collections.unmodifiableList(errors);
       }
