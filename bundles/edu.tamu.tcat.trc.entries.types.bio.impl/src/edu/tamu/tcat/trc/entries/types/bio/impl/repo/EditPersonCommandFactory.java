@@ -5,9 +5,11 @@ import static java.text.MessageFormat.format;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import edu.tamu.tcat.trc.entries.types.bio.impl.repo.DataModelV1.Person;
 import edu.tamu.tcat.trc.entries.types.bio.repo.DateDescriptionMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.HistoricalEventMutator;
@@ -16,33 +18,36 @@ import edu.tamu.tcat.trc.repo.BasicChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
-import edu.tamu.tcat.trc.repo.UpdateContext;
+import edu.tamu.tcat.trc.repo.ExecutableUpdateContext;
 
 public class EditPersonCommandFactory implements EditCommandFactory<DataModelV1.Person, EditBiographicalEntryCommand>
 {
 
    @Override
-   public EditBiographicalEntryCommand create(String id, UpdateStrategy<DataModelV1.Person> strategy)
+   public EditBiographicalEntryCommand create(ExecutableUpdateContext<DataModelV1.Person> ctx)
    {
-      return new EditPersonCommandImpl(id, strategy);
+      return new EditPersonCommandImpl(ctx);
    }
 
    @Override
-   public EditBiographicalEntryCommand edit(String id, UpdateStrategy<DataModelV1.Person> strategy)
+   public Person initialize(String id, Optional<DataModelV1.Person> original)
    {
-      return new EditPersonCommandImpl(id, strategy);
+      return original.map(DataModelV1.Person::copy)
+            .orElseGet(() -> {
+               DataModelV1.Person dto = new DataModelV1.Person();
+               dto.id = id;
+               return dto;
+            });
    }
 
    private class EditPersonCommandImpl implements EditBiographicalEntryCommand
    {
-      private String id;
-      private UpdateStrategy<DataModelV1.Person> exec;
+      private ExecutableUpdateContext<DataModelV1.Person> ctx;
       private ApplicableChangeSet<DataModelV1.Person> changes = new BasicChangeSet<>();
 
-      public EditPersonCommandImpl(String id, UpdateStrategy<DataModelV1.Person> strategy)
+      public EditPersonCommandImpl(ExecutableUpdateContext<DataModelV1.Person> ctx)
       {
-         this.id = id;
-         this.exec = strategy;
+         this.ctx = ctx;
       }
 
       @Override
@@ -123,29 +128,7 @@ public class EditPersonCommandFactory implements EditCommandFactory<DataModelV1.
       @Override
       public CompletableFuture<String> execute()
       {
-         CompletableFuture<DataModelV1.Person> modified = exec.update(ctx -> {
-            DataModelV1.Person dto = preModifiedData(ctx);
-            return this.changes.apply(dto);
-         });
-
-         return modified.thenApply(dto -> dto.id);
-      }
-
-      private DataModelV1.Person preModifiedData(UpdateContext<DataModelV1.Person> ctx)
-      {
-         DataModelV1.Person orig = ctx.getOriginal();
-
-         DataModelV1.Person dto = null;
-         if (orig == null)
-         {
-            dto = new DataModelV1.Person();
-            dto.id = this.id;
-         }
-         else
-         {
-            dto = DataModelV1.Person.copy(orig);
-         }
-         return dto;
+         return ctx.update(changes::apply).thenApply(dto -> dto.id);
       }
    }
 

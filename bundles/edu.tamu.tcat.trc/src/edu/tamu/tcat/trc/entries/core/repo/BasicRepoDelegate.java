@@ -282,8 +282,7 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
       public EntryType getOriginalState()
       {
          return original.computeIfAbsent("original", key -> {
-            StorageType original = ctx.getOriginal();
-            return original != null ? adapter.apply(original) : null;
+            return ctx.getOriginal().map(adapter::apply).orElse(null);
          });
       }
    }

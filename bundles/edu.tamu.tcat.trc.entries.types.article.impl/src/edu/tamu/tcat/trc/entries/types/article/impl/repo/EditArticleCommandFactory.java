@@ -4,10 +4,12 @@ import static java.text.MessageFormat.format;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import edu.tamu.tcat.trc.entries.types.article.impl.repo.DataModelV1.Article;
 import edu.tamu.tcat.trc.entries.types.article.impl.repo.DataModelV1.ArticleAuthor;
 import edu.tamu.tcat.trc.entries.types.article.impl.repo.DataModelV1.Footnote;
 import edu.tamu.tcat.trc.entries.types.article.repo.AuthorMutator;
@@ -17,32 +19,37 @@ import edu.tamu.tcat.trc.repo.BasicChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
-import edu.tamu.tcat.trc.repo.UpdateContext;
+import edu.tamu.tcat.trc.repo.ExecutableUpdateContext;
 
 public class EditArticleCommandFactory implements EditCommandFactory<DataModelV1.Article, EditArticleCommand>
 {
    @Override
-   public EditArticleCommand create(String id, UpdateStrategy<DataModelV1.Article> strategy)
+   public EditArticleCommand create(ExecutableUpdateContext<DataModelV1.Article> ctx)
    {
-      return new EditArticleCommandImpl(id, strategy);
+      return new EditArticleCommandImpl(ctx);
    }
 
    @Override
-   public EditArticleCommand edit(String id, UpdateStrategy<DataModelV1.Article> strategy)
+   public Article initialize(String id, Optional<DataModelV1.Article> original)
    {
-      return new EditArticleCommandImpl(id, strategy);
+      return original.map(DataModelV1.Article::copy)
+               .orElseGet(() -> {
+                  DataModelV1.Article dto = new DataModelV1.Article();
+                  dto.id = id;
+                  return dto;
+               });
    }
 
    public class EditArticleCommandImpl implements EditArticleCommand
    {
       private final String id;
-      private final UpdateStrategy<DataModelV1.Article> exec;
+      private final ExecutableUpdateContext<DataModelV1.Article> ctx;
       private final ApplicableChangeSet<DataModelV1.Article> changes = new BasicChangeSet<>();
 
-      public EditArticleCommandImpl(String id, UpdateStrategy<DataModelV1.Article> exec)
+      public EditArticleCommandImpl(ExecutableUpdateContext<DataModelV1.Article> ctx)
       {
-         this.id = id;
-         this.exec = exec;
+         this.id = ctx.getId();
+         this.ctx = ctx;
       }
 
       @Override
@@ -188,29 +195,7 @@ public class EditArticleCommandFactory implements EditCommandFactory<DataModelV1
       @Override
       public CompletableFuture<String> execute()
       {
-         CompletableFuture<DataModelV1.Article> modified = exec.update(ctx -> {
-            DataModelV1.Article dto = prepModifiedData(ctx);
-            return this.changes.apply(dto);
-         });
-
-         return modified
-               .thenApply(dto -> dto.id);
-      }
-
-      private DataModelV1.Article prepModifiedData(UpdateContext<DataModelV1.Article> ctx)
-      {
-         DataModelV1.Article dto = null;
-         DataModelV1.Article original = ctx.getOriginal();
-         if (original == null)
-         {
-            dto = new DataModelV1.Article();
-            dto.id = this.id;
-         }
-         else
-         {
-            dto = DataModelV1.Article.copy(original);
-         }
-         return dto;
+         return ctx.update(changes::apply).thenApply(dto -> dto.id);
       }
    }
 

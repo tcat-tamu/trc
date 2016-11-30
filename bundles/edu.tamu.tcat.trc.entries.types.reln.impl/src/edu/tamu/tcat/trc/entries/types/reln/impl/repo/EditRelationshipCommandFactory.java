@@ -7,12 +7,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipException;
 import edu.tamu.tcat.trc.entries.types.reln.RelationshipType;
 import edu.tamu.tcat.trc.entries.types.reln.impl.repo.DataModelV1.Anchor;
+import edu.tamu.tcat.trc.entries.types.reln.impl.repo.DataModelV1.Relationship;
 import edu.tamu.tcat.trc.entries.types.reln.repo.AnchorMutator;
 import edu.tamu.tcat.trc.entries.types.reln.repo.EditRelationshipCommand;
 import edu.tamu.tcat.trc.entries.types.reln.repo.RelationshipTypeRegistry;
@@ -20,7 +22,7 @@ import edu.tamu.tcat.trc.repo.BasicChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
-import edu.tamu.tcat.trc.repo.UpdateContext;
+import edu.tamu.tcat.trc.repo.ExecutableUpdateContext;
 import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 
@@ -36,29 +38,55 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<DataMo
    }
 
    @Override
-   public EditRelationshipCommand create(String id, EditCommandFactory.UpdateStrategy<DataModelV1.Relationship> context)
+   public EditRelationshipCommand create(ExecutableUpdateContext<DataModelV1.Relationship> ctx)
    {
-      return new EditRelationshipCommandImpl(id, context);
+      return new EditRelationshipCommandImpl(ctx);
    }
 
    @Override
-   public EditRelationshipCommand edit(String id, EditCommandFactory.UpdateStrategy<DataModelV1.Relationship> context)
+   public Relationship initialize(String id, Optional<DataModelV1.Relationship> original)
    {
-      return new EditRelationshipCommandImpl(id, context);
+      return original.map(EditRelationshipCommandFactory::clone)
+               .orElseGet(() -> {
+                  DataModelV1.Relationship dto = new DataModelV1.Relationship();
+                  dto.id = id;
+
+                  return dto;
+
+               });
    }
 
+   private static DataModelV1.Relationship clone(DataModelV1.Relationship orig)
+   {
+      DataModelV1.Relationship dto = new DataModelV1.Relationship();
+      dto.id = orig.id;
+      dto.typeId = orig.typeId;
+      dto.description = orig.description;
+      dto.related = orig.related.stream().map(EditRelationshipCommandFactory::clone).collect(toList());
+      dto.targets = orig.targets.stream().map(EditRelationshipCommandFactory::clone).collect(toList());
+
+      return dto;
+   }
+
+   private static DataModelV1.Anchor clone(DataModelV1.Anchor orig)
+   {
+      DataModelV1.Anchor dto = new DataModelV1.Anchor();
+      dto.ref = orig.ref;
+      dto.properties = new HashMap<>(orig.properties);
+
+      return dto;
+
+   }
    private class EditRelationshipCommandImpl implements EditRelationshipCommand
    {
-      EditCommandFactory.UpdateStrategy<DataModelV1.Relationship> context;
+      private final ExecutableUpdateContext<DataModelV1.Relationship> context;
 
-      private final String id;
       private final ApplicableChangeSet<DataModelV1.Relationship> changes = new BasicChangeSet<>();
 
 
-      public EditRelationshipCommandImpl(String id, EditCommandFactory.UpdateStrategy<DataModelV1.Relationship> context)
+      public EditRelationshipCommandImpl(ExecutableUpdateContext<DataModelV1.Relationship> ctx)
       {
-         this.id = id;
-         this.context = context;
+         this.context = ctx;
       }
 
       @Override
@@ -146,15 +174,12 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<DataMo
       @Override
       public CompletableFuture<String> execute()
       {
-         CompletableFuture<DataModelV1.Relationship> modified = context.update(ctx -> {
-            DataModelV1.Relationship dto = prepModifiedData(ctx);
+         return context.update(dto -> {
             DataModelV1.Relationship result = changes.apply(dto);
-
             checkTypeId(result.typeId, msg -> new RelationshipException(msg));
 
-             return result;
-         });
-         return modified.thenApply(dto -> dto.id);
+            return result;
+         }).thenApply(dto -> dto.id);
       }
 
       private void checkTypeId(String typeId, Function<String, RuntimeException> generator)
@@ -179,39 +204,6 @@ public class EditRelationshipCommandFactory implements EditCommandFactory<DataMo
          return dto;
       }
 
-      private DataModelV1.Relationship prepModifiedData(UpdateContext<DataModelV1.Relationship> ctx)
-      {
-         DataModelV1.Relationship orig = ctx.getOriginal();
 
-         if (orig != null)
-            return clone(orig);
-
-         DataModelV1.Relationship dto = new DataModelV1.Relationship();
-         dto.id = this.id;
-
-         return dto;
-      }
-
-      private DataModelV1.Relationship clone(DataModelV1.Relationship orig)
-      {
-         DataModelV1.Relationship dto = new DataModelV1.Relationship();
-         dto.id = orig.id;
-         dto.typeId = orig.typeId;
-         dto.description = orig.description;
-         dto.related = orig.related.stream().map(this::clone).collect(toList());
-         dto.targets = orig.targets.stream().map(this::clone).collect(toList());
-
-         return dto;
-      }
-
-      private DataModelV1.Anchor clone(DataModelV1.Anchor orig)
-      {
-         DataModelV1.Anchor dto = new DataModelV1.Anchor();
-         dto.ref = orig.ref;
-         dto.properties = new HashMap<>(orig.properties);
-
-         return dto;
-
-      }
    }
 }

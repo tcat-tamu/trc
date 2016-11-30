@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -18,7 +19,7 @@ import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.PersistenceModel
 import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.PersistenceModelV1.TreeNode;
 import edu.tamu.tcat.trc.repo.ChangeSet;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
-import edu.tamu.tcat.trc.repo.UpdateContext;
+import edu.tamu.tcat.trc.repo.ExecutableUpdateContext;
 import edu.tamu.tcat.trc.repo.id.IdFactory;
 import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolver;
@@ -49,15 +50,16 @@ public class EditHeirarchyCommandFactory
    }
 
    @Override
-   public EditTreeCategorizationCommand create(String id, EditCommandFactory.UpdateStrategy<PersistenceModelV1.TreeCategorizationStrategy> strategy)
+   public EditTreeCategorizationCommand create(ExecutableUpdateContext<PersistenceModelV1.TreeCategorizationStrategy> ctx)
    {
-      return new EditHierarchyCmdImpl(id, nodeIds, strategy);
+      return new EditHierarchyCmdImpl(nodeIds, ctx);
    }
 
    @Override
-   public EditTreeCategorizationCommand edit(String id, EditCommandFactory.UpdateStrategy<PersistenceModelV1.TreeCategorizationStrategy> strategy)
+   public PersistenceModelV1.TreeCategorizationStrategy initialize(String id, Optional<PersistenceModelV1.TreeCategorizationStrategy> original)
    {
-      return new EditHierarchyCmdImpl(id, nodeIds, strategy);
+      return original.map(EditHeirarchyCommandFactory::copy)
+               .orElseGet(() -> create(id));
    }
 
    private static PersistenceModelV1.TreeNode copy(PersistenceModelV1.TreeNode original)
@@ -94,14 +96,32 @@ public class EditHeirarchyCommandFactory
       return dto;
    }
 
+   private PersistenceModelV1.TreeCategorizationStrategy create(String id)
+   {
+      PersistenceModelV1.TreeCategorizationStrategy dto = new PersistenceModelV1.TreeCategorizationStrategy();
+      dto.id = id;
+      dto.strategy = CategorizationScheme.Strategy.TREE.name();
+
+      PersistenceModelV1.TreeNode root = new PersistenceModelV1.TreeNode();
+      root.id = id;
+      root.parentId = null;
+      root.label = "Root Node";
+      root.description = "Root Node for " + dto.id;
+
+      dto.nodes.put(root.id, root);
+      dto.root = root.id;
+
+      return dto;
+   }
+
    public class EditHierarchyCmdImpl
          extends BaseEditCommand<PersistenceModelV1.TreeCategorizationStrategy>
          implements EditTreeCategorizationCommand
    {
 
-      public EditHierarchyCmdImpl(String id, IdFactory nodeIds, EditCommandFactory.UpdateStrategy<PersistenceModelV1.TreeCategorizationStrategy> context)
+      public EditHierarchyCmdImpl(IdFactory nodeIds, ExecutableUpdateContext<PersistenceModelV1.TreeCategorizationStrategy> ctx)
       {
-         super(id, nodeIds, context);
+         super(nodeIds, ctx);
       }
 
       @Override
@@ -178,14 +198,6 @@ public class EditHeirarchyCommandFactory
          }
       }
 
-      @Override
-      protected final PersistenceModelV1.TreeCategorizationStrategy prepareData(
-                  UpdateContext<PersistenceModelV1.TreeCategorizationStrategy> data)
-      {
-         PersistenceModelV1.TreeCategorizationStrategy original = data.getOriginal();
-         return (original != null) ? copy(original) : create();
-      }
-
       /**
        *
        * @param dto
@@ -229,24 +241,6 @@ public class EditHeirarchyCommandFactory
          {
             logger.log(Level.WARNING, format(unknownErr, removed.label, removed.id, removed.ref), ex);
          }
-      }
-
-      private PersistenceModelV1.TreeCategorizationStrategy create()
-      {
-         PersistenceModelV1.TreeCategorizationStrategy dto = new PersistenceModelV1.TreeCategorizationStrategy();
-         dto.id = this.categorizationId;
-         dto.strategy = CategorizationScheme.Strategy.TREE.name();
-
-         PersistenceModelV1.TreeNode root = new PersistenceModelV1.TreeNode();
-         root.id = this.categorizationId;
-         root.parentId = null;
-         root.label = "Root Node";
-         root.description = "Root Node for " + dto.id;
-
-         dto.nodes.put(root.id, root);
-         dto.root = root.id;
-
-         return dto;
       }
 
       /**

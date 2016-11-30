@@ -2,16 +2,17 @@ package edu.tamu.tcat.trc.impl.psql.services.notes;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.account.store.AccountStore;
 import edu.tamu.tcat.trc.repo.BasicChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
+import edu.tamu.tcat.trc.repo.EditCommandFactory;
+import edu.tamu.tcat.trc.repo.ExecutableUpdateContext;
 import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
-import edu.tamu.tcat.trc.repo.EditCommandFactory;
-import edu.tamu.tcat.trc.repo.UpdateContext;
 import edu.tamu.tcat.trc.services.notes.EditNoteCommand;
 import edu.tamu.tcat.trc.services.notes.Note;
 
@@ -27,27 +28,52 @@ public class EditNoteCommandFactory implements EditCommandFactory<DataModelV1.No
    }
 
    @Override
-   public EditNoteCommand create(String id, EditCommandFactory.UpdateStrategy<DataModelV1.Note> strategy)
+   public EditNoteCommand create(ExecutableUpdateContext<DataModelV1.Note> ctx)
    {
-      return new EditNoteCmdImpl(id, strategy);
+      // TODO Auto-generated method stub
+      return new EditNoteCmdImpl(ctx);
    }
 
    @Override
-   public EditNoteCommand edit(String id, EditCommandFactory.UpdateStrategy<DataModelV1.Note> strategy)
+   public DataModelV1.Note initialize(String id, Optional<DataModelV1.Note> original)
    {
-      return new EditNoteCmdImpl(id, strategy);
+      String timestamp = ZonedDateTime.now().format(DateTimeFormatter.ISO_ZONED_DATE_TIME);
+      DataModelV1.Note note = original.map(this::copy)
+         .orElseGet(() -> {
+            DataModelV1.Note dto = new DataModelV1.Note();
+            dto.id = id;
+            dto.dateCreated = timestamp;
+            return dto;
+         });
+
+      note.dateModified = timestamp;
+      return note;
+   }
+
+   public DataModelV1.Note copy(DataModelV1.Note original)
+   {
+      DataModelV1.Note copy = new DataModelV1.Note();
+      copy.id = original.id;
+      copy.dateCreated = original.dateCreated;
+      copy.dateModified = original.dateModified;
+      copy.entryRef = original.entryRef;
+      copy.authorId = original.authorId;
+      copy.mimeType = original.mimeType;
+      copy.content = original.content;
+
+      return copy;
    }
 
    private class EditNoteCmdImpl implements EditNoteCommand
    {
       private final String id;
-      private final EditCommandFactory.UpdateStrategy<DataModelV1.Note> strategy;
       private final ApplicableChangeSet<DataModelV1.Note> changes = new BasicChangeSet<>();
+      private final ExecutableUpdateContext<DataModelV1.Note> ctx;
 
-      private EditNoteCmdImpl(String id, EditCommandFactory.UpdateStrategy<DataModelV1.Note> strategy)
+      private EditNoteCmdImpl(ExecutableUpdateContext<DataModelV1.Note> ctx)
       {
-         this.id = id;
-         this.strategy = strategy;
+         this.ctx = ctx;
+         this.id = ctx.getId();
       }
 
       @Override
@@ -84,49 +110,8 @@ public class EditNoteCommandFactory implements EditCommandFactory<DataModelV1.No
       @Override
       public CompletableFuture<Note> exec()
       {
-         CompletableFuture<DataModelV1.Note> modified = strategy.update(ctx -> {
-            DataModelV1.Note dto = prepModifiedData(ctx);
-            return this.changes.apply(dto);
-         });
-
-         return modified
+         return ctx.update(changes::apply)
                .thenApply(dto -> new NoteImpl(dto, acctStore, resolvers));
-      }
-
-      private DataModelV1.Note prepModifiedData(UpdateContext<DataModelV1.Note> ctx)
-      {
-         DataModelV1.Note dto = null;
-         DataModelV1.Note original = ctx.getOriginal();
-         if (original == null)
-         {
-            String timestamp = ZonedDateTime.now().format(DateTimeFormatter.ISO_ZONED_DATE_TIME);
-
-            dto = new DataModelV1.Note();
-            dto.id = this.id;
-            dto.dateCreated = timestamp;
-            dto.dateModified = timestamp;
-         }
-         else
-         {
-            dto = copy(original);
-            dto.dateModified = ZonedDateTime.now().format(DateTimeFormatter.ISO_ZONED_DATE_TIME);
-         }
-
-         return dto;
-      }
-
-      public DataModelV1.Note copy(DataModelV1.Note original)
-      {
-         DataModelV1.Note copy = new DataModelV1.Note();
-         copy.id = original.id;
-         copy.dateCreated = original.dateCreated;
-         copy.dateModified = original.dateModified;
-         copy.entryRef = original.entryRef;
-         copy.authorId = original.authorId;
-         copy.mimeType = original.mimeType;
-         copy.content = original.content;
-
-         return copy;
       }
    }
 }

@@ -4,12 +4,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.DataModelV1.WorkDTO;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.BibliographicEntryRepository;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.CopyReferenceMutator;
 import edu.tamu.tcat.trc.entries.types.biblio.repo.EditBibliographicEntryCommand;
@@ -18,7 +20,7 @@ import edu.tamu.tcat.trc.repo.BasicChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
-import edu.tamu.tcat.trc.repo.UpdateContext;
+import edu.tamu.tcat.trc.repo.ExecutableUpdateContext;
 import edu.tamu.tcat.trc.repo.id.IdFactory;
 import edu.tamu.tcat.trc.repo.id.IdFactoryProvider;
 
@@ -38,28 +40,33 @@ public class EditWorkCommandFactory implements EditCommandFactory<DataModelV1.Wo
    }
 
    @Override
-   public EditBibliographicEntryCommand create(String id, EditCommandFactory.UpdateStrategy<DataModelV1.WorkDTO> context)
+   public EditBibliographicEntryCommand create(ExecutableUpdateContext<DataModelV1.WorkDTO> ctx)
    {
-      return new EditWorkCommandImpl(id, context);
+      return new EditWorkCommandImpl(ctx);
    }
 
    @Override
-   public EditBibliographicEntryCommand edit(String id, EditCommandFactory.UpdateStrategy<DataModelV1.WorkDTO> context)
+   public WorkDTO initialize(String id, Optional<DataModelV1.WorkDTO> original)
    {
-      return new EditWorkCommandImpl(id, context);
+      return original.map(DataModelV1::copy)
+         .orElseGet(() -> {
+            DataModelV1.WorkDTO dto = new DataModelV1.WorkDTO();
+            dto.id = id;
+            return dto;
+         });
    }
 
    private class EditWorkCommandImpl implements EditBibliographicEntryCommand
    {
-      EditCommandFactory.UpdateStrategy<DataModelV1.WorkDTO> context;
+      ExecutableUpdateContext<DataModelV1.WorkDTO> context;
 
       private final String workId;
       private final ApplicableChangeSet<DataModelV1.WorkDTO> changes = new BasicChangeSet<>();
 
-      public EditWorkCommandImpl(String id, EditCommandFactory.UpdateStrategy<DataModelV1.WorkDTO> context)
+      public EditWorkCommandImpl(ExecutableUpdateContext<DataModelV1.WorkDTO> ctx)
       {
-         this.workId = id;
-         this.context = context;
+         this.workId = ctx.getId();
+         this.context = ctx;
       }
 
       private Function<DataModelV1.WorkDTO, DataModelV1.CopyReferenceDTO> makeCopySelector(String id)
@@ -221,24 +228,7 @@ public class EditWorkCommandFactory implements EditCommandFactory<DataModelV1.Wo
       @Override
       public CompletableFuture<String> execute()
       {
-         CompletableFuture<DataModelV1.WorkDTO> modified = context.update(ctx -> {
-            DataModelV1.WorkDTO dto = prepModifiedData(ctx);
-            return changes.apply(dto);
-         });
-
-         return modified.thenApply(dto -> dto.id);
-      }
-
-      private DataModelV1.WorkDTO prepModifiedData(UpdateContext<DataModelV1.WorkDTO> ctx)
-      {
-         DataModelV1.WorkDTO original = ctx.getOriginal();
-         if (original != null)
-            return DataModelV1.copy(original);
-
-         DataModelV1.WorkDTO dto = new DataModelV1.WorkDTO();
-         dto.id = this.workId;
-
-         return dto;
+         return context.update(changes::apply).thenApply(dto -> dto.id);
       }
    }
 }

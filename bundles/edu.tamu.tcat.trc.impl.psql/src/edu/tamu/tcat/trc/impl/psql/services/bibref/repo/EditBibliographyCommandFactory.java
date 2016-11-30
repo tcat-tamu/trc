@@ -4,17 +4,20 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import edu.tamu.tcat.trc.impl.psql.services.bibref.repo.DataModelV1.ReferenceCollection;
 import edu.tamu.tcat.trc.repo.BasicChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
+import edu.tamu.tcat.trc.repo.EditCommandFactory;
+import edu.tamu.tcat.trc.repo.ExecutableUpdateContext;
 import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
-import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.services.bibref.repo.BibliographicItemMetaMutator;
 import edu.tamu.tcat.trc.services.bibref.repo.BibliographicItemMutator;
 import edu.tamu.tcat.trc.services.bibref.repo.BibliographicItemReferenceMutator;
@@ -31,27 +34,32 @@ public class EditBibliographyCommandFactory implements EditCommandFactory<DataMo
    }
 
    @Override
-   public EditBibliographyCommand create(String id, UpdateStrategy<DataModelV1.ReferenceCollection> strategy)
+   public EditBibliographyCommand create(ExecutableUpdateContext<DataModelV1.ReferenceCollection> ctx)
    {
-      return new EditBibliographyCommandImpl(id, strategy);
+      return new EditBibliographyCommandImpl(ctx);
    }
 
    @Override
-   public EditBibliographyCommand edit(String id, UpdateStrategy<DataModelV1.ReferenceCollection> strategy)
+   public ReferenceCollection initialize(String id, Optional<ReferenceCollection> original)
    {
-      return new EditBibliographyCommandImpl(id, strategy);
+      return original.map(DataModelV1.ReferenceCollection::copy)
+            .orElseGet(() -> {
+               DataModelV1.ReferenceCollection dto = new DataModelV1.ReferenceCollection();
+               dto.id = id;
+               return dto;
+            });
    }
 
    public class EditBibliographyCommandImpl implements EditBibliographyCommand
    {
       private final String bibId;
-      private final UpdateStrategy<DataModelV1.ReferenceCollection> strategy;
       private final ApplicableChangeSet<DataModelV1.ReferenceCollection> changes = new BasicChangeSet<>();
+      private final ExecutableUpdateContext<ReferenceCollection> ctx;
 
-      public EditBibliographyCommandImpl(String bibId, UpdateStrategy<DataModelV1.ReferenceCollection> strategy)
+      public EditBibliographyCommandImpl(ExecutableUpdateContext<DataModelV1.ReferenceCollection> ctx)
       {
-         this.bibId = bibId;
-         this.strategy = strategy;
+         this.ctx = ctx;
+         this.bibId = ctx.getId();
       }
 
       @Override
@@ -143,25 +151,8 @@ public class EditBibliographyCommandFactory implements EditCommandFactory<DataMo
       @Override
       public CompletableFuture<String> execute()
       {
-         CompletableFuture<DataModelV1.ReferenceCollection> modified = strategy.update(updateContext -> {
-            DataModelV1.ReferenceCollection original = updateContext.getOriginal();
-            DataModelV1.ReferenceCollection clone = new DataModelV1.ReferenceCollection();
-
-            if (original == null)
-            {
-               // we are creating a new bibliography
-               clone.id = bibId;
-            }
-            else
-            {
-               // we are editing an existing bibliography
-               DataModelV1.ReferenceCollection.copy(clone, original);
-            }
-
-            return this.changes.apply(clone);
-         });
-
-         return modified.thenApply(bib -> bib.id);
+         return ctx.update(this.changes::apply)
+               .thenApply(bib -> bib.id);
       }
 
       /**

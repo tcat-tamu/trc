@@ -1,44 +1,50 @@
 package edu.tamu.tcat.trc.impl.psql.account;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.account.login.LoginData;
 import edu.tamu.tcat.trc.auth.account.EditTrcAccountCommand;
 import edu.tamu.tcat.trc.auth.account.TrcAccount;
+import edu.tamu.tcat.trc.impl.psql.account.DataModelV1.AccountData;
 import edu.tamu.tcat.trc.repo.BasicChangeSet;
 import edu.tamu.tcat.trc.repo.ChangeSet.ApplicableChangeSet;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
-import edu.tamu.tcat.trc.repo.UpdateContext;
+import edu.tamu.tcat.trc.repo.ExecutableUpdateContext;
 
 public class EditAccountCmdFactory implements EditCommandFactory<DataModelV1.AccountData, EditTrcAccountCommand>
 {
 
    @Override
-   public EditTrcAccountCommand create(String id, EditCommandFactory.UpdateStrategy<DataModelV1.AccountData> strategy)
+   public EditTrcAccountCommand create(ExecutableUpdateContext<DataModelV1.AccountData> ctx)
    {
-      return new EditCommand(id, strategy);
+      return new EditCommand(ctx);
    }
 
    @Override
-   public EditTrcAccountCommand edit(String id, EditCommandFactory.UpdateStrategy<DataModelV1.AccountData> strategy)
+   public AccountData initialize(String id, Optional<DataModelV1.AccountData> original)
    {
-      return new EditCommand(id, strategy);
+      return original.map(DataModelV1.AccountData::copy)
+              .orElseGet(() -> {
+                 DataModelV1.AccountData dto = new DataModelV1.AccountData();
+                 dto.uuid = UUID.fromString(id);
+                 dto.active = true;
+                 return dto;
+              });
    }
 
    public static class EditCommand implements EditTrcAccountCommand
    {
-      private final String id;
-      private final UpdateStrategy<DataModelV1.AccountData> exec;
       private final ApplicableChangeSet<DataModelV1.AccountData> changes = new BasicChangeSet<>();
+      private final ExecutableUpdateContext<AccountData> ctx;
 
       private LoginData login;
       private DbAcctDataStore store;
 
-      public EditCommand(String id, UpdateStrategy<DataModelV1.AccountData> exec)
+      public EditCommand(ExecutableUpdateContext<DataModelV1.AccountData> ctx)
       {
-         this.id = id;
-         this.exec = exec;
+         this.ctx = ctx;
       }
 
       public void linkLogin(LoginData login, DbAcctDataStore store)
@@ -50,11 +56,7 @@ public class EditAccountCmdFactory implements EditCommandFactory<DataModelV1.Acc
       @Override
       public CompletableFuture<TrcAccount> execute()
       {
-         CompletableFuture<DataModelV1.AccountData> modified = exec.update(ctx -> {
-            DataModelV1.AccountData dto = prepModifiedData(ctx);
-            return this.changes.apply(dto);
-         });
-
+         CompletableFuture<DataModelV1.AccountData> modified = ctx.update(changes::apply);
          if (login != null)
          {
             modified = modified.thenApply(dto -> {
@@ -64,25 +66,6 @@ public class EditAccountCmdFactory implements EditCommandFactory<DataModelV1.Acc
          }
 
          return modified.thenApply(dto -> new DbTrcAccount(dto));
-      }
-
-
-      private DataModelV1.AccountData prepModifiedData(UpdateContext<DataModelV1.AccountData> ctx)
-      {
-         DataModelV1.AccountData dto = null;
-         DataModelV1.AccountData original = ctx.getOriginal();
-         if (original == null)
-         {
-            dto = new DataModelV1.AccountData();
-            dto.uuid = UUID.fromString(this.id);
-            dto.active = true;
-         }
-         else
-         {
-            dto = DataModelV1.AccountData.copy(original);
-         }
-
-         return dto;
       }
    }
 }
