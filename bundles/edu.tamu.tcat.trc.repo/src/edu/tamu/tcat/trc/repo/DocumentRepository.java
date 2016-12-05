@@ -73,6 +73,8 @@ public interface DocumentRepository<RecordType, EditCommandType>
     */
    Iterator<RecordType> listAll() throws RepositoryException;
 
+   Optional<RecordReference<RecordType>> getRecord(String id);
+
    /**
     * Retrieve the identified record.
     *
