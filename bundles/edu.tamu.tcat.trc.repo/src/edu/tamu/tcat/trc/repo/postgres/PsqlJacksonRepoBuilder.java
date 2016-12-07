@@ -183,7 +183,7 @@ public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> implem
       }
 
       return  matchColumType(definedColumns, "id", "^char.+")
-              && matchColumType(definedColumns, "data", "^json")
+              && matchColumType(definedColumns, "data", "^jsonb?")
               && matchColumType(definedColumns, "date_created", "^time.+")
               && matchColumType(definedColumns, "last_modified", "^time.+")
               &&  matchColumType(definedColumns, "removed", "^time.+");
