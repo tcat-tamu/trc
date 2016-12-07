@@ -62,7 +62,14 @@ public interface SolrIndexConfig
     */
    default void configureBasic(String q, SolrQuery params) throws SearchException
    {
-      throw new UnsupportedOperationException("Basic configuration not supported");
+      //HACK: if no query specified, should this throw and require a call to queryAll() ?
+      if (q == null || q.trim().isEmpty())
+         q = "*:*";
+
+      // append basic query to existing query (if necessary)
+      q = params.get("q", "") + " " + q;
+
+      params.set("q", q.trim());
    }
 
    /**

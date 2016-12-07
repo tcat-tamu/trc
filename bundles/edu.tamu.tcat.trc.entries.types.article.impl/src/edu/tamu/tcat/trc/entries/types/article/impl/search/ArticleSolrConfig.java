@@ -60,15 +60,6 @@ public class ArticleSolrConfig implements SolrIndexConfig
 //      params.set("facet.mincount", "1");
    }
 
-   /**
-    * @since 1.1
-    */
-   @Override
-   public void configureBasic(String q, SolrQuery params) throws SearchException
-   {
-      params.set("q", q);
-   }
-
    @Override
    public Class<ArticleSearchProxy> getSearchProxyType()
    {

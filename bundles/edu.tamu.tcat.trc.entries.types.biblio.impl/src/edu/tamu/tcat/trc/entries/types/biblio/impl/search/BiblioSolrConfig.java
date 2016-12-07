@@ -45,16 +45,6 @@ public class BiblioSolrConfig implements SolrIndexConfig
    }
 
    @Override
-   public void configureBasic(String q, SolrQuery params)
-   {
-      //HACK: if no query specified, should this throw and require a call to queryAll() ?
-      if (q == null || q.trim().isEmpty())
-         q = "*:*";
-
-      params.set("q", q);
-   }
-
-   @Override
    public Class<BiblioSearchProxy> getSearchProxyType()
    {
       return BiblioSearchProxy.class;

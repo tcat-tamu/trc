@@ -21,7 +21,6 @@ import java.util.Collection;
 import org.apache.solr.client.solrj.SolrQuery;
 
 import edu.tamu.tcat.trc.entries.types.reln.search.RelnSearchProxy;
-import edu.tamu.tcat.trc.search.solr.SearchException;
 import edu.tamu.tcat.trc.search.solr.SolrIndexConfig;
 import edu.tamu.tcat.trc.search.solr.SolrIndexField;
 import edu.tamu.tcat.trc.search.solr.impl.BasicFields;
@@ -39,25 +38,6 @@ public class RelnSolrConfig implements SolrIndexConfig
    @Override
    public void initialConfiguration(SolrQuery params)
    {
-   }
-
-   @Override
-   public void configureBasic(String q, SolrQuery params) throws SearchException
-   {
-      //HACK: if no query specified, should this throw and require a call to queryAll() ?
-      if (q == null || q.trim().isEmpty())
-         q = "*:*";
-
-      // NOTE query against all fields, boosted appropriately, free text
-      //      I think that means *:(qBasic)
-      // NOTE in general, if this is applied, the other query params are unlikely to be applied
-      StringBuilder qBuilder = new StringBuilder(q);
-
-      params.set("q", qBuilder.toString());
-
-      //HACK: relationship query does not use edismax
-      // Basic query only searches over these fields
-      //params.set("qf", "syntheticName");
    }
 
    @Override

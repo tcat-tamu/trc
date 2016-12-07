@@ -50,21 +50,6 @@ public class BioSolrConfig implements SolrIndexConfig
    }
 
    @Override
-   public void configureBasic(String q, SolrQuery params)
-   {
-      //HACK: if no query specified, should this throw and require a call to queryAll() ?
-      if (q == null || q.trim().isEmpty())
-         q = "*:*";
-
-      // NOTE query against all fields, boosted appropriately, free text
-      //      I think that means *:(qBasic)
-      // NOTE in general, if this is applied, the other query params are unlikely to be applied
-      StringBuilder qBuilder = new StringBuilder(q);
-
-      params.set("q", qBuilder.toString());
-   }
-
-   @Override
    public Class<BioSearchProxy> getSearchProxyType()
    {
       return BioSearchProxy.class;
