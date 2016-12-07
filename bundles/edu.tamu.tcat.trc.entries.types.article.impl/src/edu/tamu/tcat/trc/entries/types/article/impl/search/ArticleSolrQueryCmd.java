@@ -3,8 +3,8 @@ package edu.tamu.tcat.trc.entries.types.article.impl.search;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -14,7 +14,6 @@ import edu.tamu.tcat.trc.entries.types.article.search.ArticleQuery;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleQueryCommand;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchProxy;
 import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult;
-import edu.tamu.tcat.trc.entries.types.article.search.ArticleSearchResult.FacetValueList;
 import edu.tamu.tcat.trc.search.solr.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcQueryBuilder;
 
@@ -46,6 +45,13 @@ public class ArticleSolrQueryCmd implements ArticleQueryCommand
    public void query(String q)
    {
       this.query.q = q;
+      qb.basic(q);
+   }
+
+   @Override
+   public void articleType(String type)
+   {
+      qb.filter(ArticleSolrConfig.ARTICLE_TYPE, Objects.requireNonNull(type));
    }
 
    @Override
@@ -66,9 +72,6 @@ public class ArticleSolrQueryCmd implements ArticleQueryCommand
    @Override
    public CompletableFuture<ArticleSearchResult> execute() throws SearchException
    {
-      String q = (query.q == null || query.q.trim().isEmpty()) ? "*:*" : query.q;
-      qb.basic(q);
-
       CompletableFuture<ArticleSearchResult> result = new CompletableFuture<>();
       try
       {

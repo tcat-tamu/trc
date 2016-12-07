@@ -22,6 +22,11 @@ public interface ArticleQueryCommand
     */
    void query(String q);
 
+   /**
+    * @param type An application-defined article type identifier such as 'book-review', 'biography', etc.
+    */
+   void articleType(String type);
+
    // TODO add author query by name and/or id
 
    /**

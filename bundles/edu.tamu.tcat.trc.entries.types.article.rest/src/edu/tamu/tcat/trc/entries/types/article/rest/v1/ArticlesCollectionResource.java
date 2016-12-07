@@ -58,6 +58,7 @@ public class ArticlesCollectionResource
    public RestApiV1.ArticleSearchResultSet
    search(@Context UriInfo uriInfo,
           @QueryParam(value="q") String q,
+          @QueryParam(value="type") String type,
           @QueryParam(value = "offset") @DefaultValue("0") int offset,
           @QueryParam(value = "max") @DefaultValue("100") int numResults)
    {
@@ -69,8 +70,10 @@ public class ArticlesCollectionResource
       {
          ArticleQueryCommand articleQryCmd = queryService.createQuery();
 
-         if (q != null && !q.trim().isEmpty())
-            articleQryCmd.query(q);
+         articleQryCmd.query(q == null || q.trim().isEmpty() ? "" : q);
+
+         if (type != null && !type.trim().isEmpty())
+            articleQryCmd.articleType(type);
 
          articleQryCmd.setOffset(offset);
          articleQryCmd.setMaxResults(numResults);
