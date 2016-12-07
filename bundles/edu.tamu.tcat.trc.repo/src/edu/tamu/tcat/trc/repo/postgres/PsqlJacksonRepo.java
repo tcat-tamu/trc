@@ -49,6 +49,7 @@ import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.ExecutableUpdateContext;
+import edu.tamu.tcat.trc.repo.RecordReference;
 import edu.tamu.tcat.trc.repo.RecordUpdateEvent;
 import edu.tamu.tcat.trc.repo.RecordUpdateObserver;
 import edu.tamu.tcat.trc.repo.RepositoryException;
@@ -68,6 +69,8 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    private static final String MARK_REMOVED_SQL =  "UPDATE {0} SET removed = now(), last_modified = now() WHERE id = ?";
 //   private static final String DELETE_SQL =  "DELETE FROM {0} WHERE id = ?";
    private static final String EXISTS_SQL = "SELECT id FROM {0} WHERE id = ? AND removed IS NULL";
+   private static final String META_SQL =  "SELECT id, data, date_created, last_modified, removed FROM {0} WHERE id = ?";
+
 
    private static final Logger logger = Logger.getLogger(PsqlJacksonRepo.class.getName());
 
@@ -80,6 +83,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
    private EditCommandFactory<DTO, EditCommandType> cmdFactory;
 
+   private String getMetaSql;
    private String getRecordSql;
    private String createRecordSql;
    private String updateRecordSql;
@@ -90,6 +94,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    private final Map<UUID, RecordUpdateObserver<RecordType>> updateObservers = new ConcurrentHashMap<>();
 
    private LoadingCache<String, Optional<RecordType>> cache;
+
 
    PsqlJacksonRepo()
    {
@@ -142,6 +147,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
       logger.info(format("Initializing document repository using table {0}", tablename));
 
+      this.getMetaSql = format(META_SQL,  tablename);
       this.getRecordSql = format(GET_RECORD_SQL, tablename);
       this.createRecordSql = format(INSERT_SQL, tablename);
       this.updateRecordSql = format(UPDATE_SQL, tablename);
@@ -861,6 +867,39 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
             logger.log(Level.WARNING, msg, ex);
          }
       }
+   }
+
+	@Override
+   public Optional<RecordReference<RecordType>> getRecord(String id)
+   {
+      exec.submit((conn) -> {
+         try (PreparedStatement ps = conn.prepareStatement(getMetaSql))
+         {
+            RecordReferenceImpl<RecordType> recordRef = new RecordReferenceImpl<>();
+            ps.setString(1, id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next())
+            {
+               if (Thread.interrupted())
+                  throw new InterruptedException();
+
+               recordRef.setId(rs.getString("id"));
+               recordRef.setDateCreated(rs.getDate("date_created"));
+               recordRef.setDateModified(rs.getDate("last_modified"));
+               recordRef.setRemovedState(rs.getDate("removed"));
+
+               PGobject pgo = (PGobject)rs.getObject("data");
+               recordRef.setRecordData(adapter.apply(parse(pgo.toString())));
+            }
+
+            return Optional.of(recordRef);
+         }
+         catch (SQLException e)
+         {
+            throw new IllegalStateException("Failed to retrieve the supplied record [" + id + "]", e);
+         }
+      });
+      return null;
    }
 
    /**
