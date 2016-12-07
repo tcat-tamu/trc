@@ -11,7 +11,6 @@ import java.sql.Statement;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.Future;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -20,13 +19,10 @@ import java.util.logging.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
-import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
 import edu.tamu.tcat.trc.repo.DocRepoBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.RepositoryException;
-import edu.tamu.tcat.trc.repo.RepositorySchema;
-import edu.tamu.tcat.trc.repo.SchemaBuilder;
 
 /**
  *  Constructs {@link DocumentRepository} instances that are connected to a PostgreSQL database
@@ -54,19 +50,25 @@ import edu.tamu.tcat.trc.repo.SchemaBuilder;
  */
 public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> implements DocRepoBuilder<RecordType, StorageType, EditCmdType>
 {
+   private final static String CREATE_SQL =
+         "CREATE TABLE {0} ("
+               + "  id VARCHAR(255) NOT NULL, "
+               + "  data JSON,"
+               + "  removed TIMESTAMP DEFAULT NULL,"
+               + "  date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+               + "  last_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+               + "  CONSTRAINT {1}_pkey PRIMARY KEY (id)"
+               + ")";
+
    private static final Logger logger = Logger.getLogger(PsqlJacksonRepoBuilder.class.getName());
 
    private SqlExecutor exec;
    private boolean enableCreation = false;
 
    private String tablename;
-   private RepositorySchema schema;
    private Function<StorageType, RecordType> adapter;
    private EditCommandFactory<StorageType, EditCmdType> cmdFactory;
    private Class<StorageType> storageType;
-
-   private String colname;
-
 
    public PsqlJacksonRepoBuilder()
    {
@@ -85,20 +87,6 @@ public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> implem
    public PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> setDbExecutor(SqlExecutor exec)
    {
       this.exec = exec;
-      return this;
-   }
-
-   @Override
-   public PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> setSchema(RepositorySchema schema)
-   {
-      this.schema = schema;
-      return this;
-   }
-
-   @Override
-   public PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> setDataColumn(String colname)
-   {
-      this.colname = colname;
       return this;
    }
 
@@ -130,21 +118,15 @@ public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> implem
       return this;
    }
 
-   /* (non-Javadoc)
-    * @see edu.tamu.tcat.trc.repo.postgres.DocRepoBuilder#build()
-    */
    @Override
    public PsqlJacksonRepo<RecordType, StorageType, EditCmdType> build() throws RepositoryException
    {
-      initSchema();
       if (!this.exists() && enableCreation)
          this.create();
 
-      // TODO supply data vehicle
       PsqlJacksonRepo<RecordType, StorageType, EditCmdType> repo = new PsqlJacksonRepo<>();
       repo.setSqlExecutor(exec);
       repo.setTableName(tablename);
-      repo.setSchema(schema);
       repo.setCommandFactory(cmdFactory);
       repo.setAdapter(adapter);
       repo.setStorageType(storageType);
@@ -154,33 +136,16 @@ public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> implem
       return repo;
    }
 
-   private void initSchema()
-   {
-      if (schema != null)
-         return;
-
-      SchemaBuilder schemaBuilder = new BasicSchemaBuilder();
-      schemaBuilder.setId(tablename + "_schema");
-
-      String cName = (colname == null || colname.trim().isEmpty())
-            ? BasicSchemaBuilder.SCHEMA_DATA_FIELD
-            : colname;
-      schemaBuilder.setDataField(cName);
-
-      schema = schemaBuilder.build();
-   }
-
    private boolean exists() throws RepositoryException
    {
-      // TODO this duplicates method in DatabaseSchemaManager
       Future<Boolean> result = exec.submit(conn -> {
-         return Boolean.valueOf(tableExists(conn, tablename) && checkColumnsMatch(schema, conn));
+         return Boolean.valueOf(tableExists(conn, tablename) && checkColumnsMatch(conn));
       });
 
       return unwrap(result, () -> format("Failed to determine whether table {0} exists.", tablename)).booleanValue();
    }
 
-   private boolean checkColumnsMatch(RepositorySchema schema, Connection conn) throws SQLException
+   private boolean checkColumnsMatch(Connection conn) throws SQLException
    {
       // (20150814) Adapted from
       // http://stackoverflow.com/questions/4336259/query-the-schema-details-of-a-table-in-postgresql
@@ -217,11 +182,11 @@ public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> implem
          }
       }
 
-      return  matchColumType(definedColumns, schema.getIdField(), "^char.+")
-              && matchColumType(definedColumns, schema.getDataField(), "^json")
-              && matchColumType(definedColumns, schema.getCreatedField(), "^time.+")
-              && matchColumType(definedColumns, schema.getModifiedField(), "^time.+")
-              &&  matchColumType(definedColumns, schema.getRemovedField(), "^time.+");
+      return  matchColumType(definedColumns, "id", "^char.+")
+              && matchColumType(definedColumns, "data", "^json")
+              && matchColumType(definedColumns, "date_created", "^time.+")
+              && matchColumType(definedColumns, "last_modified", "^time.+")
+              &&  matchColumType(definedColumns, "removed", "^time.+");
 
    }
 
@@ -262,50 +227,15 @@ public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> implem
 
    private boolean create() throws RepositoryException
    {
-      // TODO this duplicates method in DatabaseSchemaManager
       if (exists())
          return false;
 
-      String sql = buildCreateSql();
+      String sql = format(CREATE_SQL, tablename, tablename);
       Future<Boolean> result = exec.submit((conn) -> createTable(conn, sql));
       return unwrap(result, () -> format("Failed to create database table\n{0}", sql)).booleanValue();
    }
 
    // TODO truncate, drop?
-
-   private String buildCreateSql()
-   {
-      String tableName = tablename;
-      String idField = schema.getIdField();
-      String dataField = schema.getDataField();
-
-      Objects.requireNonNull(tableName, "A table name must be supplied.");
-      Objects.requireNonNull(idField, "An id field name must be supplied.");
-      Objects.requireNonNull(dataField, "A data field name must be supplied.");
-
-      StringBuilder sb = new StringBuilder();
-      sb.append(MessageFormat.format("CREATE TABLE {0} (", tableName));
-      sb.append(MessageFormat.format("{0} VARCHAR(255) NOT NULL, ", idField));
-      sb.append(MessageFormat.format("{0} JSON", dataField));
-
-      // optional fields
-      String removedField = schema.getRemovedField();
-      String createdField = schema.getCreatedField();
-      String modifiedField = schema.getModifiedField();
-
-      if (removedField != null)
-         sb.append(MessageFormat.format(",  {0} TIMESTAMP DEFAULT NULL", removedField));
-      if (createdField != null)
-         sb.append(MessageFormat.format(",  {0} TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP", createdField));
-      if (modifiedField != null)
-         sb.append(MessageFormat.format(",  {0} TIMESTAMP", modifiedField));
-
-      // primary key
-      sb.append(MessageFormat.format(",  CONSTRAINT {0}_pkey PRIMARY KEY ({1})", tableName, idField));
-      sb.append(")");
-
-      return sb.toString();
-   }
 
    private Boolean createTable(Connection conn, String sql) throws RepositoryException, SQLException
    {

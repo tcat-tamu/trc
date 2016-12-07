@@ -26,20 +26,6 @@ public interface DocRepoBuilder<RecordType, StorageType, EditCmdType>
    DocRepoBuilder<RecordType, StorageType, EditCmdType> setTableName(String tablename);
 
    /**
-    *
-    * @param colname The name of the column to use to store the serialized data.
-    * @return A reference to this builder to support fluent configuration.
-    */
-   DocRepoBuilder<RecordType, StorageType, EditCmdType> setDataColumn(String colname);
-
-   /**
-    * @param schema Defines the columns to be used to store data. Note that if no remove field
-    *       is supplied, removal will result in the deletion of the record from the database.
-    * @return A reference to this builder to support fluent configuration.
-    */
-   DocRepoBuilder<RecordType, StorageType, EditCmdType> setSchema(RepositorySchema schema);
-
-   /**
     * @param type A type token for the data storage POJO. Used by Jackson for JSON databinding.
     * @return A reference to this builder to support fluent configuration.
     */

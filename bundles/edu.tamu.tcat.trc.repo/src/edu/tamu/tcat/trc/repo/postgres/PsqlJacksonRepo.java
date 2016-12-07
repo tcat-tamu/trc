@@ -49,19 +49,26 @@ import edu.tamu.tcat.trc.repo.EditCommandFactory;
 import edu.tamu.tcat.trc.repo.EditCommandFactory.UpdateStrategy;
 import edu.tamu.tcat.trc.repo.EntryUpdateObserver;
 import edu.tamu.tcat.trc.repo.RepositoryException;
-import edu.tamu.tcat.trc.repo.RepositorySchema;
 import edu.tamu.tcat.trc.repo.UpdateContext;
 import edu.tamu.tcat.trc.repo.UpdateContext.ActionType;
 
 public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements DocumentRepository<RecordType, DTO, EditCommandType>
 {
+   private static final String DATA = "data";
+
+   private static final String GET_RECORD_SQL = "SELECT data FROM {0} WHERE id = ? AND removed IS NULL";
+   private static final String INSERT_SQL = "INSERT INTO {0} (data, id) VALUES(?, ?)";
+   private static final String UPDATE_SQL = "UPDATE {0} SET data = ?, last_modified = now() WHERE id = ?";
+   private static final String MARK_REMOVED_SQL =  "UPDATE {0} SET removed = now(), last_modified = now() WHERE id = ?";
+//   private static final String DELETE_SQL =  "DELETE FROM {0} WHERE id = ?";
+   private static final String EXISTS_SQL = "SELECT id FROM {0} WHERE id = ? AND removed IS NULL";
+
    private static final Logger logger = Logger.getLogger(PsqlJacksonRepo.class.getName());
 
    private SqlExecutor exec;
    private Supplier<String> idFactory;
 
    private String tablename;
-   private RepositorySchema schema;
    private Function<DTO, RecordType> adapter;
    private Class<DTO> storageType;
 
@@ -96,12 +103,6 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       this.tablename = tablename;
    }
 
-
-   void setSchema(RepositorySchema schema)
-   {
-      this.schema = schema;
-   }
-
    void setCommandFactory(EditCommandFactory<DTO, EditCommandType> cmdFactory)
    {
       this.cmdFactory = cmdFactory;
@@ -129,16 +130,15 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
          throw new IllegalStateException("The tablename must not be an empty string");
 
       Objects.requireNonNull(cmdFactory, "The edit command factory has not bee supplied");
-      Objects.requireNonNull(schema, "The data schema has not bee supplied");
       Objects.requireNonNull(adapter, "The data adapter has not bee supplied");
       Objects.requireNonNull(storageType, "The storage type has not bee supplied");
 
-      logger.info(format("Initializing document repository for schema {0} using table {1}", schema.getId(), tablename));
+      logger.info(format("Initializing document repository using table {0}", tablename));
 
-      this.getRecordSql = prepareGetSql();
-      this.createRecordSql = prepareInsertSql();
-      this.updateRecordSql = prepareUpdateSql();
-      this.removeRecordSql = prepareRemoveSql();
+      this.getRecordSql = format(GET_RECORD_SQL, tablename);
+      this.createRecordSql = format(INSERT_SQL, tablename);
+      this.updateRecordSql = format(UPDATE_SQL, tablename);
+      this.removeRecordSql = format(MARK_REMOVED_SQL, tablename);
 
       this.initCache();
    }
@@ -171,59 +171,11 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
    public String buildNotRemovedClause()
    {
-      String removedField = schema.getRemovedField();
-      return (removedField != null) ? format("AND {0} IS NULL", removedField) : "";
+      return "AND removed IS NULL";
    }
 
-   private String prepareGetSql()
-   {
-      String GET_RECORD_SQL = "SELECT {0} FROM {1} WHERE {2} = ? {3}";
-      return format(GET_RECORD_SQL, schema.getDataField(), tablename, schema.getIdField(), buildNotRemovedClause());
-   }
 
-   private String prepareInsertSql()
-   {
-      String INSERT_SQL = "INSERT INTO {0} ({1}, {2}) VALUES(?, ?)";
 
-      return format(INSERT_SQL, tablename, schema.getDataField(), schema.getIdField());
-   }
-
-   private String prepareUpdateSql()
-   {
-      String UPDATE_SQL = "UPDATE {0} SET {1} = ?{2} WHERE {3} = ?";
-
-      String idCol = schema.getIdField();
-      String dataCol = schema.getDataField();
-      String modifiedCol = schema.getModifiedField();
-      String dateModClause = hasDateModifiedField() ? ", " + modifiedCol + " = now()": "";
-      return format(UPDATE_SQL, tablename, dataCol, dateModClause, idCol);
-   }
-
-   private String prepareRemoveSql()
-   {
-      String MARK_REMOVED_SQL =  "UPDATE {0} SET {1} = now(){2} WHERE {3} = ?";
-      String DELETE_SQL =  "DELETE FROM {0} WHERE {1} = ?";
-
-      String idField = schema.getIdField();
-      String removedField = schema.getRemovedField();
-      if (removedField != null)
-      {
-         String modifiedField = schema.getModifiedField();
-         String dateModClause = hasDateModifiedField() ? ", " + modifiedField + " = now()": "";
-         return format(MARK_REMOVED_SQL, tablename, removedField, dateModClause, idField);
-      }
-      else
-      {
-         return format(DELETE_SQL, tablename, idField);
-      }
-
-   }
-
-   private boolean hasDateModifiedField()
-   {
-      String modifiedField = schema.getModifiedField();
-      return modifiedField != null && !modifiedField.trim().isEmpty();
-   }
 
    @Override
    public Iterator<RecordType> listAll()
@@ -360,14 +312,11 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       if (Thread.interrupted())
          throw new InterruptedException();
 
-      String template = "SELECT {0} FROM {1} {2} ORDER BY {3} LIMIT {4} OFFSET {5}";
-      String removedField = schema.getRemovedField();
-      String filterRemoved = (removedField != null) ? format("WHERE {0} IS NULL", removedField) : "";
+      String template = "SELECT data FROM {0} {1} ORDER BY id LIMIT {2} OFFSET {3}";
+      String filterRemoved = "WHERE removed IS NULL";
       String sql = format(template,
-            schema.getDataField(),
             tablename,
             filterRemoved,
-            schema.getIdField(),
             Integer.toString(limit),
             Integer.toString(offset));
 
@@ -380,7 +329,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
             if (Thread.interrupted())
                throw new InterruptedException();
 
-            PGobject pgo = (PGobject)rs.getObject(schema.getDataField());
+            PGobject pgo = (PGobject)rs.getObject(DATA);
             String json = pgo.toString();
             jsonData.add(json);
          }
@@ -421,8 +370,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
    private boolean exists(Connection conn, String id) throws RepositoryException
    {
-      String sqlTemplate = "SELECT {0} FROM {1} WHERE {2} = ? {3}";
-      String sql = format(sqlTemplate, schema.getIdField(), tablename, schema.getIdField(), buildNotRemovedClause());
+      String sql = format(EXISTS_SQL, tablename);
 
       try (PreparedStatement ps = conn.prepareStatement(sql))
       {
@@ -461,7 +409,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
             if (!rs.next())
                return Optional.empty();
 
-            PGobject pgo = (PGobject)rs.getObject(schema.getDataField());
+            PGobject pgo = (PGobject)rs.getObject(DATA);
             return Optional.of(pgo.toString());
          }
       }
