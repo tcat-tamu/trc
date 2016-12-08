@@ -20,7 +20,7 @@ Import-Package: com.fasterxml.jackson.databind;version="2.3.1",
  edu.tamu.tcat.trc.entries.types.biblio.search.copies;version="[1.3.0,2.0.0)",
  edu.tamu.tcat.trc.impl.psql.entries;version="2.0.0",
  edu.tamu.tcat.trc.repo;version="[1.3.0,2.0.0)",
- edu.tamu.tcat.trc.repo.id,
+ edu.tamu.tcat.trc.repo.id;version="[1.3.0,2.0.0)",
  edu.tamu.tcat.trc.resolver;version="1.3.0",
  edu.tamu.tcat.trc.search.solr;version="[1.3.0,2.0.0)",
  edu.tamu.tcat.trc.search.solr.impl;version="[1.3.0,2.0.0)",
@@ -31,9 +31,6 @@ Import-Package: com.fasterxml.jackson.databind;version="2.3.1",
  org.apache.solr.common.params;version="[6.2.0,7.0.0)"
 Export-Package: 
  edu.tamu.tcat.trc.entries.types.biblio.impl;version="1.3.0",
- edu.tamu.tcat.trc.entries.types.biblio.impl.legacy,
- edu.tamu.tcat.trc.entries.types.biblio.impl.legacy.search;x-internal:=true,
- edu.tamu.tcat.trc.entries.types.biblio.impl.legacy.search.copies;x-internal:=true,
  edu.tamu.tcat.trc.entries.types.biblio.impl.model;version="1.3.0",
  edu.tamu.tcat.trc.entries.types.biblio.impl.repo;version="1.3.0",
  edu.tamu.tcat.trc.entries.types.biblio.impl.search;version="1.3.0"
