@@ -148,7 +148,7 @@ public class CategorizationServiceFactory implements ServiceFactory<Categorizati
    private void buildTreeDocRepo()
    {
       PsqlJacksonRepoBuilder<TreeCategorization, PersistenceModelV1.TreeCategorizationStrategy, EditTreeCategorizationCommand> repoBuilder = repoRegistry.getDocRepoBuilder();
-      repoBuilder.setTableName(tableName);
+      repoBuilder.setPersistenceId(tableName);
       repoBuilder.setEnableCreation(true);
 
       EntryResolverRegistry resolvers = repoRegistry.getResolverRegistry();

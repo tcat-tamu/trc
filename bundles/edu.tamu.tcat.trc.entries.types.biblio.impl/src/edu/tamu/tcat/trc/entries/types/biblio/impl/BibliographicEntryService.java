@@ -137,7 +137,7 @@ public class BibliographicEntryService
    private void initDocRepo()
    {
       DocRepoBuilder<BibliographicEntry, DataModelV1.WorkDTO, EditBibliographicEntryCommand> builder = context.getDocRepoBuilder();
-      builder.setTableName(TABLE_NAME);
+      builder.setPersistenceId(TABLE_NAME);
       builder.setEditCommandFactory(new EditWorkCommandFactory(context::getIdFactory));
       builder.setDataAdapter(BasicWork::new);
       builder.setStorageType(DataModelV1.WorkDTO.class);

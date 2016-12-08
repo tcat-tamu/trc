@@ -91,7 +91,7 @@ public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> implem
    }
 
    @Override
-   public PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> setTableName(String tablename)
+   public PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> setPersistenceId(String tablename)
    {
       this.tablename = tablename;
       return this;

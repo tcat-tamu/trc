@@ -114,7 +114,7 @@ public class DbAcctDataStore implements TrcAccountDataStore
             new PsqlJacksonRepoBuilder<>();
 
       repoBuilder.setDbExecutor(sqlExecutor);
-      repoBuilder.setTableName(accountDataTablename);
+      repoBuilder.setPersistenceId(accountDataTablename);
       repoBuilder.setEditCommandFactory(new EditAccountCmdFactory());
       repoBuilder.setDataAdapter(dto -> new DbTrcAccount(dto));
       repoBuilder.setStorageType(DataModelV1.AccountData.class);

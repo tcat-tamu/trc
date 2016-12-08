@@ -19,14 +19,15 @@ public interface DocRepoBuilder<RecordType, StorageType, EditCmdType>
 {
 
    /**
-    * @param tablename The name of the database table to be used to store records for this
-    *       repository.
+    * @param persistenceId The identifier that designates where records managed by this repository
+    *       should be stored. For example, a database-backed identifier may use the database
+    *       table name.
     * @return A reference to this builder to support fluent configuration.
     */
-   DocRepoBuilder<RecordType, StorageType, EditCmdType> setTableName(String tablename);
+   DocRepoBuilder<RecordType, StorageType, EditCmdType> setPersistenceId(String persistenceId);
 
    /**
-    * @param type A type token for the data storage POJO. Used by Jackson for JSON databinding.
+    * @param type A type token for the data storage POJO. 
     * @return A reference to this builder to support fluent configuration.
     */
    DocRepoBuilder<RecordType, StorageType, EditCmdType> setStorageType(Class<StorageType> type);

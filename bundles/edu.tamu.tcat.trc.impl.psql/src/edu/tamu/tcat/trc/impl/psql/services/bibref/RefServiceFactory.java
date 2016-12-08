@@ -41,7 +41,7 @@ public class RefServiceFactory implements ServiceFactory<RefCollectionService>
 
       DocRepoBuilder<ReferenceCollection, DataModelV1.ReferenceCollection, EditBibliographyCommand> builder =
             repoRegistry.getDocRepoBuilder();
-      builder.setTableName(TABLE_NAME);
+      builder.setPersistenceId(TABLE_NAME);
       builder.setEditCommandFactory(editCommandFactory);
       builder.setDataAdapter(ReferenceCollectionImpl::new);
       builder.setStorageType(DataModelV1.ReferenceCollection.class);

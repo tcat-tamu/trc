@@ -152,7 +152,7 @@ public class RelationshipEntryService
    private void initDocRepo()
    {
       DocRepoBuilder<Relationship, DataModelV1.Relationship, EditRelationshipCommand> builder = ctx.getDocRepoBuilder();
-      builder.setTableName(TABLE_NAME);
+      builder.setPersistenceId(TABLE_NAME);
       builder.setEditCommandFactory(new EditRelationshipCommandFactory(typeReg, resolvers));
       builder.setDataAdapter(this::adapt);
       builder.setStorageType(DataModelV1.Relationship.class);

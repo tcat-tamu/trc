@@ -72,7 +72,7 @@ public class NotesServiceFactory implements ServiceFactory<NotesService>
       tablename = config.getPropertyValue(PARAM_TABLE_NAME, String.class, TABLE_NAME);
 
       PsqlJacksonRepoBuilder<Note, DataModelV1.Note, EditNoteCommand> builder = repoRegistry.getDocRepoBuilder();
-      builder.setTableName(tablename);
+      builder.setPersistenceId(tablename);
       builder.setEditCommandFactory(cmdFactory);
       builder.setDataAdapter(dto -> new NoteImpl(dto, acctStore, repoRegistry.getResolverRegistry()));
       builder.setStorageType(DataModelV1.Note.class);

@@ -127,7 +127,7 @@ public class ArticleEntryService
    private void initDocRepo()
    {
       DocRepoBuilder<Article, DataModelV1.Article, EditArticleCommand> builder = context.getDocRepoBuilder();
-      builder.setTableName(TABLE_NAME);
+      builder.setPersistenceId(TABLE_NAME);
       builder.setEditCommandFactory(new EditArticleCommandFactory());
       builder.setDataAdapter(ArticleImpl::new);
       builder.setStorageType(DataModelV1.Article.class);

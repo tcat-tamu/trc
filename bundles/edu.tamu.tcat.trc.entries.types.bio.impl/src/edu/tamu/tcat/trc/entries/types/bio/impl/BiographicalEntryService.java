@@ -117,7 +117,7 @@ public class BiographicalEntryService
    private void initDocumentStore()
    {
       DocRepoBuilder<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> builder = ctx.getDocRepoBuilder();
-      builder.setTableName(TABLE_NAME);
+      builder.setPersistenceId(TABLE_NAME);
       builder.setEditCommandFactory(new EditPersonCommandFactory());
       builder.setDataAdapter(PersonImpl::new);
       builder.setStorageType(DataModelV1.Person.class);
