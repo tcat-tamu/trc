@@ -55,6 +55,6 @@ public interface DocRepoBuilder<RecordType, StorageType, EditCmdType>
     * @return The built document repository.
     * @throws RepositoryException
     */
-   DocumentRepository<RecordType, StorageType, EditCmdType> build() throws RepositoryException;
+   DocumentRepository<RecordType, EditCmdType> build() throws RepositoryException;
 
 }

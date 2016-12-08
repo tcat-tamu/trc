@@ -47,7 +47,7 @@ public class BibliographicEntryService
 
    private EntryRepositoryRegistrar context;
 
-   private DocumentRepository<BibliographicEntry, DataModelV1.WorkDTO, EditBibliographicEntryCommand> docRepo;
+   private DocumentRepository<BibliographicEntry, EditBibliographicEntryCommand> docRepo;
    private BasicRepoDelegate<BibliographicEntry, DataModelV1.WorkDTO, EditBibliographicEntryCommand> delegate;
 
    private EntryResolverRegistrar.Registration resolverReg;

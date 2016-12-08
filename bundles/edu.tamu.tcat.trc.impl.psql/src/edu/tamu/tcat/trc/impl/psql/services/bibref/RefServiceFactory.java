@@ -22,7 +22,7 @@ public class RefServiceFactory implements ServiceFactory<RefCollectionService>
    private static final String TABLE_NAME = "bibrefs";
 
    private final DbEntryRepositoryRegistry repoRegistry;
-   private final DocumentRepository<ReferenceCollection, DataModelV1.ReferenceCollection, EditBibliographyCommand> docRepo;
+   private final DocumentRepository<ReferenceCollection, EditBibliographyCommand> docRepo;
 
    public RefServiceFactory(DbEntryRepositoryRegistry repoRegistry)
    {
@@ -34,7 +34,7 @@ public class RefServiceFactory implements ServiceFactory<RefCollectionService>
     * @param context
     * @return A document repository for persisting and retrieving {@link ReferenceCollection} instances.
     */
-   private DocumentRepository<ReferenceCollection, DataModelV1.ReferenceCollection, EditBibliographyCommand> initDocRepo()
+   private DocumentRepository<ReferenceCollection, EditBibliographyCommand> initDocRepo()
    {
       EntryResolverRegistry resolverRegistry = repoRegistry.getResolverRegistry();
       EditBibliographyCommandFactory editCommandFactory = new EditBibliographyCommandFactory(resolverRegistry);

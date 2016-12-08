@@ -41,7 +41,7 @@ public class ArticleEntryService
    private EntryResolverRegistrar.Registration resolverReg;
    private EntryRepository.ObserverRegistration searchReg;
 
-   private DocumentRepository<Article, DataModelV1.Article, EditArticleCommand> docRepo;
+   private DocumentRepository<Article, EditArticleCommand> docRepo;
    private BasicRepoDelegate<Article, DataModelV1.Article, EditArticleCommand> delegate;
 
    private TrcApplication trcCtx;

@@ -42,11 +42,9 @@ import edu.tamu.tcat.account.Account;
  *
  *
  */
-public interface DocumentRepository<RecordType, StorageType, EditCommandType>
+public interface DocumentRepository<RecordType, EditCommandType>
 {
-   // TODO StorageType should probably not leak through the API.
    // TODO provide access to a more richly structured PagedResult API.
-   // TODO support notifications
    // TODO use MD5 or SHA256 hashes to ensure data integrity, add crytography, etc. Use Jackson's SMILE format.
 
    /**

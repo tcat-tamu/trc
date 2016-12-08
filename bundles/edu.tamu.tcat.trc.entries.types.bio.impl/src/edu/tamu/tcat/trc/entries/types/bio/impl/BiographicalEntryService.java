@@ -36,7 +36,7 @@ public class BiographicalEntryService
    private EntryRepositoryRegistrar ctx;
    private SearchServiceManager indexSvcMgr;
 
-   private DocumentRepository<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> docRepo;
+   private DocumentRepository<BiographicalEntry, EditBiographicalEntryCommand> docRepo;
    private BasicRepoDelegate<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> delegate;
 
    private EntryResolverRegistrar.Registration resolverReg;

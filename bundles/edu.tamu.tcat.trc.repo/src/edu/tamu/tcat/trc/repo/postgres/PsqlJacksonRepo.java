@@ -56,7 +56,7 @@ import edu.tamu.tcat.trc.repo.UpdateActionType;
 import edu.tamu.tcat.trc.repo.UpdateContext;
 import edu.tamu.tcat.trc.repo.UpdateContext.UpdateStatus;
 
-public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements DocumentRepository<RecordType, DTO, EditCommandType>
+public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements DocumentRepository<RecordType, EditCommandType>
 {
    public static final String DATA = "data";
 

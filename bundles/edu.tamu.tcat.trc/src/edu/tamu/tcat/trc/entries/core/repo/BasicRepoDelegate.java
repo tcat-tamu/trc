@@ -38,7 +38,7 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
    private final IdFactory idFactory;
    private final EntryResolverRegistry resolvers;
 
-   private final DocumentRepository<EntryType, StorageType, EditCommandType> repo;
+   private final DocumentRepository<EntryType, EditCommandType> repo;
 
    private final ConcurrentHashMap<UUID, EntryRepository.UpdateObserver<EntryType>> observers =
          new ConcurrentHashMap<>();
@@ -46,7 +46,7 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
    public BasicRepoDelegate(String entryName,
                             IdFactory idFactory,
                             EntryResolverRegistry resolvers,
-                            DocumentRepository<EntryType, StorageType, EditCommandType> repo)
+                            DocumentRepository<EntryType, EditCommandType> repo)
    {
       this.entryName = entryName;
       this.idFactory = idFactory;
@@ -56,7 +56,7 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
       repo.afterUpdate(this::notify);
    }
 
-   public DocumentRepository<EntryType, StorageType, EditCommandType> getDocumentRepo()
+   public DocumentRepository<EntryType, EditCommandType> getDocumentRepo()
    {
       return repo;
    }
@@ -148,7 +148,7 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
       String entryName;
       IdFactory idFactory;
       EntryResolverRegistry resolvers;
-      DocumentRepository<EntryType, StorageType, EditCommandType> repo;
+      DocumentRepository<EntryType, EditCommandType> repo;
 
       public Builder<EntryType, StorageType, EditCommandType> setEntryName(String entryName)
       {
@@ -168,7 +168,7 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
          return this;
       }
 
-      public Builder<EntryType, StorageType, EditCommandType> setDocumentRepo(DocumentRepository<EntryType, StorageType, EditCommandType> repo)
+      public Builder<EntryType, StorageType, EditCommandType> setDocumentRepo(DocumentRepository<EntryType, EditCommandType> repo)
       {
          this.repo = repo;
          return this;

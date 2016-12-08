@@ -53,7 +53,7 @@ public class RelationshipEntryService
    private EntryRepositoryRegistrar ctx;
    private SearchServiceManager indexSvcMgr;
 
-   private DocumentRepository<Relationship, DataModelV1.Relationship, EditRelationshipCommand> docRepo;
+   private DocumentRepository<Relationship, EditRelationshipCommand> docRepo;
 
    private EntryResolverRegistrar.Registration resolverReg;
    private EntryRepositoryRegistrar.Registration repoReg;
