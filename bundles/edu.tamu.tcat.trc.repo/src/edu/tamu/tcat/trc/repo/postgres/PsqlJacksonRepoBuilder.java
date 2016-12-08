@@ -53,7 +53,7 @@ public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> implem
    private final static String CREATE_SQL =
          "CREATE TABLE {0} ("
                + "  id VARCHAR(255) NOT NULL, "
-               + "  data JSON,"
+               + "  data JSONB,"
                + "  removed TIMESTAMP DEFAULT NULL,"
                + "  date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
                + "  last_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
