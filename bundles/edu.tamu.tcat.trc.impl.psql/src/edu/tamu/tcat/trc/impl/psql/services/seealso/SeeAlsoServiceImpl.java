@@ -16,9 +16,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
-import edu.tamu.tcat.trc.repo.db.ColumnDefinition;
-import edu.tamu.tcat.trc.repo.db.ColumnDefinition.ColumnType;
-import edu.tamu.tcat.trc.repo.db.TableDefinition;
+import edu.tamu.tcat.trc.impl.psql.dbutils.ColumnDefinition;
+import edu.tamu.tcat.trc.impl.psql.dbutils.TableDefinition;
+import edu.tamu.tcat.trc.impl.psql.dbutils.ColumnDefinition.ColumnType;
 import edu.tamu.tcat.trc.services.TrcServiceException;
 import edu.tamu.tcat.trc.services.seealso.Link;
 import edu.tamu.tcat.trc.services.seealso.SeeAlsoService;

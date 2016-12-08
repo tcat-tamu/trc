@@ -1,11 +1,11 @@
-package edu.tamu.tcat.trc.repo.db;
+package edu.tamu.tcat.trc.impl.psql.dbutils;
 
 import static java.text.MessageFormat.format;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import edu.tamu.tcat.trc.repo.db.DbTableManager.ColumnMeta;
+import edu.tamu.tcat.trc.impl.psql.dbutils.DbTableManager.ColumnMeta;
 
 public class ColumnDefinition
 {

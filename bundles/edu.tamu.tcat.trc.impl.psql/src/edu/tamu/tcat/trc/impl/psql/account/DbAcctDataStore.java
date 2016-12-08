@@ -30,9 +30,9 @@ import edu.tamu.tcat.trc.auth.account.EditTrcAccountCommand;
 import edu.tamu.tcat.trc.auth.account.TrcAccount;
 import edu.tamu.tcat.trc.auth.account.TrcAccountDataStore;
 import edu.tamu.tcat.trc.impl.psql.account.DataModelV1.AccountData;
-import edu.tamu.tcat.trc.repo.db.ColumnDefinition;
-import edu.tamu.tcat.trc.repo.db.DbTableManager;
-import edu.tamu.tcat.trc.repo.db.TableDefinition;
+import edu.tamu.tcat.trc.impl.psql.dbutils.ColumnDefinition;
+import edu.tamu.tcat.trc.impl.psql.dbutils.DbTableManager;
+import edu.tamu.tcat.trc.impl.psql.dbutils.TableDefinition;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepo;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
 

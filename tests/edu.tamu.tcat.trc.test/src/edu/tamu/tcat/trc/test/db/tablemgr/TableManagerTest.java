@@ -7,8 +7,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.tamu.tcat.db.core.DataSourceException;
-import edu.tamu.tcat.trc.repo.db.ColumnDefinition;
-import edu.tamu.tcat.trc.repo.db.TableDefinition;
+import edu.tamu.tcat.trc.impl.psql.dbutils.ColumnDefinition;
+import edu.tamu.tcat.trc.impl.psql.dbutils.TableDefinition;
 
 public class TableManagerTest
 {

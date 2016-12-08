@@ -5,9 +5,9 @@ import java.util.Objects;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
+import edu.tamu.tcat.trc.impl.psql.dbutils.DbTableManager;
+import edu.tamu.tcat.trc.impl.psql.dbutils.TableDefinition;
 import edu.tamu.tcat.trc.impl.psql.services.ServiceFactory;
-import edu.tamu.tcat.trc.repo.db.DbTableManager;
-import edu.tamu.tcat.trc.repo.db.TableDefinition;
 import edu.tamu.tcat.trc.services.ServiceContext;
 import edu.tamu.tcat.trc.services.TrcServiceException;
 import edu.tamu.tcat.trc.services.seealso.SeeAlsoService;

@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.repo.db;
+package edu.tamu.tcat.trc.impl.psql.dbutils;
 
 import static java.text.MessageFormat.format;
 
