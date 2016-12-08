@@ -30,9 +30,6 @@ import edu.tamu.tcat.trc.auth.account.EditTrcAccountCommand;
 import edu.tamu.tcat.trc.auth.account.TrcAccount;
 import edu.tamu.tcat.trc.auth.account.TrcAccountDataStore;
 import edu.tamu.tcat.trc.impl.psql.account.DataModelV1.AccountData;
-import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
-import edu.tamu.tcat.trc.repo.RepositorySchema;
-import edu.tamu.tcat.trc.repo.SchemaBuilder;
 import edu.tamu.tcat.trc.repo.db.ColumnDefinition;
 import edu.tamu.tcat.trc.repo.db.DbTableManager;
 import edu.tamu.tcat.trc.repo.db.TableDefinition;
@@ -41,6 +38,7 @@ import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
 
 public class DbAcctDataStore implements TrcAccountDataStore
 {
+   private static final String DATA_COLUMN = "data";
    private final static Logger logger = Logger.getLogger(DbAcctDataStore.class.getName());
    /**
     * UUID for the "guest" account.
@@ -58,9 +56,6 @@ public class DbAcctDataStore implements TrcAccountDataStore
 
    private static final String ACCOUNT_TABLE_NAME = "accounts";
    private static final String LOGINDATA_TABLE_NAME = "account_login_data";
-
-   private static final String SCHEMA_ID = "accounts";
-   private static final String SCHEMA_DATA_FIELD = "account";
 
    private static final String LOGINDATA_ACCOUNT_ID = "account_id";
    private static final String LOGINDATA_PROVIDER_KEY = "login_provider";
@@ -115,11 +110,6 @@ public class DbAcctDataStore implements TrcAccountDataStore
 
    private PsqlJacksonRepo<TrcAccount, DataModelV1.AccountData, EditTrcAccountCommand> buildDocumentRepo()
    {
-      SchemaBuilder schemaBuilder = new BasicSchemaBuilder();
-      schemaBuilder.setId(SCHEMA_ID);
-      schemaBuilder.setDataField(SCHEMA_DATA_FIELD);
-      RepositorySchema schema = schemaBuilder.build();
-
       PsqlJacksonRepoBuilder<TrcAccount, DataModelV1.AccountData, EditTrcAccountCommand> repoBuilder =
             new PsqlJacksonRepoBuilder<>();
 
@@ -127,7 +117,6 @@ public class DbAcctDataStore implements TrcAccountDataStore
       repoBuilder.setTableName(accountDataTablename);
       repoBuilder.setEditCommandFactory(new EditAccountCmdFactory());
       repoBuilder.setDataAdapter(dto -> new DbTrcAccount(dto));
-      repoBuilder.setSchema(schema);
       repoBuilder.setStorageType(DataModelV1.AccountData.class);
       repoBuilder.setEnableCreation(true);
 
@@ -206,7 +195,7 @@ public class DbAcctDataStore implements TrcAccountDataStore
             + "WHERE {0}->>''username'' = ? "
               + acctRepo.buildNotRemovedClause();
 
-      String sql = MessageFormat.format(sqlQueryByUsername, SCHEMA_DATA_FIELD, accountDataTablename);
+      String sql = MessageFormat.format(sqlQueryByUsername, DATA_COLUMN, accountDataTablename);
       CompletableFuture<DbTrcAccount> future = sqlExecutor.submit((conn) -> {
          return doLookupByUsername(username, sql, conn);
       });
@@ -407,7 +396,7 @@ public class DbAcctDataStore implements TrcAccountDataStore
               + acctRepo.buildNotRemovedClause();
 
       String sql = MessageFormat.format(sqlTemplate,
-                                        SCHEMA_DATA_FIELD,
+                                        DATA_COLUMN,
                                         accountDataTablename);
       try (PreparedStatement stmt = conn.prepareStatement(sql))
       {
@@ -471,7 +460,7 @@ public class DbAcctDataStore implements TrcAccountDataStore
               + acctRepo.buildNotRemovedClause();
 
       String sql = MessageFormat.format(sqlTemplate,
-                                        SCHEMA_DATA_FIELD,
+                                        DATA_COLUMN,
                                         accountDataTablename,
                                         this.loginDataTablename,
                                         LOGINDATA_PROVIDER_KEY,

@@ -42,8 +42,7 @@ public class BibliographicEntryService
    public static final String ID_CONTEXT_VOLUMES = "volumes";
    public static final String ID_CONTEXT_COPIES = "copies";
 
-   private static final String TABLE_NAME = "works";
-   private static final String SCHEMA_DATA_FIELD = "work";
+   private static final String TABLE_NAME = "bibliographical";
 
 
    private EntryRepositoryRegistrar context;
@@ -139,7 +138,6 @@ public class BibliographicEntryService
    {
       DocRepoBuilder<BibliographicEntry, DataModelV1.WorkDTO, EditBibliographicEntryCommand> builder = context.getDocRepoBuilder();
       builder.setTableName(TABLE_NAME);
-      builder.setDataColumn(SCHEMA_DATA_FIELD);
       builder.setEditCommandFactory(new EditWorkCommandFactory(context::getIdFactory));
       builder.setDataAdapter(BasicWork::new);
       builder.setStorageType(DataModelV1.WorkDTO.class);

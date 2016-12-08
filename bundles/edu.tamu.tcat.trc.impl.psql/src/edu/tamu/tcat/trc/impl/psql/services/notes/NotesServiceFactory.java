@@ -73,7 +73,6 @@ public class NotesServiceFactory implements ServiceFactory<NotesService>
 
       PsqlJacksonRepoBuilder<Note, DataModelV1.Note, EditNoteCommand> builder = repoRegistry.getDocRepoBuilder();
       builder.setTableName(tablename);
-      builder.setDataColumn(SCHEMA_DATA_FIELD);
       builder.setEditCommandFactory(cmdFactory);
       builder.setDataAdapter(dto -> new NoteImpl(dto, acctStore, repoRegistry.getResolverRegistry()));
       builder.setStorageType(DataModelV1.Note.class);

@@ -26,10 +26,7 @@ import edu.tamu.tcat.trc.impl.psql.services.categorization.model.TreeCategorizat
 import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.BaseEditCommand;
 import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.EditHeirarchyCommandFactory;
 import edu.tamu.tcat.trc.impl.psql.services.categorization.repo.PersistenceModelV1;
-import edu.tamu.tcat.trc.repo.BasicSchemaBuilder;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
-import edu.tamu.tcat.trc.repo.RepositorySchema;
-import edu.tamu.tcat.trc.repo.SchemaBuilder;
 import edu.tamu.tcat.trc.repo.id.IdFactory;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepo;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
@@ -53,7 +50,6 @@ public class CategorizationServiceFactory implements ServiceFactory<Categorizati
    public static final String ID_CONTEXT_NODES = "trc.services.categorization.nodes.ids";
 
    private static final String TABLE_NAME = "categorizations";
-   private static final String SCHEMA_ID = "taxonomy";
    private static final String SCHEMA_DATA_FIELD = "doc";
 
    /**
@@ -153,7 +149,6 @@ public class CategorizationServiceFactory implements ServiceFactory<Categorizati
    {
       PsqlJacksonRepoBuilder<TreeCategorization, PersistenceModelV1.TreeCategorizationStrategy, EditTreeCategorizationCommand> repoBuilder = repoRegistry.getDocRepoBuilder();
       repoBuilder.setTableName(tableName);
-      repoBuilder.setSchema(buildSchema());
       repoBuilder.setEnableCreation(true);
 
       EntryResolverRegistry resolvers = repoRegistry.getResolverRegistry();
@@ -162,17 +157,6 @@ public class CategorizationServiceFactory implements ServiceFactory<Categorizati
       repoBuilder.setStorageType(PersistenceModelV1.TreeCategorizationStrategy.class);
 
       treeRepo = repoBuilder.build();
-   }
-
-   /**
-    * @return The repository schema
-    */
-   private RepositorySchema buildSchema()
-   {
-      SchemaBuilder schemaBuilder = new BasicSchemaBuilder();
-      schemaBuilder.setId(SCHEMA_ID);
-      schemaBuilder.setDataField(SCHEMA_DATA_FIELD);
-      return schemaBuilder.build();
    }
 
    @Override

@@ -54,7 +54,7 @@ import edu.tamu.tcat.trc.repo.UpdateContext.ActionType;
 
 public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements DocumentRepository<RecordType, DTO, EditCommandType>
 {
-   private static final String DATA = "data";
+   public static final String DATA = "data";
 
    private static final String GET_RECORD_SQL = "SELECT data FROM {0} WHERE id = ? AND removed IS NULL";
    private static final String INSERT_SQL = "INSERT INTO {0} (data, id) VALUES(?, ?)";

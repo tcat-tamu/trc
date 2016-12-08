@@ -33,7 +33,6 @@ public class ArticleEntryService
 
    private static final String ID_CONTEXT_ARTICLES = "trc.articles";
    private static final String TABLE_NAME = "articles";
-   private static final String SCHEMA_DATA_FIELD = "data";
 
    private EntryRepositoryRegistrar context;
 //   private SearchServiceManager indexSvcMgr;
@@ -129,7 +128,6 @@ public class ArticleEntryService
    {
       DocRepoBuilder<Article, DataModelV1.Article, EditArticleCommand> builder = context.getDocRepoBuilder();
       builder.setTableName(TABLE_NAME);
-      builder.setDataColumn(SCHEMA_DATA_FIELD);
       builder.setEditCommandFactory(new EditArticleCommandFactory());
       builder.setDataAdapter(ArticleImpl::new);
       builder.setStorageType(DataModelV1.Article.class);

@@ -1,7 +1,6 @@
 package edu.tamu.tcat.trc.impl.psql.services.bibref;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Logger;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
@@ -20,10 +19,7 @@ import edu.tamu.tcat.trc.services.bibref.repo.RefCollectionService;
 
 public class RefServiceFactory implements ServiceFactory<RefCollectionService>
 {
-   private static final Logger logger = Logger.getLogger(RefServiceFactory.class.getName());
-
    private static final String TABLE_NAME = "bibrefs";
-   private static final String SCHEMA_DATA_FIELD = "data";
 
    private final DbEntryRepositoryRegistry repoRegistry;
    private final DocumentRepository<ReferenceCollection, DataModelV1.ReferenceCollection, EditBibliographyCommand> docRepo;
@@ -46,7 +42,6 @@ public class RefServiceFactory implements ServiceFactory<RefCollectionService>
       DocRepoBuilder<ReferenceCollection, DataModelV1.ReferenceCollection, EditBibliographyCommand> builder =
             repoRegistry.getDocRepoBuilder();
       builder.setTableName(TABLE_NAME);
-      builder.setDataColumn(SCHEMA_DATA_FIELD);
       builder.setEditCommandFactory(editCommandFactory);
       builder.setDataAdapter(ReferenceCollectionImpl::new);
       builder.setStorageType(DataModelV1.ReferenceCollection.class);

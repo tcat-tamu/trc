@@ -44,9 +44,7 @@ public class RelationshipEntryService
    private final static Logger logger = Logger.getLogger(RelationshipEntryService.class.getName());
 
    public static final String ID_CONTEXT = "relationships";
-
    private static final String TABLE_NAME = "relationships";
-   private static final String SCHEMA_DATA_FIELD = "relationship";
 
    private BasicRepoDelegate<Relationship, DataModelV1.Relationship, EditRelationshipCommand> delegate;
 
@@ -155,7 +153,6 @@ public class RelationshipEntryService
    {
       DocRepoBuilder<Relationship, DataModelV1.Relationship, EditRelationshipCommand> builder = ctx.getDocRepoBuilder();
       builder.setTableName(TABLE_NAME);
-      builder.setDataColumn(SCHEMA_DATA_FIELD);
       builder.setEditCommandFactory(new EditRelationshipCommandFactory(typeReg, resolvers));
       builder.setDataAdapter(this::adapt);
       builder.setStorageType(DataModelV1.Relationship.class);

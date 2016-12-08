@@ -31,8 +31,7 @@ public class BiographicalEntryService
    private static final Logger logger = Logger.getLogger(BiographicalEntryService.class.getName());
 
    public static final String ID_CONTEXT = "people";
-   private static final String TABLE_NAME = "people";
-   private static final String SCHEMA_DATA_FIELD = "historical_figure";
+   private static final String TABLE_NAME = "biographical";
 
    private EntryRepositoryRegistrar ctx;
    private SearchServiceManager indexSvcMgr;
@@ -119,7 +118,6 @@ public class BiographicalEntryService
    {
       DocRepoBuilder<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> builder = ctx.getDocRepoBuilder();
       builder.setTableName(TABLE_NAME);
-      builder.setDataColumn(SCHEMA_DATA_FIELD);
       builder.setEditCommandFactory(new EditPersonCommandFactory());
       builder.setDataAdapter(PersonImpl::new);
       builder.setStorageType(DataModelV1.Person.class);
