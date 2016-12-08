@@ -17,11 +17,7 @@ package edu.tamu.tcat.trc.entries.types.bio.impl.model;
 
 import static java.text.MessageFormat.format;
 
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,9 +43,8 @@ public class HistoricalEventImpl implements HistoricalEvent
       this.location = src.location;
 
       if (src.date == null) {
-         this.eventDate = (src.eventDate != null) ? parseLegacyDate(src) : new DateDescriptionImpl("", null);
+         this.eventDate = new DateDescriptionImpl(null, null);
       } else {
-
          String desc = src.date.description;
          LocalDate calendar = null;
          try {
@@ -61,15 +56,6 @@ public class HistoricalEventImpl implements HistoricalEvent
 
          this.eventDate = new DateDescriptionImpl(desc, calendar);
       }
-   }
-
-   private static DateDescriptionImpl parseLegacyDate(DataModelV1.HistoricalEvent src)
-   {
-      Instant instant = Instant.ofEpochMilli(src.eventDate.getTime());
-      LocalDate localDate = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalDate();
-      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMM yyyy");
-
-      return new DateDescriptionImpl(localDate.format(formatter), localDate);
    }
 
    @Override

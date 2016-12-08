@@ -3,7 +3,6 @@ package edu.tamu.tcat.trc.entries.types.bio.impl.repo;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public abstract class DataModelV1
@@ -56,9 +55,6 @@ public abstract class DataModelV1
 
       /** The date this event took place. */
       public DateDescription date;
-
-      /** Legacy data field to ensure compatibility with historical data. */
-      public Date eventDate;
    }
 
    public static class DateDescription
