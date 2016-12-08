@@ -28,6 +28,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -47,10 +48,12 @@ import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.repo.EditCommandFactory;
-import edu.tamu.tcat.trc.repo.EntryUpdateObserver;
 import edu.tamu.tcat.trc.repo.ExecutableUpdateContext;
+import edu.tamu.tcat.trc.repo.RecordUpdateEvent;
+import edu.tamu.tcat.trc.repo.RecordUpdateObserver;
 import edu.tamu.tcat.trc.repo.RepositoryException;
-import edu.tamu.tcat.trc.repo.UpdateContext.ActionType;
+import edu.tamu.tcat.trc.repo.UpdateActionType;
+import edu.tamu.tcat.trc.repo.UpdateContext;
 import edu.tamu.tcat.trc.repo.UpdateContext.UpdateStatus;
 
 public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements DocumentRepository<RecordType, DTO, EditCommandType>
@@ -80,8 +83,9 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    private String updateRecordSql;
    private String removeRecordSql;
 
-   private final Map<UUID, EntryUpdateObserver<DTO>> preCommitTasks = new ConcurrentHashMap<>();
-   private final Map<UUID, EntryUpdateObserver<DTO>> postCommitTasks = new ConcurrentHashMap<>();
+   private final Map<UUID, Consumer<UpdateContext<DTO>>> preCommitTasks = new ConcurrentHashMap<>();
+
+   private final Map<UUID, RecordUpdateObserver<RecordType>> updateObservers = new ConcurrentHashMap<>();
 
    private LoadingCache<String, Optional<RecordType>> cache;
 
@@ -234,14 +238,14 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    @Override
    public EditCommandType create(Account account, String id) throws UnsupportedOperationException
    {
-      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.CREATE, account, Optional::empty, dto -> doCreate(id, dto));
+      UpdateContextImpl context = new UpdateContextImpl(id, UpdateActionType.CREATE, account, Optional::empty, dto -> doCreate(id, dto));
       return this.cmdFactory.create(context);
    }
 
    @Override
    public EditCommandType edit(Account account, String id) throws RepositoryException
    {
-      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.EDIT, account, () -> loadStoredRecord(id), dto -> doEdit(id, dto));
+      UpdateContextImpl context = new UpdateContextImpl(id, UpdateActionType.EDIT, account, () -> loadStoredRecord(id), dto -> doEdit(id, dto));
       return this.cmdFactory.create(context);
    }
 
@@ -249,7 +253,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    public CompletableFuture<Boolean> delete(Account account, String id)
    {
       CompletableFuture<Boolean> resultFuture = new CompletableFuture<>();
-      UpdateContextImpl context = new UpdateContextImpl(id, ActionType.REMOVE, account, () -> loadStoredRecordSafe(id), makeDeletionExec(id, resultFuture));
+      UpdateContextImpl context = new UpdateContextImpl(id, UpdateActionType.REMOVE, account, () -> loadStoredRecordSafe(id), makeDeletionExec(id, resultFuture));
 
       context.update(dto -> dto);
       return resultFuture;
@@ -278,8 +282,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       };
    }
 
-   @Override
-   public Runnable beforeUpdate(EntryUpdateObserver<DTO> preCommitTask)
+   public Runnable beforeUpdate(Consumer<UpdateContext<DTO>> preCommitTask)
    {
       UUID observerId = UUID.randomUUID();
       preCommitTasks.put(observerId, preCommitTask);
@@ -287,13 +290,21 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       return () -> preCommitTasks.remove(observerId);
    }
 
+//   public Runnable afterUpdate(EntryUpdateObserver<DTO> postCommitTask)
+//   {
+//      UUID observerId = UUID.randomUUID();
+//      postCommitTasks.put(observerId, postCommitTask);
+//
+//      return () -> postCommitTasks.remove(observerId);
+//   }
+
    @Override
-   public Runnable afterUpdate(EntryUpdateObserver<DTO> postCommitTask)
+   public Runnable afterUpdate(RecordUpdateObserver<RecordType> postCommitTask)
    {
       UUID observerId = UUID.randomUUID();
-      postCommitTasks.put(observerId, postCommitTask);
+      updateObservers.put(observerId, postCommitTask);
 
-      return () -> postCommitTasks.remove(observerId);
+      return () -> updateObservers.remove(observerId);
    }
 
    private Future<List<String>> getPageBlock(int offset, int limit)
@@ -523,7 +534,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       public UpdateStatus status;
       public UUID updateId;
       public String entryId;
-      public ActionType action;
+      public UpdateActionType action;
       public String actor;
       public String actorId;
       public DTO initial;
@@ -539,7 +550,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
       private final UUID updateId = UUID.randomUUID();
       private final String entryId;
-      private final ActionType action;
+      private final UpdateActionType action;
       private final Account actor;
       private final Supplier<Optional<DTO>> supplier;
 
@@ -556,7 +567,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
       private final Function<DTO, CompletableFuture<DTO>> exec;
 
-      UpdateContextImpl(String id, ActionType action, Account actor, Supplier<Optional<DTO>> supplier, Function<DTO, CompletableFuture<DTO>> exec)
+      UpdateContextImpl(String id, UpdateActionType action, Account actor, Supplier<Optional<DTO>> supplier, Function<DTO, CompletableFuture<DTO>> exec)
       {
          this.entryId = id;
          this.action = action;
@@ -641,7 +652,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       }
 
       @Override
-      public ActionType getActionType()
+      public UpdateActionType getActionType()
       {
          return action;
       }
@@ -788,20 +799,21 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
       private void firePostCommitTasks()
       {
-         postCommitTasks.entrySet().parallelStream()
-            .forEach(entry -> firePostCommitTask(entry.getKey(), entry.getValue()));
+         EntryUpdateEventAdapter event = new EntryUpdateEventAdapter(this);
+         updateObservers.entrySet().parallelStream()
+            .forEach(entry -> firePostCommitTask(event, entry.getKey(), entry.getValue()));
       }
 
-      private void firePreCommitTask(UUID taskId, EntryUpdateObserver<DTO> task)
+      private void firePreCommitTask(UUID taskId, Consumer<UpdateContext<DTO>> task)
       {
-         task.notify(this);
+         task.accept(this);
       }
 
-      private void firePostCommitTask(UUID taskId, EntryUpdateObserver<DTO> task)
+      private void firePostCommitTask(EntryUpdateEventAdapter event, UUID taskId, RecordUpdateObserver<RecordType> task)
       {
          try
          {
-            task.notify(this);
+            task.accept(event);
          }
          catch (Exception ex)
          {
@@ -814,5 +826,65 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
             logger.log(Level.WARNING, msg, ex);
          }
       }
+   }
+
+   /**
+    *  Wraps an UpdateContextImpl in order to support the {@link RecordUpdateEvent} API.
+    */
+   private class EntryUpdateEventAdapter implements RecordUpdateEvent<RecordType>
+   {
+      private final UpdateContextImpl delegate;
+
+      private EntryUpdateEventAdapter(UpdateContextImpl delegate)
+      {
+         this.delegate = delegate;
+      }
+
+      @Override
+      public String getRecordId()
+      {
+         return delegate.getId();
+      }
+
+      @Override
+      public UUID getUpdateId()
+      {
+         return delegate.getUpdateId();
+      }
+
+      @Override
+      public UpdateActionType getUpdateType()
+      {
+         return delegate.getActionType();
+      }
+
+      @Override
+      public Instant getTimestamp()
+      {
+         return delegate.getTimestamp();
+      }
+
+      @Override
+      public Account getActor()
+      {
+         return delegate.getActor();
+      }
+
+      @Override
+      public Optional<RecordType> getOriginalRecord()
+      {
+         Optional<DTO> original = delegate.getOriginal();
+         return original.map(adapter::apply);
+      }
+
+      @Override
+      public Optional<RecordType> getUpdatedRecord()
+      {
+         DTO modified = delegate.getModified();
+         return modified != null
+               ? Optional.of(adapter.apply(modified))
+               : Optional.empty();
+      }
+
    }
 }

@@ -81,28 +81,12 @@ public interface DocumentRepository<RecordType, StorageType, EditCommandType>
    Collection<RecordType> get(String... ids) throws RepositoryException;
 
    /**
-    * Registers a task to be invoked before an entry is modified. These tasks
-    * are parameterized by the internal storage type of the document repository.
-    * Primarily intended to support logging.
+    * Registers a task to be invoked after a document record is modified.
     *
-    * @param preCommitTask Invoked prior to modifying an entry (creation, update,
-    *    or deletion). If the tasks throws an exception, the update will be
-    *    cancelled.
+    * @param observer Invoked when a document record is updated (created, modified or deleted).
     * @return A registration handle for use in removing this observer.
     */
-   Runnable beforeUpdate(EntryUpdateObserver<StorageType> preCommitTask);
-
-   /**
-    * Registers a task to be invoked after an entry is modified. These tasks
-    * are parameterized by the internal storage type of the document repository.
-    * This i
-    *
-    * @param preCommitTask Invoked prior to modifying an entry (creation, update,
-    *    or deletion). If the tasks throws an exception, the update will be
-    *    cancelled.
-    * @return A registration handle for use in removing this observer.
-    */
-   Runnable afterUpdate(EntryUpdateObserver<StorageType> postCommitTask);
+   Runnable afterUpdate(RecordUpdateObserver<RecordType> observer);
 
    /**
     * Constructs a {@link RecordEditCommand} for use to create a new entry in this

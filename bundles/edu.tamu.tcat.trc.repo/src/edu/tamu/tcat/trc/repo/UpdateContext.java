@@ -23,12 +23,6 @@ import edu.tamu.tcat.account.Account;
  */
 public interface UpdateContext<StorageType>
 {
-   /** Defines the class of update action performed. */
-   public enum ActionType
-   {
-      CREATE, EDIT, REMOVE;
-   }
-
    public enum UpdateStatus
    {
       /** Update has been created and is awaiting execution of the associated edit command. */
@@ -72,7 +66,7 @@ public interface UpdateContext<StorageType>
    /**
     * @return The type of update action. Typically, CREATE, EDIT, REMOVE
     */
-   ActionType getActionType();
+   UpdateActionType getActionType();
 
    /**
     * @return The account of the individual responsible for making these changes.
