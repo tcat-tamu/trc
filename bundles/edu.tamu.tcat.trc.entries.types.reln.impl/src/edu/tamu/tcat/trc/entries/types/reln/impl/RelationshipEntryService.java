@@ -169,7 +169,6 @@ public class RelationshipEntryService
       delegateBuilder.setEntryName("relationship");
       delegateBuilder.setIdFactory(ctx.getIdFactory(ID_CONTEXT));
       delegateBuilder.setEntryResolvers(resolvers);
-      delegateBuilder.setAdapter(this::adapt);
       delegateBuilder.setDocumentRepo(docRepo);
 
       delegate = delegateBuilder.build();

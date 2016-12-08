@@ -9,14 +9,14 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.repo.DocumentRepository;
+import edu.tamu.tcat.trc.repo.RecordUpdateEvent;
 import edu.tamu.tcat.trc.repo.RepositoryException;
-import edu.tamu.tcat.trc.repo.UpdateContext;
+import edu.tamu.tcat.trc.repo.UpdateActionType;
 import edu.tamu.tcat.trc.repo.id.IdFactory;
 import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolver;
@@ -37,7 +37,6 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
    private final String entryName;
    private final IdFactory idFactory;
    private final EntryResolverRegistry resolvers;
-   private final Function<StorageType, EntryType> adapter;
 
    private final DocumentRepository<EntryType, StorageType, EditCommandType> repo;
 
@@ -47,13 +46,11 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
    public BasicRepoDelegate(String entryName,
                             IdFactory idFactory,
                             EntryResolverRegistry resolvers,
-                            Function<StorageType, EntryType> adapter,
                             DocumentRepository<EntryType, StorageType, EditCommandType> repo)
    {
       this.entryName = entryName;
       this.idFactory = idFactory;
       this.resolvers = resolvers;
-      this.adapter = adapter;
       this.repo = repo;
 
       repo.afterUpdate(this::notify);
@@ -139,7 +136,7 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
       };
    }
 
-   private void notify(UpdateContext<StorageType> ctx)
+   private void notify(RecordUpdateEvent<EntryType> ctx)
    {
       BasicEntryUpdate update = new BasicEntryUpdate(ctx);
       observers.values().parallelStream().forEach(ears -> ears.entryUpdated(update));
@@ -151,7 +148,6 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
       String entryName;
       IdFactory idFactory;
       EntryResolverRegistry resolvers;
-      Function<StorageType, EntryType> adapter;
       DocumentRepository<EntryType, StorageType, EditCommandType> repo;
 
       public Builder<EntryType, StorageType, EditCommandType> setEntryName(String entryName)
@@ -172,12 +168,6 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
          return this;
       }
 
-      public Builder<EntryType, StorageType, EditCommandType> setAdapter(Function<StorageType, EntryType> adapter)
-      {
-         this.adapter = adapter;
-         return this;
-      }
-
       public Builder<EntryType, StorageType, EditCommandType> setDocumentRepo(DocumentRepository<EntryType, StorageType, EditCommandType> repo)
       {
          this.repo = repo;
@@ -191,29 +181,28 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
 
          Objects.requireNonNull(entryName, "No entry name specified.");
          Objects.requireNonNull(resolvers, "No resolver registry provided");     // TODO this should be stitched by the system
-         Objects.requireNonNull(adapter, "No adapter from storage type to domain type provided");
          Objects.requireNonNull(repo, "No document repo configured");
 
-         return new BasicRepoDelegate<>(entryName, idFactory, resolvers, adapter, repo);
+         return new BasicRepoDelegate<>(entryName, idFactory, resolvers, repo);
       }
    }
    private class BasicEntryUpdate implements EntryUpdateRecord<EntryType>
    {
       private final UUID updateId;
       private final Account actor;
-      private final UpdateContext.ActionType actionType;
+      private final UpdateActionType actionType;
       private final Instant timestamp;
 
-      private final UpdateContext<StorageType> ctx;
+      private final RecordUpdateEvent<EntryType> ctx;
 
       private final ConcurrentHashMap<String, EntryType> original = new ConcurrentHashMap<>();
 
-      public BasicEntryUpdate(UpdateContext<StorageType> ctx)
+      public BasicEntryUpdate(RecordUpdateEvent<EntryType> ctx)
       {
          this.ctx = ctx;
          updateId = ctx.getUpdateId();
          actor = ctx.getActor();
-         actionType = ctx.getActionType();
+         actionType = ctx.getUpdateType();
 
          timestamp = ctx.getTimestamp();
 
@@ -256,16 +245,11 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
       public EntryId getEntryReference()
       {
          // HACK should be able to construct an entry reference from the id; need semantic type of entry.
-         EntryType entry = getModifiedState();
-
+         EntryType entry = ctx.getUpdatedRecord().orElse(ctx.getOriginalRecord().orElse(null));
          if (entry == null)
-            entry = getOriginalState();
-
-         if (entry == null)
-            throw new IllegalStateException("No entry reference available for " + ctx.getId());
+            throw new IllegalStateException("No entry reference available for " + ctx.getRecordId());
 
          EntryResolver<EntryType> resolver = resolvers.getResolver(entry);
-
          return resolver.makeReference(entry);
       }
 
@@ -273,8 +257,7 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
       public EntryType getModifiedState()
       {
          return original.computeIfAbsent("modified", key -> {
-            StorageType modified = ctx.getModified();
-            return modified != null ? adapter.apply(modified) : null;
+            return ctx.getUpdatedRecord().orElse(null);
          });
       }
 
@@ -282,7 +265,7 @@ public class BasicRepoDelegate<EntryType, StorageType, EditCommandType extends E
       public EntryType getOriginalState()
       {
          return original.computeIfAbsent("original", key -> {
-            return ctx.getOriginal().map(adapter::apply).orElse(null);
+            return ctx.getOriginalRecord().orElse(null);
          });
       }
    }

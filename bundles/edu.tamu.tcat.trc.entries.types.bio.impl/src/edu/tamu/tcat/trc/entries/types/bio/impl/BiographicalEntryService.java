@@ -134,7 +134,6 @@ public class BiographicalEntryService
       delegateBuilder.setEntryName("biographical entry");
       delegateBuilder.setIdFactory(ctx.getIdFactory(ID_CONTEXT));
       delegateBuilder.setEntryResolvers(ctx.getResolverRegistry());
-      delegateBuilder.setAdapter(PersonImpl::new);
       delegateBuilder.setDocumentRepo(docRepo);
 
       delegate = delegateBuilder.build();

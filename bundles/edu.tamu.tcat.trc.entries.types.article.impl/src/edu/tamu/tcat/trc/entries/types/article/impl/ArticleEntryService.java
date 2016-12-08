@@ -143,7 +143,6 @@ public class ArticleEntryService
       delegateBuilder.setEntryName("bibliographic");
       delegateBuilder.setIdFactory(context.getIdFactory(ID_CONTEXT_ARTICLES));
       delegateBuilder.setEntryResolvers(context.getResolverRegistry());
-      delegateBuilder.setAdapter(ArticleImpl::new);
       delegateBuilder.setDocumentRepo(docRepo);
 
       delegate = delegateBuilder.build();

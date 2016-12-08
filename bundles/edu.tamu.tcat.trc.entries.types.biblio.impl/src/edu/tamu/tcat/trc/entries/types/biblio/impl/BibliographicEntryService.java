@@ -153,7 +153,6 @@ public class BibliographicEntryService
       delegateBuilder.setEntryName("bibliographic");
       delegateBuilder.setIdFactory(context.getIdFactory(ID_CONTEXT_WORKS));
       delegateBuilder.setEntryResolvers(context.getResolverRegistry());
-      delegateBuilder.setAdapter(BasicWork::new);
       delegateBuilder.setDocumentRepo(docRepo);
 
       delegate = delegateBuilder.build();
