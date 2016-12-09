@@ -1,11 +1,12 @@
 package edu.tamu.tcat.trc.entries.types.article.impl.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import edu.tamu.tcat.trc.entries.types.article.Article;
@@ -15,16 +16,16 @@ import edu.tamu.tcat.trc.entries.types.article.impl.repo.DataModelV1;
 
 public class ArticleImpl implements Article
 {
-   private final static Logger logger = Logger.getLogger(ArticleImpl.class.getName());
-
    private final String id;
    private final String articleType;
    private final String contentType;
    private final String title;
+   private final List<ArticleAuthor> authors;
    private final String slug;
    private final String articleAbstract;
    private final String body;
    private final Map<String, Footnote> footnotes;
+
 
    public ArticleImpl(DataModelV1.Article dto)
    {
@@ -32,10 +33,13 @@ public class ArticleImpl implements Article
       this.articleType = dto.articleType;
       this.contentType = dto.contentType;
       this.title = dto.title;
+      this.authors = dto.authors == null ? new ArrayList<>() : dto.authors.stream()
+            .map(ArticleAuthorImpl::new)
+            .collect(Collectors.toList());
       this.articleAbstract = dto.articleAbstract;
       this.body = dto.body;
       this.slug = dto.slug;
-      this.footnotes = dto.footnotes.values().stream()
+      this.footnotes = dto.footnotes == null ? new HashMap<>() : dto.footnotes.values().stream()
             .map(FootnoteImpl::new)
             .collect(Collectors.toMap(Footnote::getId, Function.identity()));
    }
@@ -73,8 +77,7 @@ public class ArticleImpl implements Article
    @Override
    public List<ArticleAuthor> getAuthors()
    {
-      logger.warning("Authors are not currently supported");
-      return Collections.emptyList();
+      return Collections.unmodifiableList(authors);
    }
 
    @Override

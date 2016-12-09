@@ -581,10 +581,10 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
       private void transitionState(UpdateStatus expected, UpdateStatus to, String errMsg)
       {
-         if (!status.compareAndSet(UpdateStatus.PENDING, UpdateStatus.SUBMITTED))
+         if (!status.compareAndSet(expected, to))
          {
             String tmplate = "{0} Expected update context to have status {1} but found {2}";
-            String msg = format(tmplate, errMsg, UpdateStatus.SUBMITTED, status.get());
+            String msg = format(tmplate, errMsg, expected, status.get());
 
             fail(msg);
             throw new IllegalStateException(msg);

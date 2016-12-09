@@ -113,14 +113,14 @@ public class EditArticleCommandFactory implements EditCommandFactory<DataModelV1
       {
          Objects.requireNonNull(authorId, "Author id must not be null");
 
-         changes.add(format("author.{id} [create]", authorId), article -> {
+         changes.add(format("author.{0} [create]", authorId), article -> {
             // TODO ensure uniqueness
             DataModelV1.ArticleAuthor author = new DataModelV1.ArticleAuthor();
             author.id = authorId;
             article.authors.add(author);
          });
 
-         ChangeSet<DataModelV1.ArticleAuthor> partial = changes.partial(format("author.{id}", authorId), makeAuthorSelector(authorId));
+         ChangeSet<DataModelV1.ArticleAuthor> partial = changes.partial(format("author.{0}", authorId), makeAuthorSelector(authorId));
          return new ArticleAuthorMutatorImpl(authorId, partial);
       }
 
@@ -129,7 +129,7 @@ public class EditArticleCommandFactory implements EditCommandFactory<DataModelV1
       {
          Objects.requireNonNull(authorId, "Author id must not be null");
 
-         ChangeSet<DataModelV1.ArticleAuthor> partial = changes.partial(format("author.{id}", authorId), makeAuthorSelector(authorId));
+         ChangeSet<DataModelV1.ArticleAuthor> partial = changes.partial(format("author.{0}", authorId), makeAuthorSelector(authorId));
          return new ArticleAuthorMutatorImpl(authorId, partial);
       }
 
@@ -138,7 +138,7 @@ public class EditArticleCommandFactory implements EditCommandFactory<DataModelV1
       {
          Objects.requireNonNull(authorId, "Author id must not be null");
 
-         changes.add(format("author.{id} [move]", authorId), article -> {
+         changes.add(format("author.{0} [move]", authorId), article -> {
             List<String> ids = article.authors.stream()
                   .map(author -> author.id)
                   .collect(Collectors.toList());
@@ -165,6 +165,12 @@ public class EditArticleCommandFactory implements EditCommandFactory<DataModelV1
          changes.add(format("author.{id} [remove]", authorId), article -> {
             article.authors.removeIf(auth -> authorId.equals(auth.id));
          });
+      }
+
+      @Override
+      public void clearAuthors()
+      {
+         changes.add("authors [clear]", article -> article.authors.clear());
       }
 
       @Override

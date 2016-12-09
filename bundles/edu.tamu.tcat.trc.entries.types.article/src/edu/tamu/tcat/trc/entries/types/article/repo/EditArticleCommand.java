@@ -83,6 +83,11 @@ public interface EditArticleCommand extends EditEntryCommand<Article>
    void removeAuthor(String authorId);
 
    /**
+    * Removes all authors.
+    */
+   void clearAuthors();
+
+   /**
     *
     * @param abs The abstract of the article.
     */

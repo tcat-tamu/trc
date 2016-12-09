@@ -22,6 +22,7 @@ import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,6 +43,7 @@ import edu.tamu.tcat.trc.TrcApplication;
 import edu.tamu.tcat.trc.entries.core.repo.NoSuchEntryException;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
+import edu.tamu.tcat.trc.entries.types.article.repo.AuthorMutator;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
 import edu.tamu.tcat.trc.entries.types.article.repo.FootnoteMutator;
 import edu.tamu.tcat.trc.resolver.EntryId;
@@ -155,6 +157,22 @@ public class ArticleResource
       editCmd.setContentType(article.contentType);
       editCmd.setArticleType(article.articleType);
       editCmd.setTitle(article.title);
+
+      // HACK: clearing and re-adding all authors ensures any deleted authors are removed
+      editCmd.clearAuthors();
+      article.authors.forEach(dto -> {
+         if (dto.id == null || dto.id.trim().isEmpty())
+            dto.id = UUID.randomUUID().toString();
+
+         AuthorMutator authorMutator = editCmd.addAuthor(dto.id);
+         authorMutator.setDisplayName(dto.name);
+         authorMutator.setFirstname(dto.firstname);
+         authorMutator.setLastname(dto.lastname);
+
+         if (dto.properties != null)
+            dto.properties.forEach(authorMutator::setProperty);
+      });
+
       editCmd.setAbstract(article.articleAbstract);
       editCmd.setBody(article.body);
 
