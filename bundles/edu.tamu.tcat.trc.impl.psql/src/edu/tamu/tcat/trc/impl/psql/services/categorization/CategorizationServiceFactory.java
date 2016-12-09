@@ -50,7 +50,7 @@ public class CategorizationServiceFactory implements ServiceFactory<Categorizati
    public static final String ID_CONTEXT_NODES = "trc.services.categorization.nodes.ids";
 
    private static final String TABLE_NAME = "categorizations";
-   private static final String SCHEMA_DATA_FIELD = "doc";
+   private static final String SCHEMA_DATA_FIELD = "data";
 
    /**
     * The configuration properties key uses to supply an id factory context
