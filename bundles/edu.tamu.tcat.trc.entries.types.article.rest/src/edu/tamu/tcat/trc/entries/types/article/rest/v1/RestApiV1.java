@@ -85,12 +85,6 @@ public abstract class RestApiV1
       public Map<String, String> properties = new HashMap<>();
    }
 
-   public static class Contact
-   {
-      public String email;
-      public String phone;
-   }
-
    public static class Footnote
    {
       public String id;
