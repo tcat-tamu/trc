@@ -31,25 +31,22 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.tamu.tcat.db.core.DataSourceException;
-import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
+import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 import edu.tamu.tcat.trc.ResourceNotFoundException;
+import edu.tamu.tcat.trc.TrcApplication;
 import edu.tamu.tcat.trc.entries.types.article.Article;
 import edu.tamu.tcat.trc.entries.types.article.impl.ArticleEntryService;
 import edu.tamu.tcat.trc.entries.types.article.repo.ArticleRepository;
 import edu.tamu.tcat.trc.entries.types.article.repo.EditArticleCommand;
-import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
-import edu.tamu.tcat.trc.repo.id.IdFactoryProvider;
 import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolver;
-import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
-import edu.tamu.tcat.trc.test.ClosableSqlExecutor;
-import edu.tamu.tcat.trc.test.TestUtils;
+import edu.tamu.tcat.trc.test.support.TrcTestContext;
 
 public class ArticleRepoTests
 {
 
-   private static final String TBL_NAME = "test_articles";
+   private static final String TABLE_NAME = "articles";
+   private static final String TABLE_NAME_PROP = "trc.entries.article.db.table";
 
    private static final String ARTICLE_TYPE = "article";
    private static final String CONTENT_TYPE = "text/plain";
@@ -58,53 +55,45 @@ public class ArticleRepoTests
    private static final String ABSTRACT = "This is the abstract for an article";
    private static final String BODY = "This is the body text of an article";
 
-   private static ClosableSqlExecutor exec;
-   private static ConfigurationProperties config;
 
-   private static DbEntryRepositoryRegistry repoRegistry;
+   private static TrcTestContext trcTestContext;
+
    private static ArticleEntryService svc;
-   private static EntryResolverRegistry resolvers;
+
+   private static TrcApplication ctx;
+
 
    @BeforeClass
-   public static void setUp() throws DataSourceException
+   public static void beforeClass() throws DataSourceException
    {
-      // TODO spin up DB, etc
-      config = TestUtils.loadConfigFile();
-      exec = TestUtils.initPostgreSqlExecutor(config);
+      trcTestContext = new TrcTestContext();
 
-      IdFactoryProvider idProvider = TestUtils.makeIdFactoryProvider();
-
-      repoRegistry = new DbEntryRepositoryRegistry();
-      repoRegistry.setConfiguration(config);
-      repoRegistry.setIdFactory(idProvider);
-      repoRegistry.setSqlExecutor(exec);
-      resolvers = repoRegistry.getResolverRegistry();
-      repoRegistry.activate();
+      ctx = trcTestContext.getApplicationContext();
 
       svc = new ArticleEntryService();
-      svc.setRepoContext(repoRegistry);
+      svc.setTrcContext(ctx);
+      svc.setRepoContext(trcTestContext.getRepoRegistrar());
       svc.activate();
    }
 
    @AfterClass
-   public static void tearDown() throws Exception
+   public static void afterClass() throws Exception
    {
+      trcTestContext.close();
       svc.dispose();
-      exec.close();
-
-      if (config instanceof SimpleFileConfigurationProperties)
-         ((SimpleFileConfigurationProperties)config).dispose();
    }
 
    @Before
-   public void setupTest() throws DataSourceException
+   public void setup() throws DataSourceException
    {
    }
 
    @After
-   public void tearDownTest() throws Exception
+   public void tearDown() throws Exception
    {
-      String sql = format("TRUNCATE {0}", TBL_NAME);
+      String tableName = ctx.getConfig().getPropertyValue(TABLE_NAME_PROP, String.class, TABLE_NAME);
+      String sql = format("TRUNCATE {0}", tableName);
+      SqlExecutor exec = trcTestContext.getSqlExecutor();
       Future<Void> future = exec.submit((conn) -> {
          try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.executeUpdate();
@@ -125,10 +114,9 @@ public class ArticleRepoTests
       cmd.setSlug(SLUG);
       cmd.setAbstract(ABSTRACT);
       cmd.setBody(BODY);
+
       return cmd;
    }
-
-
 
 // TODO these should be tested
 //      cmd.setAuthors(new ArrayList<>());
@@ -141,7 +129,7 @@ public class ArticleRepoTests
    @Test
    public void createArticle() throws Exception
    {
-      ArticleRepository repo = repoRegistry.getRepository(null, ArticleRepository.class);
+      ArticleRepository repo = ctx.getRepository(null, ArticleRepository.class);
       EditArticleCommand cmd = createStandardArticle(repo);
 
       Future<String> result = cmd.execute();
@@ -168,7 +156,7 @@ public class ArticleRepoTests
       String articleAbstract = "This is the another abstract for the same article";
       String body = "This is the changed body text of an article";
 
-      ArticleRepository repo = repoRegistry.getRepository(null, ArticleRepository.class);
+      ArticleRepository repo = ctx.getRepository(null, ArticleRepository.class);
       EditArticleCommand cmd = createStandardArticle(repo);
 
       String articleId = cmd.execute().get();
@@ -197,7 +185,7 @@ public class ArticleRepoTests
    @Test
    public void deleteArticle() throws Exception
    {
-      ArticleRepository repo = repoRegistry.getRepository(null, ArticleRepository.class);
+      ArticleRepository repo = ctx.getRepository(null, ArticleRepository.class);
       EditArticleCommand cmd = createStandardArticle(repo);
 
       String articleId = cmd.execute().get();
@@ -216,13 +204,13 @@ public class ArticleRepoTests
    @Test
    public void testArticleResolver() throws Exception
    {
-      ArticleRepository repo = repoRegistry.getRepository(null, ArticleRepository.class);
+      ArticleRepository repo = ctx.getRepository(null, ArticleRepository.class);
       EditArticleCommand cmd = createStandardArticle(repo);
 
       String articleId = cmd.execute().get();
       Article article = repo.get(articleId);
 
-      EntryResolver<Article> resolver = resolvers.getResolver(article);
+      EntryResolver<Article> resolver = ctx.getResolverRegistry().getResolver(article);
       assertNotNull(resolver);
       assertTrue(resolver.accepts(article));
 

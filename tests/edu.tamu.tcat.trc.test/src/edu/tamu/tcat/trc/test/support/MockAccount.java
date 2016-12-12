@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.test.persist.postgres;
+package edu.tamu.tcat.trc.test.support;
 
 import java.util.UUID;
 

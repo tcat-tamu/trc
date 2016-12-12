@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.test;
+package edu.tamu.tcat.trc.test.support;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
 

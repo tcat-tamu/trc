@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.test.bio;
+package edu.tamu.tcat.trc.test.entries.bibliographic;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -7,64 +7,83 @@ import static org.junit.Assert.assertNotEquals;
 import java.sql.PreparedStatement;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.tamu.tcat.db.core.DataSourceException;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
-import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.osgi.config.file.SimpleFileConfigurationProperties;
 import edu.tamu.tcat.trc.ResourceNotFoundException;
+import edu.tamu.tcat.trc.TrcApplication;
 import edu.tamu.tcat.trc.entries.common.DateDescription;
 import edu.tamu.tcat.trc.entries.common.HistoricalEvent;
 import edu.tamu.tcat.trc.entries.types.bio.BiographicalEntry;
 import edu.tamu.tcat.trc.entries.types.bio.PersonName;
+import edu.tamu.tcat.trc.entries.types.bio.impl.BiographicalEntryService;
+import edu.tamu.tcat.trc.entries.types.bio.repo.BiographicalEntryRepository;
 import edu.tamu.tcat.trc.entries.types.bio.repo.DateDescriptionMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.EditBiographicalEntryCommand;
 import edu.tamu.tcat.trc.entries.types.bio.repo.HistoricalEventMutator;
 import edu.tamu.tcat.trc.entries.types.bio.repo.PersonNameMutator;
 import edu.tamu.tcat.trc.entries.types.bio.rest.v1.RestApiV1;
-import edu.tamu.tcat.trc.repo.id.IdFactoryProvider;
-import edu.tamu.tcat.trc.test.TestUtils;
+import edu.tamu.tcat.trc.test.support.TrcTestContext;
 
-public class TestDocumentRepository
+public class BioEntryRepoTests
 {
-   private SqlExecutor exec;
-   private ConfigurationProperties config;
-   private BioEntryRepoService repo;
+   // FIXME need to ensure that we can pass in the table name (here and for the entries).
+   //       -- this should be controlled through config
+
+   private static final String ID_CONTEXT = "bio.entry.tests";
+   private static final String TABLE_NAME = "bio_entry_tests";
+   private static final String SCHEMA_DATA_FIELD = "data";
+
+   private static TrcTestContext trcTestContext;
+
+   private static TrcApplication ctx;
+   private static BiographicalEntryService svc;
+
+   @BeforeClass
+   public static void beforeClass() throws DataSourceException
+   {
+      trcTestContext = new TrcTestContext();
+
+      ctx = trcTestContext.getApplicationContext();
+
+      svc = new BiographicalEntryService();
+      svc.setTrcContext(ctx);
+      svc.setRepoContext(trcTestContext.getRepoRegistrar());
+      svc.activate();
+   }
+
+   @AfterClass
+   public static void afterClass() throws Exception
+   {
+      trcTestContext.close();
+      svc.dispose();
+   }
 
    @Before
-   public void setupTest() throws DataSourceException
+   public void setup()
    {
-      IdFactoryProvider idFactoryProvider = TestUtils.makeIdFactoryProvider();
 
-      config = TestUtils.loadConfigFile();
-      exec = TestUtils.initPostgreSqlExecutor(config);
-
-      this.repo = new BioEntryRepoService();
-      repo.setDatabaseExecutor(exec);
-      repo.setIdFactory(idFactoryProvider);
-      repo.activate();
    }
 
    @After
-   public void tearDownTest() throws Exception
+   public void tearDown()
    {
-      cleanDB();
-      repo = null;
-      exec = null;
 
-      if (config instanceof SimpleFileConfigurationProperties)
-         ((SimpleFileConfigurationProperties)config).dispose();
    }
 
-   private void cleanDB() throws InterruptedException, ExecutionException
+   private static void cleanDB() throws InterruptedException, ExecutionException
    {
       String sql = "DELETE FROM people";
+      SqlExecutor exec = trcTestContext.getSqlExecutor();
       Future<Void> future = exec.submit((conn) -> {
          try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.executeUpdate();
@@ -78,21 +97,24 @@ public class TestDocumentRepository
    @Test
    public void testCreate() throws InterruptedException, ExecutionException
    {
-      RestApiV1.Person personData = addRestAPIDataModel();
+      RestApiV1.Person personData = makeRestAPIDataModel();
       String personId = createPerson(personData);
-      BiographicalEntry person = repo.get(personId).orElseThrow(() -> new ResourceNotAvailableException());
+      BiographicalEntryRepository repo = ctx.getRepository(null, BiographicalEntryRepository.class);
+      BiographicalEntry person = repo.getOptionally(personId).orElseThrow(() -> new ResourceNotFoundException());
       validateData(personData, person);
    }
 
    @Test
    public void testEdit() throws InterruptedException, ExecutionException
    {
-      RestApiV1.Person personData = addRestAPIDataModel();
+      BiographicalEntryRepository repo = ctx.getRepository(null, BiographicalEntryRepository.class);
+
+      RestApiV1.Person personData = makeRestAPIDataModel();
       String personId = createPerson(personData);
-      BiographicalEntry person = repo.get(personId);
+      BiographicalEntry person = repo.getOptionally(personId).get();
 
       updatePerson(personId);
-      BiographicalEntry personUpdated = repo.get(personId);
+      BiographicalEntry personUpdated = repo.getOptionally(personId).get();
 
       assertEquals(person.getId(), personUpdated.getId());
 
@@ -123,23 +145,19 @@ public class TestDocumentRepository
    @Test
    public void testDelete() throws InterruptedException, ExecutionException
    {
-      RestApiV1.Person personData = addRestAPIDataModel();
-      try
-      {
-         String personId = createPerson(personData);
-         repo.delete(personId).get();
-         repo.get(personId);
-      }
-      catch (ResourceNotFoundException e)
-      {
-         assertFalse(false);
-      }
+      RestApiV1.Person personData = makeRestAPIDataModel();
+      BiographicalEntryRepository repo = ctx.getRepository(null, BiographicalEntryRepository.class);
+      String personId = createPerson(personData);
+      repo.remove(personId).get();
 
+      Optional<BiographicalEntry> entry = repo.getOptionally(personId);
+      assertFalse(entry.isPresent());
    }
 
    @SuppressWarnings("deprecation")
    private String createPerson(RestApiV1.Person personData) throws InterruptedException, ExecutionException
    {
+      BiographicalEntryRepository repo = ctx.getRepository(null, BiographicalEntryRepository.class);
       EditBiographicalEntryCommand command = repo.create();
 
       PersonNameMutator personName = command.editCanonicalName();
@@ -193,7 +211,9 @@ public class TestDocumentRepository
    @SuppressWarnings("deprecation")
    private void updatePerson(String personId) throws InterruptedException, ExecutionException
    {
-      EditBiographicalEntryCommand update = repo.update(personId);
+      BiographicalEntryRepository repo = ctx.getRepository(null, BiographicalEntryRepository.class);
+
+      EditBiographicalEntryCommand update = repo.edit(personId);
       PersonNameMutator setPersonName = update.editCanonicalName();
       setPersonName.setDisplayName("Changed The Name");
       setPersonName.setFamilyName("Name");
@@ -262,7 +282,7 @@ public class TestDocumentRepository
       assertEquals(dateDescription.getCalendar().toString(), dto.date.calendar);
    }
 
-   private RestApiV1.Person addRestAPIDataModel()
+   private RestApiV1.Person makeRestAPIDataModel()
    {
       RestApiV1.Person person = new RestApiV1.Person();
 
