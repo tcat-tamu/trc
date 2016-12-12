@@ -1,12 +1,14 @@
 package edu.tamu.tcat.trc.impl.psql.entries;
 
 import java.net.URI;
+import java.sql.SQLException;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
+import edu.tamu.tcat.db.provider.DataSourceProvider;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.ConfigParams;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistrar;
@@ -40,6 +42,7 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, Entry
    private SqlExecutor sqlExecutor;
    private IdFactoryProvider idFactoryProvider;
    private ConfigurationProperties config;
+   private DataSourceProvider dsp;
 
    // TODO add version history
    //      start up other service?
@@ -62,6 +65,15 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, Entry
    public void setIdFactory(IdFactoryProvider idFactoryProvider)
    {
       this.idFactoryProvider = idFactoryProvider;
+   }
+
+
+   /**
+    * @param exec The data source provider.
+    */
+   public void setDataSourceProvider(DataSourceProvider dsp)
+   {
+      this.dsp = dsp;
    }
 
    public void setConfiguration(ConfigurationProperties config)
@@ -155,10 +167,18 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, Entry
    @Override
    public <T, DTO, CMD> PsqlJacksonRepoBuilder<T, DTO, CMD> getDocRepoBuilder()
    {
-      PsqlJacksonRepoBuilder<T, DTO, CMD> repoBuilder = new PsqlJacksonRepoBuilder<>();
+      try
+      {
+         PsqlJacksonRepoBuilder<T, DTO, CMD> repoBuilder = new PsqlJacksonRepoBuilder<>();
 
-      repoBuilder.setDbExecutor(sqlExecutor);
-      return repoBuilder;
+         repoBuilder.setDbExecutor(sqlExecutor);
+         repoBuilder.setDataSource(dsp.getDataSource());
+         return repoBuilder;
+      }
+      catch (SQLException sqle)
+      {
+         throw new IllegalStateException("Failed to connect to database.", sqle);
+      }
    }
 
    @Override

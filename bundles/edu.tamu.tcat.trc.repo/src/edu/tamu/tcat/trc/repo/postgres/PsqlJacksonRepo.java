@@ -34,6 +34,13 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.sql.DataSource;
+
+import org.javers.core.Javers;
+import org.javers.core.JaversBuilder;
+import org.javers.repository.sql.DialectName;
+import org.javers.repository.sql.JaversSqlRepository;
+import org.javers.repository.sql.SqlRepositoryBuilder;
 import org.postgresql.util.PGobject;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -57,13 +64,15 @@ import edu.tamu.tcat.trc.repo.UpdateActionType;
 import edu.tamu.tcat.trc.repo.UpdateContext;
 import edu.tamu.tcat.trc.repo.UpdateContext.Severity;
 import edu.tamu.tcat.trc.repo.UpdateContext.UpdateProblem;
-import edu.tamu.tcat.trc.repo.UpdateContext.UpdateStatus;
 
 public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements DocumentRepository<RecordType, EditCommandType>
 {
+   // TODO make versioning optional
+   // TODO add monitoring hooks
+
    public static final String DATA = "data";
 
-   private static final String GET_RECORD_SQL = "SELECT data FROM {0} WHERE id = ? AND removed IS NULL";
+   private static final String GET_RECORD_SQL = "SELECT data FROM {0} WHERE id = ? {1}";
    private static final String INSERT_SQL = "INSERT INTO {0} (data, id) VALUES(?, ?)";
    private static final String UPDATE_SQL = "UPDATE {0} SET data = ?, last_modified = now() WHERE id = ?";
    private static final String MARK_REMOVED_SQL =  "UPDATE {0} SET removed = now(), last_modified = now() WHERE id = ?";
@@ -76,6 +85,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
    private SqlExecutor exec;
    private Supplier<String> idFactory;
+   private DataSource dataSource;
 
    private String tablename;
    private Function<DTO, RecordType> adapter;
@@ -84,7 +94,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    private EditCommandFactory<DTO, EditCommandType> cmdFactory;
 
    private String getMetaSql;
-   private String getRecordSql;
+   private String getActiveRecordSql;
    private String createRecordSql;
    private String updateRecordSql;
    private String removeRecordSql;
@@ -94,15 +104,21 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    private final Map<UUID, RecordUpdateObserver<RecordType>> updateObservers = new ConcurrentHashMap<>();
 
    private LoadingCache<String, Optional<RecordType>> cache;
+   private Javers javers;
 
 
    PsqlJacksonRepo()
    {
    }
 
-   void setSqlExecutor(SqlExecutor exec)
+   public void setSqlExecutor(SqlExecutor exec)
    {
       this.exec = exec;
+   }
+
+   public void setDataSourceProvider(DataSource dataSource)
+   {
+      this.dataSource = dataSource;
    }
 
    void setIdFactory(Supplier<String> idFactory)
@@ -132,28 +148,49 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
    void activate()
    {
+      logger.info(format("Initializing document repository using table {0}", tablename));
+
+      sanityCheck();
+      initSqlStatements();
+      initJavers();
+      initCache();
+   }
+
+   private void initSqlStatements()
+   {
+      this.getMetaSql = format(META_SQL,  tablename);
+      this.getActiveRecordSql = format(GET_RECORD_SQL, tablename, "AND removed IS NULL");
+      this.createRecordSql = format(INSERT_SQL, tablename);
+      this.updateRecordSql = format(UPDATE_SQL, tablename);
+      this.removeRecordSql = format(MARK_REMOVED_SQL, tablename);
+   }
+
+   private void sanityCheck()
+   {
       // default to UUID-based ids
       if (idFactory == null)
          idFactory = () -> UUID.randomUUID().toString();
 
-      Objects.requireNonNull(exec, "The SQL executor has not bee supplied");
-      Objects.requireNonNull(tablename, "The tablename has not bee supplied");
+      Objects.requireNonNull(tablename, "The tablename has not been supplied");
       if (tablename.trim().isEmpty())
          throw new IllegalStateException("The tablename must not be an empty string");
 
-      Objects.requireNonNull(cmdFactory, "The edit command factory has not bee supplied");
-      Objects.requireNonNull(adapter, "The data adapter has not bee supplied");
-      Objects.requireNonNull(storageType, "The storage type has not bee supplied");
+      Objects.requireNonNull(exec, "The SQL executor has not been supplied");
+      Objects.requireNonNull(cmdFactory, "The edit command factory has not been supplied");
+      Objects.requireNonNull(adapter, "The data adapter has not been supplied");
+      Objects.requireNonNull(storageType, "The storage type has not been supplied");
+      Objects.requireNonNull(dataSource, "The datasource provider has not been supplied");
+   }
 
-      logger.info(format("Initializing document repository using table {0}", tablename));
+   private void initJavers()
+   {
+      JaversSqlRepository javersRepo = SqlRepositoryBuilder.sqlRepository()
+            .withConnectionProvider(dataSource::getConnection)
+            .withDialect(DialectName.POSTGRES)
+            .build();
 
-      this.getMetaSql = format(META_SQL,  tablename);
-      this.getRecordSql = format(GET_RECORD_SQL, tablename);
-      this.createRecordSql = format(INSERT_SQL, tablename);
-      this.updateRecordSql = format(UPDATE_SQL, tablename);
-      this.removeRecordSql = format(MARK_REMOVED_SQL, tablename);
+      javers = JaversBuilder.javers().registerJaversRepository(javersRepo).build();
 
-      this.initCache();
    }
 
    @Override
@@ -205,34 +242,8 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    @Override
    public Optional<RecordReference<RecordType>> getRecord(String id)
    {
-      exec.submit((conn) -> {
-         try (PreparedStatement ps = conn.prepareStatement(getMetaSql))
-         {
-            RecordReferenceImpl<RecordType> recordRef = new RecordReferenceImpl<>();
-            ps.setString(1, id);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next())
-            {
-               if (Thread.interrupted())
-                  throw new InterruptedException();
-   
-               recordRef.setId(rs.getString("id"));
-               recordRef.setDateCreated(rs.getDate("date_created"));
-               recordRef.setDateModified(rs.getDate("last_modified"));
-               recordRef.setRemovedState(rs.getDate("removed"));
-   
-               PGobject pgo = (PGobject)rs.getObject("data");
-               recordRef.setRecordData(adapter.apply(parse(pgo.toString())));
-            }
-   
-            return Optional.of(recordRef);
-         }
-         catch (SQLException e)
-         {
-            throw new IllegalStateException("Failed to retrieve the supplied record [" + id + "]", e);
-         }
-      });
-      return null;
+      return unwrap(exec.submit((conn) -> loadDocumentRecord(conn, id)),
+            () -> format("Failed to retrieve record for entry [{0}].", id));
    }
 
    @Override
@@ -448,6 +459,37 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       }
    }
 
+   private Optional<RecordReference<RecordType>> loadDocumentRecord(Connection conn, String id) throws InterruptedException
+   {
+      try (PreparedStatement ps = conn.prepareStatement(getMetaSql))
+      {
+         if (Thread.interrupted())
+            throw new InterruptedException();
+
+         ps.setString(1, id);
+         ResultSet rs = ps.executeQuery();
+         if (!rs.next())
+            return Optional.empty();
+
+         PGobject pgo = (PGobject)rs.getObject("data");
+         String json = pgo.toString();
+         RecordReferenceImpl<RecordType> recordRef =
+               new RecordReferenceImpl<>(javers, () -> adapter.apply(parse(json)));
+
+         recordRef.setId(rs.getString("id"));
+         recordRef.setDateCreated(rs.getDate("date_created"));
+         recordRef.setDateModified(rs.getDate("last_modified"));
+         recordRef.setRemovedState(rs.getDate("removed"));
+
+
+         return Optional.of(recordRef);
+      }
+      catch (SQLException e)
+      {
+         throw new IllegalStateException("Failed to retrieve the supplied record [" + id + "]", e);
+      }
+   }
+
    /**
     * Called from within the database executor to retrieve the underlying JSON representation
     * of an item.
@@ -465,7 +507,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       if (Thread.interrupted())
          throw new InterruptedException();
 
-      try (PreparedStatement ps = conn.prepareStatement(getRecordSql))
+      try (PreparedStatement ps = conn.prepareStatement(getActiveRecordSql))
       {
          ps.setString(1, id);
          try (ResultSet rs = ps.executeQuery())
@@ -481,8 +523,6 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       {
          throw new RepositoryException("Failed to retrieve the record.", e);
       }
-
-
    }
 
    private CompletableFuture<DTO> doCreate(String id, DTO record)
@@ -570,20 +610,20 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       return mapper;
    }
 
-   public class UpdateContextState
-   {
-      public UpdateStatus status;
-      public UUID updateId;
-      public String entryId;
-      public UpdateActionType action;
-      public String actor;
-      public String actorId;
-      public DTO initial;
-      public DTO original;
-      public String timestamp;
-      public DTO modified;
-      public List<String> errors;
-   }
+//   public class UpdateContextState
+//   {
+//      public UpdateStatus status;
+//      public UUID updateId;
+//      public String entryId;
+//      public UpdateActionType action;
+//      public String actor;
+//      public String actorId;
+//      public DTO initial;
+//      public DTO original;
+//      public String timestamp;
+//      public DTO modified;
+//      public List<String> errors;
+//   }
 
    private static class UpdateProblemImpl implements UpdateProblem
    {
@@ -617,6 +657,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       }
 
    }
+
    private class UpdateContextImpl implements ExecutableUpdateContext<DTO>
    {
       private final AtomicReference<UpdateStatus> status = new AtomicReference<>();
@@ -666,7 +707,6 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
       public void fail(String msg)
       {
-         // TODO this logic is inverted. Should allow addError to
          if (status.get() == UpdateStatus.ERROR)
             return;
 
@@ -691,10 +731,12 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
             }
             catch (Exception ex)
             {
-               // TODO likely should fail at this point.
-               String string = "Failed to retrieve original state for {0} while executing update {1}.";
-               logger.log(Level.SEVERE, format(string, getId(), getUpdateId()), ex);
+               String template = "Failed to retrieve original state for {0} while executing update {1}.";
+               String msg = format(template, getId(), getUpdateId());
+               logger.log(Level.SEVERE, msg, ex);
                original.completeExceptionally(ex);
+
+               throw new IllegalStateException(msg, ex);
             }
          }
       }
@@ -837,7 +879,8 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       @Override
       public CompletableFuture<DTO> update(Function<DTO, DTO> generator)
       {
-         markSubmitted();  // TODO this is not thread confined. Could have conflicting values for original.
+         // TODO this is not thread confined. Could have conflicting values for original.
+         markSubmitted();
          start();
 
          try
@@ -873,6 +916,10 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
       private void firePostCommitTasks()
       {
+         // HACK FIXME for now, we'll log this as the 'system' user account if no account is supplied.
+         String actorId = actor == null ? new UUID(0, 1).toString() : actor.getId().toString();
+         javers.commit(actorId, getModified());
+
          EntryUpdateEventAdapter event = new EntryUpdateEventAdapter(this);
          updateObservers.entrySet().parallelStream()
             .forEach(entry -> firePostCommitTask(event, entry.getKey(), entry.getValue()));

@@ -16,6 +16,8 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.sql.DataSource;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
@@ -70,6 +72,8 @@ public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> implem
    private EditCommandFactory<StorageType, EditCmdType> cmdFactory;
    private Class<StorageType> storageType;
 
+   private DataSource dsp;
+
    public PsqlJacksonRepoBuilder()
    {
    }
@@ -86,7 +90,17 @@ public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> implem
     */
    public PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> setDbExecutor(SqlExecutor exec)
    {
+      // TODO could spin up our own SqlExec and DataSource from supplied config props. . . .
       this.exec = exec;
+      return this;
+   }
+
+   /**
+    * @param exec The data source provider.
+    */
+   public PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> setDataSource(DataSource dsp)
+   {
+      this.dsp = dsp;
       return this;
    }
 
@@ -126,6 +140,7 @@ public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> implem
 
       PsqlJacksonRepo<RecordType, StorageType, EditCmdType> repo = new PsqlJacksonRepo<>();
       repo.setSqlExecutor(exec);
+      repo.setDataSourceProvider(dsp);
       repo.setTableName(tablename);
       repo.setCommandFactory(cmdFactory);
       repo.setAdapter(adapter);

@@ -1,6 +1,6 @@
 package edu.tamu.tcat.trc.repo;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -24,7 +24,7 @@ public interface VersionFilter
     *
     * @return The date to filter by. Defaults to empty.
     */
-   default Optional<Instant> after()
+   default Optional<LocalDateTime> after()
    {
       return Optional.empty();
    }
@@ -34,7 +34,7 @@ public interface VersionFilter
     *
     * @return The date to filter by. Defaults to empty.
     */
-   default Optional<Instant> before()
+   default Optional<LocalDateTime> before()
    {
       return Optional.empty();
    }
