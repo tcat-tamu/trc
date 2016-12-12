@@ -74,7 +74,7 @@ public class PeopleResource
                 @QueryParam(value = "max") @DefaultValue("100") int numResults)
    {
       //TrcAccount account = bean.get(TrcAccount.class);
-      BioSearchStrategy indexCfg = new BioSearchStrategy(app.getConfig(), app.getResolverRegistry());
+      BioSearchStrategy indexCfg = new BioSearchStrategy(app);
       QueryService<BioEntryQueryCommand> queryService = app.getQueryService(indexCfg);
       if (queryService == null)
       {

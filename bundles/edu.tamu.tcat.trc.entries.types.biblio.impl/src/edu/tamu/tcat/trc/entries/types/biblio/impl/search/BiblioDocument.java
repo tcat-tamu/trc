@@ -26,10 +26,7 @@ import java.util.logging.Logger;
 
 import org.apache.solr.common.SolrInputDocument;
 
-import edu.tamu.tcat.trc.entries.types.biblio.dto.AuthorReferenceDTO;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.DateDescriptionDTO;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.PublicationInfoDTO;
-import edu.tamu.tcat.trc.entries.types.biblio.dto.TitleDTO;
+import edu.tamu.tcat.trc.entries.types.biblio.impl.repo.DataModelV1;
 import edu.tamu.tcat.trc.entries.types.biblio.search.BiblioSearchProxy;
 import edu.tamu.tcat.trc.search.solr.SearchException;
 import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
@@ -42,7 +39,7 @@ import edu.tamu.tcat.trc.search.solr.impl.TrcDocument;
  */
 public class BiblioDocument
 {
-
+   // TODO seems to be unused
    // TODO this is of dubious value -- is part of the adapter logic
    // is this a proxy, mutator or builder
    private final static Logger logger = Logger.getLogger(BiblioDocument.class.getName());
@@ -60,9 +57,9 @@ public class BiblioDocument
       return indexDocument.build();
    }
 
-   public void addAuthors(List<AuthorReferenceDTO> authors) throws SearchException
+   public void addAuthors(List<DataModelV1.AuthorReferenceDTO> authors) throws SearchException
    {
-      for (AuthorReferenceDTO author : authors)
+      for (DataModelV1.AuthorReferenceDTO author : authors)
       {
          if (author.authorId != null)
             indexDocument.set(BiblioSolrConfig.AUTHOR_IDS, author.authorId);
@@ -73,13 +70,13 @@ public class BiblioDocument
       }
    }
 
-   public void updateAuthors(List<AuthorReferenceDTO> authors) throws SearchException
+   public void updateAuthors(List<DataModelV1.AuthorReferenceDTO> authors) throws SearchException
    {
       Collection<String> allIds = new ArrayList<>();
       Collection<String> allNames = new ArrayList<>();
       Collection<String> allRoles = new ArrayList<>();
 
-      for (AuthorReferenceDTO author : authors)
+      for (DataModelV1.AuthorReferenceDTO author : authors)
       {
          if (author.authorId != null)
             allIds.add(author.authorId);
@@ -93,19 +90,19 @@ public class BiblioDocument
       indexDocument.update(BiblioSolrConfig.AUTHOR_NAMES, allNames);
    }
 
-   public void addTitles(Collection<TitleDTO> titlesDV) throws SearchException
+   public void addTitles(Collection<DataModelV1.TitleDTO> titlesDV) throws SearchException
    {
-      for (TitleDTO title : titlesDV)
+      for (DataModelV1.TitleDTO title : titlesDV)
       {
          indexDocument.set(BiblioSolrConfig.TITLES, title.title);
       }
    }
 
-   public void updateTitles(Collection<TitleDTO> titlesDV) throws SearchException
+   public void updateTitles(Collection<DataModelV1.TitleDTO> titlesDV) throws SearchException
    {
       Collection<String> allTitles = new ArrayList<>();
 
-      for (TitleDTO title : titlesDV)
+      for (DataModelV1.TitleDTO title : titlesDV)
       {
          allTitles.add(title.title);
       }
@@ -113,7 +110,7 @@ public class BiblioDocument
       indexDocument.update(BiblioSolrConfig.TITLES, allTitles);
    }
 
-   public void addPublication(PublicationInfoDTO publication) throws SearchException
+   public void addPublication(DataModelV1.PublicationInfoDTO publication) throws SearchException
    {
       if (publication.publisher != null)
          indexDocument.set(BiblioSolrConfig.PUBLISHER, publication.publisher);
@@ -125,7 +122,7 @@ public class BiblioDocument
       else
          indexDocument.set(BiblioSolrConfig.PUBLISHER_LOCATION, "");
 
-      DateDescriptionDTO dateDescription = publication.date;
+      DataModelV1.DateDescriptionDTO dateDescription = publication.date;
       if (dateDescription != null)
       {
          LocalDate pubDate = extractDate(dateDescription.calendar);
@@ -151,7 +148,7 @@ public class BiblioDocument
       }
    }
 
-   public void updatePublication(PublicationInfoDTO publication) throws SearchException
+   public void updatePublication(DataModelV1.PublicationInfoDTO publication) throws SearchException
    {
       if (publication.publisher != null)
          indexDocument.update(BiblioSolrConfig.PUBLISHER, publication.publisher);
@@ -163,7 +160,7 @@ public class BiblioDocument
       else
          indexDocument.update(BiblioSolrConfig.PUBLISHER_LOCATION, "");
 
-      DateDescriptionDTO dateDescription = publication.date;
+      DataModelV1.DateDescriptionDTO dateDescription = publication.date;
       if (dateDescription != null)
       {
           LocalDate pubDate = extractDate(dateDescription.calendar);

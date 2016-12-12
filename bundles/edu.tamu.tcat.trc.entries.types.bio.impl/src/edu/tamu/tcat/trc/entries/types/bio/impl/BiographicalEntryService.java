@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import edu.tamu.tcat.trc.TrcApplication;
 import edu.tamu.tcat.trc.entries.core.repo.BasicRepoDelegate;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistrar;
@@ -32,9 +33,11 @@ public class BiographicalEntryService
 
    public static final String ID_CONTEXT = "people";
    private static final String TABLE_NAME = "biographical";
+   private static final String TABLE_NAME_PROP = "trc.entries.biographical.db.table";
 
-   private EntryRepositoryRegistrar ctx;
-   private SearchServiceManager indexSvcMgr;
+   private EntryRepositoryRegistrar repoRegistrar;
+//    private SearchServiceManager indexSvcMgr;
+   private TrcApplication trcCtx;
 
    private DocumentRepository<BiographicalEntry, EditBiographicalEntryCommand> docRepo;
    private BasicRepoDelegate<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> delegate;
@@ -43,17 +46,18 @@ public class BiographicalEntryService
    private EntryRepositoryRegistrar.Registration repoReg;
    private EntryRepository.ObserverRegistration searchReg;
 
+
    public void setRepoContext(EntryRepositoryRegistrar ctx)
    {
-      this.ctx = ctx;
+      this.repoRegistrar = ctx;
    }
 
-   public void setSearchSvcMgr(SearchServiceManager indexSvcFactory)
+   public void setTrcContext(TrcApplication trcCtx)
    {
-      this.indexSvcMgr = indexSvcFactory;
+      this.trcCtx = trcCtx;
    }
 
-   public void start()
+   public void activate()
    {
       try
       {
@@ -79,7 +83,8 @@ public class BiographicalEntryService
       }
    }
 
-   public void stop()
+
+   public void dispose()
    {
       try
       {
@@ -103,21 +108,26 @@ public class BiographicalEntryService
       }
    }
 
+   private String getTableName()
+   {
+      return trcCtx.getConfig().getPropertyValue(TABLE_NAME_PROP, String.class, TABLE_NAME);
+   }
+
    private void initRepo()
    {
       initDocumentStore();
       initDelegate();
 
-      BioEntryResolver resolver = new BioEntryResolver(ctx.getConfig(), delegate);
-      resolverReg = ctx.registerResolver(resolver);
-      repoReg = ctx.registerRepository(BiographicalEntryRepository.class,
+      BioEntryResolver resolver = new BioEntryResolver(repoRegistrar.getConfig(), delegate);
+      resolverReg = repoRegistrar.registerResolver(resolver);
+      repoReg = repoRegistrar.registerRepository(BiographicalEntryRepository.class,
             account -> new BioEntryRepoImpl(delegate, account));
    }
 
    private void initDocumentStore()
    {
-      DocRepoBuilder<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> builder = ctx.getDocRepoBuilder();
-      builder.setPersistenceId(TABLE_NAME);
+      DocRepoBuilder<BiographicalEntry, DataModelV1.Person, EditBiographicalEntryCommand> builder = repoRegistrar.getDocRepoBuilder();
+      builder.setPersistenceId(getTableName());
       builder.setEditCommandFactory(new EditPersonCommandFactory());
       builder.setDataAdapter(PersonImpl::new);
       builder.setStorageType(DataModelV1.Person.class);
@@ -132,8 +142,8 @@ public class BiographicalEntryService
             new BasicRepoDelegate.Builder<>();
 
       delegateBuilder.setEntryName("biographical entry");
-      delegateBuilder.setIdFactory(ctx.getIdFactory(ID_CONTEXT));
-      delegateBuilder.setEntryResolvers(ctx.getResolverRegistry());
+      delegateBuilder.setIdFactory(trcCtx.getIdFactory(ID_CONTEXT));
+      delegateBuilder.setEntryResolvers(trcCtx.getResolverRegistry());
       delegateBuilder.setDocumentRepo(docRepo);
 
       delegate = delegateBuilder.build();
@@ -141,13 +151,14 @@ public class BiographicalEntryService
 
    private void initSearch()
    {
+      SearchServiceManager indexSvcMgr = trcCtx.getSearchManager();
       if (indexSvcMgr == null)
       {
          logger.log(Level.WARNING, "Index support has not been configured for " + getClass().getSimpleName());
          return;
       }
 
-      BioSearchStrategy indexCfg = new BioSearchStrategy(ctx.getConfig(), ctx.getResolverRegistry());
+      BioSearchStrategy indexCfg = new BioSearchStrategy(trcCtx);
       IndexService<BiographicalEntry> indexSvc = indexSvcMgr.configure(indexCfg);
 
       BioEntryRepoImpl repo = new BioEntryRepoImpl(delegate, null);     // USE SEARCH ACCT

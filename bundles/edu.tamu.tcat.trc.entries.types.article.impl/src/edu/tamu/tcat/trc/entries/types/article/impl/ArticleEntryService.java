@@ -113,6 +113,11 @@ public class ArticleEntryService
       }
    }
 
+   private String getTableName()
+   {
+      return trcCtx.getConfig().getPropertyValue(PARAM_TABLE_NAME, String.class, TABLE_NAME);
+   }
+
 
    private void initRepo()
    {
@@ -127,10 +132,11 @@ public class ArticleEntryService
    private void initDocRepo()
    {
       DocRepoBuilder<Article, DataModelV1.Article, EditArticleCommand> builder = context.getDocRepoBuilder();
-      builder.setPersistenceId(TABLE_NAME);
+      builder.setPersistenceId(getTableName());
       builder.setEditCommandFactory(new EditArticleCommandFactory());
       builder.setDataAdapter(ArticleImpl::new);
       builder.setStorageType(DataModelV1.Article.class);
+      builder.setEnableCreation(true);
 
       docRepo = builder.build();
    }

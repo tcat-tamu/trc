@@ -35,13 +35,6 @@ public class BioSearchStrategy implements IndexServiceStrategy<BiographicalEntry
 
    private final EntryResolverRegistry resolvers;
 
-   @Deprecated
-   public BioSearchStrategy(ConfigurationProperties config, EntryResolverRegistry resolvers)
-   {
-      this.detector = initSentenceDetector(config);
-      this.resolvers = resolvers;
-   }
-
    public BioSearchStrategy(TrcApplication trcCtx)
    {
       this.detector = initSentenceDetector(trcCtx.getConfig());
