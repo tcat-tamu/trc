@@ -17,6 +17,7 @@ import edu.tamu.tcat.osgi.config.ConfigurationProperties;
  */
 public class PostgresDataSourceProvider implements DataSourceProvider
 {
+   // FIXME move to either SDA or TRC DBUtils
    // private static final Logger debug = Logger.getLogger(EngineDataSourceProvider.class.getName());
 
    //NOTE: No need for a "schema" parameter since the data source is for the entire db, not for a schema or table
@@ -137,7 +138,7 @@ public class PostgresDataSourceProvider implements DataSourceProvider
    }
 
    @Override
-   public DataSource getDataSource() //throws SQLException
+   public DataSource getDataSource()
    {
       if (dataSource == null)
          // HACK: wrap in a runtime exception until IUserAuthenticationDataProvider does not provide a conflicting API

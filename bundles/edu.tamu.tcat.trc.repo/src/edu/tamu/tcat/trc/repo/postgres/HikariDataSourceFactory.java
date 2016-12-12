@@ -16,7 +16,6 @@ import edu.tamu.tcat.db.postgresql.PostgreSqlPropertiesBuilder;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 
 /**
- * @since 3.3
  */
 public class HikariDataSourceFactory
 {
