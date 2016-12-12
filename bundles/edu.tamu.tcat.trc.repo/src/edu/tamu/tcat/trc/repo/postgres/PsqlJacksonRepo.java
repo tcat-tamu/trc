@@ -203,6 +203,39 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
    }
 
    @Override
+   public Optional<RecordReference<RecordType>> getRecord(String id)
+   {
+      exec.submit((conn) -> {
+         try (PreparedStatement ps = conn.prepareStatement(getMetaSql))
+         {
+            RecordReferenceImpl<RecordType> recordRef = new RecordReferenceImpl<>();
+            ps.setString(1, id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next())
+            {
+               if (Thread.interrupted())
+                  throw new InterruptedException();
+   
+               recordRef.setId(rs.getString("id"));
+               recordRef.setDateCreated(rs.getDate("date_created"));
+               recordRef.setDateModified(rs.getDate("last_modified"));
+               recordRef.setRemovedState(rs.getDate("removed"));
+   
+               PGobject pgo = (PGobject)rs.getObject("data");
+               recordRef.setRecordData(adapter.apply(parse(pgo.toString())));
+            }
+   
+            return Optional.of(recordRef);
+         }
+         catch (SQLException e)
+         {
+            throw new IllegalStateException("Failed to retrieve the supplied record [" + id + "]", e);
+         }
+      });
+      return null;
+   }
+
+   @Override
    public Optional<RecordType> get(String id)
    {
       try
@@ -869,40 +902,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       }
    }
 
-	@Override
-   public Optional<RecordReference<RecordType>> getRecord(String id)
-   {
-      exec.submit((conn) -> {
-         try (PreparedStatement ps = conn.prepareStatement(getMetaSql))
-         {
-            RecordReferenceImpl<RecordType> recordRef = new RecordReferenceImpl<>();
-            ps.setString(1, id);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next())
-            {
-               if (Thread.interrupted())
-                  throw new InterruptedException();
-
-               recordRef.setId(rs.getString("id"));
-               recordRef.setDateCreated(rs.getDate("date_created"));
-               recordRef.setDateModified(rs.getDate("last_modified"));
-               recordRef.setRemovedState(rs.getDate("removed"));
-
-               PGobject pgo = (PGobject)rs.getObject("data");
-               recordRef.setRecordData(adapter.apply(parse(pgo.toString())));
-            }
-
-            return Optional.of(recordRef);
-         }
-         catch (SQLException e)
-         {
-            throw new IllegalStateException("Failed to retrieve the supplied record [" + id + "]", e);
-         }
-      });
-      return null;
-   }
-
-   /**
+	/**
     *  Wraps an UpdateContextImpl in order to support the {@link RecordUpdateEvent} API.
     */
    private class EntryUpdateEventAdapter implements RecordUpdateEvent<RecordType>
