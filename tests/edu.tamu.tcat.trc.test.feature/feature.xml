@@ -17,55 +17,13 @@
    </license>
 
    <plugin
-         id="edu.tamu.tcat.trc.entries.types.article"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.tamu.tcat.trc.entries.types.article.impl"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.tamu.tcat.trc.entries.types.article.test"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.tamu.tcat.trc.refman"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.junit"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="edu.tamu.tcat.trc.categorization"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.tamu.tcat.trc.categorization.tests"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.tamu.tcat.trc.entries.types.bio.test"
+         id="edu.tamu.tcat.trc.test"
          download-size="0"
          install-size="0"
          version="0.0.0"
