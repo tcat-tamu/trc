@@ -24,6 +24,7 @@ import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.account.AccountException;
 import edu.tamu.tcat.account.login.LoginData;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
+import edu.tamu.tcat.db.provider.DataSourceProvider;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.auth.account.AccountNotAvailableException;
 import edu.tamu.tcat.trc.auth.account.EditTrcAccountCommand;
@@ -70,6 +71,7 @@ public class DbAcctDataStore implements TrcAccountDataStore
    private ConfigurationProperties config;
 
    private String loginDataTablename;
+   private DataSourceProvider dsp;
 
    public void bindSqlExecutor(SqlExecutor exec)
    {
@@ -80,7 +82,12 @@ public class DbAcctDataStore implements TrcAccountDataStore
    {
       this.config = config;
    }
-
+   
+   public void bindDataSource(DataSourceProvider dsp)
+   {
+      this.dsp = dsp;
+   }
+   
    /**
     * Lifecycle management method (usually called by framework service layer)
     * Called when all dependencies have been provided and the service is ready to run.
@@ -110,17 +117,25 @@ public class DbAcctDataStore implements TrcAccountDataStore
 
    private PsqlJacksonRepo<TrcAccount, DataModelV1.AccountData, EditTrcAccountCommand> buildDocumentRepo()
    {
-      PsqlJacksonRepoBuilder<TrcAccount, DataModelV1.AccountData, EditTrcAccountCommand> repoBuilder =
-            new PsqlJacksonRepoBuilder<>();
-
-      repoBuilder.setDbExecutor(sqlExecutor);
-      repoBuilder.setPersistenceId(accountDataTablename);
-      repoBuilder.setEditCommandFactory(new EditAccountCmdFactory());
-      repoBuilder.setDataAdapter(dto -> new DbTrcAccount(dto));
-      repoBuilder.setStorageType(DataModelV1.AccountData.class);
-      repoBuilder.setEnableCreation(true);
-
-      return repoBuilder.build();
+      try
+      {
+         PsqlJacksonRepoBuilder<TrcAccount, DataModelV1.AccountData, EditTrcAccountCommand> repoBuilder =
+               new PsqlJacksonRepoBuilder<>();
+   
+         repoBuilder.setDbExecutor(sqlExecutor);
+         repoBuilder.setPersistenceId(accountDataTablename);
+         repoBuilder.setEditCommandFactory(new EditAccountCmdFactory());
+         repoBuilder.setDataAdapter(dto -> new DbTrcAccount(dto));
+         repoBuilder.setStorageType(DataModelV1.AccountData.class);
+         repoBuilder.setEnableCreation(true);
+         repoBuilder.setDataSource(dsp.getDataSource());
+   
+         return repoBuilder.build();
+      }
+      catch (SQLException sqle)
+      {
+         throw new IllegalStateException("Failed to connect to database.", sqle);
+      }
    }
 
    /**

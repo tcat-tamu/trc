@@ -87,6 +87,7 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, Entry
       Objects.requireNonNull(sqlExecutor);
       Objects.requireNonNull(idFactoryProvider);
       Objects.requireNonNull(config);
+      Objects.requireNonNull(dsp);
    }
 
    public void dispose()
