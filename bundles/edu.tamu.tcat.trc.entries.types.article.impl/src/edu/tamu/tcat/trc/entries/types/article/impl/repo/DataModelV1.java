@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.persistence.Id;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public abstract class DataModelV1
@@ -32,6 +34,7 @@ public abstract class DataModelV1
          return article;
       }
 
+      @Id
       public String id;
       public String title;
       public String slug;
