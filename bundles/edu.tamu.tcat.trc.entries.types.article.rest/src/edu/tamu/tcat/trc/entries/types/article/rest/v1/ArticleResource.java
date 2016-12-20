@@ -160,34 +160,40 @@ public class ArticleResource
 
       // HACK: clearing and re-adding all authors ensures any deleted authors are removed
       editCmd.clearAuthors();
-      article.authors.forEach(dto -> {
-         if (dto.id == null || dto.id.trim().isEmpty())
-            dto.id = UUID.randomUUID().toString();
+      if (article.authors != null && !article.authors.isEmpty())
+      {
+         article.authors.forEach(dto -> {
+            if (dto.id == null || dto.id.trim().isEmpty())
+               dto.id = UUID.randomUUID().toString();
 
-         AuthorMutator authorMutator = editCmd.addAuthor(dto.id);
-         authorMutator.setDisplayName(dto.name);
-         authorMutator.setFirstname(dto.firstname);
-         authorMutator.setLastname(dto.lastname);
+            AuthorMutator authorMutator = editCmd.addAuthor(dto.id);
+            authorMutator.setDisplayName(dto.name);
+            authorMutator.setFirstname(dto.firstname);
+            authorMutator.setLastname(dto.lastname);
 
-         if (dto.properties != null)
-            dto.properties.forEach(authorMutator::setProperty);
-      });
+            if (dto.properties != null)
+               dto.properties.forEach(authorMutator::setProperty);
+         });
+      }
 
       editCmd.setAbstract(article.articleAbstract);
       editCmd.setBody(article.body);
 
       editCmd.clearFootnotes();
-      article.footnotes.forEach((key, dto) -> {
-         if (!Objects.equals(key, dto.id))
-         {
-            throw new BadRequestException(MessageFormat.format("Footnote key {0} must match footnote id {1}.", key, dto.id));
-         }
+      if (article.footnotes != null && !article.footnotes.isEmpty())
+      {
+         article.footnotes.forEach((key, dto) -> {
+            if (!Objects.equals(key, dto.id))
+            {
+               throw new BadRequestException(MessageFormat.format("Footnote key {0} must match footnote id {1}.", key, dto.id));
+            }
 
-         FootnoteMutator footnoteMutator = editCmd.editFootnote(dto.id);
-         footnoteMutator.setBacklinkId(dto.backlinkId);
-         footnoteMutator.setContent(dto.content);
-         footnoteMutator.setMimeType(dto.mimeType);
-      });
+            FootnoteMutator footnoteMutator = editCmd.editFootnote(dto.id);
+            footnoteMutator.setBacklinkId(dto.backlinkId);
+            footnoteMutator.setContent(dto.content);
+            footnoteMutator.setMimeType(dto.mimeType);
+         });
+      }
    }
 
    public static String createSlug(String input)
