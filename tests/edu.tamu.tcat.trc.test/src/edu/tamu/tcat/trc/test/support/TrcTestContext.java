@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import javax.sql.DataSource;
+
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.account.login.LoginData;
 import edu.tamu.tcat.account.store.AccountStore;
@@ -22,6 +24,7 @@ import edu.tamu.tcat.trc.impl.psql.TrcApplicationImpl;
 import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
 import edu.tamu.tcat.trc.impl.psql.services.TrcSvcMgrImpl;
 import edu.tamu.tcat.trc.repo.id.IdFactoryProvider;
+import edu.tamu.tcat.trc.repo.postgres.JaversProvider;
 import edu.tamu.tcat.trc.repo.postgres.PostgresDataSourceProvider;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.search.solr.BasicSearchSvcMgr;
@@ -44,6 +47,9 @@ public class TrcTestContext implements AutoCloseable
    private final DbEntryRepositoryRegistry registrar = initRepoRegistry(idProvider, config, sqlExecutor);
    private final TrcSvcMgrImpl svcMgr = initServiceManager(sqlExecutor, registrar);
    private final BasicSearchSvcMgr searchMgr = initSearchManager(config);
+
+//   private static PostgresDataSourceProvider dsp;
+   private static JaversProvider jvsp;
 
    public TrcTestContext()
    {
@@ -91,6 +97,7 @@ public class TrcTestContext implements AutoCloseable
       repos.setConfiguration(config);
       repos.setIdFactory(idProvider);
       repos.setSqlExecutor(sqlExecutor);
+      repos.setJaversProvider(jvsp);
       repos.activate();
       return repos;
    }
@@ -99,6 +106,7 @@ public class TrcTestContext implements AutoCloseable
    {
       try
       {
+         
          PostgresDataSourceProvider dsp = new PostgresDataSourceProvider();
          dsp.bind(config);
          dsp.activate();
@@ -106,6 +114,9 @@ public class TrcTestContext implements AutoCloseable
          PostgreSqlExecutor exec = new PostgreSqlExecutor();
          exec.init(dsp);
 
+         jvsp = new JaversProvider();
+         jvsp.setDataSourceProvider(dsp);
+         
          // decorate the executor to ensure that the data source provider is properly disposed
          return new ClosableSqlExecutor() {
             @Override
@@ -121,6 +132,7 @@ public class TrcTestContext implements AutoCloseable
                return exec.submit(task);
             }
          };
+         
       }
       catch (Exception ex)
       {
@@ -139,6 +151,11 @@ public class TrcTestContext implements AutoCloseable
       return config;
    }
 
+   public JaversProvider getJaversProvider()
+   {
+      return jvsp;
+   }
+   
    public TrcApplication getApplicationContext()
    {
       return ctx;
