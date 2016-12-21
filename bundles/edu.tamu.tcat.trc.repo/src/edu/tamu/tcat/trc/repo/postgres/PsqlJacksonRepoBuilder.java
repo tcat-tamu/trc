@@ -72,7 +72,7 @@ public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> implem
    private EditCommandFactory<StorageType, EditCmdType> cmdFactory;
    private Class<StorageType> storageType;
 
-   private DataSource dsp;
+   private JaversProvider jvsProvider;
 
    public PsqlJacksonRepoBuilder()
    {
@@ -98,9 +98,9 @@ public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> implem
    /**
     * @param exec The data source provider.
     */
-   public PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> setDataSource(DataSource dsp)
+   public PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> setJaversProvider(JaversProvider jvsProvider)
    {
-      this.dsp = dsp;
+      this.jvsProvider = jvsProvider;
       return this;
    }
 
@@ -140,7 +140,7 @@ public class PsqlJacksonRepoBuilder<RecordType, StorageType, EditCmdType> implem
 
       PsqlJacksonRepo<RecordType, StorageType, EditCmdType> repo = new PsqlJacksonRepo<>();
       repo.setSqlExecutor(exec);
-      repo.setDataSourceProvider(dsp);
+      repo.setJaversProvider(jvsProvider);
       repo.setTableName(tablename);
       repo.setCommandFactory(cmdFactory);
       repo.setAdapter(adapter);

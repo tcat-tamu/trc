@@ -46,11 +46,12 @@ public abstract class DataModelV1
       public String body;
 
       public List<ArticleAuthor> authors = new ArrayList<>();
-      public final Map<String, Footnote> footnotes = new HashMap<>();
+      public Map<String, Footnote> footnotes = new HashMap<>();
    }
 
    public static class ArticleAuthor
    {
+      @Id
       public String id;
       public String name;
       public String first;
@@ -73,6 +74,7 @@ public abstract class DataModelV1
 
    public static class Footnote
    {
+      @Id
       public String id;
       public String backlinkId;
       public String content;

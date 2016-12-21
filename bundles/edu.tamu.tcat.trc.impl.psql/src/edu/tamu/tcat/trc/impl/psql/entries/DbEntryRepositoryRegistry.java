@@ -15,6 +15,7 @@ import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistrar;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
 import edu.tamu.tcat.trc.repo.id.IdFactory;
 import edu.tamu.tcat.trc.repo.id.IdFactoryProvider;
+import edu.tamu.tcat.trc.repo.postgres.JaversProvider;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
 import edu.tamu.tcat.trc.resolver.BasicResolverRegistry;
 import edu.tamu.tcat.trc.resolver.EntryResolver;
@@ -42,7 +43,7 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, Entry
    private SqlExecutor sqlExecutor;
    private IdFactoryProvider idFactoryProvider;
    private ConfigurationProperties config;
-   private DataSourceProvider dsp;
+   private JaversProvider jvsp;
 
    // TODO add version history
    //      start up other service?
@@ -67,13 +68,12 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, Entry
       this.idFactoryProvider = idFactoryProvider;
    }
 
-
    /**
     * @param exec The data source provider.
     */
-   public void setDataSourceProvider(DataSourceProvider dsp)
+   public void setJaversProvider(JaversProvider jvsp)
    {
-      this.dsp = dsp;
+      this.jvsp = jvsp;
    }
 
    public void setConfiguration(ConfigurationProperties config)
@@ -87,7 +87,7 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, Entry
       Objects.requireNonNull(sqlExecutor);
       Objects.requireNonNull(idFactoryProvider);
       Objects.requireNonNull(config);
-      Objects.requireNonNull(dsp);
+      Objects.requireNonNull(jvsp);
    }
 
    public void dispose()
@@ -168,18 +168,10 @@ public class DbEntryRepositoryRegistry implements EntryRepositoryRegistry, Entry
    @Override
    public <T, DTO, CMD> PsqlJacksonRepoBuilder<T, DTO, CMD> getDocRepoBuilder()
    {
-      try
-      {
-         PsqlJacksonRepoBuilder<T, DTO, CMD> repoBuilder = new PsqlJacksonRepoBuilder<>();
-
-         repoBuilder.setDbExecutor(sqlExecutor);
-         repoBuilder.setDataSource(dsp.getDataSource());
-         return repoBuilder;
-      }
-      catch (SQLException sqle)
-      {
-         throw new IllegalStateException("Failed to connect to database.", sqle);
-      }
+      PsqlJacksonRepoBuilder<T, DTO, CMD> repoBuilder = new PsqlJacksonRepoBuilder<>();
+      repoBuilder.setDbExecutor(sqlExecutor);
+      repoBuilder.setJaversProvider(jvsp);
+      return repoBuilder;
    }
 
    @Override

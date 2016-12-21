@@ -34,6 +34,7 @@ import edu.tamu.tcat.trc.impl.psql.account.DataModelV1.AccountData;
 import edu.tamu.tcat.trc.impl.psql.dbutils.ColumnDefinition;
 import edu.tamu.tcat.trc.impl.psql.dbutils.DbTableManager;
 import edu.tamu.tcat.trc.impl.psql.dbutils.TableDefinition;
+import edu.tamu.tcat.trc.repo.postgres.JaversProvider;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepo;
 import edu.tamu.tcat.trc.repo.postgres.PsqlJacksonRepoBuilder;
 
@@ -71,7 +72,7 @@ public class DbAcctDataStore implements TrcAccountDataStore
    private ConfigurationProperties config;
 
    private String loginDataTablename;
-   private DataSourceProvider dsp;
+   private JaversProvider javersProvider;
 
    public void bindSqlExecutor(SqlExecutor exec)
    {
@@ -83,9 +84,9 @@ public class DbAcctDataStore implements TrcAccountDataStore
       this.config = config;
    }
    
-   public void bindDataSource(DataSourceProvider dsp)
+   public void bindJaversProvider(JaversProvider javersProvider)
    {
-      this.dsp = dsp;
+      this.javersProvider = javersProvider;
    }
    
    /**
@@ -117,25 +118,18 @@ public class DbAcctDataStore implements TrcAccountDataStore
 
    private PsqlJacksonRepo<TrcAccount, DataModelV1.AccountData, EditTrcAccountCommand> buildDocumentRepo()
    {
-      try
-      {
-         PsqlJacksonRepoBuilder<TrcAccount, DataModelV1.AccountData, EditTrcAccountCommand> repoBuilder =
-               new PsqlJacksonRepoBuilder<>();
-   
-         repoBuilder.setDbExecutor(sqlExecutor);
-         repoBuilder.setPersistenceId(accountDataTablename);
-         repoBuilder.setEditCommandFactory(new EditAccountCmdFactory());
-         repoBuilder.setDataAdapter(dto -> new DbTrcAccount(dto));
-         repoBuilder.setStorageType(DataModelV1.AccountData.class);
-         repoBuilder.setEnableCreation(true);
-         repoBuilder.setDataSource(dsp.getDataSource());
-   
-         return repoBuilder.build();
-      }
-      catch (SQLException sqle)
-      {
-         throw new IllegalStateException("Failed to connect to database.", sqle);
-      }
+      PsqlJacksonRepoBuilder<TrcAccount, DataModelV1.AccountData, EditTrcAccountCommand> repoBuilder =
+            new PsqlJacksonRepoBuilder<>();
+
+      repoBuilder.setDbExecutor(sqlExecutor);
+      repoBuilder.setPersistenceId(accountDataTablename);
+      repoBuilder.setEditCommandFactory(new EditAccountCmdFactory());
+      repoBuilder.setDataAdapter(dto -> new DbTrcAccount(dto));
+      repoBuilder.setStorageType(DataModelV1.AccountData.class);
+      repoBuilder.setEnableCreation(true);
+      repoBuilder.setJaversProvider(javersProvider);
+
+      return repoBuilder.build();
    }
 
    /**

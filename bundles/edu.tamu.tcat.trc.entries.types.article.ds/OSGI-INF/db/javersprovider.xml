@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="dispose" name="edu.tamu.tcat.trc.entries.types.article.ds">
+   <implementation class="edu.tamu.tcat.trc.repo.postgres.JaversProvider"/>
+   <reference bind="setDataSourceProvider" cardinality="1..1" interface="edu.tamu.tcat.db.provider.DataSourceProvider" name="DataSourceProvider" policy="static"/>
+</scr:component>

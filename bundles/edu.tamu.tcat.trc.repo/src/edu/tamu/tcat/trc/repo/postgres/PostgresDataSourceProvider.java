@@ -75,7 +75,7 @@ public class PostgresDataSourceProvider implements DataSourceProvider
 
          // Clone since the factory might retain this instance
          propsUnsafe = (Properties)builder.getProperties().clone();
-         propsUnsafe.setProperty("hikari.maxpoolsize", "20");
+         propsUnsafe.setProperty("hikari.maxpoolsize", "50");
          propsUnsafe.setProperty("hikari.minidle", "1");
          dataSource = factory.getDataSource(propsUnsafe);
 

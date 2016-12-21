@@ -34,13 +34,7 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.sql.DataSource;
-
 import org.javers.core.Javers;
-import org.javers.core.JaversBuilder;
-import org.javers.repository.sql.DialectName;
-import org.javers.repository.sql.JaversSqlRepository;
-import org.javers.repository.sql.SqlRepositoryBuilder;
 import org.postgresql.util.PGobject;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -85,7 +79,7 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
 
    private SqlExecutor exec;
    private Supplier<String> idFactory;
-   private DataSource dataSource;
+   private JaversProvider jvsProvider;
 
    private String tablename;
    private Function<DTO, RecordType> adapter;
@@ -116,9 +110,9 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       this.exec = exec;
    }
 
-   public void setDataSourceProvider(DataSource dataSource)
+   public void setJaversProvider(JaversProvider jvsProvider)
    {
-      this.dataSource = dataSource;
+      this.jvsProvider = jvsProvider;
    }
 
    void setIdFactory(Supplier<String> idFactory)
@@ -179,17 +173,12 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       Objects.requireNonNull(cmdFactory, "The edit command factory has not been supplied");
       Objects.requireNonNull(adapter, "The data adapter has not been supplied");
       Objects.requireNonNull(storageType, "The storage type has not been supplied");
-      Objects.requireNonNull(dataSource, "The datasource provider has not been supplied");
+      Objects.requireNonNull(jvsProvider, "The datasource provider has not been supplied");
    }
 
    private void initJavers()
    {
-      JaversSqlRepository javersRepo = SqlRepositoryBuilder.sqlRepository()
-            .withConnectionProvider(dataSource::getConnection)
-            .withDialect(DialectName.POSTGRES)
-            .build();
-
-      javers = JaversBuilder.javers().registerJaversRepository(javersRepo).build();
+      javers = jvsProvider.getJavers();
 
    }
 
@@ -918,9 +907,19 @@ public class PsqlJacksonRepo<RecordType, DTO, EditCommandType> implements Docume
       {
          // HACK FIXME for now, we'll log this as the 'system' user account if no account is supplied.
          String actorId = actor == null ? new UUID(0, 1).toString() : actor.getId().toString();
-         javers.commit(actorId, getModified());
 
          EntryUpdateEventAdapter event = new EntryUpdateEventAdapter(this);
+         
+         switch (action)
+         {
+            case REMOVE:
+               javers.commitShallowDelete(actorId, getModified());
+               break;
+            default:
+               javers.commit(actorId, getModified());
+               break;
+         }
+         
          updateObservers.entrySet().parallelStream()
             .forEach(entry -> firePostCommitTask(event, entry.getKey(), entry.getValue()));
       }
