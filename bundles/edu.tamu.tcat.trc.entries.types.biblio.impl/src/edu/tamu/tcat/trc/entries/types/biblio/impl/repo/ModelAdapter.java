@@ -17,9 +17,13 @@ public class ModelAdapter
    public static DataModelV1.PublicationInfoDTO adapt(PublicationInfoDTO legacy)
    {
       DataModelV1.PublicationInfoDTO dto = new DataModelV1.PublicationInfoDTO();
-      dto.publisher = legacy.publisher;
-      dto.place = legacy.place;
-      dto.date = adapt(legacy.date);
+
+      if (legacy != null)
+      {
+         dto.publisher = legacy.publisher;
+         dto.place = legacy.place;
+         dto.date = adapt(legacy.date);
+      }
 
       return dto;
    }
@@ -27,8 +31,12 @@ public class ModelAdapter
    public static DataModelV1.DateDescriptionDTO adapt(DateDescriptionDTO legacy)
    {
       DataModelV1.DateDescriptionDTO dto = new DataModelV1.DateDescriptionDTO();
-      dto.calendar = legacy.calendar;
-      dto.description = legacy.description;
+
+      if (legacy != null)
+      {
+         dto.calendar = legacy.calendar;
+         dto.description = legacy.description;
+      }
 
       return dto;
    }
@@ -41,10 +49,14 @@ public class ModelAdapter
    public static DataModelV1.TitleDTO adapt(TitleDTO legacy)
    {
       DataModelV1.TitleDTO dto = new DataModelV1.TitleDTO();
-      dto.type = legacy.type;
-      dto.title = legacy.title;
-      dto.subtitle = legacy.subtitle;
-      dto.lg = legacy.lg;
+
+      if (legacy != null)
+      {
+         dto.type = legacy.type;
+         dto.title = legacy.title;
+         dto.subtitle = legacy.subtitle;
+         dto.lg = legacy.lg;
+      }
 
       return dto;
    }
@@ -57,10 +69,14 @@ public class ModelAdapter
    public static DataModelV1.AuthorReferenceDTO adapt(AuthorReferenceDTO legacy)
    {
       DataModelV1.AuthorReferenceDTO dto = new DataModelV1.AuthorReferenceDTO();
-      dto.authorId = legacy.authorId;
-      dto.firstName = legacy.firstName;
-      dto.lastName = legacy.lastName;
-      dto.role = legacy.role;
+
+      if (legacy != null)
+      {
+         dto.authorId = legacy.authorId;
+         dto.firstName = legacy.firstName;
+         dto.lastName = legacy.lastName;
+         dto.role = legacy.role;
+      }
 
       return dto;
    }
