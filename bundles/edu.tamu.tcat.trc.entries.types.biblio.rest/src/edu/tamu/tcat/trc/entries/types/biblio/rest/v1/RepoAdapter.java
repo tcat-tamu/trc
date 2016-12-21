@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -83,6 +84,7 @@ public class RepoAdapter
       dto.summary = work.getSummary();
 
       dto.editions = work.getEditions().stream()
+            .sorted((a, b) -> extractPubDate(a).compareTo(extractPubDate(b)))
             .map(RepoAdapter::toDTO)
             .collect(Collectors.toList());
 
@@ -518,5 +520,21 @@ public class RepoAdapter
       mutator.setTitle(dto.title);
       mutator.setSummary(dto.summary);
       mutator.setRights(dto.rights);
+   }
+
+   /**
+    * Finds the publication date of an edition.
+    * This method will never return {@code null}.
+    *
+    * @param edition
+    * @return The publication date of the given edition or {@code LocalDate.MIN} if none could be found.
+    */
+   private static LocalDate extractPubDate(Edition edition)
+   {
+      return Optional.ofNullable(edition)
+            .map(Edition::getPublicationInfo)
+            .map(PublicationInfo::getPublicationDate)
+            .map(DateDescription::getCalendar)
+            .orElse(LocalDate.MIN);
    }
 }
