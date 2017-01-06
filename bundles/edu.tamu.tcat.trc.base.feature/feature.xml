@@ -233,7 +233,7 @@ limitations under the License.
          id="edu.tamu.tcat.crypto.bouncycastle"
          download-size="0"
          install-size="0"
-         version="1.1.5.20160701-1734"
+         version="1.2.0.20161122-1824"
          unpack="false"/>
 
    <plugin
@@ -352,7 +352,7 @@ limitations under the License.
          id="org.apache.servicemix.bundles.solr-solrj"
          download-size="0"
          install-size="0"
-         version="5.5.0.1"
+         version="6.2.0.1"
          unpack="false"/>
 
    <plugin
