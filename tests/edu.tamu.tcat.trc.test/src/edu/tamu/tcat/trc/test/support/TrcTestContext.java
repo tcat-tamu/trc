@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import javax.sql.DataSource;
-
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.account.login.LoginData;
 import edu.tamu.tcat.account.store.AccountStore;
@@ -106,7 +104,7 @@ public class TrcTestContext implements AutoCloseable
    {
       try
       {
-         
+
          PostgresDataSourceProvider dsp = new PostgresDataSourceProvider();
          dsp.bind(config);
          dsp.activate();
@@ -116,7 +114,7 @@ public class TrcTestContext implements AutoCloseable
 
          jvsp = new JaversProvider();
          jvsp.setDataSourceProvider(dsp);
-         
+
          // decorate the executor to ensure that the data source provider is properly disposed
          return new ClosableSqlExecutor() {
             @Override
@@ -132,7 +130,7 @@ public class TrcTestContext implements AutoCloseable
                return exec.submit(task);
             }
          };
-         
+
       }
       catch (Exception ex)
       {
@@ -155,7 +153,7 @@ public class TrcTestContext implements AutoCloseable
    {
       return jvsp;
    }
-   
+
    public TrcApplication getApplicationContext()
    {
       return ctx;
