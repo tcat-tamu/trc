@@ -68,11 +68,17 @@ public class EditHeirarchyCommandFactory
       node.id = original.id;
       node.label = original.label;
       node.description = original.description;
-      node.ref = new HashMap<>(original.ref);
-
-
       node.parentId = original.parentId;
-      node.children = new ArrayList<>(original.children);
+
+      if (original.ref != null)
+      {
+         node.ref = new HashMap<>(original.ref);
+      }
+
+      if (original.children != null)
+      {
+         node.children = new ArrayList<>(original.children);
+      }
 
       return node;
    }

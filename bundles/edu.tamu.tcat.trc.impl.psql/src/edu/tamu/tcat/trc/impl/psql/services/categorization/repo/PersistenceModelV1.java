@@ -43,7 +43,7 @@ public abstract class PersistenceModelV1
       public String description = "";
 
       // TODO should replace with tokenization?
-      public Map<String, String> ref = new HashMap<>();
+      public Map<String, String> ref;
 
       @Override
       public String toString()

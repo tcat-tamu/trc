@@ -88,7 +88,7 @@ public abstract class CategorizationImpl implements CategorizationScheme
       protected final String id;
       protected final String label;
       protected final String description;
-      protected final EntryId ref;
+      protected EntryId ref;
 
       protected final CategorizationScheme scheme;
       protected final EntryResolverRegistry registry;
@@ -104,7 +104,10 @@ public abstract class CategorizationImpl implements CategorizationScheme
          this.id = dto.id;
          this.label = dto.label;
          this.description = dto.description;
-         this.ref = EntryId.fromMap(dto.ref);
+         if (dto.ref != null)
+         {
+            this.ref = EntryId.fromMap(dto.ref);
+         }
       }
 
       @Override
