@@ -18,14 +18,28 @@ import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
  */
 public interface EntryRepositoryRegistrar
 {
+   // HACK this needs to be simplified. Use the TrcApplicationContext to get resources.
+   // NOTE Registration/configuration of a repository should supply the following information
+   //      - key
+   //      - name
+   //      - type
+   //      - creation factory
+   //      - entry resolver
+   //      - search hooks
+   //      - REST sub-resource
+   //
+   // This level of complexity implies a builder
+
    /**
     * @return The configured public API endpoint for this deployment.
     */
+   @Deprecated // Use TrcApplicationContext
    URI getApiEndpoint();
 
    /**
     * @return Configuration properties for this deployment.
     */
+   @Deprecated // Use TrcApplicationContext
    ConfigurationProperties getConfig();
 
    /**
@@ -38,6 +52,7 @@ public interface EntryRepositoryRegistrar
     * @param context The context relative to which, ids must be unique.
     * @return An id factory.
     */
+   @Deprecated // Use TrcApplicationContext
    IdFactory getIdFactory(String context);
 
    /**
@@ -45,6 +60,7 @@ public interface EntryRepositoryRegistrar
     *       repository context. Note that this will be the resolver registry that is
     *       used by the {@link EntryRepositoryRegistry} this context is associated with.
     */
+   @Deprecated // Use TrcApplicationContext
    EntryResolverRegistry getResolverRegistry();
 
    /**
@@ -75,7 +91,23 @@ public interface EntryRepositoryRegistrar
     *       cached for performance purposes.
     * @return A registration handle to be used to unregister the associated repository.
     */
-   <Repo> EntryRepositoryRegistrar.Registration registerRepository(Class<Repo> type, Function<Account, Repo> factory);
+   <Repo extends EntryRepository<?>> EntryRepositoryRegistrar.Registration registerRepository(Class<Repo> type, Function<Account, Repo> factory);
+
+   /**
+    * Registers an entry repository. Duplicate registrations for the same type will result
+    * in an {@link IllegalArgumentException}.
+    *
+    * @param name A display name for the repository to register.
+    * @param type The type of repository to register. Should be the interface type rather than
+    *       an implementation class.
+    * @param factory A factory that, given an account (possibly null) will return an entry
+    *       repository of the associated type. The returned repository should be scoped to
+    *       the supplied user account such that all actions on the returned repository are
+    *       considered to be performed by that account. Note that returned instances may be
+    *       cached for performance purposes.
+    * @return A registration handle to be used to unregister the associated repository.
+    */
+   <Repo extends EntryRepository<?>> EntryRepositoryRegistrar.Registration registerRepository(String name, Class<Repo> type, Function<Account, Repo> factory);
 
    /**
     * Register a new {@link EntryResolver} with the associated {@link EntryResolverRegistry}.
@@ -100,5 +132,6 @@ public interface EntryRepositoryRegistrar
        */
       void unregister();
    }
+
 
 }
