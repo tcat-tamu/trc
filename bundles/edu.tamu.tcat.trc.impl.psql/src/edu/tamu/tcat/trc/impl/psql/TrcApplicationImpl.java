@@ -8,6 +8,7 @@ import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.ConfigParams;
 import edu.tamu.tcat.trc.EntryFacade;
 import edu.tamu.tcat.trc.TrcApplication;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
 import edu.tamu.tcat.trc.repo.id.IdFactory;
 import edu.tamu.tcat.trc.repo.id.IdFactoryProvider;
@@ -110,7 +111,7 @@ public class TrcApplicationImpl implements TrcApplication
    }
 
    @Override
-   public <Repo> Repo getRepository(Account account, Class<Repo> type) throws IllegalArgumentException
+   public <Repo extends EntryRepository<?>> Repo getRepository(Account account, Class<Repo> type) throws IllegalArgumentException
    {
       return repositories.getRepository(account, type);
    }
