@@ -11,7 +11,7 @@ import edu.tamu.tcat.trc.services.bibref.ReferenceCollection;
 public interface RefCollectionService
 {
 
-   static ServiceContext<RefCollectionService> makeContext(Account account)
+   public static ServiceContext<RefCollectionService> makeContext(Account account)
    {
       return new BasicServiceContext<>(RefCollectionService.class, account);
    }
