@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: TRC Publication and Editorial Workflows
+Bundle-SymbolicName: edu.tamu.tcat.trc.workflow
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: com.fasterxml.jackson.databind;version="2.3.1",
+ edu.tamu.tcat.account;version="2.0.0",
+ edu.tamu.tcat.account.jaxrs.bean;version="2.0.0",
+ edu.tamu.tcat.trc;version="2.0.0",
+ edu.tamu.tcat.trc.auth.account;version="1.3.0",
+ edu.tamu.tcat.trc.entries.core.repo;version="1.3.0",
+ edu.tamu.tcat.trc.repo;version="1.3.0",
+ edu.tamu.tcat.trc.resolver;version="1.3.0",
+ edu.tamu.tcat.trc.services;version="2.0.0",
+ javax.ws.rs;version="2.0.0",
+ javax.ws.rs.core;version="2.0.0"
