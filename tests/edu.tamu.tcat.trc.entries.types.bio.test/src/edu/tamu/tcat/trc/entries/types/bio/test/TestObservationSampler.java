@@ -21,8 +21,11 @@ import edu.tamu.tcat.trc.entries.types.bio.test.names.CensusSurnameGenerator.Cen
 
 public class TestObservationSampler
 {
-   String surnameFile = "D:\\data\\us-names\\census\\surnames\\2010\\app_c.csv";
+   String surnameFile = "D:\\data\\us-names\\census\\surnames\\2010\\Names_2010Census.csv";
 
+   // Surnames: http://www.census.gov/topics/population/genealogy/data/2010_surnames.html
+   // Lookup By State: https://www.census.gov/geo/maps-data/data/nlt.html
+   // BabyNames: https://www.ssa.gov/oact/babynames/
    public TestObservationSampler()
    {
       // TODO Auto-generated constructor stub
@@ -56,11 +59,11 @@ public class TestObservationSampler
             });
 
       long start = System.currentTimeMillis();
-      List<CensusSurname> samples = sampler.sampleWithReplacement(10_000);
-      List<String> names = samples.parallelStream().map((s) -> s.name).collect(Collectors.toList());
+      List<CensusSurname> samples = sampler.sampleWithReplacement(10000000);
       long end = System.currentTimeMillis();
+      List<String> names = samples.parallelStream().map((s) -> s.name).collect(Collectors.toList());
 
       System.out.println("Sample Creation Time: " + (end - start));
-      names.forEach(System.out::println);
+//      names.forEach(System.out::println);
    }
 }
