@@ -86,7 +86,7 @@ public interface EditorialTask
     * @param monitor A monitor to be notified as items are added to the task or errors are
     *       encountered.
     */
-   void addItems(Supplier<EntryReference<?>> entitySupplier, TaskSubmissionMonitor monitor);
+   <X> void addItems(Supplier<EntryReference<X>> entitySupplier, TaskSubmissionMonitor monitor);
 
    /**
     * Transition an item from its current stage to another via a specific

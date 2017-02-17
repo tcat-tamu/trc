@@ -30,6 +30,12 @@ public interface WorkItem
     */
    String getLabel();
 
+
+   /**
+    * @return The id of the {@link EditorialTask} this item is associated with.
+    */
+   String getTaskId();
+
    /**
     * @return A description of the work to be done
     */
