@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.bio.test.names;
+package edu.tamu.tcat.trc.entries.types.bio.test;
 
 public class PersonNameDTO
 {

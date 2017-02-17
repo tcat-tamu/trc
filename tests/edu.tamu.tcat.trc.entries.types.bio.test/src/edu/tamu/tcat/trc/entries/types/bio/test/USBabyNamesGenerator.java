@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.bio.test.names;
+package edu.tamu.tcat.trc.entries.types.bio.test;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -17,8 +17,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.types.bio.test.NameGeneratorException;
-import edu.tamu.tcat.trc.entries.types.bio.test.WeightedObservationHeapSampler;
 
 public class USBabyNamesGenerator
 {

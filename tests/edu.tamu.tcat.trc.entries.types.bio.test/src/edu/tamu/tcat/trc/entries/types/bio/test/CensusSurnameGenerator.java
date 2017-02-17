@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.bio.test.names;
+package edu.tamu.tcat.trc.entries.types.bio.test;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -17,8 +17,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.types.bio.test.NameGeneratorException;
-import edu.tamu.tcat.trc.entries.types.bio.test.WeightedObservationHeapSampler;
 
 public class CensusSurnameGenerator
 {
@@ -54,7 +52,6 @@ public class CensusSurnameGenerator
       }
    }
 
-
    private final WeightedObservationHeapSampler<CensusSurname> sampler;
    private int size = 1000;
    private Iterator<String> iterator;
@@ -86,7 +83,11 @@ public class CensusSurnameGenerator
 
          List<CensusSurname> records = new ArrayList<>();
          while (it.hasNext()) {
-            records.add(it.next());
+            CensusSurname next = it.next();
+            if (next.name.equalsIgnoreCase("ALL OTHER NAMES"))
+               continue;
+
+            records.add(next);
          }
          return records;
       }
@@ -119,9 +120,9 @@ public class CensusSurnameGenerator
     * Adapted from org.apache.commons.lang3.text.WordUtils to avoid an un-needed bundle import.
     * See https://commons.apache.org/proper/commons-lang/apidocs/src-html/org/apache/commons/lang3/text/WordUtils.html
     */
-   private static String capitalize(final String str, final char... delimiters) {
-      final int delimLen = delimiters == null ? -1 : delimiters.length;
-      if (isEmpty(str) || delimLen == 0) {
+   public static String capitalize(final String str, final char... delimiters) {
+//      final int delimLen = delimiters == null ? -1 : delimiters.length;
+      if (isEmpty(str)) {
          return str;
       }
       final char[] buffer = str.toCharArray();
@@ -150,8 +151,10 @@ public class CensusSurnameGenerator
       //       and applies additional delimiters as needed.
       if (Character.isWhitespace(ch))
          return true;
+      if (delimiters == null)
+         return false;
 
-      for (final char delimiter : delimiters) {
+      for (char delimiter : delimiters) {
          if (ch == delimiter) {
             return true;
          }
