@@ -3,12 +3,16 @@ package edu.tamu.tcat.trc.repo;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import edu.tamu.tcat.account.Account;
 
@@ -59,7 +63,7 @@ public interface DocumentRepository<RecordType, EditCommandType>
    // TODO use MD5 or SHA256 hashes to ensure data integrity, add crytography, etc. Use Jackson's SMILE format.
    // TODO Define simple integration with search/query system
    // TODO Provide simple property-based queries
-   
+
    /**
     * Releases all resources associated with this repository. This method must be called once
     * the repository is no longer needed in order to allow it to clean up any resources that
@@ -72,6 +76,18 @@ public interface DocumentRepository<RecordType, EditCommandType>
     * @throws RepositoryException For errors accessing the underlying data store.
     */
    Iterator<RecordType> listAll() throws RepositoryException;
+
+
+   /**
+    * @return A {@link Stream} over all items in this repository.
+    * @throws RepositoryException For errors accessing the underlying data store.
+    */
+   default Stream<RecordType> listAsStream() throws RepositoryException
+   {
+      return StreamSupport.stream(
+            Spliterators.spliteratorUnknownSize(listAll(), Spliterator.ORDERED),
+            false);
+   }
 
    Optional<RecordReference<RecordType>> getRecord(String id);
 
