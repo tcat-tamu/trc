@@ -50,7 +50,7 @@ public class CategorizationServiceFactory implements ServiceFactory<Categorizati
    public static final String ID_CONTEXT_NODES = "trc.services.categorization.nodes.ids";
 
    private static final String TABLE_NAME = "categorizations";
-   private static final String SCHEMA_DATA_FIELD = "data";
+//   private static final String SCHEMA_DATA_FIELD = "data";
 
    /**
     * The configuration properties key uses to supply an id factory context
@@ -197,14 +197,14 @@ public class CategorizationServiceFactory implements ServiceFactory<Categorizati
       {
          // TODO provide API on DocRepo to support more robust WHERE queries and projections
          // paired single quotes ('') are required due to escaping performed by MessageFormat
-         String sqlTemplate = "SELECT {0} AS json, {0}->>''strategy'' AS strategy"
+         String sqlTemplate = "SELECT data AS json, data->>''strategy'' AS strategy"
                              + " FROM {1} "
-                             + "WHERE {0}->>''key'' = ? "
-                               + "AND {0}->>''scopeId'' = ? "
+                             + "WHERE data->>''key'' = ? "
+                               + "AND data->>''scopeId'' = ? "
                                + treeRepo.buildNotRemovedClause();
 
          SqlExecutor sqlExecutor = repoRegistry.getSqlExecutor();
-         String sql = format(sqlTemplate, SCHEMA_DATA_FIELD, tableName);
+         String sql = format(sqlTemplate, tableName);
          Future<Optional<CategorizationScheme>> future = sqlExecutor.submit(
                (conn) -> doGetByKey(key, sql, conn));
 
