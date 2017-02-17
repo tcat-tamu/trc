@@ -18,6 +18,7 @@ import java.util.Objects;
  */
 public class EntryId
 {
+   // TODO ids should be able to tokenize themselves
    // TODO what about sub-parts, eg. a Volume of a work?
 
    private static final String TYPE = "type";
