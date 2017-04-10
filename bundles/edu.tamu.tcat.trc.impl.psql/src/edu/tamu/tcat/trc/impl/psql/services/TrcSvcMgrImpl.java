@@ -15,6 +15,7 @@ import edu.tamu.tcat.trc.impl.psql.services.categorization.CategorizationService
 import edu.tamu.tcat.trc.impl.psql.services.notes.NotesServiceFactory;
 import edu.tamu.tcat.trc.impl.psql.services.seealso.SeeAlsoServiceFactory;
 import edu.tamu.tcat.trc.services.ServiceContext;
+import edu.tamu.tcat.trc.services.ServiceFactory;
 import edu.tamu.tcat.trc.services.TrcServiceException;
 import edu.tamu.tcat.trc.services.TrcServiceManager;
 

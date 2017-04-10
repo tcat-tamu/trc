@@ -1,6 +1,7 @@
 package edu.tamu.tcat.trc.entries.core.repo;
 
 import java.net.URI;
+import java.util.Collection;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
@@ -21,6 +22,8 @@ public interface EntryRepositoryRegistry
     */
    URI getApiEndpoint();
 
+   Collection<RepositoryReference<?>> listRepositories();
+
    /**
     * Indicates whether a given repository has been registered
     *
@@ -36,11 +39,12 @@ public interface EntryRepositoryRegistry
     * @return The requested repository.
     * @throws IllegalArgumentException If no repository is registered for this type.
     */
-   <Repo> Repo getRepository(Account account, Class<Repo> type) throws IllegalArgumentException;
+   <Repo extends EntryRepository<?>> Repo getRepository(Account account, Class<Repo> type) throws IllegalArgumentException;
 
    /**
     * @return The configured {@link EntryResolverRegistry} to be used.
     */
+   @Deprecated // Use TrcApplicationContext
    EntryResolverRegistry getResolverRegistry();
 
 }

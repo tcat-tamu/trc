@@ -66,4 +66,12 @@ public interface EntryResolverRegistry
     * @throws InvalidReferenceException If the URI does cannot be resolved to an {@link EntryReference}.
     */
    <T> EntryReference<T> getReference(URI uri);
+
+   /**
+    * @param entry An TRC entry instance for which to obtain a reference
+    * @return An {@link EntryReference} for the supplied entry.
+    * @throws InvalidReferenceException If no registered resolver accepts
+    *       the supplied entry.
+    */
+   <T> EntryReference<T> getReference(T entry);
 }

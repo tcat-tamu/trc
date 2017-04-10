@@ -4,6 +4,7 @@ import java.net.URI;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
+import edu.tamu.tcat.trc.entries.core.repo.EntryRepository;
 import edu.tamu.tcat.trc.entries.core.repo.EntryRepositoryRegistry;
 import edu.tamu.tcat.trc.repo.id.IdFactory;
 import edu.tamu.tcat.trc.resolver.EntryId;
@@ -49,7 +50,7 @@ public interface TrcApplication
     * @return The requested repository.
     * @throws IllegalArgumentException If no repository is registered for this type.
     */
-   <Repo> Repo getRepository(Account account, Class<Repo> type) throws IllegalArgumentException;
+   <Repo extends EntryRepository<?>> Repo getRepository(Account account, Class<Repo> type) throws IllegalArgumentException;
 
    /**
     * @param ctx

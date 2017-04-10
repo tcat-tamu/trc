@@ -57,6 +57,12 @@ public class BasicResolverRegistry implements EntryResolverRegistry, EntryResolv
    }
 
    @Override
+   public <T> EntryReference<T> getReference(T entry)
+   {
+      return new EntryRefImpl<>(entry);
+   }
+
+   @Override
    @SuppressWarnings({ "unchecked", "rawtypes" })  // HACK: NOT TYPE SAFE
    public <T> EntryResolver<T> getResolver(EntryId ref) throws InvalidReferenceException
    {

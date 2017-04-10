@@ -4,7 +4,6 @@ import java.util.concurrent.CompletableFuture;
 
 import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.trc.impl.psql.entries.DbEntryRepositoryRegistry;
-import edu.tamu.tcat.trc.impl.psql.services.ServiceFactory;
 import edu.tamu.tcat.trc.impl.psql.services.bibref.model.ReferenceCollectionImpl;
 import edu.tamu.tcat.trc.impl.psql.services.bibref.repo.DataModelV1;
 import edu.tamu.tcat.trc.impl.psql.services.bibref.repo.EditBibliographyCommandFactory;
@@ -13,6 +12,7 @@ import edu.tamu.tcat.trc.repo.DocumentRepository;
 import edu.tamu.tcat.trc.resolver.EntryId;
 import edu.tamu.tcat.trc.resolver.EntryResolverRegistry;
 import edu.tamu.tcat.trc.services.ServiceContext;
+import edu.tamu.tcat.trc.services.ServiceFactory;
 import edu.tamu.tcat.trc.services.bibref.ReferenceCollection;
 import edu.tamu.tcat.trc.services.bibref.repo.EditBibliographyCommand;
 import edu.tamu.tcat.trc.services.bibref.repo.RefCollectionService;

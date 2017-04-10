@@ -104,10 +104,7 @@ public abstract class CategorizationImpl implements CategorizationScheme
          this.id = dto.id;
          this.label = dto.label;
          this.description = dto.description;
-         if (dto.ref != null)
-         {
-            this.ref = EntryId.fromMap(dto.ref);
-         }
+         this.ref = (dto.ref != null) ? EntryId.fromMap(dto.ref) : null;
       }
 
       @Override
