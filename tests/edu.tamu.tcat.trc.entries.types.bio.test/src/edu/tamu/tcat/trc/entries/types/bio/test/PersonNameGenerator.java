@@ -1,13 +1,11 @@
-package edu.tamu.tcat.trc.entries.types.bio.test.names;
+package edu.tamu.tcat.trc.entries.types.bio.test;
 
 import java.text.MessageFormat;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.types.bio.dto.PersonNameDTO;
-import edu.tamu.tcat.trc.entries.types.bio.test.NameGeneratorException;
-import edu.tamu.tcat.trc.entries.types.bio.test.names.CensusSurnameGenerator.Ethnicity;
+import edu.tamu.tcat.trc.entries.types.bio.test.CensusSurnameGenerator.Ethnicity;
 
 public class PersonNameGenerator
 {

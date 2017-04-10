@@ -24,7 +24,6 @@ import edu.tamu.tcat.account.Account;
 import edu.tamu.tcat.account.AccountException;
 import edu.tamu.tcat.account.login.LoginData;
 import edu.tamu.tcat.db.exec.sql.SqlExecutor;
-import edu.tamu.tcat.db.provider.DataSourceProvider;
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
 import edu.tamu.tcat.trc.auth.account.AccountNotAvailableException;
 import edu.tamu.tcat.trc.auth.account.EditTrcAccountCommand;
@@ -83,12 +82,12 @@ public class DbAcctDataStore implements TrcAccountDataStore
    {
       this.config = config;
    }
-   
+
    public void bindJaversProvider(JaversProvider javersProvider)
    {
       this.javersProvider = javersProvider;
    }
-   
+
    /**
     * Lifecycle management method (usually called by framework service layer)
     * Called when all dependencies have been provided and the service is ready to run.

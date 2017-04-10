@@ -1,4 +1,4 @@
-package edu.tamu.tcat.trc.entries.types.bio.test.names;
+package edu.tamu.tcat.trc.entries.types.bio.test;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -10,8 +10,6 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.WordUtils;
-
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
@@ -19,8 +17,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
 import edu.tamu.tcat.osgi.config.ConfigurationProperties;
-import edu.tamu.tcat.trc.entries.types.bio.test.NameGeneratorException;
-import edu.tamu.tcat.trc.entries.types.bio.test.WeightedObservationHeapSampler;
 
 public class CensusSurnameGenerator
 {
@@ -56,7 +52,6 @@ public class CensusSurnameGenerator
       }
    }
 
-
    private final WeightedObservationHeapSampler<CensusSurname> sampler;
    private int size = 1000;
    private Iterator<String> iterator;
@@ -88,7 +83,11 @@ public class CensusSurnameGenerator
 
          List<CensusSurname> records = new ArrayList<>();
          while (it.hasNext()) {
-            records.add(it.next());
+            CensusSurname next = it.next();
+            if (next.name.equalsIgnoreCase("ALL OTHER NAMES"))
+               continue;
+
+            records.add(next);
          }
          return records;
       }
@@ -114,7 +113,54 @@ public class CensusSurnameGenerator
          sampleNames();
 
       String name = iterator.next();
-      return WordUtils.capitalize(name.toLowerCase());
+      return capitalize(name.toLowerCase(), '\'');
+   }
+
+   /**
+    * Adapted from org.apache.commons.lang3.text.WordUtils to avoid an un-needed bundle import.
+    * See https://commons.apache.org/proper/commons-lang/apidocs/src-html/org/apache/commons/lang3/text/WordUtils.html
+    */
+   public static String capitalize(final String str, final char... delimiters) {
+//      final int delimLen = delimiters == null ? -1 : delimiters.length;
+      if (isEmpty(str)) {
+         return str;
+      }
+      final char[] buffer = str.toCharArray();
+      boolean capitalizeNext = true;
+      for (int i = 0; i < buffer.length; i++) {
+         final char ch = buffer[i];
+         if (isDelimiter(ch, delimiters)) {
+            capitalizeNext = true;
+         } else if (capitalizeNext) {
+            buffer[i] = Character.toTitleCase(ch);
+            capitalizeNext = false;
+         }
+      }
+
+      return new String(buffer);
+   }
+
+   private static boolean isEmpty(String str)
+   {
+      return str == null || str.trim().length() == 0;
+   }
+
+   private static boolean isDelimiter(final char ch, final char[] delimiters)
+   {
+      // NOTE: unlike Apache Commons' WordUtil, this always treats white space as a delimiter
+      //       and applies additional delimiters as needed.
+      if (Character.isWhitespace(ch))
+         return true;
+      if (delimiters == null)
+         return false;
+
+      for (char delimiter : delimiters) {
+         if (ch == delimiter) {
+            return true;
+         }
+      }
+
+      return false;
    }
 
    @JsonPropertyOrder

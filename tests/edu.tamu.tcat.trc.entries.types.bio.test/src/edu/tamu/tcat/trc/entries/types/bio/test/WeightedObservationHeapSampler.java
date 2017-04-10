@@ -35,7 +35,7 @@ public class WeightedObservationHeapSampler<T>
       List<WeightedItem<T>> temp = new ArrayList<>();
       temp.add(null);                                    // leave first element empty
       temp.addAll(items.parallelStream()
-                   .map(item -> new WeightedItem<T>(item, adapter))
+                   .map(item -> new WeightedItem<>(item, adapter))
                    .collect(Collectors.toList()));
       nodes = new WeightedItem[temp.size()];
       nodes = temp.toArray(nodes);
@@ -80,6 +80,8 @@ public class WeightedObservationHeapSampler<T>
     */
    public List<T> sampleWithoutReplacement(int k)
    {
+      // TODO need to update the way this works if we sample from a population. Remove a
+      //      single member of the population, rather than all members
       checkSampleSize(k, false);
 
       // clone the data so that multiple calls do not modify the source data

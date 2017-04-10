@@ -16,13 +16,16 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
-import edu.tamu.tcat.trc.entries.types.bio.test.names.CensusSurnameGenerator.CensusSurname;
+import edu.tamu.tcat.trc.entries.types.bio.test.CensusSurnameGenerator.CensusSurname;
 
 
 public class TestObservationSampler
 {
-   String surnameFile = "D:\\data\\us-names\\census\\surnames\\2010\\app_c.csv";
+   String surnameFile = "D:\\data\\us-names\\census\\surnames\\2010\\Names_2010Census.csv";
 
+   // Surnames: http://www.census.gov/topics/population/genealogy/data/2010_surnames.html
+   // Lookup By State: https://www.census.gov/geo/maps-data/data/nlt.html
+   // BabyNames: https://www.ssa.gov/oact/babynames/
    public TestObservationSampler()
    {
       // TODO Auto-generated constructor stub
@@ -43,22 +46,29 @@ public class TestObservationSampler
 
       List<CensusSurname> records = new ArrayList<>();
       while (it.hasNext()) {
-         records.add(it.next());
+         CensusSurname next = it.next();
+         if (next.name.equalsIgnoreCase("ALL OTHER NAMES"))
+            continue;
+
+         records.add(next);
       }
 
       Pattern flt = Pattern.compile("[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?");
       WeightedObservationHeapSampler<CensusSurname> sampler =
             new WeightedObservationHeapSampler<>(records, (surname) -> {
-               String pct = surname.pctapi;
-               return flt.matcher(pct).matches()
-                     ? surname.count * Double.parseDouble(pct)
-                     : 0;
+               return surname.count;
+//               String pct = surname.pctapi;
+//               return flt.matcher(pct).matches()
+//                     ? surname.count * Double.parseDouble(pct)
+//                     : 0;
             });
 
       long start = System.currentTimeMillis();
-      List<CensusSurname> samples = sampler.sampleWithReplacement(10_000);
-      List<String> names = samples.parallelStream().map((s) -> s.name).collect(Collectors.toList());
+      List<CensusSurname> samples = sampler.sampleWithReplacement(1000);
       long end = System.currentTimeMillis();
+      List<String> names = samples.parallelStream()
+            .map((s) -> CensusSurnameGenerator.capitalize(s.name.toLowerCase()))
+            .collect(Collectors.toList());
 
       System.out.println("Sample Creation Time: " + (end - start));
       names.forEach(System.out::println);
